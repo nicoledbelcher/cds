@@ -1,8 +1,9 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
-import { Button } from '../../../buttons';
+import { Button } from '../../../buttons/Button';
 import { useDimensions } from '../../../hooks/useDimensions';
+import { Text } from '../../../typography/Text';
 import { DefaultThemeProvider } from '../../../utils/testHelpers';
 import { Tooltip } from '../Tooltip';
 import type { TooltipPlacement, TooltipProps, UseTooltipPositionParams } from '../TooltipProps';
@@ -88,7 +89,7 @@ describe('Tooltip', () => {
         accessibilityLabel="test-a11y-label"
         onOpenTooltip={onOpenTooltip}
       >
-        <Button>{subjectText}</Button>
+        <Text>{subjectText}</Text>
       </MockTooltip>,
     );
 
@@ -126,5 +127,71 @@ describe('Tooltip', () => {
     expect(await screen.findByText(contentText)).toBeTruthy();
 
     jest.useRealTimers();
+  });
+  it('sets accessibilityRole to "button" with disabled state when triggerDisabled is true', () => {
+    render(
+      <MockTooltip triggerDisabled accessibilityHint="disabled-date-hint">
+        <Text>{subjectText}</Text>
+      </MockTooltip>,
+    );
+
+    const trigger = screen.getByAccessibilityHint('disabled-date-hint');
+    expect(trigger.props.accessibilityRole).toBe('button');
+    expect(trigger.props.accessibilityState).toEqual({ disabled: true });
+  });
+
+  it('sets accessibilityRole to "button" when triggerDisabled is false', () => {
+    render(
+      <MockTooltip accessibilityHint="enabled-date-hint" triggerDisabled={false}>
+        <Text>{subjectText}</Text>
+      </MockTooltip>,
+    );
+
+    const trigger = screen.getByAccessibilityHint('enabled-date-hint');
+    expect(trigger.props.accessibilityRole).toBe('button');
+  });
+
+  it('keeps TouchableOpacity interactive when triggerDisabled is true', async () => {
+    const onOpenTooltip = jest.fn();
+    render(
+      <MockTooltip
+        triggerDisabled
+        accessibilityHint="disabled-but-interactive-hint"
+        onOpenTooltip={onOpenTooltip}
+      >
+        <Text>{subjectText}</Text>
+      </MockTooltip>,
+    );
+
+    const wrapper = screen.getByAccessibilityHint('disabled-but-interactive-hint');
+    expect(wrapper.props.accessibilityRole).toBe('button');
+    expect(wrapper.props.accessibilityState).toEqual({ disabled: true });
+
+    const touchable = screen.getByText(subjectText);
+    fireEvent.press(touchable);
+
+    // Tooltip should still open for sighted users
+    expect(await screen.findByText(contentText)).toBeTruthy();
+    expect(onOpenTooltip).toHaveBeenCalled();
+  });
+
+  it('opens tooltip via onAccessibilityTap when triggerDisabled is true', async () => {
+    const onOpenTooltip = jest.fn();
+    render(
+      <MockTooltip
+        triggerDisabled
+        accessibilityHint="a11y-tap-hint"
+        accessibilityLabel="a11y-tap-label"
+        onOpenTooltip={onOpenTooltip}
+      >
+        <Text>{subjectText}</Text>
+      </MockTooltip>,
+    );
+
+    const wrapper = screen.getByAccessibilityHint('a11y-tap-hint');
+    fireEvent(wrapper, 'accessibilityTap');
+
+    expect(await screen.findByText(contentText)).toBeTruthy();
+    expect(onOpenTooltip).toHaveBeenCalled();
   });
 });

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import type { DimensionValue } from '@coinbase/cds-common';
 import { type DateInputValidationError } from '@coinbase/cds-common/dates/DateInputValidationError';
 
 import { InputLabel } from '../../controls/InputLabel';
@@ -10,39 +9,34 @@ import { HStack } from '../../layout';
 import { VStack } from '../../layout/VStack';
 import { Tooltip } from '../../overlays/tooltip/Tooltip';
 import { Text } from '../../typography/Text';
-import { DatePicker } from '../DatePicker';
+import { DatePicker, type DatePickerProps } from '../DatePicker';
 
-const today = new Date(new Date(2024, 7, 18).setHours(0, 0, 0, 0));
+const today = new Date(new Date().setHours(0, 0, 0, 0));
 const nextMonth15th = new Date(today.getFullYear(), today.getMonth() + 1, 15);
-const lastMonth15th = new Date(today.getFullYear(), today.getMonth() - 1, 15);
+const tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 
 const exampleProps = {
-  maxDate: nextMonth15th,
-  minDate: lastMonth15th,
   invalidDateError: 'Please enter a valid date',
   disabledDateError: 'Date unavailable',
   requiredError: 'This field is required',
 };
 
-const ExampleDatePicker = (props: {
-  labelNode?: React.ReactNode;
-  required?: boolean;
-  calendarIconButtonAccessibilityLabel?: string;
-  label?: string;
-  accessibilityLabel?: string;
-  width?: DimensionValue;
-  compact?: boolean;
-  labelVariant?: 'outside' | 'inside';
-}) => {
-  const [date, setDate] = useState<Date | null>(null);
+const ExampleDatePicker = ({
+  date,
+  ...props
+}: { date?: Date | null } & Omit<
+  DatePickerProps,
+  'date' | 'error' | 'onChangeDate' | 'onErrorDate'
+>) => {
+  const [dateValue, setDateValue] = useState<Date | null>(date ?? null);
   const [error, setError] = useState<DateInputValidationError | null>(null);
   return (
     <DatePicker
       {...exampleProps}
       {...props}
-      date={date}
+      date={dateValue}
       error={error}
-      onChangeDate={setDate}
+      onChangeDate={setDateValue}
       onErrorDate={setError}
     />
   );
@@ -124,6 +118,29 @@ export const FullExample = () => {
             width="fit-content"
           />
         </HStack>
+      </Example>
+      <Example title="DatePicker with seed date (next month)">
+        <ExampleDatePicker
+          calendarIconButtonAccessibilityLabel="Seed date calendar"
+          label="Event date"
+          seedDate={nextMonth15th}
+        />
+      </Example>
+      <Example title="DatePicker with pre-selected date (next month)">
+        <ExampleDatePicker
+          calendarIconButtonAccessibilityLabel="Seed date calendar"
+          date={nextMonth15th}
+          label="Event date"
+        />
+      </Example>
+      <Example title="DatePicker with minimum date of today">
+        <ExampleDatePicker
+          calendarIconButtonAccessibilityLabel="Open calendar"
+          disabledDateError="Future dates only"
+          invalidDateError="Future dates only"
+          label="Future date"
+          minDate={tomorrow}
+        />
       </Example>
     </ExampleScreen>
   );
