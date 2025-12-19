@@ -282,7 +282,7 @@ export const BannerWithLink = () => {
 
 export const CustomMargin = () => {
   return (
-    <VStack gap={2} marginX={-0.5}>
+    <VStack gap={2} paddingX={2}>
       <Text as="h1" display="block" font="title1">
         Global
       </Text>
@@ -339,6 +339,42 @@ export const CustomMargin = () => {
         variant="warning"
       />
       <Banner {...examplePropsWithMargin} styleVariant="inline" variant="error" />
+    </VStack>
+  );
+};
+
+export const ResponsiveMargin = () => {
+  return (
+    <VStack gap={2}>
+      <Text as="h1" display="block" font="title1">
+        Responsive marginX (resize viewport)
+      </Text>
+      <Text color="fgMuted" display="block" font="label2">
+        base/phone: marginX = -2 (bleeds). tablet/desktop: marginX = 0 (no bleed).
+      </Text>
+      <VStack background="bgPositiveWash" gap={3} paddingX={2}>
+        <Banner
+          {...exampleProps}
+          showDismiss
+          marginX={{ base: -2, tablet: 0, desktop: 0 }}
+          startIconAccessibilityLabel="Information"
+          styleVariant="global"
+          title="Global informational Message"
+          variant="informational"
+        >
+          {shortMessage}
+        </Banner>
+        <Banner
+          {...exampleProps}
+          marginX={{ base: -2, tablet: 0, desktop: 0 }}
+          startIconAccessibilityLabel="Warning"
+          styleVariant="inline"
+          title="Inline warning Message"
+          variant="warning"
+        >
+          {shortMessage}
+        </Banner>
+      </VStack>
     </VStack>
   );
 };

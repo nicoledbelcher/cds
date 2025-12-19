@@ -57,6 +57,54 @@ describe('Banner Actions', () => {
 });
 
 describe('Banner', () => {
+  it('does not apply bleed width or vertical flex-grow by default', () => {
+    render(<MockBanner testID={TEST_ID} />);
+
+    const banner = screen.getByTestId(TEST_ID);
+    const wrapper = banner.parentElement;
+
+    expect(wrapper).not.toBeNull();
+    const styleAttr = wrapper?.getAttribute('style') ?? '';
+    expect(styleAttr).not.toContain('calc(');
+    expect(styleAttr).not.toContain('flex-grow');
+  });
+
+  it('expands wrapper width when negative marginX is provided (bleeds past the container)', () => {
+    render(<MockBanner marginX={-1} testID={TEST_ID} />);
+
+    const banner = screen.getByTestId(TEST_ID);
+    const wrapper = banner.parentElement;
+
+    expect(wrapper).not.toBeNull();
+    expect(wrapper).toHaveStyle({ width: 'calc(100% + var(--space-1) + var(--space-1))' });
+  });
+
+  it('expands wrapper width when negative marginX is provided for showDismiss banners as well', () => {
+    render(<MockBanner marginX={-1} showDismiss testID={TEST_ID} />);
+
+    const collapsible = screen.getByTestId(`${TEST_ID}-collapsible`);
+    const wrapper = collapsible.parentElement;
+
+    expect(wrapper).not.toBeNull();
+    expect(wrapper).toHaveStyle({ width: 'calc(100% + var(--space-1) + var(--space-1))' });
+  });
+
+  it('supports responsive marginX by setting breakpoint width overrides', () => {
+    render(<MockBanner marginX={{ base: -1, tablet: 0 }} testID={TEST_ID} />);
+
+    const banner = screen.getByTestId(TEST_ID);
+    const wrapper = banner.parentElement;
+
+    expect(wrapper).not.toBeNull();
+
+    // Base should bleed
+    const styleAttr = wrapper?.getAttribute('style') ?? '';
+    expect(styleAttr).toContain('--width: calc(100% + var(--space-1) + var(--space-1))');
+
+    // Tablet should explicitly revert to 100% (because marginX.tablet = 0 overrides base)
+    expect(styleAttr).toContain('--tablet-width: 100%');
+  });
+
   it('can set className', () => {
     const customCss = css`
       padding: 5px;

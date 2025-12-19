@@ -193,6 +193,91 @@ export const Banner = memo(
         [margin, marginX, marginY, marginStart, marginEnd, marginTop, marginBottom],
       );
 
+      const wrapperWidth = useMemo(() => {
+        const normalizeNegativeSpace = (value: string | number | undefined) => {
+          if (value == null) return undefined;
+          const str = String(value);
+          if (!str.startsWith('-')) return undefined;
+          return str.slice(1);
+        };
+
+        const spaceVar = (spaceToken: string) => `var(--space-${spaceToken.replace('.', '_')})`;
+
+        const computeBleedWidth = (
+          effectiveMarginX: string | number | undefined,
+          effectiveMarginStart: string | number | undefined,
+          effectiveMarginEnd: string | number | undefined,
+        ) => {
+          // Prefer explicit start/end over marginX (which sets both sides).
+          const startSpaceToken =
+            normalizeNegativeSpace(effectiveMarginStart) ??
+            normalizeNegativeSpace(effectiveMarginX);
+          const endSpaceToken =
+            normalizeNegativeSpace(effectiveMarginEnd) ?? normalizeNegativeSpace(effectiveMarginX);
+
+          if (!startSpaceToken && !endSpaceToken) return '100%';
+
+          const start = startSpaceToken ? spaceVar(startSpaceToken) : '0px';
+          const end = endSpaceToken ? spaceVar(endSpaceToken) : '0px';
+          return `calc(100% + ${start} + ${end})`;
+        };
+
+        const toResponsiveObject = (value: unknown) => {
+          if (value == null) return {};
+          if (typeof value === 'object')
+            return value as {
+              base?: string | number;
+              phone?: string | number;
+              tablet?: string | number;
+              desktop?: string | number;
+            };
+          return { base: value as string | number };
+        };
+
+        const respMarginX = toResponsiveObject(marginX);
+        const respMarginStart = toResponsiveObject(marginStart);
+        const respMarginEnd = toResponsiveObject(marginEnd);
+
+        const baseWidth = computeBleedWidth(
+          respMarginX.base,
+          respMarginStart.base,
+          respMarginEnd.base,
+        );
+
+        const widthByBreakpoint: {
+          base: string;
+          phone?: string;
+          tablet?: string;
+          desktop?: string;
+        } = { base: baseWidth };
+
+        const computeForBreakpoint = (breakpoint: 'phone' | 'tablet' | 'desktop') => {
+          const hasOverride =
+            typeof respMarginX[breakpoint] !== 'undefined' ||
+            typeof respMarginStart[breakpoint] !== 'undefined' ||
+            typeof respMarginEnd[breakpoint] !== 'undefined';
+
+          if (!hasOverride) return;
+
+          widthByBreakpoint[breakpoint] = computeBleedWidth(
+            respMarginX[breakpoint] ?? respMarginX.base,
+            respMarginStart[breakpoint] ?? respMarginStart.base,
+            respMarginEnd[breakpoint] ?? respMarginEnd.base,
+          );
+        };
+
+        computeForBreakpoint('phone');
+        computeForBreakpoint('tablet');
+        computeForBreakpoint('desktop');
+
+        const hasResponsiveOverrides =
+          typeof widthByBreakpoint.phone !== 'undefined' ||
+          typeof widthByBreakpoint.tablet !== 'undefined' ||
+          typeof widthByBreakpoint.desktop !== 'undefined';
+
+        return hasResponsiveOverrides ? widthByBreakpoint : baseWidth;
+      }, [marginEnd, marginStart, marginX]);
+
       const borderBox = useMemo(
         () => <Box background={borderColor} pin="left" width={4} />,
         [borderColor],
@@ -201,7 +286,7 @@ export const Banner = memo(
       const content = (
         <Box
           position="relative"
-          width="100%"
+          width={showDismiss ? '100%' : wrapperWidth}
           {...(!showDismiss && marginStyles)}
           height="fit-content"
         >
@@ -301,7 +386,7 @@ export const Banner = memo(
           display="block"
           height="fit-content"
           position="relative"
-          width="100%"
+          width={wrapperWidth}
           {...marginStyles}
         >
           <Collapsible
