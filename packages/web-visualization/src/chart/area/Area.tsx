@@ -120,7 +120,7 @@ export const Area = memo<AreaProps>(
       if (!sourceData || sourceData.length === 0 || !xScale || !yScale) return '';
 
       // Get appropriate axis data based on layout
-      const categoryAxisIsX = layout === 'vertical';
+      const categoryAxisIsX = layout !== 'horizontal';
       const indexAxis = categoryAxisIsX ? xAxis : yAxis;
       const indexData =
         indexAxis?.data && Array.isArray(indexAxis.data) && typeof indexAxis.data[0] === 'number'

@@ -24,7 +24,7 @@ To start, pass in a series of data to the chart.
 
 ## Horizontal Bars
 
-To render horizontal bars, set the `layout` prop to `"vertical"`. In this layout, the Y axis becomes the categorical axis and the X axis becomes the value axis.
+To render horizontal bars, set the `layout` prop to `"horizontal"`. In this layout, the Y axis becomes the categorical axis and the X axis becomes the value axis.
 
 ```jsx live
 function HorizontalBars() {
@@ -46,7 +46,7 @@ function HorizontalBars() {
   return (
     <BarChart
       height={400}
-      layout="vertical"
+      layout="horizontal"
       series={[
         {
           id: 'seoul',
@@ -64,7 +64,6 @@ function HorizontalBars() {
       yAxis={{
         position: 'left',
         data: dataset.map((d) => d.month),
-        tickLabelFormatter: (val) => String(val),
       }}
     />
   );

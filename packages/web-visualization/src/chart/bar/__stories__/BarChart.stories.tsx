@@ -408,13 +408,12 @@ const HorizontalBars = () => {
       showYAxis
       height={400}
       inset={0}
-      layout="vertical"
+      layout="horizontal"
       series={[{ id: 'seoul', label: 'Seoul rainfall', data: dataset.map((d) => d.seoul) }]}
       xAxis={{ label: 'rainfall (mm)' }}
       yAxis={{
         position: 'left',
         data: dataset.map((d) => d.month),
-        tickLabelFormatter: (val) => String(val),
       }}
     />
   );

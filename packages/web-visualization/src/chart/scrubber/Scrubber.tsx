@@ -280,7 +280,7 @@ export const Scrubber = memo(
       }, [series, seriesIds]);
 
       const { dataValue, dataIndex } = useMemo(() => {
-        const categoryAxisIsX = layout === 'vertical';
+        const categoryAxisIsX = layout !== 'horizontal';
         const indexScale = (categoryAxisIsX ? getXScale() : getYScale()) as ChartScaleFunction;
         const indexAxis = categoryAxisIsX ? getXAxis() : getYAxis();
         if (!indexScale) return { dataValue: undefined, dataIndex: undefined };
@@ -332,7 +332,7 @@ export const Scrubber = memo(
         [series, filteredSeriesIds],
       );
 
-      const categoryAxisIsX = layout === 'vertical';
+      const categoryAxisIsX = layout !== 'horizontal';
       const indexScale = categoryAxisIsX ? getXScale() : getYScale();
       if (!indexScale) return null;
 

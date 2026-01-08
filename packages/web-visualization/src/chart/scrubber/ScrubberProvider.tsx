@@ -39,7 +39,7 @@ export const ScrubberProvider: React.FC<ScrubberProviderProps> = ({
 
   const getDataIndexFromPosition = useCallback(
     (mousePosition: number): number => {
-      const categoryAxisIsX = layout === 'vertical';
+      const categoryAxisIsX = layout !== 'horizontal';
       const categoryScale = (categoryAxisIsX ? getXScale() : getYScale()) as ChartScaleFunction;
       const categoryAxis = categoryAxisIsX ? getXAxis() : getYAxis();
 
@@ -161,7 +161,7 @@ export const ScrubberProvider: React.FC<ScrubberProviderProps> = ({
     (event: KeyboardEvent) => {
       if (!enableScrubbing) return;
 
-      const categoryAxisIsX = layout === 'vertical';
+      const categoryAxisIsX = layout !== 'horizontal';
       const categoryScale = (categoryAxisIsX ? getXScale() : getYScale()) as ChartScaleFunction;
       const categoryAxis = categoryAxisIsX ? getXAxis() : getYAxis();
 

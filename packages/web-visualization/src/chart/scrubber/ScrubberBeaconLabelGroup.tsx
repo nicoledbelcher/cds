@@ -158,7 +158,7 @@ export const ScrubberBeaconLabelGroup = memo<ScrubberBeaconLabelGroupProps>(
         .filter((info): info is NonNullable<typeof info> => info !== null);
     }, [labels, getSeries, getSeriesData, getXScale, getYScale]);
 
-    const categoryAxisIsX = layout === 'vertical';
+    const categoryAxisIsX = layout !== 'horizontal';
     const indexAxis = categoryAxisIsX ? getXAxis() : getYAxis();
     const indexScaleFallback = (categoryAxisIsX ? getXScale() : getYScale()) as ChartScaleFunction;
 

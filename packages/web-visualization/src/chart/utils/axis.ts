@@ -179,10 +179,14 @@ export const getCartesianAxisScale = ({
   let adjustedRange = range;
 
   // Determine if this axis needs range inversion for SVG coordinate system.
-  // For vertical layout: Y axis (value axis) needs inversion (higher values at top)
-  // For horizontal layout: Y axis (category axis) needs inversion (first category at top)
+  // SVG Y coordinates increase downward, so we need to invert for value axes
+  // where we want higher values at the top.
+  //
+  // For vertical layout: Y axis is the value axis → invert (higher values at top)
+  // For horizontal layout: Y axis is the category axis → don't invert (first category at top is natural)
   // X axis never needs inversion (left-to-right is natural for both layouts)
-  const shouldInvertRange = type === 'y';
+
+  const shouldInvertRange = type === 'y' && layout !== 'horizontal';
 
   if (shouldInvertRange) {
     adjustedRange = { min: adjustedRange.max, max: adjustedRange.min };
@@ -262,7 +266,7 @@ export const getCartesianAxisDomain = (
   // In vertical layout: X is category (index), Y is value (value)
   // In horizontal layout: Y is category (index), X is value (value)
   const isCategoryAxis =
-    (layout === 'vertical' && axisType === 'x') || (layout === 'horizontal' && axisType === 'y');
+    (layout !== 'horizontal' && axisType === 'x') || (layout === 'horizontal' && axisType === 'y');
   const seriesDomain = isCategoryAxis ? getChartDomain(series) : getChartRange(series);
 
   // If data sets the domain, use that instead of the series domain

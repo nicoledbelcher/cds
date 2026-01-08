@@ -6,9 +6,9 @@ import {
 } from '../axis';
 import {
   type CategoricalScale,
-  type NumericScale,
   getCategoricalScale,
   getNumericScale,
+  type NumericScale,
 } from '../scale';
 
 describe('getAxisTicksData', () => {
@@ -471,50 +471,43 @@ describe('getCartesianAxisScale', () => {
   const range = { min: 0, max: 400 };
   const dataDomain = { min: 0, max: 100 };
 
-  it('should invert y-axis range in horizontal layout (y is value axis)', () => {
+  it('should NOT invert y-axis range in horizontal layout (y is category axis)', () => {
     const scale = getCartesianAxisScale({
       type: 'y',
       range,
       dataDomain,
       layout: 'horizontal',
     });
-    // Y axis is inverted: min range maps to max domain
-    expect(scale(0)).toBe(400);
-    expect(scale(100)).toBe(0);
+    // Y axis is the category axis in horizontal layout - no inversion needed
+    // First category (index 0) at top (SVG y=0), last category at bottom (y=400)
+    expect(scale(0)).toBe(0);
+    expect(scale(100)).toBe(400);
   });
 
-  it('should NOT invert x-axis range in horizontal layout (x is category axis)', () => {
+  it('should NOT invert x-axis range in horizontal layout (x is value axis)', () => {
     const scale = getCartesianAxisScale({
       type: 'x',
       range,
       dataDomain,
       layout: 'horizontal',
     });
+    // X axis is the value axis in horizontal layout - no inversion needed (left-to-right is natural)
     expect(scale(0)).toBe(0);
     expect(scale(100)).toBe(400);
   });
 
-  it('should invert y-axis range in vertical layout (y is category axis)', () => {
+  it('should invert y-axis range in vertical layout (y is value axis)', () => {
     const scale = getCartesianAxisScale({
       type: 'y',
       range,
       dataDomain,
       layout: 'vertical',
     });
-    // Y axis (now category) is inverted: first category (0) at top (min range)
-    // Wait, the code says `type === 'y'` ALWAYS inverts range.
-    // In horizontal: y=value, inverted (0->400, 100->0).
-    // In vertical: y=category, inverted (0->400, 100->0).
-    // This places index 0 at the top (y=0) if range is {min:0, max:400}.
-    // Wait, if range is {min:0, max:400} and we invert, min becomes 400, max becomes 0.
-    // So scale(0) -> 400. That means index 0 is at BOTTOM.
-    // For Y axis in SVG, 0 is top. So scale(100) is at TOP, scale(0) is at BOTTOM.
-    // This is correct for VALUE axis (higher values at top).
-    // For CATEGORY axis (Y in vertical layout), we usually want index 0 at top.
-    // If we want index 0 at top, scale(0) should be 0.
-    // If scale(0) is 400, then index 0 is at bottom.
-    // Let's re-read the code logic in axis.ts.
+    // Y axis is the value axis in vertical layout - inversion needed
+    // Higher values should appear at top (lower SVG y coordinate)
+    // scale(0) -> 400 (bottom), scale(100) -> 0 (top)
     expect(scale(0)).toBe(400);
+    expect(scale(100)).toBe(0);
   });
 });
 

@@ -286,7 +286,7 @@ export const CartesianChart = memo(
 
       const dataLength = useMemo(() => {
         // Find which axis is the category axis
-        const categoryAxisIsX = layout === 'vertical';
+        const categoryAxisIsX = layout !== 'horizontal';
         const categoryAxisConfig = categoryAxisIsX ? xAxisConfig : (yAxisConfig[0] ?? xAxisConfig);
 
         // If category axis has categorical data, use that length

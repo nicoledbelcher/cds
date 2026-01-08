@@ -161,7 +161,7 @@ export const BarStack = memo<BarStackProps>(
     const stackMinSizePx = stackMinSize;
 
     const xAxis = getXAxis();
-    const barsGrowVertically = layout === 'vertical';
+    const barsGrowVertically = layout !== 'horizontal';
 
     const baseline = useMemo(() => {
       const domain = valueScale.domain();

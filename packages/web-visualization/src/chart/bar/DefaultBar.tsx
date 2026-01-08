@@ -42,7 +42,7 @@ export const DefaultBar = memo<DefaultBarProps>(
 
     const initialPath = useMemo(() => {
       if (!animate) return undefined;
-      const barsGrowVertically = layout === 'vertical';
+      const barsGrowVertically = layout !== 'horizontal';
       // Need a minimum size to allow for animation
       const minSize = 1;
 

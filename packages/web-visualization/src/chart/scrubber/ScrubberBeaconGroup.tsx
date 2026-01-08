@@ -75,7 +75,7 @@ const BeaconWithData = memo<{
         const yScale = getYScale(series?.yAxisId);
 
         if (xScale && yScale) {
-          const categoryAxisIsX = layout === 'vertical';
+          const categoryAxisIsX = layout !== 'horizontal';
           const gradientScale = gradient.axis === 'x' ? xScale : yScale;
           const stops = getGradientConfig(gradient, xScale, yScale);
 
@@ -117,7 +117,7 @@ const BeaconWithData = memo<{
 
     if (dataValue === undefined) return null;
 
-    const categoryAxisIsX = layout === 'vertical';
+    const categoryAxisIsX = layout !== 'horizontal';
 
     return (
       <BeaconComponent
@@ -208,7 +208,7 @@ export const ScrubberBeaconGroup = memo(
       }, [series, seriesIds]);
 
       const { dataValue, dataIndex } = useMemo(() => {
-        const categoryAxisIsX = layout === 'vertical';
+        const categoryAxisIsX = layout !== 'horizontal';
         const indexScale = (categoryAxisIsX ? getXScale() : getYScale()) as ChartScaleFunction;
         const indexAxis = categoryAxisIsX ? getXAxis() : getYAxis();
         if (!indexScale) return { dataValue: undefined, dataIndex: undefined };

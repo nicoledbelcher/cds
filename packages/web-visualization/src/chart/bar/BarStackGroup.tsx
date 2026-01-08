@@ -51,7 +51,7 @@ export const BarStackGroup = memo<BarStackGroupProps>(
     const stackConfigs = useMemo(() => {
       if (!xScale || !yScale || !drawingArea || dataLength === 0) return [];
 
-      const indexScale = layout === 'vertical' ? xScale : yScale;
+      const indexScale = layout !== 'horizontal' ? xScale : yScale;
 
       if (!isCategoricalScale(indexScale)) {
         return [];
@@ -89,15 +89,15 @@ export const BarStackGroup = memo<BarStackGroupProps>(
       return configs;
     }, [xScale, yScale, drawingArea, dataLength, stackIndex, totalStacks, barPadding]);
 
-    const indexScaleComputed = layout === 'vertical' ? xScale : yScale;
-    const valueScaleComputed = layout === 'vertical' ? yScale : xScale;
+    const indexScaleComputed = layout !== 'horizontal' ? xScale : yScale;
+    const valueScaleComputed = layout !== 'horizontal' ? yScale : xScale;
 
     if (indexScaleComputed && !isCategoricalScale(indexScaleComputed)) {
       throw new Error(
         `BarStackGroup requires a band scale for ${
-          layout === 'vertical' ? 'x-axis' : 'y-axis'
+          layout !== 'horizontal' ? 'x-axis' : 'y-axis'
         }. See https://cds.coinbase.com/components/graphs/${
-          layout === 'vertical' ? 'XAxis' : 'YAxis'
+          layout !== 'horizontal' ? 'XAxis' : 'YAxis'
         }/#scale-type`,
       );
     }

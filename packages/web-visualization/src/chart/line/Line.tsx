@@ -185,7 +185,7 @@ export const Line = memo<LineProps>(
       if (!xScale || !yScale || chartData.length === 0) return '';
 
       // Get appropriate axis data based on layout
-      const categoryAxisIsX = layout === 'vertical';
+      const categoryAxisIsX = layout !== 'horizontal';
       const indexAxis = categoryAxisIsX ? xAxis : yAxis;
       const indexData =
         indexAxis?.data && Array.isArray(indexAxis.data) && typeof indexAxis.data[0] === 'number'
@@ -240,7 +240,7 @@ export const Line = memo<LineProps>(
       };
     }, [gradient, xScale, yScale]);
 
-    const categoryAxisIsX = layout === 'vertical';
+    const categoryAxisIsX = layout !== 'horizontal';
 
     if (!xScale || !yScale || !path) return;
 

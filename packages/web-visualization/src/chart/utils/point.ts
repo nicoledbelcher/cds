@@ -115,7 +115,7 @@ export const projectPoints = ({
     }
 
     // Determine values/scales based on role (index vs value) and layout
-    const categoryAxisIsX = layout === 'vertical';
+    const categoryAxisIsX = layout !== 'horizontal';
 
     const indexScale = categoryAxisIsX ? xScale : yScale;
     const indexData = categoryAxisIsX ? xData : yData;

@@ -1,22 +1,22 @@
 import {
   area as d3Area,
   curveBumpX,
+  curveBumpY,
   curveCatmullRom,
   curveLinear,
   curveLinearClosed,
   curveMonotoneX,
+  curveMonotoneY,
   curveNatural,
   curveStep,
   curveStepAfter,
   curveStepBefore,
   line as d3Line,
-  curveMonotoneY,
-  curveBumpY,
 } from 'd3-shape';
 
+import type { CartesianChartLayout } from './context';
 import { getPointOnScale, projectPoint, projectPoints } from './point';
 import { type ChartScaleFunction, isCategoricalScale } from './scale';
-import type { CartesianChartLayout } from './context';
 
 export type ChartPathCurveType =
   | 'bump'
@@ -33,18 +33,20 @@ export type ChartPathCurveType =
  * Get the d3 curve function for a path.
  * See https://d3js.org/d3-shape/curve
  * @param curve - The curve type. Defaults to 'linear'.
- * @param layout - The chart layout. Defaults to 'horizontal'.
+ * @param layout - The chart layout. Defaults to 'vertical'.
  * @returns The d3 curve function.
  */
 export const getPathCurveFunction = (
   curve: ChartPathCurveType = 'linear',
-  layout: CartesianChartLayout = 'horizontal',
+  layout: CartesianChartLayout = 'vertical',
 ) => {
   switch (curve) {
     case 'catmullRom':
       return curveCatmullRom;
     case 'monotone':
-      return layout === 'vertical' ? curveMonotoneY : curveMonotoneX;
+      // For vertical layout, X is the independent axis (category/index), so use MonotoneX
+      // For horizontal layout, Y is the independent axis (category/index), so use MonotoneY
+      return layout !== 'horizontal' ? curveMonotoneX : curveMonotoneY;
     case 'natural':
       return curveNatural;
     case 'step':
@@ -54,7 +56,9 @@ export const getPathCurveFunction = (
     case 'stepAfter':
       return curveStepAfter;
     case 'bump':
-      return layout === 'vertical' ? curveBumpY : curveBumpX;
+      // For vertical layout, X is the independent axis (category/index), so use BumpX
+      // For horizontal layout, Y is the independent axis (category/index), so use BumpY
+      return layout !== 'horizontal' ? curveBumpX : curveBumpY;
     case 'linearClosed':
       return curveLinearClosed;
     case 'linear':
@@ -174,7 +178,7 @@ export const getAreaPath = ({
   }
 
   const curveFunction = getPathCurveFunction(curve, layout);
-  const categoryAxisIsX = layout === 'vertical';
+  const categoryAxisIsX = layout !== 'horizontal';
 
   // Determine baseline from the value scale
   const valueScale = categoryAxisIsX ? yScale : xScale;
@@ -303,7 +307,7 @@ export const getBarPath = (
   layout: CartesianChartLayout = 'vertical',
 ): string => {
   const roundBothSides = roundTop && roundBottom;
-  const barsGrowVertically = layout === 'vertical';
+  const barsGrowVertically = layout !== 'horizontal';
   const r = Math.min(radius, width / 2, roundBothSides ? height / 2 : height);
 
   // In vertical layout (bars grow up/down):

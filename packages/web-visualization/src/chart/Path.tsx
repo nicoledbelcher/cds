@@ -80,7 +80,7 @@ export const Path = memo<PathProps>(
 
     const clipPathAnimation = useMemo(() => {
       if (rect === null) return;
-      const categoryAxisIsX = context.layout === 'vertical';
+      const categoryAxisIsX = context.layout !== 'horizontal';
       const fullWidth = rect.width + totalOffset;
       const fullHeight = rect.height + totalOffset;
 
