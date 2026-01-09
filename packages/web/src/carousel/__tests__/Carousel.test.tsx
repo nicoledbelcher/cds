@@ -44,10 +44,38 @@ jest.mock('framer-motion', () => {
       start: jest.fn(),
       stop: jest.fn(),
     }),
-    useMotionValue: (initialValue: number) => ({
-      get: jest.fn(() => initialValue),
-      set: jest.fn(),
-    }),
+    useMotionValue: (initialValue: number) => {
+      let value = initialValue;
+      const listeners: Set<() => void> = new Set();
+      return {
+        get: jest.fn(() => value),
+        set: jest.fn((newValue: number) => {
+          value = newValue;
+          listeners.forEach((cb) => cb());
+        }),
+        on: jest.fn((event: string, callback: () => void) => {
+          listeners.add(callback);
+          return () => listeners.delete(callback);
+        }),
+        onChange: jest.fn((callback: () => void) => {
+          listeners.add(callback);
+          return () => listeners.delete(callback);
+        }),
+      };
+    },
+    useTransform: (motionValue: any, transformer: (value: number) => number) => {
+      const value = transformer(motionValue?.get?.() ?? 0);
+      return {
+        get: jest.fn(() => value),
+        set: jest.fn(),
+        on: jest.fn(() => () => {}),
+        onChange: jest.fn(() => () => {}),
+      };
+    },
+    wrap: (min: number, max: number, value: number) => {
+      const range = max - min;
+      return ((((value - min) % range) + range) % range) + min;
+    },
     useDragControls: () => ({
       start: jest.fn(),
     }),

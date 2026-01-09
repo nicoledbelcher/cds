@@ -436,6 +436,69 @@ const dotCss = css`
   }
 `;
 
+const LoopExamples = () => (
+  <VStack gap={4}>
+    <NegativeMargin>
+      <Carousel loop snapMode="page" styles={overflowStyles} title="Loop - Snap Page">
+        {sampleItems.slice(0, 6).map((item, index) => (
+          <CarouselItem
+            key={`loop-page-${index}`}
+            id={`loop-page-${index}`}
+            width="calc((100% - 2 * var(--space-2)) / 3)"
+          >
+            {item}
+          </CarouselItem>
+        ))}
+      </Carousel>
+    </NegativeMargin>
+    <NegativeMargin>
+      <Carousel loop snapMode="item" styles={overflowStyles} title="Loop - Snap Item">
+        {sampleItems.slice(0, 6).map((item, index) => (
+          <CarouselItem
+            key={`loop-item-${index}`}
+            id={`loop-item-${index}`}
+            width="calc((100% - 2 * var(--space-2)) / 3)"
+          >
+            {item}
+          </CarouselItem>
+        ))}
+      </Carousel>
+    </NegativeMargin>
+    <Carousel loop styles={gapOnlyStyles} title="Loop - Full Width Cards">
+      <CarouselItem id="loop-upsell-1" width="100%">
+        {({ isVisible }) => <SampleUpsellCard isVisible={isVisible} />}
+      </CarouselItem>
+      <CarouselItem id="loop-upsell-2" width="100%">
+        {({ isVisible }) => <SampleUpsellCard isVisible={isVisible} />}
+      </CarouselItem>
+      <CarouselItem id="loop-upsell-3" width="100%">
+        {({ isVisible }) => <SampleUpsellCard isVisible={isVisible} />}
+      </CarouselItem>
+    </Carousel>
+    <Carousel
+      drag="free"
+      loop
+      snapMode="item"
+      styles={gapOnlyStyles}
+      title="Loop - Free Drag with Square Items"
+    >
+      {Object.values(assets)
+        .slice(0, 8)
+        .map((asset) => (
+          <CarouselItem key={`loop-${asset.symbol}`} id={`loop-${asset.symbol}`}>
+            {({ isVisible }) => (
+              <SquareAssetCard
+                imageUrl={asset.imageUrl}
+                isVisible={isVisible}
+                name={asset.symbol}
+              />
+            )}
+          </CarouselItem>
+        ))}
+    </Carousel>
+  </VStack>
+);
+
 const AnimatedPaginationExample = () => {
   const ActionButton = ({
     isVisible,
@@ -522,8 +585,11 @@ const AnimatedPaginationExample = () => {
 export const All = () => (
   <VStack gap={2}>
     <BasicExamples />
+    <LoopExamples />
     <CustomComponentsExample />
     <CustomStylesExample />
     <AnimatedPaginationExample />
   </VStack>
 );
+
+export const Loop = () => <LoopExamples />;

@@ -14,12 +14,15 @@ import { RefMapContext } from '@coinbase/cds-common/system/RefMapContext';
 import type { Rect, SharedAccessibilityProps, SharedProps } from '@coinbase/cds-common/types';
 import { css } from '@linaria/core';
 import {
+  animate,
   domMax,
   LazyMotion,
   m,
   useAnimation,
   useDragControls,
   useMotionValue,
+  useTransform,
+  wrap,
 } from 'framer-motion';
 
 import { cx } from '../cx';
@@ -163,7 +166,7 @@ export type CarouselImperativeHandle = {
 
 export type CarouselBaseProps = SharedProps &
   SharedAccessibilityProps &
-  BoxBaseProps & {
+  Omit<BoxBaseProps, 'children'> & {
     /**
      * Children are required to be CarouselItems because we calculate
      * their offset relative to the parent container.
@@ -235,9 +238,15 @@ export type CarouselBaseProps = SharedProps &
      * Callback fired when the user ends dragging the carousel.
      */
     onDragEnd?: () => void;
+    /**
+     * Enables infinite looping of carousel items.
+     * When true, navigation wraps around at boundaries and items are
+     * visually cloned to create a seamless loop effect.
+     */
+    loop?: boolean;
   };
 
-export type CarouselProps = Omit<BoxProps<BoxDefaultElement>, 'title'> &
+export type CarouselProps = Omit<BoxProps<BoxDefaultElement>, 'children' | 'title'> &
   CarouselBaseProps & {
     /**
      * Custom class name for the root element.
@@ -421,6 +430,32 @@ const getSnapPageOffsets = (
 };
 
 /**
+ * Calculates the number of clone sets needed to fill the visible area for looping.
+ * @param containerWidth - The width of the container viewport.
+ * @param items - The items with their positions.
+ * @param contentWidth - The total width of all items.
+ * @returns The number of clone sets needed (minimum 1 for looping to work).
+ */
+const calcNumClones = (containerWidth: number, items: Rect[], contentWidth: number): number => {
+  if (items.length === 0 || containerWidth === 0 || contentWidth === 0) return 0;
+
+  const maxItemWidth = Math.max(...items.map((item) => item.width));
+
+  let count = 0;
+  let safeFillLength = 0;
+
+  // Keep adding clone sets until we've filled the visible area
+  while (safeFillLength < containerWidth) {
+    safeFillLength = contentWidth * (count + 1) - maxItemWidth;
+    count++;
+  }
+
+  // Always need at least 1 clone set for seamless looping -
+  // when scrolling past the original content, clones must be visible
+  return Math.max(count - 1, 1);
+};
+
+/**
  * Clamps an offset value with elastic resistance.
  * @param offset - The offset to clamp.
  * @param maxScrollOffset - The maximum offset.
@@ -494,6 +529,7 @@ export const Carousel = memo(
         onChangePage,
         onDragStart,
         onDragEnd,
+        loop = false,
         ...props
       }: CarouselProps,
       ref: React.ForwardedRef<CarouselImperativeHandle>,
@@ -507,6 +543,8 @@ export const Carousel = memo(
       const rootRef = useRef<HTMLDivElement>(null);
       const [containerWidth, setContainerWidth] = useState(0);
       const carouselItemRefMap = useRefMap<HTMLElement>();
+      // Separate ref map for clones to prevent them from affecting measurements
+      const cloneRefMap = useRefMap<HTMLElement>();
       const [carouselItemRects, setCarouselItemRects] = useState<{
         [itemId: string]: Rect;
       }>({});
@@ -579,6 +617,75 @@ export const Carousel = memo(
       const maxScrollOffset = Math.max(0, contentWidth - containerWidth);
       const hasDimensions = contentWidth > 0 && containerWidth > 0;
 
+      // Only enable looping if content is wider than container
+      const shouldLoop = loop && contentWidth > containerWidth;
+
+      // Calculate number of clone sets needed for seamless looping
+      const cloneCount = useMemo(() => {
+        if (!shouldLoop || containerWidth === 0 || contentWidth === 0) return 0;
+        const items =
+          Object.keys(carouselItemRects).length > 0 ? getItemOffsets(carouselItemRects) : [];
+        return calcNumClones(containerWidth, items, contentWidth);
+      }, [shouldLoop, containerWidth, contentWidth, carouselItemRects]);
+
+      // For bidirectional looping, we have:
+      // [Prepend Clones][Original Items][Append Clones]
+      // Physical positions: [0, CW), [CW, 2CW), [2CW, 3CW)
+      // To show originals at visual position 0, we need x = -CW
+      const loopBaseOffset = shouldLoop ? contentWidth : 0;
+
+      // Create wrapped scroll value for seamless visual looping
+      // The wrap range spans one full content cycle
+      const wrappedScrollX = useTransform(carouselScrollX, (x) => {
+        if (!shouldLoop || contentWidth === 0) return x;
+        // First wrap the raw offset within one cycle [0, contentWidth)
+        const wrapped = -wrap(0, contentWidth, -x);
+        // Then subtract loopBaseOffset to scroll past prepended clones
+        const final = wrapped - loopBaseOffset;
+        // Debug: Log when wrapping occurs
+        if (Math.abs(wrapped - x) > 1) {
+          console.log('[Carousel Wrap Debug]', {
+            rawOffset: x,
+            wrappedInCycle: wrapped,
+            finalOffset: final,
+            loopBaseOffset,
+            contentWidth,
+          });
+        }
+        return final;
+      });
+
+      // Debug logging for loop functionality
+      useEffect(() => {
+        if (loop) {
+          console.log('[Carousel Loop Debug]', {
+            loop,
+            shouldLoop,
+            contentWidth,
+            containerWidth,
+            cloneCount,
+            loopBaseOffset,
+            maxScrollOffset,
+            itemCount: Object.keys(carouselItemRects).length,
+            itemRects: carouselItemRects,
+            reason: !shouldLoop
+              ? contentWidth <= containerWidth
+                ? 'Content fits in container (no overflow)'
+                : 'Unknown'
+              : 'Loop enabled',
+          });
+        }
+      }, [
+        loop,
+        shouldLoop,
+        contentWidth,
+        containerWidth,
+        cloneCount,
+        loopBaseOffset,
+        maxScrollOffset,
+        carouselItemRects,
+      ]);
+
       const updateActivePageIndex = useCallback(
         (newPageIndexOrUpdater: number | ((prevIndex: number) => number)) => {
           setActivePageIndex((prevIndex) => {
@@ -633,17 +740,95 @@ export const Carousel = memo(
 
       const goToPage = useCallback(
         (page: number) => {
-          const newPage = Math.max(0, Math.min(totalPages - 1, page));
+          const currentPage = activePageIndex;
+          let newPage: number;
+
+          if (shouldLoop && totalPages > 0) {
+            // Wrap page index for looping (handles both negative and overflow)
+            newPage = ((page % totalPages) + totalPages) % totalPages;
+          } else {
+            newPage = Math.max(0, Math.min(totalPages - 1, page));
+          }
+
+          const currentScrollX = carouselScrollX.get();
+          const baseTargetOffset = pageOffsets[newPage];
+
+          // For looping, calculate the actual animation target
+          // If we're going "forward" past the last page, animate into the clone area
+          // If we're going "backward" before the first page, animate into negative clone area
+          let animationTarget: number;
+
+          if (shouldLoop) {
+            const isGoingForward =
+              page > currentPage ||
+              (page === 0 && currentPage === totalPages - 1 && page !== currentPage);
+            const isGoingBackward =
+              page < currentPage ||
+              (page === totalPages - 1 && currentPage === 0 && page !== currentPage);
+
+            if (isGoingForward && newPage === 0 && currentPage === totalPages - 1) {
+              // Wrapping forward: animate past the content, then wrap will handle visual
+              animationTarget = -(contentWidth + baseTargetOffset);
+            } else if (isGoingBackward && newPage === totalPages - 1 && currentPage === 0) {
+              // Wrapping backward: animate before the start
+              animationTarget = contentWidth - pageOffsets[totalPages - 1];
+            } else {
+              animationTarget = -baseTargetOffset;
+            }
+          } else {
+            animationTarget = -baseTargetOffset;
+          }
+
+          console.log('[Carousel goToPage Debug]', {
+            requestedPage: page,
+            currentPage,
+            newPage,
+            totalPages,
+            shouldLoop,
+            currentScrollX,
+            baseTargetOffset,
+            animationTarget,
+            pageOffsets,
+            contentWidth,
+            containerWidth,
+            direction: animationTarget < currentScrollX ? 'LEFT (←)' : 'RIGHT (→)',
+          });
+
           updateActivePageIndex(newPage);
-          const targetOffset = pageOffsets[newPage];
-          updateVisibleCarouselItems(targetOffset);
-          // Carousel needs to scroll to the left to view pages to the right
-          animationApi.start({
-            x: -targetOffset,
-            transition: { type: 'tween', duration: 0.25 },
+          updateVisibleCarouselItems(baseTargetOffset);
+
+          // Animate the motion value directly so the wrap transform can process it
+          animate(carouselScrollX, animationTarget, {
+            type: 'tween',
+            duration: 0.25,
+            onComplete: () => {
+              // After animation, normalize the raw position to match the visual position
+              // This prevents discontinuities on subsequent navigations
+              if (shouldLoop) {
+                // Account for loopBaseOffset in normalization
+                const normalizedOffset = -baseTargetOffset;
+                if (carouselScrollX.get() !== normalizedOffset) {
+                  console.log('[Carousel Normalize]', {
+                    before: carouselScrollX.get(),
+                    after: normalizedOffset,
+                  });
+                  carouselScrollX.set(normalizedOffset);
+                }
+              }
+            },
           });
         },
-        [totalPages, pageOffsets, animationApi, updateVisibleCarouselItems, updateActivePageIndex],
+        [
+          shouldLoop,
+          totalPages,
+          pageOffsets,
+          updateVisibleCarouselItems,
+          updateActivePageIndex,
+          carouselScrollX,
+          contentWidth,
+          containerWidth,
+          activePageIndex,
+        ],
       );
 
       useImperativeHandle(
@@ -724,8 +909,8 @@ export const Carousel = memo(
                   {!hideNavigation && (
                     <NavigationComponent
                       className={classNames?.navigation}
-                      disableGoNext={activePageIndex >= totalPages - 1}
-                      disableGoPrevious={activePageIndex <= 0}
+                      disableGoNext={!shouldLoop && activePageIndex >= totalPages - 1}
+                      disableGoPrevious={!shouldLoop && activePageIndex <= 0}
                       nextPageAccessibilityLabel={nextPageAccessibilityLabel}
                       onGoNext={() => goToPage(activePageIndex + 1)}
                       onGoPrevious={() => goToPage(activePageIndex - 1)}
@@ -768,14 +953,98 @@ export const Carousel = memo(
                     onDragEnd={handleDragEnd}
                     style={{
                       display: 'flex',
-                      x: carouselScrollX,
+                      x: shouldLoop ? wrappedScrollX : carouselScrollX,
                       ...styles?.carousel,
                     }}
                     whileDrag={{
                       pointerEvents: 'none',
                     }}
                   >
+                    {/* Prepended clones for left-side peek (rendered before originals) */}
+                    {shouldLoop &&
+                      cloneCount > 0 &&
+                      children &&
+                      Array.from({ length: cloneCount }).map((_, cloneSetIndex) => (
+                        <RefMapContext.Provider
+                          key={`prepend-clone-set-${cloneSetIndex}`}
+                          value={cloneRefMap}
+                        >
+                          {React.Children.map(children, (child, childIndex) => {
+                            if (!React.isValidElement(child)) return null;
+                            return React.cloneElement(
+                              child as React.ReactElement<CarouselItemProps>,
+                              {
+                                key: `prepend-clone-${cloneSetIndex}-${childIndex}`,
+                                id: `${child.props.id}-prepend-clone-${cloneSetIndex}`,
+                                // Debug: Add visual indicator to prepend clones (cyan)
+                                style: {
+                                  ...(child.props as any).style,
+                                  outline: '2px dashed cyan',
+                                },
+                              },
+                            );
+                          })}
+                        </RefMapContext.Provider>
+                      ))}
+                    {/* Debug: Visual indicator at prepend/original boundary */}
+                    {shouldLoop && cloneCount > 0 && (
+                      <div
+                        data-debug="prepend-boundary"
+                        style={{
+                          position: 'absolute',
+                          left: contentWidth * cloneCount,
+                          top: 0,
+                          bottom: 0,
+                          width: 2,
+                          background: 'cyan',
+                          zIndex: 100,
+                          pointerEvents: 'none',
+                        }}
+                      />
+                    )}
                     {children}
+                    {/* Debug: Visual indicator at original/append boundary */}
+                    {shouldLoop && cloneCount > 0 && (
+                      <div
+                        data-debug="append-boundary"
+                        style={{
+                          position: 'absolute',
+                          left: contentWidth * (cloneCount + 1),
+                          top: 0,
+                          bottom: 0,
+                          width: 2,
+                          background: 'orange',
+                          zIndex: 100,
+                          pointerEvents: 'none',
+                        }}
+                      />
+                    )}
+                    {/* Appended clones for right-side peek (rendered after originals) */}
+                    {shouldLoop &&
+                      cloneCount > 0 &&
+                      children &&
+                      Array.from({ length: cloneCount }).map((_, cloneSetIndex) => (
+                        <RefMapContext.Provider
+                          key={`append-clone-set-${cloneSetIndex}`}
+                          value={cloneRefMap}
+                        >
+                          {React.Children.map(children, (child, childIndex) => {
+                            if (!React.isValidElement(child)) return null;
+                            return React.cloneElement(
+                              child as React.ReactElement<CarouselItemProps>,
+                              {
+                                key: `append-clone-${cloneSetIndex}-${childIndex}`,
+                                id: `${child.props.id}-append-clone-${cloneSetIndex}`,
+                                // Debug: Add visual indicator to append clones (orange)
+                                style: {
+                                  ...(child.props as any).style,
+                                  outline: '2px dashed orange',
+                                },
+                              },
+                            );
+                          })}
+                        </RefMapContext.Provider>
+                      ))}
                   </m.div>
                 </CarouselContext.Provider>
               </div>
