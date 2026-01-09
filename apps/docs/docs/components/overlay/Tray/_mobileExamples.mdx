@@ -194,3 +194,80 @@ Note: The Tray component is built on top of the Drawer component and provides a 
 - The `ref` provides `open()` and `close()` methods for controlling the tray
 - Use `disablePanGesture` when implementing scrollable content
 - When transitioning between overlays, ensure proper dismounting using lifecycle methods
+
+### Pin Directions
+
+Trays can be pinned to any edge of the screen using the `pin` prop. The default is `bottom`.
+
+```tsx
+function PinDirectionTray() {
+  const [pin, setPin] = useState(null);
+  const handleClose = () => setPin(null);
+
+  return (
+    <VStack gap={2}>
+      <HStack gap={1} flexWrap="wrap">
+        <Button onPress={() => setPin('bottom')}>Bottom</Button>
+        <Button onPress={() => setPin('top')}>Top</Button>
+        <Button onPress={() => setPin('left')}>Left</Button>
+        <Button onPress={() => setPin('right')}>Right</Button>
+      </HStack>
+      {pin && (
+        <Tray title={`Pinned ${pin}`} pin={pin} onCloseComplete={handleClose}>
+          <VStack gap={2} padding={3}>
+            <Text>This tray is pinned to the {pin} of the screen.</Text>
+            <Text>
+              Side-pinned trays (left/right) are useful for navigation drawers or settings panels.
+            </Text>
+          </VStack>
+        </Tray>
+      )}
+    </VStack>
+  );
+}
+```
+
+### Custom Styling
+
+You can customize the appearance of different parts of the Tray using the `styles` prop.
+
+The Tray-specific style keys are:
+
+- `content` - The content area
+- `header` - The header section
+- `title` - The title text
+
+The Tray also inherits style keys from the Drawer component:
+
+- `root` - The root container
+- `overlay` - The overlay backdrop
+- `container` - The animated container
+- `drawer` - The drawer box
+
+```tsx
+function StyledTray() {
+  const [visible, setVisible] = useState(false);
+  const handleOpen = () => setVisible(true);
+  const handleClose = () => setVisible(false);
+
+  return (
+    <VStack gap={2}>
+      <Button onPress={handleOpen}>Open Styled Tray</Button>
+      {visible && (
+        <Tray
+          title="Custom Styled Tray"
+          onCloseComplete={handleClose}
+          styles={{
+            header: { backgroundColor: 'rgba(0, 0, 0, 0.05)' },
+            content: { paddingHorizontal: 16 },
+          }}
+        >
+          <VStack gap={2} padding={3}>
+            <Text>This tray has custom styles applied to its header and content areas.</Text>
+          </VStack>
+        </Tray>
+      )}
+    </VStack>
+  );
+}
+```

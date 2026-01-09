@@ -105,13 +105,39 @@ export type TrayBaseProps = {
 } & Pick<SharedAccessibilityProps, 'accessibilityLabel'>;
 
 export type TrayProps = TrayBaseProps & {
+  /** Inline styles for the tray elements */
   styles?: {
+    /** Styles for the root container element */
     root?: React.CSSProperties;
+    /** Styles for the overlay backdrop */
     overlay?: React.CSSProperties;
-    // content?: React.CSSProperties;
+    /** Styles for the animated sliding container */
+    container?: React.CSSProperties;
+    /** Styles for the header section */
     header?: React.CSSProperties;
+    /** Styles for the title text */
     title?: React.CSSProperties;
+    /** Styles for the content area */
+    content?: React.CSSProperties;
+    /** Styles for the footer section */
     footer?: React.CSSProperties;
+  };
+  /** Class names for the tray elements */
+  classNames?: {
+    /** Class name for the root container element */
+    root?: string;
+    /** Class name for the overlay backdrop */
+    overlay?: string;
+    /** Class name for the animated sliding container */
+    container?: string;
+    /** Class name for the header section */
+    header?: string;
+    /** Class name for the title text */
+    title?: string;
+    /** Class name for the content area */
+    content?: string;
+    /** Class name for the footer section */
+    footer?: string;
   };
 };
 
@@ -155,6 +181,7 @@ export const Tray = memo(
       closeAccessibilityLabel = 'Close',
       closeAccessibilityHint,
       styles,
+      classNames,
       zIndex,
       pin = 'bottom',
       ...props
@@ -228,8 +255,9 @@ export const Tray = memo(
         zIndex: 1,
         maxHeight: isSideTray ? undefined : verticalDrawerPercentageOfView,
         overflowY: 'auto',
+        ...styles?.container,
       }),
-      [isSideTray, verticalDrawerPercentageOfView],
+      [isSideTray, verticalDrawerPercentageOfView, styles?.container],
     );
 
     if (!isOpen) return null;
@@ -238,6 +266,7 @@ export const Tray = memo(
       <OverlayContentContext.Provider value={overlayContentContextValue}>
         <Portal containerId={trayContainerId}>
           <Box
+            className={classNames?.root}
             height="100vh"
             pin="all"
             position="fixed"
@@ -245,7 +274,12 @@ export const Tray = memo(
             width="100vw"
             zIndex={zIndex}
           >
-            <Overlay onClick={handleOverlayClick} style={styles?.overlay} testID="tray-overlay" />
+            <Overlay
+              className={classNames?.overlay}
+              onClick={handleOverlayClick}
+              style={styles?.overlay}
+              testID="tray-overlay"
+            />
             <FocusTrap
               focusTabIndexElements={focusTabIndexElements}
               onEscPress={preventDismiss ? undefined : handleClose}
@@ -258,11 +292,11 @@ export const Tray = memo(
                 borderTopLeftRadius={pin === 'left' || pin === 'top' ? 0 : 600}
                 borderTopRightRadius={pin === 'right' || pin === 'top' ? 0 : 600}
                 bordered={theme.activeColorScheme === 'dark'}
+                className={classNames?.container}
                 elevation={2}
                 initial={initialAnimationValue}
                 pin={pin}
                 style={animatedContainerStyle}
-                // TO DO: Styles prop integration
                 tabIndex={0}
               >
                 <VStack
@@ -278,18 +312,17 @@ export const Tray = memo(
                   onClick={handleTrayClick}
                   role={role}
                   width={isSideTray ? 'min(400px, 100vw)' : '100%'}
-                  // TO DO: Styles prop integration
                 >
                   <VStack
                     maxWidth={isSideTray ? undefined : '70em'}
                     paddingX={isSideTray ? 2 : 6}
                     width="100%"
-                    // TO DO: Styles prop integration
                   >
                     {!hideHeader && (
                       <HStack
                         alignItems="center"
                         background="bgElevation2"
+                        className={classNames?.header}
                         justifyContent={title ? 'space-between' : 'flex-end'}
                         paddingBottom={1}
                         paddingTop={3}
@@ -299,7 +332,7 @@ export const Tray = memo(
                       >
                         {title &&
                           (typeof title === 'string' ? (
-                            <Text font="title3" style={styles?.title}>
+                            <Text className={classNames?.title} font="title3" style={styles?.title}>
                               {title}
                             </Text>
                           ) : (
@@ -318,15 +351,21 @@ export const Tray = memo(
                       </HStack>
                     )}
                     <VStack
+                      className={classNames?.content}
                       minHeight={0}
                       paddingBottom={2}
                       paddingTop={1}
-                      // TO DO: Styles prop integration
+                      style={styles?.content}
                     >
                       {typeof children === 'function' ? children({ handleClose }) : children}
                     </VStack>
                     {footer && (
-                      <VStack background="bgElevation2" flexShrink={0} style={styles?.footer}>
+                      <VStack
+                        background="bgElevation2"
+                        className={classNames?.footer}
+                        flexShrink={0}
+                        style={styles?.footer}
+                      >
                         {footer}
                       </VStack>
                     )}
