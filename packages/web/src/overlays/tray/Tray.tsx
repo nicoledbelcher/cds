@@ -262,6 +262,11 @@ export const Tray = memo(
 
     if (!isOpen) return null;
 
+    // Web never had handle implemented, is this fine?
+    // When we have the side tray, they want a divider for scrolling, which we can show in an example
+    // But how do we handel bottom padding below example buttons? how does that work?
+    // What about back arrow on tray?
+    // Also note that we use 'title' in code already, not 'header'.
     return (
       <OverlayContentContext.Provider value={overlayContentContextValue}>
         <Portal containerId={trayContainerId}>
@@ -307,25 +312,29 @@ export const Tray = memo(
                   data-testid="tray"
                   height={isSideTray ? undefined : '100%'}
                   id={id}
-                  justifyContent={isSideTray ? undefined : 'center'}
-                  minHeight={isSideTray ? undefined : 200}
+                  minHeight={isSideTray ? undefined : 200 /* do we need this still? */}
                   onClick={handleTrayClick}
                   role={role}
                   width={isSideTray ? 'min(400px, 100vw)' : '100%'}
                 >
                   <VStack
+                    flexGrow={isSideTray ? 1 : undefined}
                     maxWidth={isSideTray ? undefined : '70em'}
-                    paddingX={isSideTray ? 2 : 6}
+                    paddingX={isSideTray ? 4 : 3}
                     width="100%"
                   >
                     {!hideHeader && (
                       <HStack
-                        alignItems="center"
+                        alignItems="flex-start"
                         background="bgElevation2"
                         className={classNames?.header}
                         justifyContent={title ? 'space-between' : 'flex-end'}
-                        paddingBottom={1}
-                        paddingTop={3}
+                        paddingBottom={2}
+                        paddingTop={
+                          isSideTray
+                            ? 4
+                            : 2 /* trying to reconcile existing tray specs with new ones, will sync with design */
+                        }
                         position="sticky"
                         style={styles?.header}
                         top={0}
@@ -343,6 +352,7 @@ export const Tray = memo(
                             transparent
                             accessibilityHint={closeAccessibilityHint}
                             accessibilityLabel={closeAccessibilityLabel}
+                            margin={-1.5}
                             name="close"
                             onClick={handleClose}
                             testID="tray-close-button"
@@ -352,9 +362,8 @@ export const Tray = memo(
                     )}
                     <VStack
                       className={classNames?.content}
+                      flexGrow={1}
                       minHeight={0}
-                      paddingBottom={2}
-                      paddingTop={1}
                       style={styles?.content}
                     >
                       {typeof children === 'function' ? children({ handleClose }) : children}

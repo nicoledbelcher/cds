@@ -1,3 +1,73 @@
+## Basics
+
+Tray will appear whenever included in DOM, and you can use `onCloseComplete` to clean up when the tray is dismissed.
+
+It is recommended to pin the tray to the right side of the screen on web.
+
+```jsx live
+function BasicTray() {
+  const [visible, setVisible] = useState(false);
+  const handleOpen = () => setVisible(true);
+  const handleClose = () => setVisible(false);
+
+  return (
+    <VStack gap={2}>
+      <Button onClick={handleOpen}>Open Tray</Button>
+      {visible && (
+        <Tray title="Example Title" pin="right" onCloseComplete={handleClose}>
+          {({ handleClose }) => (
+            <VStack gap={2} justifyContent="space-between" flexGrow={1} paddingBottom={1.5}>
+              <Text>This is the content of the tray.</Text>
+              <HStack justifyContent="flex-end">
+                <Button onClick={handleClose}>Close</Button>
+              </HStack>
+            </VStack>
+          )}
+        </Tray>
+      )}
+    </VStack>
+  );
+}
+```
+
+## Visibility
+
+### Closing
+
+todo: talk about using function for children and ref.
+
+#### Prevent Dismiss
+
+Using `preventDismiss` allows you to disable the default close functionality. Using this will prevent users from seeing the default close button and they won't be able to click outside of the Tray to close.
+
+Children of Tray can still use `handleClose`.
+
+```jsx live
+function BasicTray() {
+  const [visible, setVisible] = useState(false);
+  const handleOpen = () => setVisible(true);
+  const handleClose = () => setVisible(false);
+
+  return (
+    <VStack gap={2}>
+      <Button onClick={handleOpen}>Open Tray</Button>
+      {visible && (
+        <Tray title="Example Title" pin="right" preventDismiss onCloseComplete={handleClose}>
+          {({ handleClose }) => (
+            <VStack gap={2}>
+              <Text>You can only close this tray by clicking the close button.</Text>
+              <Button onClick={handleClose}>Close</Button>
+            </VStack>
+          )}
+        </Tray>
+      )}
+    </VStack>
+  );
+}
+```
+
+## Accessibility
+
 :::tip Accessibility tip
 
 **Labels**
@@ -5,6 +75,362 @@
 Trays require an accessibility label, which we set to `title` by default. However, if you don't want to provide a `title` or there's other text that gives the user better context to the tray, then you can pass an element id to `accessibilityLabelledBy`. Alternatively, you may directly provide a contextual label to `accessibilityLabel`.
 
 :::
+
+## Styling
+
+### Title
+
+You can pass in a custom node to title such as to add an illustration.
+
+```jsx live
+function CustomTitleTray() {
+  const [visible, setVisible] = useState(false);
+  const handleOpen = () => setVisible(true);
+  const handleClose = () => setVisible(false);
+
+  return (
+    <VStack gap={2}>
+      <Button onClick={handleOpen}>Open Tray</Button>
+      {visible && (
+        <Tray
+          title={
+            <VStack gap={2}>
+              <Pictogram name="addWallet" />
+              <Text font="title3">Header</Text>
+            </VStack>
+          }
+          pin="right"
+          onCloseComplete={handleClose}
+        >
+          {({ handleClose }) => (
+            <VStack gap={2} justifyContent="space-between" flexGrow={1} paddingBottom={1.5}>
+              <Text>This is the content of the tray.</Text>
+              <HStack justifyContent="flex-end">
+                <Button onClick={handleClose}>Close</Button>
+              </HStack>
+            </VStack>
+          )}
+        </Tray>
+      )}
+    </VStack>
+  );
+}
+```
+
+### Custom Image Header
+
+You can include a full-bleed custom image in the header by using negative margins to break out of the parent padding.
+
+```jsx live
+function CustomImageTray() {
+  const [visible, setVisible] = useState(false);
+  const handleOpen = () => setVisible(true);
+  const handleClose = () => setVisible(false);
+
+  return (
+    <VStack gap={2}>
+      <Button onClick={handleOpen}>Open Tray</Button>
+      {visible && (
+        <Tray
+          title={
+            <Box flexGrow={1}>
+              <VStack gap={2} marginTop={-4}>
+                <Box marginX={-4} marginRight={6}>
+                  <img
+                    src="https://cds.coinbase.com/img/card/content_card_rewards.png"
+                    alt="Rewards"
+                    style={{
+                      width: '100%',
+                      height: 220,
+                      objectFit: 'cover',
+                    }}
+                  />
+                </Box>
+                <Text font="title3">Header</Text>
+              </VStack>
+            </Box>
+          }
+          pin="right"
+          onCloseComplete={handleClose}
+        >
+          <VStack gap={2}>
+            <Text>This is the content of the tray.</Text>
+            <Button onClick={handleClose}>Close</Button>
+          </VStack>
+        </Tray>
+      )}
+    </VStack>
+  );
+}
+```
+
+### Pinning
+
+Trays can be pinned to any edge of the screen using the `pin` prop. The default is `bottom`.
+
+```jsx live
+function PinDirectionTray() {
+  const [pin, setPin] = useState(null);
+  const handleClose = () => setPin(null);
+
+  return (
+    <VStack gap={2}>
+      <HStack gap={1} flexWrap="wrap">
+        <Button onClick={() => setPin('bottom')}>Bottom (default)</Button>
+        <Button onClick={() => setPin('top')}>Top</Button>
+        <Button onClick={() => setPin('left')}>Left</Button>
+        <Button onClick={() => setPin('right')}>Right</Button>
+      </HStack>
+      {pin && (
+        <Tray title={`Pinned ${pin}`} pin={pin} onCloseComplete={handleClose}>
+          <VStack gap={2}>
+            <Text>This tray is pinned to the {pin} of the screen.</Text>
+            <Text>
+              Side-pinned trays (left/right) are useful for navigation drawers or settings panels.
+            </Text>
+          </VStack>
+        </Tray>
+      )}
+    </VStack>
+  );
+}
+```
+
+## Composed Examples
+
+### Filter Menu
+
+A composed `FilterTray` component for filter panels with scrollable content and sticky footer actions.
+
+```jsx live
+function FilterTrayExample() {
+  /**
+   * FilterTray - A composed Tray for filter/settings panels
+   *
+   * Features scrollable content area with sticky footer for actions.
+   * Pass `onSave` and `onClear` callbacks to handle the footer button actions.
+   */
+  function FilterTray({
+    title = 'Filters',
+    saveLabel = 'Save',
+    clearLabel = 'Clear',
+    onSave,
+    onClear,
+    children,
+    ...props
+  }) {
+    return (
+      <Tray
+        {...props}
+        title={title}
+        footer={
+          <HStack gap={2} paddingY={2}>
+            <Button variant="secondary" onClick={onClear} flexGrow={1}>
+              {clearLabel}
+            </Button>
+            <Button onClick={onSave} flexGrow={1}>
+              {saveLabel}
+            </Button>
+          </HStack>
+        }
+      >
+        {children}
+      </Tray>
+    );
+  }
+
+  // Example filter content
+  function FilterContent() {
+    const [categories, setCategories] = useState([]);
+    const [nearYou, setNearYou] = useState(false);
+    const [closeToGoal, setCloseToGoal] = useState(false);
+
+    const categoryOptions = [
+      'Nonprofit',
+      'Education',
+      'Animals',
+      'Environment',
+      'Business',
+      'Medical',
+      'Emergency',
+      'Community',
+    ];
+
+    const toggleCategory = (cat) => {
+      setCategories((prev) =>
+        prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat],
+      );
+    };
+
+    return (
+      <VStack gap={2}>
+        <HStack justifyContent="space-between" alignItems="center">
+          <Text font="headline">Near you</Text>
+          <Switch checked={nearYou} onChange={() => setNearYou((prev) => !prev)} />
+        </HStack>
+
+        <Divider marginX={-4} />
+
+        <VStack gap={1.5}>
+          <Text font="headline">Category</Text>
+          <Text font="body2" color="fgMuted">
+            Choose one or more
+          </Text>
+          <HStack gap={1} flexWrap="wrap">
+            {categoryOptions.map((cat) => (
+              <Chip
+                key={cat}
+                onClick={() => toggleCategory(cat)}
+                inverted={categories.includes(cat)}
+              >
+                {cat}
+              </Chip>
+            ))}
+          </HStack>
+        </VStack>
+
+        <Divider marginX={-4} />
+
+        <HStack justifyContent="space-between" alignItems="center">
+          <VStack gap={0.25}>
+            <Text font="headline">Close to goal</Text>
+            <Text font="body2" color="fgMuted">
+              $50 or less needed
+            </Text>
+          </VStack>
+          <Switch checked={closeToGoal} onChange={setCloseToGoal} />
+        </HStack>
+      </VStack>
+    );
+  }
+
+  function Example() {
+    const [visible, setVisible] = useState(false);
+    const handleOpen = () => setVisible(true);
+    const handleClose = () => setVisible(false);
+
+    const handleSave = () => {
+      // Handle save logic here
+      handleClose();
+    };
+
+    const handleClear = () => {
+      // Handle clear logic here
+    };
+
+    return (
+      <VStack gap={2}>
+        <Button onClick={handleOpen}>Open Filters</Button>
+        {visible && (
+          <FilterTray
+            pin="right"
+            onCloseComplete={handleClose}
+            onSave={handleSave}
+            onClear={handleClear}
+            saveLabel="See results"
+            clearLabel="Reset"
+          >
+            <FilterContent />
+          </FilterTray>
+        )}
+      </VStack>
+    );
+  }
+
+  return <Example />;
+}
+```
+
+### Floating Tray
+
+A composed `FloatingTray` component that wraps `Tray` with customizable floating behavior.
+
+```jsx live
+function FloatingTrayExample() {
+  /**
+   * FloatingTray - A composed Tray component with floating panel styling
+   *
+   */
+  function FloatingTray({ pin = 'right', offset = '2', borderRadius = '600', styles, ...props }) {
+    const theme = useTheme();
+
+    const offsetPx = theme.space[offset];
+    const borderRadiusVar = `var(--borderRadius-${borderRadius})`;
+
+    const floatingInsets = useMemo(() => {
+      switch (pin) {
+        case 'right':
+          return { top: offsetPx, bottom: offsetPx, right: offsetPx };
+        case 'left':
+          return { top: offsetPx, bottom: offsetPx, left: offsetPx };
+        case 'top':
+          return { top: offsetPx, left: offsetPx, right: offsetPx };
+        case 'bottom':
+          return { bottom: offsetPx, left: offsetPx, right: offsetPx };
+        default:
+          return { top: offsetPx, bottom: offsetPx, right: offsetPx };
+      }
+    }, [pin, offsetPx]);
+
+    return (
+      <Tray
+        {...props}
+        pin={pin}
+        styles={{
+          ...styles,
+          container: {
+            ...floatingInsets,
+            // All corners rounded since the tray is floating (not flush to edge)
+            borderRadius: borderRadiusVar,
+            ...styles?.container,
+          },
+        }}
+      />
+    );
+  }
+
+  function Example({ label = 'Bottom (default)', direction = 'right' }) {
+    const [visible, setVisible] = useState(false);
+    const handleOpen = () => setVisible(true);
+    const handleClose = () => setVisible(false);
+
+    return (
+      <VStack gap={2}>
+        <Button onClick={handleOpen}>Open {direction}</Button>
+        {visible && (
+          <FloatingTray
+            title="Floating Panel"
+            pin={direction}
+            offset="2"
+            borderRadius="600"
+            onCloseComplete={handleClose}
+          >
+            {({ handleClose }) => (
+              <VStack gap={2} justifyContent="space-between" flexGrow={1} paddingBottom={1.5}>
+                <Text>This Tray is floating and not touching the edge of the screen.</Text>
+                <HStack justifyContent="flex-end">
+                  <Button onClick={handleClose}>Close</Button>
+                </HStack>
+              </VStack>
+            )}
+          </FloatingTray>
+        )}
+      </VStack>
+    );
+  }
+
+  return (
+    <HStack gap={2} flexWrap="wrap">
+      <Example />
+      <Example direction="left" label="Left" />
+      <Example direction="top" label="Top" />
+      <Example direction="bottom" label="Bottom" />
+    </HStack>
+  );
+}
+```
+
+## Old Docs
 
 ### Basic usage with Callback
 
