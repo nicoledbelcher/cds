@@ -1,16 +1,38 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useCartesianChartContext } from '../ChartProvider';
-import { isCategoricalScale, ScrubberContext, type ScrubberContextValue } from '../utils';
+import {
+  isCategoricalScale,
+  ScrubberContext,
+  type ScrubberContextValue,
+  type ScrubbingMode,
+} from '../utils';
 
-export type ScrubberProviderProps = Partial<
-  Pick<ScrubberContextValue, 'enableScrubbing' | 'onScrubberPositionChange'>
-> & {
+export type ScrubberProviderProps = {
   children: React.ReactNode;
   /**
    * A reference to the root SVG element, where interaction event handlers will be attached.
    */
   svgRef: React.RefObject<SVGSVGElement> | null;
+  /**
+   * Enables scrubbing interactions.
+   */
+  enableScrubbing?: boolean;
+  /**
+   * The scrubbing mode.
+   * - 'single': Single touch/pointer tracking (default)
+   * - 'multi': Multiple touch tracking for comparison
+   * @default 'single'
+   */
+  scrubbingMode?: 'single' | 'multi';
+  /**
+   * Callback fired when the scrubber position changes.
+   * In single mode, receives a single index or undefined.
+   * In multi mode, receives an array of indices or undefined.
+   */
+  onScrubberPositionChange?:
+    | ((index: number | undefined) => void)
+    | ((indices: (number | undefined)[] | undefined) => void);
 };
 
 /**
@@ -21,6 +43,7 @@ export const ScrubberProvider: React.FC<ScrubberProviderProps> = ({
   children,
   svgRef,
   enableScrubbing,
+  scrubbingMode = 'single',
   onScrubberPositionChange,
 }) => {
   const chartContext = useCartesianChartContext();
@@ -31,6 +54,9 @@ export const ScrubberProvider: React.FC<ScrubberProviderProps> = ({
 
   const { getXScale, getXAxis, series } = chartContext;
   const [scrubberPosition, setScrubberPosition] = useState<number | undefined>(undefined);
+  const [additionalScrubberPositions, setAdditionalScrubberPositions] = useState<
+    (number | undefined)[]
+  >([]);
 
   const getDataIndexFromX = useCallback(
     (mouseX: number): number => {
@@ -87,6 +113,29 @@ export const ScrubberProvider: React.FC<ScrubberProviderProps> = ({
     [getXScale, getXAxis],
   );
 
+  // Fire the callback based on the current mode
+  const firePositionCallback = useCallback(
+    (primary: number | undefined, additional: (number | undefined)[]) => {
+      if (!onScrubberPositionChange) return;
+
+      if (scrubbingMode === 'multi') {
+        if (primary === undefined) {
+          (onScrubberPositionChange as (indices: (number | undefined)[] | undefined) => void)(
+            undefined,
+          );
+        } else {
+          (onScrubberPositionChange as (indices: (number | undefined)[] | undefined) => void)([
+            primary,
+            ...additional,
+          ]);
+        }
+      } else {
+        (onScrubberPositionChange as (index: number | undefined) => void)(primary);
+      }
+    },
+    [onScrubberPositionChange, scrubbingMode],
+  );
+
   const handlePointerMove = useCallback(
     (clientX: number, target: SVGSVGElement) => {
       if (!enableScrubbing || !series || series.length === 0) return;
@@ -98,10 +147,17 @@ export const ScrubberProvider: React.FC<ScrubberProviderProps> = ({
 
       if (dataIndex !== scrubberPosition) {
         setScrubberPosition(dataIndex);
-        onScrubberPositionChange?.(dataIndex);
+        firePositionCallback(dataIndex, additionalScrubberPositions);
       }
     },
-    [enableScrubbing, series, getDataIndexFromX, scrubberPosition, onScrubberPositionChange],
+    [
+      enableScrubbing,
+      series,
+      getDataIndexFromX,
+      scrubberPosition,
+      additionalScrubberPositions,
+      firePositionCallback,
+    ],
   );
 
   const handleMouseMove = useCallback(
@@ -115,31 +171,95 @@ export const ScrubberProvider: React.FC<ScrubberProviderProps> = ({
   const handleTouchMove = useCallback(
     (event: TouchEvent) => {
       if (!event.touches.length) return;
+      if (!enableScrubbing || !series || series.length === 0) return;
+
       // Prevent scrolling while scrubbing
       event.preventDefault();
-      const touch = event.touches[0];
+
       const target = event.currentTarget as SVGSVGElement;
-      handlePointerMove(touch.clientX, target);
+      const rect = target.getBoundingClientRect();
+
+      // Always process the first touch as primary
+      const primaryTouch = event.touches[0];
+      const primaryX = primaryTouch.clientX - rect.left;
+      const primaryDataIndex = getDataIndexFromX(primaryX);
+
+      // Process additional touches in multi mode
+      let newAdditionalPositions: (number | undefined)[] = [];
+      if (scrubbingMode === 'multi' && event.touches.length > 1) {
+        for (let i = 1; i < event.touches.length; i++) {
+          const touch = event.touches[i];
+          const touchX = touch.clientX - rect.left;
+          const dataIndex = getDataIndexFromX(touchX);
+          newAdditionalPositions.push(dataIndex);
+        }
+      }
+
+      // Check if positions changed
+      const primaryChanged = primaryDataIndex !== scrubberPosition;
+      const additionalChanged =
+        scrubbingMode === 'multi' &&
+        (newAdditionalPositions.length !== additionalScrubberPositions.length ||
+          newAdditionalPositions.some((pos, i) => pos !== additionalScrubberPositions[i]));
+
+      if (primaryChanged || additionalChanged) {
+        setScrubberPosition(primaryDataIndex);
+        if (scrubbingMode === 'multi') {
+          setAdditionalScrubberPositions(newAdditionalPositions);
+        }
+        firePositionCallback(primaryDataIndex, newAdditionalPositions);
+      }
     },
-    [handlePointerMove],
+    [
+      enableScrubbing,
+      series,
+      getDataIndexFromX,
+      scrubbingMode,
+      scrubberPosition,
+      additionalScrubberPositions,
+      firePositionCallback,
+    ],
   );
 
   const handleTouchStart = useCallback(
     (event: TouchEvent) => {
       if (!enableScrubbing || !event.touches.length) return;
-      // Handle initial touch
-      const touch = event.touches[0];
+      if (!series || series.length === 0) return;
+
       const target = event.currentTarget as SVGSVGElement;
-      handlePointerMove(touch.clientX, target);
+      const rect = target.getBoundingClientRect();
+
+      // Handle initial touch
+      const primaryTouch = event.touches[0];
+      const primaryX = primaryTouch.clientX - rect.left;
+      const primaryDataIndex = getDataIndexFromX(primaryX);
+
+      // Process additional touches in multi mode
+      let newAdditionalPositions: (number | undefined)[] = [];
+      if (scrubbingMode === 'multi' && event.touches.length > 1) {
+        for (let i = 1; i < event.touches.length; i++) {
+          const touch = event.touches[i];
+          const touchX = touch.clientX - rect.left;
+          const dataIndex = getDataIndexFromX(touchX);
+          newAdditionalPositions.push(dataIndex);
+        }
+      }
+
+      setScrubberPosition(primaryDataIndex);
+      if (scrubbingMode === 'multi') {
+        setAdditionalScrubberPositions(newAdditionalPositions);
+      }
+      firePositionCallback(primaryDataIndex, newAdditionalPositions);
     },
-    [enableScrubbing, handlePointerMove],
+    [enableScrubbing, series, getDataIndexFromX, scrubbingMode, firePositionCallback],
   );
 
   const handlePointerLeave = useCallback(() => {
     if (!enableScrubbing) return;
     setScrubberPosition(undefined);
-    onScrubberPositionChange?.(undefined);
-  }, [enableScrubbing, onScrubberPositionChange]);
+    setAdditionalScrubberPositions([]);
+    firePositionCallback(undefined, []);
+  }, [enableScrubbing, firePositionCallback]);
 
   const handleMouseLeave = handlePointerLeave;
   const handleTouchEnd = handlePointerLeave;
@@ -158,14 +278,12 @@ export const ScrubberProvider: React.FC<ScrubberProviderProps> = ({
       // Determine the actual data indices we can navigate to
       let minIndex: number;
       let maxIndex: number;
-      let dataPoints: number | undefined;
 
       if (isBand) {
         // For categorical scales, use the categories
         const categories = xScale.domain?.() ?? xAxis.data ?? [];
         minIndex = 0;
         maxIndex = Math.max(0, categories.length - 1);
-        dataPoints = categories.length;
       } else {
         // For numeric scales, check if we have specific data points
         const axisData = xAxis.data;
@@ -173,13 +291,11 @@ export const ScrubberProvider: React.FC<ScrubberProviderProps> = ({
           // We have specific data points - use their indices
           minIndex = 0;
           maxIndex = Math.max(0, axisData.length - 1);
-          dataPoints = axisData.length;
         } else {
           // Fall back to domain-based navigation for continuous scales without specific data
           const domain = xAxis.domain;
           minIndex = domain.min ?? 0;
           maxIndex = domain.max ?? 0;
-          dataPoints = maxIndex - minIndex + 1;
         }
       }
 
@@ -219,17 +335,26 @@ export const ScrubberProvider: React.FC<ScrubberProviderProps> = ({
 
       if (newIndex !== scrubberPosition) {
         setScrubberPosition(newIndex);
-        onScrubberPositionChange?.(newIndex);
+        // Keyboard navigation only affects primary position
+        firePositionCallback(newIndex, additionalScrubberPositions);
       }
     },
-    [enableScrubbing, getXScale, getXAxis, scrubberPosition, onScrubberPositionChange],
+    [
+      enableScrubbing,
+      getXScale,
+      getXAxis,
+      scrubberPosition,
+      additionalScrubberPositions,
+      firePositionCallback,
+    ],
   );
 
   const handleBlur = useCallback(() => {
     if (!enableScrubbing || scrubberPosition === undefined) return;
     setScrubberPosition(undefined);
-    onScrubberPositionChange?.(undefined);
-  }, [enableScrubbing, onScrubberPositionChange, scrubberPosition]);
+    setAdditionalScrubberPositions([]);
+    firePositionCallback(undefined, []);
+  }, [enableScrubbing, scrubberPosition, firePositionCallback]);
 
   // Attach event listeners to SVG element
   useEffect(() => {
@@ -272,10 +397,12 @@ export const ScrubberProvider: React.FC<ScrubberProviderProps> = ({
   const contextValue: ScrubberContextValue = useMemo(
     () => ({
       enableScrubbing: !!enableScrubbing,
+      scrubbingMode,
       scrubberPosition,
+      additionalScrubberPositions,
       onScrubberPositionChange: setScrubberPosition,
     }),
-    [enableScrubbing, scrubberPosition],
+    [enableScrubbing, scrubbingMode, scrubberPosition, additionalScrubberPositions],
   );
 
   return <ScrubberContext.Provider value={contextValue}>{children}</ScrubberContext.Provider>;

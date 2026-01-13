@@ -29,6 +29,7 @@ import {
   accessoryFadeTransitionDuration,
   type ChartInset,
   getPointOnSerializableScale,
+  type ScrubbingMode,
   type Series,
   useScrubberContext,
 } from '../utils';
@@ -174,8 +175,16 @@ export type ScrubberBaseProps = Pick<ScrubberBeaconGroupBaseProps, 'idlePulse'> 
     /**
      * Label text displayed above the scrubber line.
      * Can be a static string or a function that receives the current dataIndex.
+     * In multi mode with two positions, use `multiLabel` instead.
      */
     label?: string | SkParagraph | ((dataIndex: number) => string | SkParagraph);
+    /**
+     * Label text for multi-touch mode when two scrubber lines are shown.
+     * Receives an array of dataIndices (sorted by value) and should return a range label.
+     * The label will be centered between the two scrubber lines.
+     * @example (indices) => `${formatDate(indices[0])} - ${formatDate(indices[1])}`
+     */
+    multiLabel?: (dataIndices: number[]) => string | SkParagraph;
     /**
      * Font style for the scrubber line label.
      */
@@ -194,6 +203,11 @@ export type ScrubberBaseProps = Pick<ScrubberBeaconGroupBaseProps, 'idlePulse'> 
      */
     lineStroke?: ReferenceLineBaseProps['stroke'];
     /**
+     * Stroke color for secondary scrubber lines in multi mode.
+     * Defaults to lineStroke if not specified.
+     */
+    secondaryLineStroke?: ReferenceLineBaseProps['stroke'];
+    /**
      * Transition configuration for the scrubber beacon.
      */
     beaconTransitions?: ScrubberBeaconProps['transitions'];
@@ -202,6 +216,21 @@ export type ScrubberBaseProps = Pick<ScrubberBeaconGroupBaseProps, 'idlePulse'> 
 export type ScrubberProps = ScrubberBaseProps;
 
 export type ScrubberRef = ScrubberBeaconGroupRef;
+
+/**
+ * Helper to convert a data index to a dataX value for the scale
+ */
+const getDataXFromIndex = (
+  dataIndex: number,
+  xAxis: ReturnType<ReturnType<typeof useCartesianChartContext>['getXAxis']>,
+): number => {
+  'worklet';
+  if (xAxis?.data && Array.isArray(xAxis.data) && xAxis.data[dataIndex] !== undefined) {
+    const dataValue = xAxis.data[dataIndex];
+    return typeof dataValue === 'string' ? dataIndex : dataValue;
+  }
+  return dataIndex;
+};
 
 /**
  * Unified component that manages all scrubber elements (beacons, line, labels).
@@ -213,7 +242,9 @@ export const Scrubber = memo(
         seriesIds,
         hideLine,
         label,
+        multiLabel,
         lineStroke,
+        secondaryLineStroke,
         BeaconComponent = DefaultScrubberBeacon,
         BeaconLabelComponent,
         LineComponent,
@@ -234,7 +265,7 @@ export const Scrubber = memo(
       const theme = useTheme();
       const beaconGroupRef = React.useRef<ScrubberBeaconGroupRef>(null);
 
-      const { scrubberPosition } = useScrubberContext();
+      const { scrubberPosition, additionalScrubberPositions, scrubbingMode } = useScrubberContext();
       const { getXSerializableScale, getXAxis, series, drawingArea, animate, dataLength } =
         useCartesianChartContext();
 
@@ -268,46 +299,102 @@ export const Scrubber = memo(
         return seriesIds;
       }, [series, seriesIds]);
 
+      // Primary scrubber position
       const dataIndex = useDerivedValue(() => {
         return scrubberPosition.value ?? Math.max(0, dataLength - 1);
       }, [scrubberPosition, dataLength]);
 
       const dataX = useDerivedValue(() => {
-        if (xAxis?.data && Array.isArray(xAxis.data) && xAxis.data[dataIndex.value] !== undefined) {
-          const dataValue = xAxis.data[dataIndex.value];
-          return typeof dataValue === 'string' ? dataIndex.value : dataValue;
-        }
-        return dataIndex.value;
+        return getDataXFromIndex(dataIndex.value, xAxis);
       }, [xAxis, dataIndex]);
+
+      // Secondary scrubber position (first additional position in multi mode)
+      const secondaryDataIndex = useDerivedValue(() => {
+        if (scrubbingMode !== 'multi' || additionalScrubberPositions.value.length === 0) {
+          return undefined;
+        }
+        return additionalScrubberPositions.value[0];
+      }, [scrubbingMode, additionalScrubberPositions]);
+
+      const secondaryDataX = useDerivedValue(() => {
+        if (secondaryDataIndex.value === undefined) return undefined;
+        return getDataXFromIndex(secondaryDataIndex.value, xAxis);
+      }, [xAxis, secondaryDataIndex]);
+
+      // Check if we're in multi mode with two active positions
+      const isMultiActive = useDerivedValue(() => {
+        return (
+          scrubbingMode === 'multi' &&
+          scrubberPosition.value !== undefined &&
+          secondaryDataIndex.value !== undefined
+        );
+      }, [scrubbingMode, scrubberPosition, secondaryDataIndex]);
 
       const lineOpacity = useDerivedValue(() => {
         return scrubberPosition.value !== undefined ? 1 : 0;
       }, [scrubberPosition]);
 
+      const secondaryLineOpacity = useDerivedValue(() => {
+        return isMultiActive.value ? 1 : 0;
+      }, [isMultiActive]);
+
       const overlayOpacity = useDerivedValue(() => {
         return scrubberPosition.value !== undefined ? 0.8 : 0;
       }, [scrubberPosition]);
 
-      const overlayWidth = useDerivedValue(() => {
-        const pixelX =
-          dataX.value !== undefined && xScale
-            ? getPointOnSerializableScale(dataX.value, xScale)
-            : 0;
-        return drawingArea.x + drawingArea.width - pixelX + overlayOffset;
+      // Calculate pixel positions for overlay
+      const primaryPixelX = useDerivedValue(() => {
+        if (dataX.value === undefined || !xScale) return 0;
+        return getPointOnSerializableScale(dataX.value, xScale) ?? 0;
       }, [dataX, xScale]);
+
+      const secondaryPixelX = useDerivedValue(() => {
+        if (secondaryDataX.value === undefined || !xScale) return undefined;
+        return getPointOnSerializableScale(secondaryDataX.value, xScale);
+      }, [secondaryDataX, xScale]);
+
+      const overlayWidth = useDerivedValue(() => {
+        if (isMultiActive.value && secondaryPixelX.value !== undefined) {
+          // In multi mode, overlay covers the area between the two lines
+          return (
+            Math.max(primaryPixelX.value, secondaryPixelX.value) -
+            Math.min(primaryPixelX.value, secondaryPixelX.value) +
+            overlayOffset * 2
+          );
+        }
+        return drawingArea.x + drawingArea.width - primaryPixelX.value + overlayOffset;
+      }, [isMultiActive, primaryPixelX, secondaryPixelX, drawingArea, overlayOffset]);
 
       const overlayX = useDerivedValue(() => {
-        const xValue =
-          dataX.value !== undefined && xScale
-            ? getPointOnSerializableScale(dataX.value, xScale)
-            : 0;
-        return xValue;
-      }, [dataX, xScale]);
+        if (isMultiActive.value && secondaryPixelX.value !== undefined) {
+          return Math.min(primaryPixelX.value, secondaryPixelX.value) - overlayOffset;
+        }
+        return primaryPixelX.value;
+      }, [isMultiActive, primaryPixelX, secondaryPixelX, overlayOffset]);
+
+      // Center position for multi-mode label
+      const multiLabelDataX = useDerivedValue(() => {
+        if (
+          !isMultiActive.value ||
+          dataX.value === undefined ||
+          secondaryDataX.value === undefined
+        ) {
+          return undefined;
+        }
+        return (dataX.value + secondaryDataX.value) / 2;
+      }, [isMultiActive, dataX, secondaryDataX]);
 
       const resolvedLabelValue = useSharedValue<SkParagraph | string>('');
+      const resolvedMultiLabelValue = useSharedValue<SkParagraph | string>('');
 
       const updateResolvedLabel = useCallback(
-        (index: number) => {
+        (index: number, isMulti: boolean) => {
+          if (isMulti) {
+            // Don't show single label in multi mode
+            resolvedLabelValue.value = '';
+            return;
+          }
+
           if (!label) {
             resolvedLabelValue.value = '';
             return;
@@ -323,14 +410,44 @@ export const Scrubber = memo(
         [label, resolvedLabelValue],
       );
 
+      const updateMultiLabel = useCallback(
+        (primaryIndex: number, secondaryIndex: number) => {
+          if (!multiLabel) {
+            resolvedMultiLabelValue.value = '';
+            return;
+          }
+
+          const sortedIndices = [primaryIndex, secondaryIndex].sort((a, b) => a - b);
+          const result = multiLabel(sortedIndices);
+          resolvedMultiLabelValue.value = result ?? '';
+        },
+        [multiLabel, resolvedMultiLabelValue],
+      );
+
       // Update resolved label when dataIndex changes
       useAnimatedReaction(
-        () => dataIndex.value,
-        (currentIndex) => {
+        () => ({ index: dataIndex.value, isMulti: isMultiActive.value }),
+        ({ index, isMulti }) => {
           'worklet';
-          runOnJS(updateResolvedLabel)(currentIndex);
+          runOnJS(updateResolvedLabel)(index, isMulti);
         },
         [updateResolvedLabel],
+      );
+
+      // Update multi-mode label when positions change
+      useAnimatedReaction(
+        () => ({
+          isMulti: isMultiActive.value,
+          primary: dataIndex.value,
+          secondary: secondaryDataIndex.value,
+        }),
+        ({ isMulti, primary, secondary }) => {
+          'worklet';
+          if (isMulti && secondary !== undefined) {
+            runOnJS(updateMultiLabel)(primary, secondary);
+          }
+        },
+        [updateMultiLabel],
       );
 
       const beaconLabels: ScrubberBeaconLabelGroupBaseProps['labels'] = useMemo(
@@ -346,6 +463,11 @@ export const Scrubber = memo(
         [series, filteredSeriesIds],
       );
 
+      // Derived value to determine if we should show the primary label
+      const showPrimaryLabel = useDerivedValue(() => {
+        return !isMultiActive.value;
+      }, [isMultiActive]);
+
       if (!xScale) return;
 
       return (
@@ -360,9 +482,11 @@ export const Scrubber = memo(
               y={drawingArea.y - overlayOffset}
             />
           )}
+
+          {/* Primary scrubber line */}
           {!hideLine && (
             <ReferenceLine
-              LabelComponent={LabelComponent}
+              LabelComponent={showPrimaryLabel.value ? LabelComponent : undefined}
               LineComponent={LineComponent}
               dataX={dataX}
               label={resolvedLabelValue}
@@ -373,6 +497,35 @@ export const Scrubber = memo(
               stroke={lineStroke}
             />
           )}
+
+          {/* Secondary scrubber line (multi mode only) */}
+          {!hideLine && scrubbingMode === 'multi' && secondaryDataX.value !== undefined && (
+            <ReferenceLine
+              LineComponent={LineComponent}
+              dataX={secondaryDataX}
+              opacity={secondaryLineOpacity}
+              stroke={secondaryLineStroke ?? lineStroke}
+            />
+          )}
+
+          {/* Centered label for multi mode */}
+          {!hideLine &&
+            scrubbingMode === 'multi' &&
+            multiLabelDataX.value !== undefined &&
+            multiLabel && (
+              <ReferenceLine
+                LabelComponent={LabelComponent}
+                dataX={multiLabelDataX}
+                label={resolvedMultiLabelValue}
+                labelBoundsInset={labelBoundsInset}
+                labelElevated={labelElevated}
+                labelFont={labelFont}
+                opacity={secondaryLineOpacity}
+                // Hide the line itself, only show the label
+                stroke="transparent"
+              />
+            )}
+
           <ScrubberBeaconGroup
             ref={beaconGroupRef}
             BeaconComponent={BeaconComponent}

@@ -585,3 +585,193 @@ export const Miscellaneous = () => {
     </VStack>
   );
 };
+
+/**
+ * Multi-touch scrubbing example.
+ * On touch devices: use two fingers to scrub and see the range between them.
+ * On desktop: click to start scrubbing, then Shift+Click to add a second touch point.
+ */
+export const MultiTouchScrubbing = () => {
+  const btcData = btcCandles.slice(0, 90).reverse();
+  const btcPrices = btcData.map((candle) => parseFloat(candle.close));
+  const btcDates = btcData.map((candle) => new Date(parseInt(candle.start) * 1000));
+
+  const [scrubIndices, setScrubIndices] = useState<(number | undefined)[]>([]);
+
+  const handleScrubberPositionChange = useCallback(
+    (indices: (number | undefined)[] | undefined) => {
+      setScrubIndices(indices ?? []);
+    },
+    [],
+  );
+
+  const formatPrice = useCallback((price: number) => {
+    return `$${price.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  }, []);
+
+  const formatDate = useCallback((date: Date) => {
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    });
+  }, []);
+
+  // Get display values based on scrub state
+  const displayIndices = scrubIndices.filter((i): i is number => i !== undefined);
+  const hasTwoTouches = displayIndices.length >= 2;
+
+  // Calculate range info when we have two touches
+  const rangeInfo = useMemo(() => {
+    if (!hasTwoTouches) return null;
+
+    const [idx1, idx2] = displayIndices;
+    const sortedIndices = [idx1, idx2].sort((a, b) => a - b);
+    const [startIdx, endIdx] = sortedIndices;
+
+    const startPrice = btcPrices[startIdx];
+    const endPrice = btcPrices[endIdx];
+    const priceDiff = endPrice - startPrice;
+    const percentChange = (priceDiff / startPrice) * 100;
+
+    return {
+      startIdx,
+      endIdx,
+      startPrice,
+      endPrice,
+      priceDiff,
+      percentChange,
+      startDate: btcDates[startIdx],
+      endDate: btcDates[endIdx],
+    };
+  }, [hasTwoTouches, displayIndices, btcPrices, btcDates]);
+
+  // Multi-touch label shows the range between two points
+  const multiLabel = useCallback(
+    (indices: (number | undefined)[]) => {
+      const validIndices = indices.filter((i): i is number => i !== undefined);
+      if (validIndices.length < 2) return '';
+
+      const sortedIndices = [...validIndices].sort((a, b) => a - b);
+      const startPrice = btcPrices[sortedIndices[0]];
+      const endPrice = btcPrices[sortedIndices[1]];
+      const diff = endPrice - startPrice;
+      const sign = diff >= 0 ? '+' : '';
+
+      return (
+        <>
+          <tspan style={{ fontWeight: 'bold' }}>
+            {sign}
+            {formatPrice(diff)}
+          </tspan>{' '}
+          ({formatDate(btcDates[sortedIndices[0]])} → {formatDate(btcDates[sortedIndices[1]])})
+        </>
+      );
+    },
+    [btcPrices, btcDates, formatPrice, formatDate],
+  );
+
+  // Single touch label
+  const singleLabel = useCallback(
+    (index: number) => {
+      return (
+        <>
+          <tspan style={{ fontWeight: 'bold' }}>{formatPrice(btcPrices[index])}</tspan>{' '}
+          {formatDate(btcDates[index])}
+        </>
+      );
+    },
+    [btcPrices, btcDates, formatPrice, formatDate],
+  );
+
+  return (
+    <VStack gap={3}>
+      <VStack gap={1}>
+        <Text as="h2" font="title2">
+          Bitcoin Price Range Selector
+        </Text>
+        <Text color="fgMuted" font="body">
+          Use two fingers on touch devices, or Shift+Click on desktop to select a range.
+        </Text>
+      </VStack>
+
+      {/* Range info display */}
+      {rangeInfo && (
+        <HStack
+          background="bgSecondary"
+          borderRadius={100}
+          gap={3}
+          justifyContent="space-between"
+          padding={2}
+        >
+          <VStack>
+            <Text color="fgMuted" font="label2">
+              Start
+            </Text>
+            <Text font="headline">{formatPrice(rangeInfo.startPrice)}</Text>
+            <Text color="fgMuted" font="label2">
+              {formatDate(rangeInfo.startDate)}
+            </Text>
+          </VStack>
+          <VStack alignItems="center">
+            <Text color="fgMuted" font="label2">
+              Change
+            </Text>
+            <Text color={rangeInfo.priceDiff >= 0 ? 'fgPositive' : 'fgNegative'} font="title3">
+              {rangeInfo.priceDiff >= 0 ? '+' : ''}
+              {formatPrice(rangeInfo.priceDiff)}
+            </Text>
+            <Text color={rangeInfo.percentChange >= 0 ? 'fgPositive' : 'fgNegative'} font="label1">
+              {rangeInfo.percentChange >= 0 ? '+' : ''}
+              {rangeInfo.percentChange.toFixed(2)}%
+            </Text>
+          </VStack>
+          <VStack alignItems="flex-end">
+            <Text color="fgMuted" font="label2">
+              End
+            </Text>
+            <Text font="headline">{formatPrice(rangeInfo.endPrice)}</Text>
+            <Text color="fgMuted" font="label2">
+              {formatDate(rangeInfo.endDate)}
+            </Text>
+          </VStack>
+        </HStack>
+      )}
+
+      <CartesianChart
+        enableScrubbing
+        height={300}
+        onScrubberPositionChange={handleScrubberPositionChange}
+        scrubbingMode="multi"
+        series={[
+          {
+            id: 'btc',
+            data: btcPrices,
+            color: assets.btc.color,
+          },
+        ]}
+        style={{ outlineColor: assets.btc.color }}
+      >
+        <YAxis
+          showGrid
+          GridLineComponent={SolidLine}
+          requestedTickCount={4}
+          tickLabelFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+        />
+        <Line showArea seriesId="btc" />
+        <Scrubber
+          label={singleLabel}
+          lineStroke={assets.btc.color}
+          multiLabel={multiLabel}
+          secondaryLineStroke="var(--color-fgMuted)"
+        />
+      </CartesianChart>
+
+      <Text color="fgMuted" font="label2">
+        Scrub positions: {JSON.stringify(scrubIndices)}
+      </Text>
+    </VStack>
+  );
+};

@@ -104,6 +104,8 @@ export type CartesianChartContextValue = {
   getAxisBounds: (id: string) => Rect | undefined;
 };
 
+export type ScrubbingMode = 'single' | 'multi';
+
 export type ScrubberContextValue = {
   /**
    * Enables scrubbing interactions.
@@ -111,9 +113,22 @@ export type ScrubberContextValue = {
    */
   enableScrubbing: boolean;
   /**
-   * The current position of the scrubber.
+   * The scrubbing mode.
+   * - 'single': Single touch tracking (default)
+   * - 'multi': Multiple touch tracking for comparison
+   * @default 'single'
+   */
+  scrubbingMode: ScrubbingMode;
+  /**
+   * The current position of the primary scrubber.
+   * In multi mode, this is the first touch position.
    */
   scrubberPosition: SharedValue<number | undefined>;
+  /**
+   * Additional scrubber positions for multi-touch mode.
+   * Only populated when scrubbingMode is 'multi'.
+   */
+  additionalScrubberPositions: SharedValue<(number | undefined)[]>;
 };
 
 export const ScrubberContext = createContext<ScrubberContextValue | undefined>(undefined);

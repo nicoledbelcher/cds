@@ -24,6 +24,7 @@ import {
   getAxisScale,
   getChartInset,
   getStackedSeriesData as calculateStackedSeriesData,
+  type ScrubbingMode,
   type Series,
   useTotalAxisPadding,
 } from './utils';
@@ -40,8 +41,49 @@ const ChartCanvas = memo(
   },
 );
 
+/**
+ * Scrubbing props for single mode (default).
+ * Callback receives a single position.
+ */
+type SingleScrubbingProps = {
+  /**
+   * Scrubbing mode.
+   * @default 'single'
+   */
+  scrubbingMode?: 'single';
+  /**
+   * Callback fired when the scrubber position changes.
+   * Receives the dataIndex of the scrubber or undefined when not scrubbing.
+   */
+  onScrubberPositionChange?: (index: number | undefined) => void;
+};
+
+/**
+ * Scrubbing props for multi mode.
+ * Callback receives an array of positions.
+ */
+type MultiScrubbingProps = {
+  /**
+   * Scrubbing mode for comparison with multiple touch points.
+   */
+  scrubbingMode: 'multi';
+  /**
+   * Callback fired when the scrubber positions change.
+   * Receives an array of dataIndices (one per touch) or undefined when not scrubbing.
+   * The first element is always the primary position.
+   */
+  onScrubberPositionChange?: (indices: (number | undefined)[] | undefined) => void;
+};
+
+type ScrubbingProps = SingleScrubbingProps | MultiScrubbingProps;
+
 export type CartesianChartBaseProps = Omit<BoxBaseProps, 'fontFamily'> &
-  Pick<ScrubberProviderProps, 'enableScrubbing' | 'onScrubberPositionChange'> & {
+  ScrubbingProps & {
+    /**
+     * Enables scrubbing interactions.
+     * When true, allows scrubbing and makes scrubber components interactive.
+     */
+    enableScrubbing?: boolean;
     /**
      * Configuration objects that define how to visualize the data.
      * Each series contains its own data array.
@@ -108,6 +150,7 @@ export const CartesianChart = memo(
         children,
         animate = true,
         enableScrubbing,
+        scrubbingMode = 'single',
         xAxis: xAxisConfigProp,
         yAxis: yAxisConfigProp,
         inset,
@@ -435,6 +478,7 @@ export const CartesianChart = memo(
             allowOverflowGestures={allowOverflowGestures}
             enableScrubbing={enableScrubbing}
             onScrubberPositionChange={onScrubberPositionChange}
+            scrubbingMode={scrubbingMode}
           >
             <Box
               ref={ref}

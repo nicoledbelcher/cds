@@ -5,7 +5,7 @@ import { useDimensions } from '@coinbase/cds-web/hooks/useDimensions';
 import { Box, type BoxBaseProps, type BoxProps } from '@coinbase/cds-web/layout';
 import { css } from '@linaria/core';
 
-import { ScrubberProvider, type ScrubberProviderProps } from './scrubber/ScrubberProvider';
+import { ScrubberProvider } from './scrubber/ScrubberProvider';
 import { CartesianChartProvider } from './ChartProvider';
 import {
   type AxisConfig,
@@ -21,6 +21,7 @@ import {
   getAxisScale,
   getChartInset,
   getStackedSeriesData as calculateStackedSeriesData,
+  type ScrubbingMode,
   type Series,
   useTotalAxisPadding,
 } from './utils';
@@ -35,31 +36,50 @@ const focusStylesCss = css`
   }
 `;
 
-export type CartesianChartBaseProps = BoxBaseProps &
-  Pick<ScrubberProviderProps, 'enableScrubbing' | 'onScrubberPositionChange'> & {
-    /**
-     * Configuration objects that define how to visualize the data.
-     * Each series contains its own data array.
-     */
-    series?: Array<Series>;
-    /**
-     * Whether to animate the chart.
-     * @default true
-     */
-    animate?: boolean;
-    /**
-     * Configuration for x-axis.
-     */
-    xAxis?: Partial<Omit<AxisConfigProps, 'id'>>;
-    /**
-     * Configuration for y-axis(es). Can be a single config or array of configs.
-     */
-    yAxis?: Partial<Omit<AxisConfigProps, 'data'>> | Partial<Omit<AxisConfigProps, 'data'>>[];
-    /**
-     * Inset around the entire chart (outside the axes).
-     */
-    inset?: number | Partial<ChartInset>;
-  };
+export type CartesianChartBaseProps = BoxBaseProps & {
+  /**
+   * Scrubbing mode.
+   * - 'single': Single touch/pointer tracking (default)
+   * - 'multi': Multiple touch tracking for comparison
+   * @default 'single'
+   */
+  scrubbingMode?: 'single' | 'multi';
+  /**
+   * Callback fired when the scrubber position changes.
+   * In single mode, receives a single index or undefined.
+   * In multi mode, receives an array of indices or undefined.
+   */
+  onScrubberPositionChange?:
+    | ((index: number | undefined) => void)
+    | ((indices: (number | undefined)[] | undefined) => void);
+  /**
+   * Enables scrubbing interactions.
+   * When true, allows scrubbing and makes scrubber components interactive.
+   */
+  enableScrubbing?: boolean;
+  /**
+   * Configuration objects that define how to visualize the data.
+   * Each series contains its own data array.
+   */
+  series?: Array<Series>;
+  /**
+   * Whether to animate the chart.
+   * @default true
+   */
+  animate?: boolean;
+  /**
+   * Configuration for x-axis.
+   */
+  xAxis?: Partial<Omit<AxisConfigProps, 'id'>>;
+  /**
+   * Configuration for y-axis(es). Can be a single config or array of configs.
+   */
+  yAxis?: Partial<Omit<AxisConfigProps, 'data'>> | Partial<Omit<AxisConfigProps, 'data'>>[];
+  /**
+   * Inset around the entire chart (outside the axes).
+   */
+  inset?: number | Partial<ChartInset>;
+};
 
 export type CartesianChartProps = Omit<BoxProps<'div'>, 'title'> &
   CartesianChartBaseProps & {
@@ -110,6 +130,7 @@ export const CartesianChart = memo(
         yAxis: yAxisConfigProp,
         inset,
         enableScrubbing,
+        scrubbingMode = 'single',
         onScrubberPositionChange,
         width = '100%',
         height = '100%',
@@ -391,6 +412,7 @@ export const CartesianChart = memo(
           <ScrubberProvider
             enableScrubbing={!!enableScrubbing}
             onScrubberPositionChange={onScrubberPositionChange}
+            scrubbingMode={scrubbingMode}
             svgRef={svgRef}
           >
             <Box

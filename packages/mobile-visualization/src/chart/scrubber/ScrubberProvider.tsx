@@ -1,24 +1,43 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { Platform } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { runOnJS, useAnimatedReaction, useSharedValue } from 'react-native-reanimated';
 import { Haptics } from '@coinbase/cds-mobile/utils/haptics';
 
 import { useCartesianChartContext } from '../ChartProvider';
-import { invertSerializableScale, ScrubberContext, type ScrubberContextValue } from '../utils';
+import {
+  invertSerializableScale,
+  ScrubberContext,
+  type ScrubberContextValue,
+  type ScrubbingMode,
+} from '../utils';
 import { getPointOnSerializableScale } from '../utils/point';
 
-export type ScrubberProviderProps = Partial<Pick<ScrubberContextValue, 'enableScrubbing'>> & {
+export type ScrubberProviderProps = {
   children: React.ReactNode;
   /**
    * Allows continuous gestures on the chart to continue outside the bounds of the chart element.
    */
   allowOverflowGestures?: boolean;
   /**
-   * Callback fired when the scrubber position changes.
-   * Receives the dataIndex of the scrubber or undefined when not scrubbing.
+   * Enables scrubbing interactions.
    */
-  onScrubberPositionChange?: (index: number | undefined) => void;
+  enableScrubbing?: boolean;
+  /**
+   * The scrubbing mode.
+   * - 'single': Single touch tracking (default)
+   * - 'multi': Multiple touch tracking for comparison
+   * @default 'single'
+   */
+  scrubbingMode?: ScrubbingMode;
+  /**
+   * Callback fired when the scrubber position changes.
+   * In single mode, receives a single index or undefined.
+   * In multi mode, receives an array of indices or undefined.
+   */
+  onScrubberPositionChange?:
+    | ((index: number | undefined) => void)
+    | ((indices: (number | undefined)[] | undefined) => void);
 };
 
 /**
@@ -28,6 +47,7 @@ export type ScrubberProviderProps = Partial<Pick<ScrubberContextValue, 'enableSc
 export const ScrubberProvider: React.FC<ScrubberProviderProps> = ({
   children,
   enableScrubbing,
+  scrubbingMode = 'single',
   onScrubberPositionChange,
   allowOverflowGestures,
 }) => {
@@ -39,6 +59,11 @@ export const ScrubberProvider: React.FC<ScrubberProviderProps> = ({
 
   const { getXSerializableScale, getXAxis } = chartContext;
   const scrubberPosition = useSharedValue<number | undefined>(undefined);
+  const additionalScrubberPositions = useSharedValue<(number | undefined)[]>([]);
+
+  // Store refs for values needed in worklets
+  const scrubbingModeRef = useRef(scrubbingMode);
+  scrubbingModeRef.current = scrubbingMode;
 
   const xAxis = useMemo(() => getXAxis(), [getXAxis]);
   const xScale = useMemo(() => getXSerializableScale(), [getXSerializableScale]);
@@ -102,57 +127,168 @@ export const ScrubberProvider: React.FC<ScrubberProviderProps> = ({
     void Haptics.lightImpact();
   }, []);
 
-  useAnimatedReaction(
-    () => scrubberPosition.value,
-    (currentValue, previousValue) => {
-      // Confirm changes here and inside of our gesture handler before calling JS thread
-      // To prevent any rerenders
-      if (onScrubberPositionChange !== undefined && currentValue !== previousValue) {
-        runOnJS(onScrubberPositionChange)(currentValue);
+  // Fire callbacks for single mode
+  const fireSingleCallback = useCallback(
+    (value: number | undefined) => {
+      if (onScrubberPositionChange && scrubbingModeRef.current === 'single') {
+        (onScrubberPositionChange as (index: number | undefined) => void)(value);
       }
     },
     [onScrubberPositionChange],
   );
 
-  // Create the long press pan gesture
+  // Fire callbacks for multi mode
+  const fireMultiCallback = useCallback(
+    (primary: number | undefined, additional: (number | undefined)[]) => {
+      if (onScrubberPositionChange && scrubbingModeRef.current === 'multi') {
+        if (primary === undefined) {
+          (onScrubberPositionChange as (indices: (number | undefined)[] | undefined) => void)(
+            undefined,
+          );
+        } else {
+          (onScrubberPositionChange as (indices: (number | undefined)[] | undefined) => void)([
+            primary,
+            ...additional,
+          ]);
+        }
+      }
+    },
+    [onScrubberPositionChange],
+  );
+
+  // Animated reaction for single mode
+  useAnimatedReaction(
+    () => scrubberPosition.value,
+    (currentValue, previousValue) => {
+      if (
+        scrubbingModeRef.current === 'single' &&
+        onScrubberPositionChange !== undefined &&
+        currentValue !== previousValue
+      ) {
+        runOnJS(fireSingleCallback)(currentValue);
+      }
+    },
+    [fireSingleCallback],
+  );
+
+  // Animated reaction for multi mode - watches both primary and additional positions
+  useAnimatedReaction(
+    () => ({
+      primary: scrubberPosition.value,
+      additional: additionalScrubberPositions.value,
+    }),
+    (current, previous) => {
+      if (scrubbingModeRef.current !== 'multi' || onScrubberPositionChange === undefined) return;
+
+      const primaryChanged = current.primary !== previous?.primary;
+      const additionalChanged =
+        current.additional.length !== (previous?.additional.length ?? 0) ||
+        current.additional.some((pos, i) => pos !== previous?.additional[i]);
+
+      if (primaryChanged || additionalChanged) {
+        runOnJS(fireMultiCallback)(current.primary, current.additional);
+      }
+    },
+    [fireMultiCallback],
+  );
+
+  // Create the long press pan gesture with multi-touch support
   const longPressGesture = useMemo(
     () =>
       Gesture.Pan()
         .activateAfterLongPress(110)
         .shouldCancelWhenOutside(!allowOverflowGestures)
-        .onStart(function onStart(event) {
+        .minPointers(1)
+        .maxPointers(scrubbingMode === 'multi' ? 10 : 1)
+        .onTouchesDown(function onTouchesDown(event) {
           runOnJS(handleStartEndHaptics)();
 
-          // Android does not trigger onUpdate when the gesture starts. This achieves consistent behavior across both iOS and Android
-          if (Platform.OS === 'android') {
-            const newScrubberPosition = getDataIndexFromX(event.x);
-            if (newScrubberPosition !== scrubberPosition.value) {
-              scrubberPosition.value = newScrubberPosition;
+          if (event.allTouches.length > 0) {
+            // Primary touch
+            const primaryTouch = event.allTouches[0];
+            const newPrimaryPosition = getDataIndexFromX(primaryTouch.x);
+            scrubberPosition.value = newPrimaryPosition;
+
+            // Additional touches for multi mode
+            if (scrubbingModeRef.current === 'multi' && event.allTouches.length > 1) {
+              const newAdditionalPositions: (number | undefined)[] = [];
+              for (let i = 1; i < event.allTouches.length; i++) {
+                const touch = event.allTouches[i];
+                const dataIndex = getDataIndexFromX(touch.x);
+                newAdditionalPositions.push(dataIndex);
+              }
+              additionalScrubberPositions.value = newAdditionalPositions;
             }
           }
         })
-        .onUpdate(function onUpdate(event) {
-          const newScrubberPosition = getDataIndexFromX(event.x);
-          if (newScrubberPosition !== scrubberPosition.value) {
-            scrubberPosition.value = newScrubberPosition;
+        .onTouchesMove(function onTouchesMove(event) {
+          if (event.allTouches.length > 0) {
+            // Primary touch
+            const primaryTouch = event.allTouches[0];
+            const newPrimaryPosition = getDataIndexFromX(primaryTouch.x);
+            if (newPrimaryPosition !== scrubberPosition.value) {
+              scrubberPosition.value = newPrimaryPosition;
+            }
+
+            // Additional touches for multi mode
+            if (scrubbingModeRef.current === 'multi') {
+              const newAdditionalPositions: (number | undefined)[] = [];
+              for (let i = 1; i < event.allTouches.length; i++) {
+                const touch = event.allTouches[i];
+                const dataIndex = getDataIndexFromX(touch.x);
+                newAdditionalPositions.push(dataIndex);
+              }
+
+              // Check if additional positions changed
+              const currentAdditional = additionalScrubberPositions.value;
+              const changed =
+                newAdditionalPositions.length !== currentAdditional.length ||
+                newAdditionalPositions.some((pos, i) => pos !== currentAdditional[i]);
+
+              if (changed) {
+                additionalScrubberPositions.value = newAdditionalPositions;
+              }
+            }
+          }
+        })
+        .onTouchesUp(function onTouchesUp(event) {
+          // Handle individual finger lifts in multi mode
+          if (scrubbingModeRef.current === 'multi' && event.allTouches.length > 0) {
+            // Primary touch
+            const primaryTouch = event.allTouches[0];
+            const newPrimaryPosition = getDataIndexFromX(primaryTouch.x);
+            scrubberPosition.value = newPrimaryPosition;
+
+            // Update additional touches
+            const newAdditionalPositions: (number | undefined)[] = [];
+            for (let i = 1; i < event.allTouches.length; i++) {
+              const touch = event.allTouches[i];
+              const dataIndex = getDataIndexFromX(touch.x);
+              newAdditionalPositions.push(dataIndex);
+            }
+            additionalScrubberPositions.value = newAdditionalPositions;
           }
         })
         .onEnd(function onEnd() {
           if (enableScrubbing) {
             runOnJS(handleStartEndHaptics)();
             scrubberPosition.value = undefined;
+            additionalScrubberPositions.value = [];
           }
         })
         .onTouchesCancelled(function onTouchesCancelled() {
           if (enableScrubbing) {
             scrubberPosition.value = undefined;
+            additionalScrubberPositions.value = [];
           }
         }),
     [
       allowOverflowGestures,
+      scrubbingMode,
       handleStartEndHaptics,
       getDataIndexFromX,
       scrubberPosition,
+      additionalScrubberPositions,
       enableScrubbing,
     ],
   );
@@ -160,9 +296,11 @@ export const ScrubberProvider: React.FC<ScrubberProviderProps> = ({
   const contextValue: ScrubberContextValue = useMemo(
     () => ({
       enableScrubbing: !!enableScrubbing,
+      scrubbingMode,
       scrubberPosition,
+      additionalScrubberPositions,
     }),
-    [enableScrubbing, scrubberPosition],
+    [enableScrubbing, scrubbingMode, scrubberPosition, additionalScrubberPositions],
   );
 
   const content = (
