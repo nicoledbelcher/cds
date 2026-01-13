@@ -2,11 +2,12 @@ import React, { forwardRef, memo, useCallback, useMemo, useRef } from 'react';
 import type { Rect } from '@coinbase/cds-common/types';
 import { cx } from '@coinbase/cds-web';
 import { useDimensions } from '@coinbase/cds-web/hooks/useDimensions';
-import { Box, type BoxBaseProps, type BoxProps } from '@coinbase/cds-web/layout';
+import { Box, type BoxBaseProps, type BoxProps, HStack, VStack } from '@coinbase/cds-web/layout';
 import { css } from '@linaria/core';
 
 import { ScrubberProvider, type ScrubberProviderProps } from './scrubber/ScrubberProvider';
 import { CartesianChartProvider } from './ChartProvider';
+import { Legend, type LegendProps } from './legend';
 import {
   type AxisConfig,
   type AxisConfigProps,
@@ -21,6 +22,7 @@ import {
   getAxisScale,
   getChartInset,
   getStackedSeriesData as calculateStackedSeriesData,
+  type LegendPosition,
   type Series,
   useTotalAxisPadding,
 } from './utils';
@@ -59,6 +61,18 @@ export type CartesianChartBaseProps = BoxBaseProps &
      * Inset around the entire chart (outside the axes).
      */
     inset?: number | Partial<ChartInset>;
+    /**
+     * Whether to show the legend or a custom legend element.
+     * - `true` renders the default Legend component
+     * - A React element renders that element as the legend
+     * - `false` or omitted hides the legend
+     */
+    legend?: boolean | React.ReactElement<LegendProps>;
+    /**
+     * Position of the legend relative to the chart.
+     * @default 'bottom'
+     */
+    legendPosition?: LegendPosition;
   };
 
 export type CartesianChartProps = Omit<BoxProps<'div'>, 'title'> &
@@ -111,6 +125,8 @@ export const CartesianChart = memo(
         inset,
         enableScrubbing,
         onScrubberPositionChange,
+        legend,
+        legendPosition = 'bottom',
         width = '100%',
         height = '100%',
         className,
@@ -386,6 +402,63 @@ export const CartesianChart = memo(
       );
       const rootStyles = useMemo(() => ({ ...style, ...styles?.root }), [style, styles?.root]);
 
+      // Render legend element based on legend prop
+      const legendElement = useMemo(() => {
+        if (!legend) return null;
+
+        // Determine flex direction based on position
+        const isHorizontal = legendPosition === 'top' || legendPosition === 'bottom';
+        const flexDirection = isHorizontal ? 'row' : 'column';
+
+        if (legend === true) {
+          return <Legend flexDirection={flexDirection} />;
+        }
+
+        // Clone the element to ensure proper flex direction if not explicitly set
+        return React.cloneElement(legend, {
+          flexDirection: legend.props.flexDirection ?? flexDirection,
+        });
+      }, [legend, legendPosition]);
+
+      // Determine layout direction based on legend position
+      const isVerticalLayout = legendPosition === 'top' || legendPosition === 'bottom';
+      const LayoutStack = isVerticalLayout ? VStack : HStack;
+
+      const chartContent = (
+        <Box
+          ref={(node) => {
+            observe(node as unknown as HTMLElement);
+          }}
+          height={legend ? undefined : height}
+          style={{ flex: 1, minHeight: 0, minWidth: 0 }}
+          width={legend ? undefined : width}
+        >
+          <Box
+            ref={(node) => {
+              const svgElement = node as unknown as SVGSVGElement;
+              svgRef.current = svgElement;
+              // Forward the ref to the user
+              if (ref) {
+                if (typeof ref === 'function') {
+                  ref(svgElement);
+                } else {
+                  (ref as React.MutableRefObject<SVGSVGElement | null>).current = svgElement;
+                }
+              }
+            }}
+            aria-live="polite"
+            as="svg"
+            className={cx(enableScrubbing && focusStylesCss, classNames?.chart)}
+            height="100%"
+            style={styles?.chart}
+            tabIndex={enableScrubbing ? 0 : undefined}
+            width="100%"
+          >
+            {children}
+          </Box>
+        </Box>
+      );
+
       return (
         <CartesianChartProvider value={contextValue}>
           <ScrubberProvider
@@ -393,40 +466,29 @@ export const CartesianChart = memo(
             onScrubberPositionChange={onScrubberPositionChange}
             svgRef={svgRef}
           >
-            <Box
-              ref={(node) => {
-                observe(node as unknown as HTMLElement);
-              }}
-              className={rootClassNames}
-              height={height}
-              style={rootStyles}
-              width={width}
-              {...props}
-            >
-              <Box
-                ref={(node) => {
-                  const svgElement = node as unknown as SVGSVGElement;
-                  svgRef.current = svgElement;
-                  // Forward the ref to the user
-                  if (ref) {
-                    if (typeof ref === 'function') {
-                      ref(svgElement);
-                    } else {
-                      (ref as React.MutableRefObject<SVGSVGElement | null>).current = svgElement;
-                    }
-                  }
-                }}
-                aria-live="polite"
-                as="svg"
-                className={cx(enableScrubbing && focusStylesCss, classNames?.chart)}
-                height="100%"
-                style={styles?.chart}
-                tabIndex={enableScrubbing ? 0 : undefined}
-                width="100%"
+            {legend ? (
+              <LayoutStack
+                className={rootClassNames}
+                height={height}
+                style={rootStyles}
+                width={width}
+                {...props}
               >
-                {children}
+                {(legendPosition === 'top' || legendPosition === 'left') && legendElement}
+                {chartContent}
+                {(legendPosition === 'bottom' || legendPosition === 'right') && legendElement}
+              </LayoutStack>
+            ) : (
+              <Box
+                className={rootClassNames}
+                height={height}
+                style={rootStyles}
+                width={width}
+                {...props}
+              >
+                {chartContent}
               </Box>
-            </Box>
+            )}
           </ScrubberProvider>
         </CartesianChartProvider>
       );

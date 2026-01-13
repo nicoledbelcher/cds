@@ -3,13 +3,14 @@ import { type StyleProp, type View, type ViewStyle } from 'react-native';
 import type { Rect } from '@coinbase/cds-common/types';
 import { useLayout } from '@coinbase/cds-mobile/hooks/useLayout';
 import type { BoxBaseProps, BoxProps } from '@coinbase/cds-mobile/layout';
-import { Box } from '@coinbase/cds-mobile/layout';
+import { Box, HStack, VStack } from '@coinbase/cds-mobile/layout';
 import { Canvas, Skia, type SkTypefaceFontProvider } from '@shopify/react-native-skia';
 
 import { ScrubberProvider, type ScrubberProviderProps } from './scrubber/ScrubberProvider';
 import { convertToSerializableScale, type SerializableScale } from './utils/scale';
 import { useChartContextBridge } from './ChartContextBridge';
 import { CartesianChartProvider } from './ChartProvider';
+import { Legend, type LegendProps } from './legend';
 import {
   type AxisConfig,
   type AxisConfigProps,
@@ -24,6 +25,7 @@ import {
   getAxisScale,
   getChartInset,
   getStackedSeriesData as calculateStackedSeriesData,
+  type LegendPosition,
   type Series,
   useTotalAxisPadding,
 } from './utils';
@@ -64,6 +66,18 @@ export type CartesianChartBaseProps = Omit<BoxBaseProps, 'fontFamily'> &
      * Inset around the entire chart (outside the axes).
      */
     inset?: number | Partial<ChartInset>;
+    /**
+     * Whether to show the legend or a custom legend element.
+     * - `true` renders the default Legend component
+     * - A React element renders that element as the legend
+     * - `false` or omitted hides the legend
+     */
+    legend?: boolean | React.ReactElement<LegendProps>;
+    /**
+     * Position of the legend relative to the chart.
+     * @default 'bottom'
+     */
+    legendPosition?: LegendPosition;
   };
 
 export type CartesianChartProps = CartesianChartBaseProps &
@@ -112,6 +126,8 @@ export const CartesianChart = memo(
         yAxis: yAxisConfigProp,
         inset,
         onScrubberPositionChange,
+        legend,
+        legendPosition = 'bottom',
         width = '100%',
         height = '100%',
         style,
@@ -429,6 +445,34 @@ export const CartesianChart = memo(
         return [style, styles?.root];
       }, [style, styles?.root]);
 
+      // Render legend element based on legend prop
+      const legendElement = useMemo(() => {
+        if (!legend) return null;
+
+        // Determine flex direction based on position
+        const isHorizontal = legendPosition === 'top' || legendPosition === 'bottom';
+        const flexDirection = isHorizontal ? 'row' : 'column';
+
+        if (legend === true) {
+          return <Legend flexDirection={flexDirection} />;
+        }
+
+        // Clone the element to ensure proper flex direction if not explicitly set
+        return React.cloneElement(legend, {
+          flexDirection: legend.props.flexDirection ?? flexDirection,
+        });
+      }, [legend, legendPosition]);
+
+      // Determine layout direction based on legend position
+      const isVerticalLayout = legendPosition === 'top' || legendPosition === 'bottom';
+      const LayoutStack = isVerticalLayout ? VStack : HStack;
+
+      const chartContent = (
+        <Box collapsable={collapsable} onLayout={onContainerLayout} style={{ flex: 1 }}>
+          <ChartCanvas style={styles?.chart}>{children}</ChartCanvas>
+        </Box>
+      );
+
       return (
         <CartesianChartProvider value={contextValue}>
           <ScrubberProvider
@@ -436,19 +480,35 @@ export const CartesianChart = memo(
             enableScrubbing={enableScrubbing}
             onScrubberPositionChange={onScrubberPositionChange}
           >
-            <Box
-              ref={ref}
-              accessibilityLiveRegion="polite"
-              accessibilityRole="image"
-              collapsable={collapsable}
-              height={height}
-              onLayout={onContainerLayout}
-              style={rootStyles}
-              width={width}
-              {...props}
-            >
-              <ChartCanvas style={styles?.chart}>{children}</ChartCanvas>
-            </Box>
+            {legend ? (
+              <LayoutStack
+                ref={ref}
+                accessibilityLiveRegion="polite"
+                accessibilityRole="image"
+                height={height}
+                style={rootStyles}
+                width={width}
+                {...props}
+              >
+                {(legendPosition === 'top' || legendPosition === 'left') && legendElement}
+                {chartContent}
+                {(legendPosition === 'bottom' || legendPosition === 'right') && legendElement}
+              </LayoutStack>
+            ) : (
+              <Box
+                ref={ref}
+                accessibilityLiveRegion="polite"
+                accessibilityRole="image"
+                collapsable={collapsable}
+                height={height}
+                onLayout={onContainerLayout}
+                style={rootStyles}
+                width={width}
+                {...props}
+              >
+                <ChartCanvas style={styles?.chart}>{children}</ChartCanvas>
+              </Box>
+            )}
           </ScrubberProvider>
         </CartesianChartProvider>
       );
