@@ -8,6 +8,7 @@ import {
 import heroSquareVersionMap from '@coinbase/cds-illustrations/__generated__/heroSquare/data/versionMap';
 
 import { Example, ExampleScreen } from '../../examples/ExampleScreen';
+import { useTheme } from '../../hooks/useTheme';
 import { HStack, VStack } from '../../layout';
 import { ThemeProvider } from '../../system/ThemeProvider';
 import { defaultTheme } from '../../themes/defaultTheme';
@@ -56,8 +57,57 @@ const HeroSquarePreview = ({ name }: HeroSquarePreviewProps) => (
 );
 
 const HeroSquareStory = () => {
+  const theme = useTheme();
   return (
     <ExampleScreen>
+      <Example title="Hero Squares themed">
+        <ThemeProvider
+          activeColorScheme="light"
+          theme={{
+            ...defaultTheme,
+            lightIllustration: {
+              ...defaultTheme.lightIllustration,
+              primary: `rgb(${theme.spectrum.red40})`,
+              black: `rgb(${theme.spectrum.green100})`,
+              white: `rgb(${theme.spectrum.yellow30})`,
+              gray: `rgb(${theme.spectrum.purple10})`,
+              gray2: `rgb(${theme.spectrum.purple10})`,
+              gray3: `rgb(${theme.spectrum.blue10})`,
+              positive: `rgb(${theme.spectrum.green30})`,
+              negative: `rgb(${theme.spectrum.red60})`,
+              accent1: `rgb(${theme.spectrum.orange40})`,
+              accent2: `rgb(${theme.spectrum.teal15})`,
+              accent3: `rgb(${theme.spectrum.green30})`,
+              accent4: `rgb(${theme.spectrum.blue20})`,
+              invert: `rgb(${theme.spectrum.red100})`,
+              invert2: `rgb(${theme.spectrum.blue30})`,
+            },
+            darkIllustration: {
+              ...defaultTheme.darkIllustration,
+              primary: `rgb(${theme.spectrum.red40})`,
+              black: `rgb(${theme.spectrum.green100})`,
+              white: `rgb(${theme.spectrum.yellow30})`,
+              gray: `rgb(${theme.spectrum.purple10})`,
+              gray2: `rgb(${theme.spectrum.purple10})`,
+              gray3: `rgb(${theme.spectrum.blue10})`,
+              positive: `rgb(${theme.spectrum.green30})`,
+              negative: `rgb(${theme.spectrum.red60})`,
+              accent1: `rgb(${theme.spectrum.orange40})`,
+              accent2: `rgb(${theme.spectrum.teal15})`,
+              accent3: `rgb(${theme.spectrum.green30})`,
+              accent4: `rgb(${theme.spectrum.blue20})`,
+              invert: `rgb(${theme.spectrum.red100})`,
+              invert2: `rgb(${theme.spectrum.blue30})`,
+            },
+          }}
+        >
+          <HStack flexWrap="wrap" gap={1}>
+            {heroSquareGroups[0].map((name) => (
+              <HeroSquare key={name} name={name} scaleMultiplier={HERO_SQUARE_SCALE} />
+            ))}
+          </HStack>
+        </ThemeProvider>
+      </Example>
       {heroSquareGroups.map((group, index, arr) => (
         <Example key={`hero-square-${index}`} title={`Hero Squares ${index + 1} of ${arr.length}`}>
           <HStack flexWrap="wrap" gap={1}>
