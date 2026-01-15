@@ -247,26 +247,40 @@ export const InteractionProvider: React.FC<InteractionProviderProps> = ({
 
       if (interaction === 'single') {
         const currentItem = activeState as ActiveItem | undefined;
+
+        // When series scope is enabled, preserve the existing seriesId
+        // (let bar components handle setting/clearing seriesId via their own handlers)
+        const effectiveSeriesId = scope.series
+          ? (currentItem?.seriesId ?? newActiveItem.seriesId)
+          : newActiveItem.seriesId;
+
+        const effectiveItem = { ...newActiveItem, seriesId: effectiveSeriesId };
+
         if (
-          newActiveItem.dataIndex !== currentItem?.dataIndex ||
-          newActiveItem.seriesId !== currentItem?.seriesId
+          effectiveItem.dataIndex !== currentItem?.dataIndex ||
+          effectiveItem.seriesId !== currentItem?.seriesId
         ) {
-          setActiveState(newActiveItem);
+          setActiveState(effectiveItem);
         }
       } else if (interaction === 'multi') {
-        // For mouse in multi mode, treat as a single pointer with id -1
+        // For mouse in multi mode, treat as a single pointer
         const currentItems = (activeState as ActiveItems) ?? [];
-        // Check if data changed to avoid unnecessary updates
+        const currentSeriesId = scope.series ? currentItems[0]?.seriesId : null;
+        const effectiveItem = {
+          ...newActiveItem,
+          seriesId: currentSeriesId ?? newActiveItem.seriesId,
+        };
+
         if (
           currentItems.length !== 1 ||
-          currentItems[0]?.dataIndex !== newActiveItem.dataIndex ||
-          currentItems[0]?.seriesId !== newActiveItem.seriesId
+          currentItems[0]?.dataIndex !== effectiveItem.dataIndex ||
+          currentItems[0]?.seriesId !== effectiveItem.seriesId
         ) {
-          setActiveState([newActiveItem]);
+          setActiveState([effectiveItem]);
         }
       }
     },
-    [interaction, series, getActiveItemFromPointer, activeState, setActiveState],
+    [interaction, series, scope.series, getActiveItemFromPointer, activeState, setActiveState],
   );
 
   // Handle multi-pointer update

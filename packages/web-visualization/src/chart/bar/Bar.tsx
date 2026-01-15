@@ -42,13 +42,18 @@ export type BarBaseProps = {
    */
   originY?: number;
   /**
-   * The x-axis data value for this bar.
+   * The x-axis data index for this bar.
    */
   dataX?: number | string;
   /**
    * The y-axis data value for this bar.
    */
   dataY?: number | [number, number] | null;
+  /**
+   * The series ID this bar belongs to.
+   * Used for interaction tracking when `interactionScope.series` is true.
+   */
+  seriesId?: string;
   /**
    * Fill color for the bar.
    */
@@ -108,6 +113,7 @@ export const Bar = memo<BarProps>(
     originY,
     dataX,
     dataY,
+    seriesId,
     BarComponent = DefaultBar,
     fill = 'var(--color-fgPrimary)',
     fillOpacity = 1,
@@ -140,6 +146,7 @@ export const Bar = memo<BarProps>(
         originY={effectiveOriginY}
         roundBottom={roundBottom}
         roundTop={roundTop}
+        seriesId={seriesId}
         stroke={stroke}
         strokeWidth={strokeWidth}
         transition={transition}

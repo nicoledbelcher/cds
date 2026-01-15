@@ -676,6 +676,7 @@ export const BarStack = memo<BarStackProps>(
         originY={baseline}
         roundBottom={bar.roundBottom}
         roundTop={bar.roundTop}
+        seriesId={bar.seriesId}
         stroke={defaultStroke}
         strokeWidth={defaultStrokeWidth}
         transition={transition}

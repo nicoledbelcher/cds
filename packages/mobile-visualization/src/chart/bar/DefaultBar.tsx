@@ -11,6 +11,10 @@ export type DefaultBarProps = BarComponentProps;
 
 /**
  * Default bar component that renders a solid bar with animation support.
+ *
+ * Note: Series-level interaction tracking on mobile requires coordinate-based hit testing
+ * in the gesture handler, as Skia paths don't support touch events directly.
+ * The `seriesId` prop is available for future series interaction implementations.
  */
 export const DefaultBar = memo<DefaultBarProps>(
   ({
@@ -27,6 +31,10 @@ export const DefaultBar = memo<DefaultBarProps>(
     stroke,
     strokeWidth,
     originY,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    dataX,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    seriesId,
     transition,
   }) => {
     const { animate } = useCartesianChartContext();

@@ -504,3 +504,221 @@ export function SynchronizedCharts() {
     </VStack>
   );
 }
+
+/**
+ * Series interaction - track which specific bar/series is being hovered
+ */
+export function SeriesInteraction() {
+  const [activeItem, setActiveItem] = useState<ActiveItem | undefined>(undefined);
+
+  const handleInteractionChange = useCallback((state: InteractionState) => {
+    setActiveItem(state as ActiveItem | undefined);
+  }, []);
+
+  const seriesColors: Record<string, string> = {
+    A: 'var(--color-fgPrimary)',
+    B: 'var(--color-fgPositive)',
+    C: 'var(--color-fgWarning)',
+  };
+
+  return (
+    <VStack gap={2}>
+      <Text as="h2" font="title3">
+        Series Interaction
+      </Text>
+      <Text as="p" color="fgMuted">
+        Hover over individual bars to see both dataIndex and seriesId tracked. Uses InteractiveBar
+        component.
+      </Text>
+
+      <Box background="bgSecondary" borderRadius={200} padding={2}>
+        <Text font="body">
+          {activeItem ? (
+            <>
+              Index: {activeItem.dataIndex ?? 'none'}
+              {activeItem.seriesId && (
+                <>
+                  {' '}
+                  | Series:{' '}
+                  <Text as="span" font="body" style={{ color: seriesColors[activeItem.seriesId] }}>
+                    {activeItem.seriesId}
+                  </Text>
+                </>
+              )}
+            </>
+          ) : (
+            'Hover over a bar...'
+          )}
+        </Text>
+      </Box>
+
+      <BarChart
+        height={250}
+        interaction="single"
+        interactionScope={{ dataIndex: true, series: true }}
+        onInteractionChange={handleInteractionChange}
+        series={[
+          { id: 'A', data: seriesA, label: 'Series A', color: seriesColors.A },
+          { id: 'B', data: seriesB, label: 'Series B', color: seriesColors.B },
+          { id: 'C', data: [2, 5, 3, 4, 6], label: 'Series C', color: seriesColors.C },
+        ]}
+        xAxis={{ scaleType: 'band', data: xAxisData }}
+      />
+    </VStack>
+  );
+}
+
+/**
+ * Test overlapping bars with separate BarPlots to verify z-order behavior
+ */
+export function OverlappingBarsZOrder() {
+  const [activeItem, setActiveItem] = useState<ActiveItem | undefined>(undefined);
+  const [eventLog, setEventLog] = useState<string[]>([]);
+
+  const handleInteractionChange = useCallback((state: InteractionState) => {
+    const item = state as ActiveItem | undefined;
+    setActiveItem(item);
+
+    // Log the event
+    if (item) {
+      const logEntry = `${new Date().toLocaleTimeString()}: dataIndex=${item.dataIndex}, seriesId=${item.seriesId ?? 'null'}`;
+      setEventLog((prev) => [logEntry, ...prev.slice(0, 9)]);
+    }
+  }, []);
+
+  const seriesColors: Record<string, string> = {
+    revenue: 'var(--color-fgWarning)',
+    profitMargin: 'rgba(0, 255, 0, 0.25)',
+  };
+
+  return (
+    <VStack gap={2}>
+      <Text as="h2" font="title3">
+        Overlapping Bars Z-Order Test
+      </Text>
+      <Text as="p" color="fgMuted">
+        Two separate BarPlots with different y-axes. The bars overlap at the same x positions. Hover
+        to see which series is detected. The second BarPlot (profitMargin/green) is rendered on top.
+      </Text>
+
+      <Box background="bgSecondary" borderRadius={200} padding={2}>
+        <Text font="body">
+          {activeItem ? (
+            <>
+              Index: {activeItem.dataIndex ?? 'none'}
+              {activeItem.seriesId && (
+                <>
+                  {' '}
+                  | Series:{' '}
+                  <Text as="span" font="body" style={{ color: seriesColors[activeItem.seriesId] }}>
+                    {activeItem.seriesId}
+                  </Text>
+                </>
+              )}
+            </>
+          ) : (
+            'Hover over a bar...'
+          )}
+        </Text>
+      </Box>
+
+      <CartesianChart
+        height={300}
+        inset={{ top: 8, bottom: 8, left: 0, right: 0 }}
+        interaction="single"
+        interactionScope={{ dataIndex: true, series: true }}
+        onInteractionChange={handleInteractionChange}
+        series={[
+          {
+            id: 'revenue',
+            data: [455, 520, 380, 455, 285, 235],
+            yAxisId: 'revenue',
+            color: seriesColors.revenue,
+          },
+          {
+            id: 'profitMargin',
+            data: [23, 20, 16, 38, 12, 9],
+            yAxisId: 'profitMargin',
+            color: seriesColors.profitMargin,
+          },
+        ]}
+        xAxis={{
+          data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          scaleType: 'band',
+        }}
+        yAxis={[
+          {
+            id: 'revenue',
+            domain: { min: 0 },
+          },
+          {
+            id: 'profitMargin',
+            domain: { min: 0, max: 100 },
+          },
+        ]}
+      >
+        <XAxis showLine showTickMarks />
+        <YAxis
+          showGrid
+          showLine
+          showTickMarks
+          axisId="revenue"
+          position="left"
+          requestedTickCount={5}
+          tickLabelFormatter={(value) => `$${value}k`}
+          width={60}
+        />
+        <YAxis
+          showLine
+          showTickMarks
+          axisId="profitMargin"
+          position="right"
+          requestedTickCount={5}
+          tickLabelFormatter={(value) => `${value}%`}
+        />
+        {/* First BarPlot - rendered first (underneath) */}
+        <BarPlot seriesIds={['revenue']} />
+        {/* Second BarPlot - rendered second (on top) */}
+        <BarPlot seriesIds={['profitMargin']} />
+      </CartesianChart>
+
+      <HStack gap={2} justifyContent="center">
+        <HStack alignItems="center" gap={0.5}>
+          <Box
+            borderRadius={1000}
+            height={10}
+            style={{ background: seriesColors.revenue }}
+            width={10}
+          />
+          <Text font="legal">Revenue (rendered first - underneath)</Text>
+        </HStack>
+        <HStack alignItems="center" gap={0.5}>
+          <Box
+            borderRadius={1000}
+            height={10}
+            style={{ background: seriesColors.profitMargin }}
+            width={10}
+          />
+          <Text font="legal">Profit Margin (rendered second - on top)</Text>
+        </HStack>
+      </HStack>
+
+      <Box background="bgSecondary" borderRadius={200} padding={2}>
+        <Text color="fgMuted" font="caption">
+          Event Log (most recent first):
+        </Text>
+        {eventLog.length === 0 ? (
+          <Text color="fgMuted" font="legal">
+            Interact with the chart...
+          </Text>
+        ) : (
+          eventLog.map((log, i) => (
+            <Text key={i} font="legal">
+              {log}
+            </Text>
+          ))
+        )}
+      </Box>
+    </VStack>
+  );
+}

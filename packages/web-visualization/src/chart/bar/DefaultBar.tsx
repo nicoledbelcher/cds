@@ -1,8 +1,8 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { m as motion } from 'framer-motion';
 
 import { useCartesianChartContext } from '../ChartProvider';
-import { getBarPath } from '../utils';
+import { getBarPath, useOptionalInteractionContext } from '../utils';
 
 import type { BarComponentProps } from './Bar';
 
@@ -19,6 +19,7 @@ export type DefaultBarProps = BarComponentProps & {
 
 /**
  * Default bar component that renders a solid bar with animation.
+ * Automatically tracks series interaction when `interactionScope.series` is enabled.
  */
 export const DefaultBar = memo<DefaultBarProps>(
   ({
@@ -33,10 +34,12 @@ export const DefaultBar = memo<DefaultBarProps>(
     fillOpacity = 1,
     dataX,
     dataY,
+    seriesId,
     transition,
     ...props
   }) => {
     const { animate } = useCartesianChartContext();
+    const interactionContext = useOptionalInteractionContext();
 
     const initialPath = useMemo(() => {
       if (!animate) return undefined;
@@ -46,10 +49,48 @@ export const DefaultBar = memo<DefaultBarProps>(
       return getBarPath(x, initialY, width, minHeight, borderRadius, !!roundTop, !!roundBottom);
     }, [animate, x, originY, width, borderRadius, roundTop, roundBottom]);
 
+    // Get the data index as a number for interaction
+    const dataIndex = typeof dataX === 'number' ? dataX : null;
+
+    const handleMouseEnter = useCallback(() => {
+      if (!interactionContext || interactionContext.mode === 'none') return;
+      if (!interactionContext.scope.series) return;
+
+      interactionContext.setActiveItem({
+        dataIndex,
+        seriesId: seriesId ?? null,
+      });
+    }, [interactionContext, dataIndex, seriesId]);
+
+    const handleMouseLeave = useCallback(() => {
+      if (!interactionContext || interactionContext.mode === 'none') return;
+      if (!interactionContext.scope.series) return;
+
+      // Reset to just dataIndex (keep dataIndex tracking, clear series)
+      if (interactionContext.scope.dataIndex) {
+        interactionContext.setActiveItem({
+          dataIndex,
+          seriesId: null,
+        });
+      } else {
+        interactionContext.setActiveItem(undefined);
+      }
+    }, [interactionContext, dataIndex]);
+
+    // Only add event handlers when series scope is enabled
+    const eventHandlers = interactionContext?.scope.series
+      ? {
+          onMouseEnter: handleMouseEnter,
+          onMouseLeave: handleMouseLeave,
+          style: { cursor: 'pointer' },
+        }
+      : {};
+
     if (animate && initialPath) {
       return (
         <motion.path
           {...props}
+          {...eventHandlers}
           animate={{ d }}
           fill={fill}
           fillOpacity={fillOpacity}
@@ -59,6 +100,6 @@ export const DefaultBar = memo<DefaultBarProps>(
       );
     }
 
-    return <path {...props} d={d} fill={fill} fillOpacity={fillOpacity} />;
+    return <path {...props} {...eventHandlers} d={d} fill={fill} fillOpacity={fillOpacity} />;
   },
 );
