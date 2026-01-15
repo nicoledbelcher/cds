@@ -40,10 +40,17 @@ const main = async () => {
   console.log('✅ PERCY_TOKEN is set');
 
   console.log('🚀 Uploading snapshots to Percy...');
-  await $`percy storybook ${path.join(MONOREPO_ROOT, 'apps/storybook/dist')}`;
+  const result = await $`percy storybook ${path.join(MONOREPO_ROOT, 'apps/storybook/dist')}`;
+
+  const buildIdMatch = result.stdout.match(/\/builds\/(\d+)/);
+  if (!buildIdMatch) {
+    throw new Error('Could not extract Percy build ID from output');
+  }
+  const buildId = buildIdMatch[1];
+  console.log(`📋 Percy build ID: ${buildId}`);
 
   console.log('⏳ Waiting for Percy build to complete...');
-  await $`npx percy build:wait --fail-on-changes`;
+  await $`npx percy build:wait --build ${buildId} --fail-on-changes`;
 
   console.log('========================================');
   console.log('✨ Percy run complete!');
