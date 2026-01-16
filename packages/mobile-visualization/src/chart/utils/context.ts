@@ -191,6 +191,52 @@ export type ActiveItems = Array<ActiveItem>;
  */
 export type InteractionState = ActiveItem | ActiveItems | undefined | null;
 
+// ============================================================================
+// Interaction Registry Types (for coordinate-based hit testing on mobile)
+// ============================================================================
+
+/**
+ * Bounds of an interactive element (bar, point, etc.)
+ * Used for coordinate-based hit testing since Skia doesn't have native touch events.
+ */
+export type ElementBounds = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  dataIndex: number;
+  seriesId: string;
+};
+
+/**
+ * Bounds of a point (circle) element.
+ */
+export type PointBounds = {
+  cx: number;
+  cy: number;
+  radius: number;
+  dataIndex: number;
+  seriesId: string;
+};
+
+/**
+ * Line path for hit testing.
+ */
+export type LinePath = {
+  pathString: string;
+  seriesId: string;
+};
+
+/**
+ * Registry of interactive elements for coordinate-based hit testing.
+ * Elements are stored in render order (last = on top).
+ */
+export type InteractionRegistry = {
+  bars: ElementBounds[];
+  points: PointBounds[];
+  lines: LinePath[];
+};
+
 /**
  * Context value for chart interaction state (mobile).
  * Uses SharedValue for UI thread performance.
@@ -214,6 +260,30 @@ export type InteractionContextValue = {
    * Function to programmatically set the active item.
    */
   setActiveItem: (state: InteractionState) => void;
+  /**
+   * Register a bar element for hit testing.
+   */
+  registerBar: (bounds: ElementBounds) => void;
+  /**
+   * Unregister a bar element.
+   */
+  unregisterBar: (seriesId: string, dataIndex: number) => void;
+  /**
+   * Register a point element for hit testing.
+   */
+  registerPoint: (bounds: PointBounds) => void;
+  /**
+   * Unregister a point element.
+   */
+  unregisterPoint: (seriesId: string, dataIndex: number) => void;
+  /**
+   * Register a line path for hit testing.
+   */
+  registerLine: (path: LinePath) => void;
+  /**
+   * Unregister a line path.
+   */
+  unregisterLine: (seriesId: string) => void;
 };
 
 export const InteractionContext = createContext<InteractionContextValue | undefined>(undefined);

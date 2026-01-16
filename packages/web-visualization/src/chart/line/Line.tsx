@@ -98,6 +98,16 @@ export type LineBaseProps = SharedProps & {
    */
   strokeWidth?: number;
   /**
+   * Additional pixels to add to each side of the stroke for interaction hit area.
+   * When set, renders an invisible path with a larger stroke width to make the line
+   * easier to interact with. Only active when `interactionScope.series` is enabled.
+   *
+   * @example
+   * // A 2px visible line with a 10px hit area (2 + 4*2 = 10px)
+   * <Line strokeWidth={2} interactionOffset={4} />
+   */
+  interactionOffset?: number;
+  /**
    * Gradient configuration.
    * When provided, creates gradient or threshold-based coloring.
    */
@@ -134,6 +144,7 @@ export type LineComponentProps = Pick<
   | 'stroke'
   | 'strokeOpacity'
   | 'strokeWidth'
+  | 'interactionOffset'
   | 'gradient'
   | 'animate'
   | 'transition'
@@ -150,6 +161,11 @@ export type LineComponentProps = Pick<
      * If not provided, defaults to the default y-axis.
      */
     yAxisId?: string;
+    /**
+     * The series ID this line belongs to.
+     * Used for interaction tracking when `interactionScope.series` is true.
+     */
+    seriesId?: string;
   };
 
 export type LineComponent = React.FC<LineComponentProps>;
@@ -182,7 +198,11 @@ export const Line = memo<LineProps>(
       () => gradientProp ?? matchedSeries?.gradient,
       [gradientProp, matchedSeries?.gradient],
     );
-    const sourceData = useMemo(() => getSeriesData(seriesId), [getSeriesData, seriesId]);
+    const sourceData = useMemo(() => {
+      const data = getSeriesData(seriesId);
+      console.log('[Line] sourceData for seriesId:', seriesId, 'length:', data?.length);
+      return data;
+    }, [getSeriesData, seriesId]);
 
     const xAxis = useMemo(() => getXAxis(), [getXAxis]);
     const xScale = useMemo(() => getXScale(), [getXScale]);
@@ -192,7 +212,11 @@ export const Line = memo<LineProps>(
     );
 
     // Convert sourceData to number array (line only supports numbers, not tuples)
-    const chartData = useMemo(() => getLineData(sourceData), [sourceData]);
+    const chartData = useMemo(() => {
+      const data = getLineData(sourceData);
+      console.log('[Line] chartData length:', data.length);
+      return data;
+    }, [sourceData]);
 
     const path = useMemo(() => {
       if (!xScale || !yScale || chartData.length === 0) return '';
@@ -203,7 +227,7 @@ export const Line = memo<LineProps>(
           ? (xAxis.data as number[])
           : undefined;
 
-      return getLinePath({
+      const result = getLinePath({
         data: chartData,
         xScale,
         yScale,
@@ -211,6 +235,13 @@ export const Line = memo<LineProps>(
         xData,
         connectNulls,
       });
+      console.log(
+        '[Line] path computed, chartData.length:',
+        chartData.length,
+        'path length:',
+        result.length,
+      );
+      return result;
     }, [chartData, xScale, yScale, curve, xAxis?.data, connectNulls]);
 
     const LineComponent = useMemo((): LineComponent => {
@@ -270,6 +301,7 @@ export const Line = memo<LineProps>(
         <LineComponent
           d={path}
           gradient={gradient}
+          seriesId={seriesId}
           stroke={stroke}
           strokeOpacity={strokeOpacity ?? opacity}
           transition={transition}

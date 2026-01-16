@@ -75,7 +75,7 @@ export const DefaultBar = memo<DefaultBarProps>(
       } else {
         interactionContext.setActiveItem(undefined);
       }
-    }, [interactionContext, dataIndex]);
+    }, [interactionContext, dataIndex, seriesId]);
 
     // Only add event handlers when series scope is enabled
     const eventHandlers = interactionContext?.scope.series

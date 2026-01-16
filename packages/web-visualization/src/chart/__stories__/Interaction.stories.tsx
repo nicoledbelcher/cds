@@ -722,3 +722,164 @@ export function OverlappingBarsZOrder() {
     </VStack>
   );
 }
+
+// Custom line component that fades when another series is active, and grows when it's the active one
+type FadeableLineProps = React.ComponentProps<typeof SolidLine> & {
+  /** Stroke width when this line is the active series. Defaults to strokeWidth * 2 */
+  activeStrokeWidth?: number;
+};
+
+const FadeableLine = memo<FadeableLineProps>(
+  ({ seriesId, strokeWidth = 2, activeStrokeWidth, ...props }) => {
+    const interactionContext = useInteractionContext();
+    const activeSeriesId =
+      interactionContext.activeItem && !Array.isArray(interactionContext.activeItem)
+        ? interactionContext.activeItem.seriesId
+        : null;
+
+    // Determine if this line is active, faded, or neutral
+    const isActive = activeSeriesId === seriesId;
+    const isFaded = activeSeriesId !== null && !isActive;
+
+    // Active: larger stroke (default 2x), Faded: reduced opacity, Neutral: normal
+    const effectiveActiveStrokeWidth = activeStrokeWidth ?? strokeWidth * 2;
+    const effectiveStrokeWidth = isActive ? effectiveActiveStrokeWidth : strokeWidth;
+    const effectiveOpacity = isFaded ? 0.2 : 1;
+
+    return (
+      <SolidLine
+        {...props}
+        seriesId={seriesId}
+        strokeOpacity={effectiveOpacity}
+        strokeWidth={effectiveStrokeWidth}
+        style={{ transition: 'stroke-opacity 150ms ease-out, stroke-width 150ms ease-out' }}
+      />
+    );
+  },
+);
+
+/**
+ * Line series interaction with interactionOffset for larger hit area
+ */
+export function LineSeriesInteraction() {
+  const [activeItem, setActiveItem] = useState<ActiveItem | undefined>(undefined);
+  const [interactionOffset, setInteractionOffset] = useState(8);
+  const [enableFade, setEnableFade] = useState(true);
+
+  const handleInteractionChange = useCallback((state: InteractionState) => {
+    setActiveItem(state as ActiveItem | undefined);
+  }, []);
+
+  const seriesColors: Record<string, string> = {
+    btc: 'var(--color-fgPrimary)',
+    eth: 'var(--color-fgPositive)',
+    sol: 'var(--color-fgWarning)',
+  };
+
+  // Generate some sample data
+  const btcData = useMemo(() => samplePrices.slice(0, 20), []);
+  const ethData = useMemo(() => btcData.map((p) => p * 0.7 + Math.random() * 500), [btcData]);
+  const solData = useMemo(() => btcData.map((p) => p * 0.4 + Math.random() * 300), [btcData]);
+
+  return (
+    <VStack gap={2}>
+      <Text as="h2" font="title3">
+        Line Series Interaction
+      </Text>
+      <Text as="p" color="fgMuted">
+        Hover over the lines to highlight a specific series. Other lines fade out when one is
+        active.
+      </Text>
+
+      <HStack alignItems="center" gap={2}>
+        <Text font="body">interactionOffset:</Text>
+        {[0, 4, 8, 16].map((offset) => (
+          <Button
+            key={offset}
+            compact
+            onClick={() => setInteractionOffset(offset)}
+            variant={interactionOffset === offset ? 'primary' : 'secondary'}
+          >
+            {offset}px
+          </Button>
+        ))}
+      </HStack>
+
+      <HStack alignItems="center" gap={2}>
+        <Button compact onClick={() => setEnableFade(!enableFade)} variant="secondary">
+          {enableFade ? 'Disable' : 'Enable'} fade effect
+        </Button>
+      </HStack>
+
+      <Box background="bgSecondary" borderRadius={200} padding={2}>
+        <Text font="body">
+          {activeItem ? (
+            <>
+              Index: {activeItem.dataIndex ?? 'none'}
+              {activeItem.seriesId && (
+                <>
+                  {' '}
+                  | Series:{' '}
+                  <Text as="span" font="body" style={{ color: seriesColors[activeItem.seriesId] }}>
+                    {activeItem.seriesId}
+                  </Text>
+                </>
+              )}
+            </>
+          ) : (
+            'Hover over a line...'
+          )}
+        </Text>
+        <Text color="fgMuted" font="legal">
+          Hit area = strokeWidth (2) + interactionOffset ({interactionOffset}) × 2 ={' '}
+          {2 + interactionOffset * 2}px
+        </Text>
+      </Box>
+
+      <CartesianChart
+        height={300}
+        interaction="single"
+        interactionScope={{ dataIndex: true, series: true }}
+        onInteractionChange={handleInteractionChange}
+        series={[
+          { id: 'btc', data: btcData, color: seriesColors.btc },
+          { id: 'eth', data: ethData, color: seriesColors.eth },
+          { id: 'sol', data: solData, color: seriesColors.sol },
+        ]}
+      >
+        <YAxis position="left" />
+        <Line
+          LineComponent={enableFade ? FadeableLine : undefined}
+          interactionOffset={interactionOffset}
+          seriesId="btc"
+          strokeWidth={2}
+        />
+        <Line
+          LineComponent={enableFade ? FadeableLine : undefined}
+          interactionOffset={interactionOffset}
+          seriesId="eth"
+          strokeWidth={2}
+        />
+        <Line
+          LineComponent={enableFade ? FadeableLine : undefined}
+          interactionOffset={interactionOffset}
+          seriesId="sol"
+          strokeWidth={2}
+        />
+        {/* Wrap Scrubber with pointer-events: none so it doesn't block line interactions */}
+        <g style={{ pointerEvents: 'none' }}>
+          <Scrubber hideOverlay />
+        </g>
+      </CartesianChart>
+
+      <HStack gap={2} justifyContent="center">
+        {Object.entries(seriesColors).map(([id, color]) => (
+          <HStack key={id} alignItems="center" gap={0.5}>
+            <Box borderRadius={1000} height={10} style={{ background: color }} width={10} />
+            <Text font="legal">{id.toUpperCase()}</Text>
+          </HStack>
+        ))}
+      </HStack>
+    </VStack>
+  );
+}

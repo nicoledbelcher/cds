@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import {
@@ -14,12 +14,16 @@ import { useCartesianChartContext } from '../ChartProvider';
 import {
   type ActiveItem,
   type ActiveItems,
+  type ElementBounds,
   InteractionContext,
   type InteractionContextValue,
   type InteractionMode,
+  type InteractionRegistry,
   type InteractionScope,
   type InteractionState,
   invertSerializableScale,
+  type LinePath,
+  type PointBounds,
   ScrubberContext,
   type ScrubberContextValue,
 } from '../utils';
@@ -138,6 +142,113 @@ export const InteractionProvider: React.FC<InteractionProviderProps> = ({
     () => ({ ...defaultInteractionScope, ...scopeProp }),
     [scopeProp],
   );
+
+  // ============================================================================
+  // Interaction Registry (for coordinate-based hit testing)
+  // ============================================================================
+
+  // Use ref to avoid re-renders when registering elements
+  const registryRef = useRef<InteractionRegistry>({
+    bars: [],
+    points: [],
+    lines: [],
+  });
+
+  // Register a bar element for hit testing
+  const registerBar = useCallback((bounds: ElementBounds) => {
+    // Add to registry (elements are stored in render order)
+    registryRef.current.bars.push(bounds);
+  }, []);
+
+  // Unregister a bar element
+  const unregisterBar = useCallback((seriesId: string, dataIndex: number) => {
+    registryRef.current.bars = registryRef.current.bars.filter(
+      (bar) => !(bar.seriesId === seriesId && bar.dataIndex === dataIndex),
+    );
+  }, []);
+
+  // Register a point element for hit testing
+  const registerPoint = useCallback((bounds: PointBounds) => {
+    registryRef.current.points.push(bounds);
+  }, []);
+
+  // Unregister a point element
+  const unregisterPoint = useCallback((seriesId: string, dataIndex: number) => {
+    registryRef.current.points = registryRef.current.points.filter(
+      (point) => !(point.seriesId === seriesId && point.dataIndex === dataIndex),
+    );
+  }, []);
+
+  // Register a line path for hit testing
+  const registerLine = useCallback((path: LinePath) => {
+    // Replace existing line with same seriesId (path may update)
+    registryRef.current.lines = registryRef.current.lines.filter(
+      (line) => line.seriesId !== path.seriesId,
+    );
+    registryRef.current.lines.push(path);
+  }, []);
+
+  // Unregister a line path
+  const unregisterLine = useCallback((seriesId: string) => {
+    registryRef.current.lines = registryRef.current.lines.filter(
+      (line) => line.seriesId !== seriesId,
+    );
+  }, []);
+
+  // Find bar at touch point (iterates in reverse for correct z-order)
+  const findBarAtPoint = useCallback((touchX: number, touchY: number): ElementBounds | null => {
+    const bars = registryRef.current.bars;
+    // Iterate in reverse order (last rendered = on top = checked first)
+    for (let i = bars.length - 1; i >= 0; i--) {
+      const bar = bars[i];
+      if (
+        touchX >= bar.x &&
+        touchX <= bar.x + bar.width &&
+        touchY >= bar.y &&
+        touchY <= bar.y + bar.height
+      ) {
+        return bar;
+      }
+    }
+    return null;
+  }, []);
+
+  // Find point at touch point
+  const findPointAtTouch = useCallback(
+    (touchX: number, touchY: number, touchTolerance: number = 10): PointBounds | null => {
+      const points = registryRef.current.points;
+      for (let i = points.length - 1; i >= 0; i--) {
+        const point = points[i];
+        const distance = Math.sqrt(Math.pow(touchX - point.cx, 2) + Math.pow(touchY - point.cy, 2));
+        if (distance <= point.radius + touchTolerance) {
+          return point;
+        }
+      }
+      return null;
+    },
+    [],
+  );
+
+  // Find series at touch point (checks bars first, then points)
+  // Note: Line hit testing would require Skia path parsing - not implemented yet
+  const findSeriesAtPoint = useCallback(
+    (touchX: number, touchY: number): string | null => {
+      // Check bars first
+      const hitBar = findBarAtPoint(touchX, touchY);
+      if (hitBar) return hitBar.seriesId;
+
+      // Check points
+      const hitPoint = findPointAtTouch(touchX, touchY);
+      if (hitPoint) return hitPoint.seriesId;
+
+      // TODO: Add line hit testing using Skia path.contains()
+
+      return null;
+    },
+    [findBarAtPoint, findPointAtTouch],
+  );
+
+  // ============================================================================
 
   // Determine if we're in controlled mode
   // null/[] means "controlled with no active item" - distinct from undefined (uncontrolled)
@@ -266,6 +377,18 @@ export const InteractionProvider: React.FC<InteractionProviderProps> = ({
     [isControlled, internalActiveItem, onInteractionChange],
   );
 
+  // Helper to create active item with optional series hit testing (runs on JS thread)
+  const createActiveItemWithSeries = useCallback(
+    (x: number, y: number, dataIndex: number | null): ActiveItem => {
+      let seriesId: string | null = null;
+      if (scope.series) {
+        seriesId = findSeriesAtPoint(x, y);
+      }
+      return { dataIndex, seriesId };
+    },
+    [scope.series, findSeriesAtPoint],
+  );
+
   // Create the long press pan gesture for single mode
   const singleTouchGesture = useMemo(
     () =>
@@ -278,26 +401,38 @@ export const InteractionProvider: React.FC<InteractionProviderProps> = ({
           // Android does not trigger onUpdate when the gesture starts
           if (Platform.OS === 'android') {
             const dataIndex = scope.dataIndex ? getDataIndexFromX(event.x) : null;
-            const newActiveItem: ActiveItem = { dataIndex, seriesId: null };
-            const currentItem = internalActiveItem.value as ActiveItem | undefined;
-            if (newActiveItem.dataIndex !== currentItem?.dataIndex) {
-              if (!isControlled) {
-                internalActiveItem.value = newActiveItem;
+            // Series hit testing runs on JS thread
+            runOnJS((x: number, y: number, di: number | null) => {
+              const newActiveItem = createActiveItemWithSeries(x, y, di);
+              const currentItem = internalActiveItem.value as ActiveItem | undefined;
+              if (
+                newActiveItem.dataIndex !== currentItem?.dataIndex ||
+                newActiveItem.seriesId !== currentItem?.seriesId
+              ) {
+                if (!isControlled) {
+                  internalActiveItem.value = newActiveItem;
+                }
+                onInteractionChange?.(newActiveItem);
               }
-              runOnJS(onInteractionChange ?? (() => {}))(newActiveItem);
-            }
+            })(event.x, event.y, dataIndex);
           }
         })
         .onUpdate(function onUpdate(event) {
           const dataIndex = scope.dataIndex ? getDataIndexFromX(event.x) : null;
-          const newActiveItem: ActiveItem = { dataIndex, seriesId: null };
-          const currentItem = internalActiveItem.value as ActiveItem | undefined;
-          if (newActiveItem.dataIndex !== currentItem?.dataIndex) {
-            if (!isControlled) {
-              internalActiveItem.value = newActiveItem;
+          // Series hit testing runs on JS thread
+          runOnJS((x: number, y: number, di: number | null) => {
+            const newActiveItem = createActiveItemWithSeries(x, y, di);
+            const currentItem = internalActiveItem.value as ActiveItem | undefined;
+            if (
+              newActiveItem.dataIndex !== currentItem?.dataIndex ||
+              newActiveItem.seriesId !== currentItem?.seriesId
+            ) {
+              if (!isControlled) {
+                internalActiveItem.value = newActiveItem;
+              }
+              onInteractionChange?.(newActiveItem);
             }
-            runOnJS(onInteractionChange ?? (() => {}))(newActiveItem);
-          }
+          })(event.x, event.y, dataIndex);
         })
         .onEnd(function onEnd() {
           if (interaction !== 'none') {
@@ -321,11 +456,27 @@ export const InteractionProvider: React.FC<InteractionProviderProps> = ({
       handleStartEndHaptics,
       getDataIndexFromX,
       scope.dataIndex,
+      createActiveItemWithSeries,
       internalActiveItem,
       interaction,
       isControlled,
       onInteractionChange,
     ],
+  );
+
+  // Helper to process touches and create active items (runs on JS thread)
+  const processMultiTouches = useCallback(
+    (touches: Array<{ x: number; y: number }>): ActiveItems => {
+      return touches.map((touch) => {
+        const dataIndex = scope.dataIndex ? getDataIndexFromX(touch.x) : null;
+        let seriesId: string | null = null;
+        if (scope.series) {
+          seriesId = findSeriesAtPoint(touch.x, touch.y);
+        }
+        return { dataIndex, seriesId };
+      });
+    },
+    [scope.dataIndex, scope.series, getDataIndexFromX, findSeriesAtPoint],
   );
 
   // Create multi-touch gesture
@@ -336,24 +487,25 @@ export const InteractionProvider: React.FC<InteractionProviderProps> = ({
         .onTouchesDown(function onTouchesDown(event) {
           runOnJS(handleStartEndHaptics)();
 
-          const items: ActiveItems = event.allTouches.map((touch) => {
-            const dataIndex = scope.dataIndex ? getDataIndexFromX(touch.x) : null;
-            return { dataIndex, seriesId: null };
-          });
-          if (!isControlled) {
-            internalActiveItem.value = items;
-          }
-          runOnJS(onInteractionChange ?? (() => {}))(items);
+          // Extract touch coordinates for JS thread processing
+          const touches = event.allTouches.map((t) => ({ x: t.x, y: t.y }));
+          runOnJS((touchData: Array<{ x: number; y: number }>) => {
+            const items = processMultiTouches(touchData);
+            if (!isControlled) {
+              internalActiveItem.value = items;
+            }
+            onInteractionChange?.(items);
+          })(touches);
         })
         .onTouchesMove(function onTouchesMove(event) {
-          const items: ActiveItems = event.allTouches.map((touch) => {
-            const dataIndex = scope.dataIndex ? getDataIndexFromX(touch.x) : null;
-            return { dataIndex, seriesId: null };
-          });
-          if (!isControlled) {
-            internalActiveItem.value = items;
-          }
-          runOnJS(onInteractionChange ?? (() => {}))(items);
+          const touches = event.allTouches.map((t) => ({ x: t.x, y: t.y }));
+          runOnJS((touchData: Array<{ x: number; y: number }>) => {
+            const items = processMultiTouches(touchData);
+            if (!isControlled) {
+              internalActiveItem.value = items;
+            }
+            onInteractionChange?.(items);
+          })(touches);
         })
         .onTouchesUp(function onTouchesUp(event) {
           if (event.allTouches.length === 0) {
@@ -363,14 +515,14 @@ export const InteractionProvider: React.FC<InteractionProviderProps> = ({
             }
             runOnJS(onInteractionChange ?? (() => {}))([]);
           } else {
-            const items: ActiveItems = event.allTouches.map((touch) => {
-              const dataIndex = scope.dataIndex ? getDataIndexFromX(touch.x) : null;
-              return { dataIndex, seriesId: null };
-            });
-            if (!isControlled) {
-              internalActiveItem.value = items;
-            }
-            runOnJS(onInteractionChange ?? (() => {}))(items);
+            const touches = event.allTouches.map((t) => ({ x: t.x, y: t.y }));
+            runOnJS((touchData: Array<{ x: number; y: number }>) => {
+              const items = processMultiTouches(touchData);
+              if (!isControlled) {
+                internalActiveItem.value = items;
+              }
+              onInteractionChange?.(items);
+            })(touches);
           }
         })
         .onTouchesCancelled(function onTouchesCancelled() {
@@ -382,8 +534,7 @@ export const InteractionProvider: React.FC<InteractionProviderProps> = ({
     [
       allowOverflowGestures,
       handleStartEndHaptics,
-      getDataIndexFromX,
-      scope.dataIndex,
+      processMultiTouches,
       internalActiveItem,
       isControlled,
       onInteractionChange,
@@ -398,8 +549,25 @@ export const InteractionProvider: React.FC<InteractionProviderProps> = ({
       scope,
       activeItem,
       setActiveItem,
+      registerBar,
+      unregisterBar,
+      registerPoint,
+      unregisterPoint,
+      registerLine,
+      unregisterLine,
     }),
-    [interaction, scope, activeItem, setActiveItem],
+    [
+      interaction,
+      scope,
+      activeItem,
+      setActiveItem,
+      registerBar,
+      unregisterBar,
+      registerPoint,
+      unregisterPoint,
+      registerLine,
+      unregisterLine,
+    ],
   );
 
   // Derive scrubberPosition from internal active item for backwards compatibility

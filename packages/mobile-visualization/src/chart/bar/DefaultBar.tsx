@@ -1,9 +1,9 @@
-import { memo, useMemo } from 'react';
+import { memo, useEffect, useMemo } from 'react';
 import { useTheme } from '@coinbase/cds-mobile/hooks/useTheme';
 
 import { useCartesianChartContext } from '../ChartProvider';
 import { Path } from '../Path';
-import { getBarPath } from '../utils';
+import { getBarPath, useOptionalInteractionContext } from '../utils';
 
 import type { BarComponentProps } from './Bar';
 
@@ -12,9 +12,8 @@ export type DefaultBarProps = BarComponentProps;
 /**
  * Default bar component that renders a solid bar with animation support.
  *
- * Note: Series-level interaction tracking on mobile requires coordinate-based hit testing
- * in the gesture handler, as Skia paths don't support touch events directly.
- * The `seriesId` prop is available for future series interaction implementations.
+ * Automatically registers bounds for series interaction hit testing when
+ * `interactionScope.series` is enabled.
  */
 export const DefaultBar = memo<DefaultBarProps>(
   ({
@@ -31,13 +30,33 @@ export const DefaultBar = memo<DefaultBarProps>(
     stroke,
     strokeWidth,
     originY,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     dataX,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     seriesId,
     transition,
   }) => {
     const { animate } = useCartesianChartContext();
+    const interactionContext = useOptionalInteractionContext();
+
+    // Register bar bounds for hit testing when series interaction is enabled
+    useEffect(() => {
+      if (!interactionContext?.scope.series || !seriesId) return;
+
+      // Get the data index as a number
+      const dataIndex = typeof dataX === 'number' ? dataX : 0;
+
+      interactionContext.registerBar({
+        x,
+        y,
+        width,
+        height,
+        dataIndex,
+        seriesId,
+      });
+
+      return () => {
+        interactionContext.unregisterBar(seriesId, dataIndex);
+      };
+    }, [x, y, width, height, dataX, seriesId, interactionContext]);
     const theme = useTheme();
 
     const defaultFill = fill || theme.color.fgPrimary;

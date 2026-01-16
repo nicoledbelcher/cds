@@ -7,6 +7,7 @@ import { useTabsContext } from '@coinbase/cds-common/tabs/TabsContext';
 import type { TabValue } from '@coinbase/cds-common/tabs/useTabs';
 import { ListCell } from '@coinbase/cds-web/cells';
 import { useBreakpoints } from '@coinbase/cds-web/hooks/useBreakpoints';
+import { Icon } from '@coinbase/cds-web/icons';
 import { Box, HStack, VStack } from '@coinbase/cds-web/layout';
 import { Avatar, RemoteImage } from '@coinbase/cds-web/media';
 import { SectionHeader } from '@coinbase/cds-web/section-header/SectionHeader';
@@ -17,14 +18,16 @@ import {
   type TabComponent,
   type TabsActiveIndicatorProps,
 } from '@coinbase/cds-web/tabs';
-import { Text } from '@coinbase/cds-web/typography';
+import { Text, TextLabel1 } from '@coinbase/cds-web/typography';
 import { m } from 'framer-motion';
 
 import {
+  type ActiveItem,
   type AxisBounds,
   DefaultScrubberBeacon,
   DefaultScrubberLabel,
   defaultTransition,
+  type InteractionState,
   PeriodSelector,
   PeriodSelectorActiveIndicator,
   Point,
@@ -1599,6 +1602,495 @@ function CustomLabelComponent() {
   );
 }
 
+function HighlightLineSegments() {
+  const prices = useMemo(
+    () => [...btcCandles].reverse().map((candle) => parseFloat(candle.close)),
+    [],
+  );
+
+  const [scrubberPosition, setScrubberPosition] = useState<number | undefined>(undefined);
+
+  const handleInteractionChange = useCallback((state: InteractionState) => {
+    const item = state as ActiveItem | undefined;
+    setScrubberPosition(item?.dataIndex ?? undefined);
+  }, []);
+
+  // Calculate which month (~30-day segment) the scrubber is in
+  const dataPointsPerMonth = 30;
+  const currentMonth =
+    scrubberPosition !== undefined ? Math.floor(scrubberPosition / dataPointsPerMonth) : undefined;
+
+  const monthStart = currentMonth !== undefined ? currentMonth * dataPointsPerMonth : undefined;
+  const monthEnd =
+    currentMonth !== undefined
+      ? Math.min((currentMonth + 1) * dataPointsPerMonth - 1, prices.length - 1)
+      : undefined;
+
+  // Create gradient to highlight the current month
+  const gradient = useMemo(() => {
+    const color = assets.btc.color;
+
+    if (monthStart === undefined || monthEnd === undefined) {
+      return {
+        axis: 'x' as const,
+        stops: [
+          { offset: 0, color, opacity: 1 },
+          { offset: prices.length - 1, color, opacity: 1 },
+        ],
+      };
+    }
+
+    const stops = [];
+    if (monthStart > 0) {
+      stops.push({ offset: 0, color, opacity: 0.25 });
+      stops.push({ offset: monthStart, color, opacity: 0.25 });
+    }
+    stops.push({ offset: monthStart, color, opacity: 1 });
+    stops.push({ offset: monthEnd, color, opacity: 1 });
+    if (monthEnd < prices.length - 1) {
+      stops.push({ offset: monthEnd, color, opacity: 0.25 });
+      stops.push({ offset: prices.length - 1, color, opacity: 0.25 });
+    }
+
+    return { axis: 'x' as const, stops };
+  }, [monthStart, monthEnd, prices.length]);
+
+  return (
+    <LineChart
+      animate={false}
+      height={{ base: 200, tablet: 225, desktop: 250 }}
+      interaction="single"
+      onInteractionChange={handleInteractionChange}
+      series={[{ id: 'btc', data: prices, gradient }]}
+      style={{ outlineColor: assets.btc.color }}
+    >
+      <Scrubber hideOverlay />
+    </LineChart>
+  );
+}
+
+function AdaptiveDetail() {
+  const BTCTab: TabComponent = memo(
+    forwardRef(
+      ({ label, ...props }: SegmentedTabProps, ref: React.ForwardedRef<HTMLButtonElement>) => {
+        const { activeTab } = useTabsContext();
+        const isActive = activeTab?.id === props.id;
+
+        return (
+          <SegmentedTab
+            ref={ref}
+            label={
+              <TextLabel1
+                style={{
+                  transition: 'color 0.2s ease',
+                  color: isActive ? assets.btc.color : undefined,
+                }}
+              >
+                {label}
+              </TextLabel1>
+            }
+            {...props}
+          />
+        );
+      },
+    ),
+  );
+
+  const BTCActiveIndicator = memo(({ style, ...props }: TabsActiveIndicatorProps) => (
+    <PeriodSelectorActiveIndicator
+      {...props}
+      style={{ ...style, backgroundColor: `${assets.btc.color}1A` }}
+    />
+  ));
+
+  // Sample data using a moving average for smoother results
+  const sampleData = useCallback((data: number[], targetPoints: number) => {
+    if (data.length <= targetPoints) return data;
+
+    // First, apply a moving average to smooth the data
+    const windowSize = Math.max(3, Math.floor(data.length / targetPoints));
+    const smoothed: number[] = [];
+
+    for (let i = 0; i < data.length; i++) {
+      const halfWindow = Math.floor(windowSize / 2);
+      const start = Math.max(0, i - halfWindow);
+      const end = Math.min(data.length, i + halfWindow + 1);
+      const window = data.slice(start, end);
+      const avg = window.reduce((sum, val) => sum + val, 0) / window.length;
+      smoothed.push(avg);
+    }
+
+    // Then sample from the smoothed data
+    const step = smoothed.length / targetPoints;
+    const sampled: number[] = [];
+
+    for (let i = 0; i < targetPoints; i++) {
+      const idx = Math.floor(i * step);
+      sampled.push(smoothed[idx]);
+    }
+
+    // Always include the last point for accuracy
+    sampled[sampled.length - 1] = data[data.length - 1];
+
+    return sampled;
+  }, []);
+
+  // Memoized chart component - only re-renders when data or isScrubbing changes
+  type MemoizedChartProps = {
+    activeItem: ActiveItem | undefined;
+    data: number[];
+    isScrubbing: boolean;
+    onInteractionChange: (state: InteractionState) => void;
+    scrubberLabel: (index: number) => string;
+  };
+
+  const MemoizedChart = memo(
+    ({ activeItem, data, isScrubbing, onInteractionChange, scrubberLabel }: MemoizedChartProps) => {
+      console.log('[MemoizedChart] Rendering with:', {
+        activeItem,
+        dataLength: data.length,
+        isScrubbing,
+        strokeWidth: isScrubbing ? 2 : 4,
+      });
+      return (
+        <LineChart
+          activeItem={activeItem}
+          height={{ base: 200, tablet: 250, desktop: 300 }}
+          interaction="single"
+          onInteractionChange={onInteractionChange}
+          series={[
+            {
+              id: 'btc',
+              data: data,
+              color: assets.btc.color,
+            },
+          ]}
+          strokeWidth={isScrubbing ? 2 : 4}
+          style={{ outlineColor: assets.btc.color }}
+          transition={{ duration: 0.15 }}
+          yAxis={{ range: ({ min, max }) => ({ min: min + 8, max: max - 8 }) }}
+        >
+          <Scrubber label={scrubberLabel} seriesIds={[]} />
+        </LineChart>
+      );
+    },
+  );
+
+  const AdaptiveDetailChart = memo(() => {
+    console.log('[AdaptiveDetailChart] Rendering');
+    const tabs = useMemo(
+      () => [
+        { id: 'hour', label: '1H' },
+        { id: 'day', label: '1D' },
+        { id: 'week', label: '1W' },
+        { id: 'month', label: '1M' },
+        { id: 'year', label: '1Y' },
+        { id: 'all', label: 'All' },
+      ],
+      [],
+    );
+    const [timePeriod, setTimePeriod] = useState<TabValue>(tabs[0]);
+    // Store selected timestamp instead of dataIndex - this persists across dataset changes
+    const [selectedTimestamp, setSelectedTimestamp] = useState<Date | null>(null);
+    // Track if we're actively scrubbing (separate from selectedTimestamp to handle exit delay)
+    const [isInteracting, setIsInteracting] = useState(false);
+    // Timeout ref for delayed exit - prevents race condition when data switches while mouse is still over chart
+    const exitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const isScrubbing = isInteracting;
+
+    // Cleanup timeout on unmount
+    useEffect(() => {
+      return () => {
+        if (exitTimeoutRef.current) {
+          clearTimeout(exitTimeoutRef.current);
+        }
+      };
+    }, []);
+
+    // Debug: log state changes
+    useEffect(() => {
+      console.log('[AdaptiveDetail] State changed:', {
+        isInteracting,
+        isScrubbing,
+        selectedTimestamp: selectedTimestamp?.toISOString() ?? null,
+      });
+    }, [isInteracting, isScrubbing, selectedTimestamp]);
+
+    const sparklineTimePeriodData = useMemo(() => {
+      return sparklineInteractiveData[timePeriod.id as keyof typeof sparklineInteractiveData];
+    }, [timePeriod]);
+
+    const sparklineTimePeriodDataValues = useMemo(() => {
+      return sparklineTimePeriodData.map((d) => d.value);
+    }, [sparklineTimePeriodData]);
+
+    const sparklineTimePeriodDataTimestamps = useMemo(() => {
+      return sparklineTimePeriodData.map((d) => d.date);
+    }, [sparklineTimePeriodData]);
+
+    // Sample more points for larger time frames
+    const samplePointCount = useMemo(() => {
+      switch (timePeriod.id) {
+        case 'hour':
+        case 'day':
+          return 24;
+        case 'week':
+          return 32;
+        case 'month':
+          return 40;
+        case 'year':
+        case 'all':
+        default:
+          return 48;
+      }
+    }, [timePeriod.id]);
+
+    // Create sampled data with corresponding timestamps for index mapping
+    const sampledDataWithTimestamps = useMemo(() => {
+      const values = sparklineTimePeriodDataValues;
+      const timestamps = sparklineTimePeriodDataTimestamps;
+
+      if (values.length <= samplePointCount) {
+        return { values, timestamps };
+      }
+
+      const step = values.length / samplePointCount;
+      const sampledValues: number[] = [];
+      const sampledTimestamps: Date[] = [];
+
+      for (let i = 0; i < samplePointCount; i++) {
+        const idx = Math.floor(i * step);
+        sampledValues.push(values[idx]);
+        sampledTimestamps.push(timestamps[idx]);
+      }
+
+      // Always include the last point for accuracy
+      sampledValues[sampledValues.length - 1] = values[values.length - 1];
+      sampledTimestamps[sampledTimestamps.length - 1] = timestamps[timestamps.length - 1];
+
+      return { values: sampledValues, timestamps: sampledTimestamps };
+    }, [sparklineTimePeriodDataValues, sparklineTimePeriodDataTimestamps, samplePointCount]);
+
+    // Use sampled data for display when idle, full data when scrubbing
+    const displayData = useMemo(() => {
+      const data = isScrubbing ? sparklineTimePeriodDataValues : sampledDataWithTimestamps.values;
+      console.log('[AdaptiveDetail] displayData computed:', {
+        isScrubbing,
+        dataLength: data.length,
+        fullDataLength: sparklineTimePeriodDataValues.length,
+        sampledDataLength: sampledDataWithTimestamps.values.length,
+      });
+      return data;
+    }, [isScrubbing, sparklineTimePeriodDataValues, sampledDataWithTimestamps.values]);
+
+    // Get timestamps for current display data
+    const displayTimestamps = useMemo(() => {
+      return isScrubbing ? sparklineTimePeriodDataTimestamps : sampledDataWithTimestamps.timestamps;
+    }, [isScrubbing, sparklineTimePeriodDataTimestamps, sampledDataWithTimestamps.timestamps]);
+
+    // Use ref to avoid stale closure in handleInteractionChange
+    // This ensures we always access the latest timestamps when the callback fires
+    const displayTimestampsRef = useRef(displayTimestamps);
+    displayTimestampsRef.current = displayTimestamps;
+
+    // Find the closest index in the current display data for the selected timestamp
+    const findClosestIndex = useCallback((timestamp: Date, timestamps: Date[]) => {
+      const targetTime = timestamp.getTime();
+      let closestIdx = 0;
+      let closestDiff = Math.abs(timestamps[0].getTime() - targetTime);
+
+      for (let i = 1; i < timestamps.length; i++) {
+        const diff = Math.abs(timestamps[i].getTime() - targetTime);
+        if (diff < closestDiff) {
+          closestDiff = diff;
+          closestIdx = i;
+        }
+      }
+
+      return closestIdx;
+    }, []);
+
+    // Compute controlled activeItem based on selected timestamp and current display data
+    // Return undefined (not null) when not interacting to allow uncontrolled user input
+    // Return ActiveItem when interacting to control position across dataset changes
+    const activeItem = useMemo<ActiveItem | undefined>(() => {
+      if (selectedTimestamp === null) {
+        console.log('[AdaptiveDetail] activeItem: undefined (no timestamp)');
+        return undefined;
+      }
+
+      const dataIndex = findClosestIndex(selectedTimestamp, displayTimestamps);
+      console.log('[AdaptiveDetail] activeItem computed:', {
+        selectedTimestamp: selectedTimestamp.toISOString(),
+        dataIndex,
+        displayTimestampsLength: displayTimestamps.length,
+      });
+      return { dataIndex, seriesId: null };
+    }, [selectedTimestamp, displayTimestamps, findClosestIndex]);
+
+    const onPeriodChange = useCallback(
+      (period: TabValue | null) => {
+        setTimePeriod(period || tabs[0]);
+      },
+      [tabs],
+    );
+
+    // Store the timestamp when interaction changes, not the dataIndex
+    // Uses ref to always get latest displayTimestamps, avoiding stale closure issues
+    const handleInteractionChange = useCallback((state: InteractionState) => {
+      const item = state as ActiveItem | undefined;
+      console.log('[AdaptiveDetail] handleInteractionChange called:', {
+        item,
+        displayTimestampsRefLength: displayTimestampsRef.current.length,
+      });
+
+      if (item?.dataIndex !== null && item?.dataIndex !== undefined) {
+        // User is interacting - cancel any pending exit timeout
+        if (exitTimeoutRef.current) {
+          console.log('[AdaptiveDetail] Cancelling exit timeout');
+          clearTimeout(exitTimeoutRef.current);
+          exitTimeoutRef.current = null;
+        }
+        const timestamp = displayTimestampsRef.current[item.dataIndex];
+        console.log('[AdaptiveDetail] Setting interaction:', {
+          dataIndex: item.dataIndex,
+          timestamp: timestamp?.toISOString(),
+        });
+        setIsInteracting(true);
+        // Use ref to get the current displayTimestamps (avoids stale closure)
+        setSelectedTimestamp(timestamp ?? null);
+      } else {
+        // User stopped interacting - delay before switching back to sampled data
+        // This prevents the race condition where switching data while mouse is still
+        // over the chart causes an immediate re-interaction
+        console.log('[AdaptiveDetail] Starting exit timeout (50ms)');
+        exitTimeoutRef.current = setTimeout(() => {
+          console.log('[AdaptiveDetail] Exit timeout fired - clearing interaction');
+          setIsInteracting(false);
+          setSelectedTimestamp(null);
+          exitTimeoutRef.current = null;
+        }, 50);
+      }
+    }, []);
+
+    const priceFormatter = useMemo(
+      () =>
+        new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+        }),
+      [],
+    );
+
+    const formatPrice = useCallback(
+      (price: number) => {
+        return priceFormatter.format(price);
+      },
+      [priceFormatter],
+    );
+
+    const formatDate = useCallback((date: Date, periodId: string) => {
+      const time = date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      });
+
+      switch (periodId) {
+        case 'hour':
+        case 'day':
+          return time;
+        case 'week': {
+          const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
+          return `${dayOfWeek} ${time}`;
+        }
+        case 'month':
+        case 'year':
+          return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+          });
+        case 'all':
+        default:
+          return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          });
+      }
+    }, []);
+
+    // Scrubber label now uses displayTimestamps which matches displayData
+    const scrubberLabel = useCallback(
+      (index: number) => {
+        return formatDate(displayTimestamps[index], timePeriod.id);
+      },
+      [displayTimestamps, formatDate, timePeriod.id],
+    );
+
+    // Calculate price change - use selected timestamp to find price in FULL data
+    const startPrice = sparklineTimePeriodDataValues[0];
+    const displayPrice = useMemo(() => {
+      if (selectedTimestamp === null) {
+        return sparklineTimePeriodDataValues[sparklineTimePeriodDataValues.length - 1];
+      }
+      // Find the index in full data for the selected timestamp
+      const fullDataIndex = findClosestIndex(selectedTimestamp, sparklineTimePeriodDataTimestamps);
+      return sparklineTimePeriodDataValues[fullDataIndex];
+    }, [
+      selectedTimestamp,
+      sparklineTimePeriodDataValues,
+      sparklineTimePeriodDataTimestamps,
+      findClosestIndex,
+    ]);
+
+    const difference = displayPrice - startPrice;
+    const percentChange = (difference / startPrice) * 100;
+    const trendColor = difference >= 0 ? 'fgPositive' : 'fgNegative';
+
+    return (
+      <VStack gap={2}>
+        <HStack alignItems="center" gap={2}>
+          <RemoteImage shape="circle" size="xl" source={assets.btc.imageUrl} />
+          <VStack gap={0.5}>
+            <Text font="title3">Bitcoin</Text>
+            <HStack alignItems="center" gap={1}>
+              <Text font="title2">{formatPrice(displayPrice)}</Text>
+              <HStack alignItems="center" gap={0.5}>
+                <Icon
+                  color={trendColor}
+                  name="diagonalUpArrow"
+                  size="xs"
+                  style={{ transform: difference >= 0 ? 'rotate(0deg)' : 'rotate(90deg)' }}
+                />
+                <Text color={trendColor} font="body">
+                  {formatPrice(Math.abs(difference))} ({Math.abs(percentChange).toFixed(2)}%)
+                </Text>
+              </HStack>
+            </HStack>
+          </VStack>
+        </HStack>
+        <MemoizedChart
+          activeItem={activeItem}
+          data={displayData}
+          isScrubbing={isScrubbing}
+          onInteractionChange={handleInteractionChange}
+          scrubberLabel={scrubberLabel}
+        />
+        <PeriodSelector
+          TabComponent={BTCTab}
+          TabsActiveIndicatorComponent={BTCActiveIndicator}
+          activeTab={timePeriod}
+          onChange={onPeriodChange}
+          tabs={tabs}
+        />
+      </VStack>
+    );
+  });
+
+  return <AdaptiveDetailChart />;
+}
+
 export const All = () => {
   return (
     <VStack gap={2}>
@@ -1796,6 +2288,12 @@ export const All = () => {
       </Example>
       <Example title="Custom Label Component">
         <CustomLabelComponent />
+      </Example>
+      <Example title="Highlight Line Segments">
+        <HighlightLineSegments />
+      </Example>
+      <Example title="Adaptive Detail">
+        <AdaptiveDetail />
       </Example>
     </VStack>
   );
