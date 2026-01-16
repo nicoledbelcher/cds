@@ -8,6 +8,30 @@ All notable changes to this project will be documented in this file.
 
 <!-- template-start -->
 
+## Unreleased
+
+#### 📘 Misc
+
+- Internal: update figma code connect config and some mapping files. [[#304](https://github.com/coinbase/cds/pull/304)]
+
+## 8.38.0 (1/14/2026 PST)
+
+#### 🚀 Updates
+
+- Add bordered prop to Select. [[#298](https://github.com/coinbase/cds/pull/298)]
+
+## 8.37.1 ((1/14/2026, 12:37 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.37.0 ((1/12/2026, 02:16 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.36.3 ((1/9/2026, 01:51 PM PST))
+
+This is an artificial version bump with no new change.
+
 ## 8.36.2 (1/7/2026 PST)
 
 #### 🐞 Fixes
