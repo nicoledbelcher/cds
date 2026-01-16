@@ -111,6 +111,7 @@ export namespace ThemeVarsDefault {
     gray: void;
     gray2: void;
     gray3: void;
+    baseGray: void;
     positive: void;
     negative: void;
     accent1: void;
