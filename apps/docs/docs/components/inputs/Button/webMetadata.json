@@ -18,5 +18,59 @@
       "url": "/components/inputs/IconButton/"
     }
   ],
-  "dependencies": []
+  "dependencies": [],
+  "stylesAPI": {
+    "staticClassName": "cds-Button",
+    "selectors": [
+      {
+        "name": "root",
+        "staticClassName": "cds-Button",
+        "description": "Root button element"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "attribute": "data-variant",
+        "selector": "root",
+        "condition": "Always set",
+        "values": "primary | secondary | tertiary | negative"
+      },
+      {
+        "attribute": "data-block",
+        "selector": "root",
+        "condition": "block prop is true"
+      },
+      {
+        "attribute": "data-compact",
+        "selector": "root",
+        "condition": "compact prop is true"
+      },
+      {
+        "attribute": "data-transparent",
+        "selector": "root",
+        "condition": "transparent prop is true"
+      },
+      {
+        "attribute": "data-flush",
+        "selector": "root",
+        "condition": "flush prop is set",
+        "values": "start | end"
+      },
+      {
+        "attribute": "data-loading",
+        "selector": "root",
+        "condition": "loading prop is true"
+      },
+      {
+        "attribute": "data-active",
+        "selector": "root",
+        "condition": "Button is being pressed"
+      },
+      {
+        "attribute": "data-disabled",
+        "selector": "root",
+        "condition": "disabled prop is true"
+      }
+    ]
+  }
 }

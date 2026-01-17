@@ -17,6 +17,8 @@ import webPropsToc from ':docgen/web/buttons/Button/toc-props';
 import MobileExamples, { toc as mobileExamplesToc } from './_mobileExamples.mdx';
 import WebExamples, { toc as webExamplesToc } from './_webExamples.mdx';
 
+import WebStylesTable from './_webStylesTable.mdx';
+
 import { sharedParentTypes } from ':docgen/_types/sharedParentTypes';
 import { sharedTypeAliases } from ':docgen/_types/sharedTypeAliases';
 import { VStack } from '@coinbase/cds-web/layout';
@@ -41,5 +43,6 @@ import mobileMetadata from './mobileMetadata.json';
     mobileExamplesToc={mobileExamplesToc}
     webPropsToc={webPropsToc}
     mobilePropsToc={mobilePropsToc}
+    webStylesTable={<WebStylesTable />}
   />  
 </VStack>

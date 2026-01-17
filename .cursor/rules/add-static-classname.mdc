@@ -1,0 +1,175 @@
+---
+description: Add static className support to a CDS web component
+alwaysApply: false
+---
+
+# Add Static ClassName to CDS Web Component
+
+This rule guides adding static className support to CDS web components for CSS targeting and identification.
+
+## Pattern
+
+The static className pattern allows consumers to:
+- Target components with CSS selectors (e.g., `.cds-Button`)
+- Identify component elements in the DOM for testing/debugging
+- Apply global styling overrides when needed
+
+## Implementation Steps
+
+### 1. Add the Static ClassName Constant
+
+At the top of the component file, after imports, add:
+
+```tsx
+const COMPONENT_STATIC_CLASSNAME = 'cds-{ComponentName}';
+```
+
+For example:
+- `Button.tsx` → `'cds-Button'`
+- `TextInput.tsx` → `'cds-TextInput'`
+- `Modal.tsx` → `'cds-Modal'`
+
+If the constant needs to be exported (e.g., for testing), use the pattern:
+```tsx
+export const {componentName}StaticClassName = 'cds-{component-name}';
+```
+
+### 2. Apply to Root Element
+
+Add the static className to the root element's `className` prop using `cx()`:
+
+```tsx
+import { cx } from '../cx';
+
+// In the component's return statement, on the ROOT element:
+<Box
+  className={cx(
+    COMPONENT_STATIC_CLASSNAME,  // Static className FIRST
+    baseCss,                      // Base component styles
+    someCondition && conditionalCss, // Conditional styles
+    className,                    // User-provided className prop LAST
+  )}
+  ...
+/>
+```
+
+### 3. Ensure className Prop Support
+
+The component should accept a `className` prop that gets merged with the static className:
+
+```tsx
+type ComponentProps = {
+  className?: string;
+  // ... other props
+};
+```
+
+### 4. Add Test Coverage
+
+Create or update the test file to verify the static className:
+
+```tsx
+import { render, screen } from '@testing-library/react';
+import { ComponentName, COMPONENT_STATIC_CLASSNAME } from '../ComponentName';
+
+describe('ComponentName', () => {
+  it('applies static className to root element', () => {
+    render(<ComponentName testID="test" />);
+    const element = screen.getByTestId('test');
+    expect(element.className).toContain(COMPONENT_STATIC_CLASSNAME);
+  });
+
+  it('merges custom className with static className', () => {
+    render(<ComponentName testID="test" className="custom-class" />);
+    const element = screen.getByTestId('test');
+    expect(element.className).toContain(COMPONENT_STATIC_CLASSNAME);
+    expect(element.className).toContain('custom-class');
+  });
+});
+```
+
+## Examples
+
+### Button.tsx (Reference Implementation)
+
+```tsx
+const COMPONENT_STATIC_CLASSNAME = 'cds-Button';
+
+export const Button = memo(
+  forwardRef(({ className, ...props }, ref) => {
+    return (
+      <Pressable
+        ref={ref}
+        className={cx(
+          COMPONENT_STATIC_CLASSNAME,
+          baseCss,
+          compact && compactCss,
+          className,
+        )}
+        {...props}
+      />
+    );
+  }),
+);
+```
+
+### Tag.tsx (Exported for Testing)
+
+```tsx
+export const tagStaticClassName = 'cds-tag';
+
+export const Tag = memo(
+  forwardRef(({ className, ...props }, ref) => {
+    return (
+      <Box
+        ref={ref}
+        className={cx(tagStaticClassName, className)}
+        {...props}
+      />
+    );
+  }),
+);
+```
+
+## Naming Convention
+
+- PascalCase component names: `cds-{ComponentName}` (e.g., `cds-Button`, `cds-TextInput`)
+- Kebab-case for compound words: `cds-table-header`, `cds-select-option`
+
+## Root Element Identification
+
+The "root element" is the outermost element that the component renders. This is typically:
+- For simple components: The main wrapper (`Box`, `div`, etc.)
+- For polymorphic components: The element specified by the `as` prop or the default element
+- For compound components: The top-level container element
+
+## Components Currently Missing Static ClassNames
+
+The following user-facing components need static className support:
+
+**High Priority (Core UI Components):**
+- Typography: `Text`, `Link`
+- Buttons: `AvatarButton`, `ButtonGroup`, `IconCounterButton`, `Tile`, `TileButton`
+- Controls: `Checkbox`, `CheckboxCell`, `Radio`, `RadioCell`, `TextInput`, `SearchInput`, `Select`, `SegmentedControl`
+- Cards: `Card`, `AnnouncementCard`, `DataCard`, `ContentCard`, `FeedCard`, etc.
+- Chips: `Chip`, `InputChip`, `MediaChip`, `SelectChip`, `TabbedChips`
+- Tables: `Table`, `TableBody`, `TableRow`, `TableCell`, `TableFooter`
+- Tabs: `TabNavigation`, `SegmentedTabs`, `Tabs`, `TabLabel`
+- Overlays: `Modal`, `ModalHeader`, `ModalBody`, `ModalFooter`, `Alert`, `Toast`, `Popover`, `Tooltip`, `Tray`
+
+**Medium Priority:**
+- Accordion: `Accordion`, `AccordionItem`, `AccordionHeader`, `AccordionPanel`
+- Carousel: `Carousel`, `CarouselItem`
+- Navigation: `Sidebar`, `SidebarItem`, `NavLink`
+- Dates: `Calendar`, `DateInput`, `DatePicker`
+- Stepper: `Stepper`
+- Pagination: `Pagination`
+- Banner: `Banner`
+- Coachmark: `Coachmark`
+- Tour: `Tour`, `TourStep`
+
+**Lower Priority (Primitives/Internal):**
+- Layout: `Box`, `VStack`, `HStack`, `Grid`, `Divider`, `Spacer` (may be intentional)
+- System: `Pressable`, `ThemeProvider`, etc. (may be intentional)
+- Illustrations: `Pictogram`, `SpotIcon`, etc.
+- Loaders: `CircularProgress`, `MaterialSpinner`

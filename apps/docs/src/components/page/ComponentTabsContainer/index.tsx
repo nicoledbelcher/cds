@@ -15,7 +15,7 @@ import { TOCUpdater } from '../../../utils/toc/TOCManager';
 
 const examplesTab = { id: 'examples', label: 'Examples' };
 const propsTab = { id: 'props', label: 'Props' };
-const tabs = [examplesTab, propsTab];
+const stylesTab = { id: 'styles', label: 'Styles API' };
 
 type ComponentMetaContainerProps = {
   webPropsTable?: React.ReactNode;
@@ -26,6 +26,8 @@ type ComponentMetaContainerProps = {
   mobilePropsToc?: TOCItem[];
   webExamplesToc?: TOCItem[];
   mobileExamplesToc?: TOCItem[];
+  webStylesTable?: React.ReactNode;
+  mobileStylesTable?: React.ReactNode;
 };
 
 const CustomTab = ({ id, label }: TabValue) => {
@@ -57,16 +59,29 @@ export const ComponentTabsContainer: React.FC<ComponentMetaContainerProps> = ({
   mobileExamplesToc,
   webPropsToc,
   mobilePropsToc,
+  webStylesTable,
+  mobileStylesTable,
 }) => {
   const { platform } = usePlatformContext();
   const isWeb = platform === 'web';
   const isMobile = platform === 'mobile';
   const history = useHistory();
   const { search } = useLocation();
+
+  // Dynamically build tabs based on available content
+  const availableTabs = useMemo(() => {
+    const tabsList = [examplesTab, propsTab];
+    // Add styles tab if styles data is provided for the current platform
+    if ((isWeb && webStylesTable) || (isMobile && mobileStylesTable)) {
+      tabsList.push(stylesTab);
+    }
+    return tabsList;
+  }, [isWeb, isMobile, webStylesTable, mobileStylesTable]);
+
   const activeTab = useMemo(() => {
     const tabId = new URLSearchParams(search).get('tab');
-    return tabs.find((tab) => tab.id === tabId) ?? tabs[0];
-  }, [search]);
+    return availableTabs.find((tab) => tab.id === tabId) ?? availableTabs[0];
+  }, [search, availableTabs]);
 
   const tabsWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -81,14 +96,15 @@ export const ComponentTabsContainer: React.FC<ComponentMetaContainerProps> = ({
   const setActiveTab = useCallback(
     (tab: TabValue | null) => {
       const searchParams = new URLSearchParams(search);
-      searchParams.set('tab', tab?.id ?? tabs[0].id);
+      searchParams.set('tab', tab?.id ?? availableTabs[0].id);
       history.replace({ search: searchParams.toString() });
     },
-    [history, search],
+    [history, search, availableTabs],
   );
 
   const shouldRenderExamples = activeTab?.id === examplesTab.id;
   const shouldRenderProps = activeTab?.id === propsTab.id;
+  const shouldRenderStyles = activeTab?.id === stylesTab.id;
 
   return (
     <VStack as="section">
@@ -116,7 +132,7 @@ export const ComponentTabsContainer: React.FC<ComponentMetaContainerProps> = ({
             aria-controls={`tabpanel--${activeTab}`}
             gap={4}
             onChange={setActiveTab}
-            tabs={tabs}
+            tabs={availableTabs}
           />
         </Box>
       </VStack>
@@ -150,6 +166,20 @@ export const ComponentTabsContainer: React.FC<ComponentMetaContainerProps> = ({
         {shouldRenderProps && <PropsTOCUpdater toc={isWeb ? webPropsToc : mobilePropsToc} />}
         {shouldRenderProps && isWeb && webPropsTable}
         {shouldRenderProps && isMobile && mobilePropsTable}
+      </VStack>
+      <VStack
+        accessibilityLabelledBy="tab--styles-tab"
+        background="bgAlternate"
+        borderBottomLeftRadius={500}
+        borderBottomRightRadius={500}
+        display={shouldRenderStyles ? 'block' : 'none'}
+        gap={3}
+        id="tabpanel--styles-tab"
+        paddingTop={2}
+        role="tabpanel"
+      >
+        {shouldRenderStyles && isWeb && webStylesTable}
+        {shouldRenderStyles && isMobile && mobileStylesTable}
       </VStack>
     </VStack>
   );
