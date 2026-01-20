@@ -15,7 +15,15 @@ export const iconMap = {
 
 export const DefaultPaginationNavigationButton = forwardRef(
   (
-    { direction, onClick, disabled, accessibilityLabel, testID }: PaginationNavigationButtonProps,
+    {
+      direction,
+      onClick,
+      disabled,
+      className,
+      style,
+      accessibilityLabel,
+      testID,
+    }: PaginationNavigationButtonProps,
     ref: React.ForwardedRef<HTMLButtonElement>,
   ) => {
     return (
@@ -24,9 +32,12 @@ export const DefaultPaginationNavigationButton = forwardRef(
         compact
         transparent
         accessibilityLabel={accessibilityLabel}
+        className={className}
+        data-direction={direction}
         disabled={disabled}
         name={iconMap[direction]}
         onClick={onClick}
+        style={style}
         testID={testID}
         variant="secondary"
       />

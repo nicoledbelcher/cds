@@ -22,5 +22,68 @@
       "url": "/components/data-display/Table/"
     }
   ],
-  "dependencies": []
+  "dependencies": [],
+  "stylesAPI": {
+    "staticClassName": "cds-Pagination",
+    "selectors": [
+      {
+        "name": "root",
+        "staticClassName": "cds-Pagination",
+        "description": "Root navigation element"
+      },
+      {
+        "name": "navigationButton",
+        "staticClassName": "cds-Pagination-navigationButton",
+        "description": "First/previous/next/last navigation buttons"
+      },
+      {
+        "name": "pageButton",
+        "staticClassName": "cds-Pagination-pageButton",
+        "description": "Page number buttons"
+      },
+      {
+        "name": "ellipsis",
+        "staticClassName": "cds-Pagination-ellipsis",
+        "description": "Ellipsis between page ranges"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "attribute": "data-disabled",
+        "selector": "root",
+        "condition": "disabled prop is true",
+        "values": "true"
+      },
+      {
+        "attribute": "data-show-first-last-buttons",
+        "selector": "root",
+        "condition": "showFirstLastButtons prop is true",
+        "values": "true"
+      },
+      {
+        "attribute": "data-direction",
+        "selector": "navigationButton",
+        "condition": "always",
+        "values": "first | previous | next | last"
+      },
+      {
+        "attribute": "data-pagenumber",
+        "selector": "pageButton",
+        "condition": "always",
+        "values": "number"
+      },
+      {
+        "attribute": "data-current",
+        "selector": "pageButton",
+        "condition": "isCurrentPage is true",
+        "values": "true"
+      },
+      {
+        "attribute": "data-ellipsis",
+        "selector": "ellipsis",
+        "condition": "always",
+        "values": "true"
+      }
+    ]
+  }
 }

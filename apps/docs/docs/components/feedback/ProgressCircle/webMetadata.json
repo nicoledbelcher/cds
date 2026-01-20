@@ -21,5 +21,66 @@
       "name": "framer-motion",
       "version": "^10.18.0"
     }
-  ]
+  ],
+  "stylesAPI": {
+    "staticClassName": "cds-ProgressCircle",
+    "selectors": [
+      {
+        "name": "root",
+        "staticClassName": "cds-ProgressCircle",
+        "description": "Root element"
+      },
+      {
+        "name": "svg",
+        "staticClassName": "cds-ProgressCircle-svg",
+        "description": "SVG container"
+      },
+      {
+        "name": "circle",
+        "staticClassName": "cds-ProgressCircle-circle",
+        "description": "Background circle"
+      },
+      {
+        "name": "progress",
+        "staticClassName": "cds-ProgressCircle-progress",
+        "description": "Foreground progress circle"
+      },
+      {
+        "name": "content",
+        "staticClassName": "cds-ProgressCircle-content",
+        "description": "Content overlay container"
+      },
+      {
+        "name": "contentInner",
+        "staticClassName": "cds-ProgressCircle-contentInner",
+        "description": "Inner (clipped) content container"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "attribute": "data-disabled",
+        "selector": "root",
+        "condition": "disabled prop is true",
+        "values": "true"
+      },
+      {
+        "attribute": "data-weight",
+        "selector": "root",
+        "condition": "always",
+        "values": "thin | normal | semiheavy | heavy"
+      },
+      {
+        "attribute": "data-hide-content",
+        "selector": "root",
+        "condition": "hideContent or hideText is true",
+        "values": "true"
+      },
+      {
+        "attribute": "data-has-custom-content",
+        "selector": "root",
+        "condition": "contentNode is provided",
+        "values": "true"
+      }
+    ]
+  }
 }

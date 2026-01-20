@@ -1445,8 +1445,25 @@ function AssetPriceWithDottedArea() {
 
 You can adjust [YAxis](/components/graphs/YAxis) and [Scrubber](/components/graphs/Scrubber) to have a chart where the y-axis is overlaid and the beacon is inverted in style.
 
-```jsx live
-function MonotoneAssetPrice() {
+import Playground from '@theme/Playground';
+
+<Playground
+  files={{
+    "Example.tsx": `import { useMemo, useCallback } from 'react';
+import { MonotoneAssetPriceChart } from './MonotoneAssetPriceChart';
+import { MonotoneScrubberBeacon } from './MonotoneScrubberBeacon';
+
+function Example() {
+  return <MonotoneAssetPriceChart BeaconComponent={MonotoneScrubberBeacon} />;
+}
+
+render(<Example />);`,
+    "./MonotoneAssetPriceChart.tsx": `import { useMemo, useCallback } from 'react';
+import { LineChart } from '@coinbase/cds-web/visualizations';
+import { Scrubber, SolidLine, DefaultAxisTickLabel } from '@coinbase/cds-web-visualization/chart';
+import { sparklineInteractiveData } from '@coinbase/cds-common/internal/visualizations/SparklineInteractiveData';
+
+export function MonotoneAssetPriceChart({ BeaconComponent }) {
   const prices = sparklineInteractiveData.hour;
 
   const priceFormatter = useMemo(
@@ -1500,7 +1517,7 @@ function MonotoneAssetPrice() {
       hour12: true,
     });
 
-    return `${dayOfWeek}, ${monthDay}, ${time}`;
+    return \`\${dayOfWeek}, \${monthDay}, \${time}\`;
   }, []);
 
   const scrubberLabel = useCallback(
@@ -1514,51 +1531,6 @@ function MonotoneAssetPrice() {
       );
     },
     [scrubberPriceFormatter, prices, formatDate],
-  );
-
-  const CustomScrubberBeacon = memo(
-    forwardRef(({ dataX, dataY, seriesId, isIdle }: ScrubberBeaconProps, ref) => {
-      const { getSeries, getXScale, getYScale } = useCartesianChartContext();
-      const targetSeries = getSeries(seriesId);
-      const xScale = getXScale();
-      const yScale = getYScale(targetSeries?.yAxisId);
-
-      const pixelCoordinate = useMemo(() => {
-        if (!xScale || !yScale) return;
-        return projectPoint({ x: dataX, y: dataY, xScale, yScale });
-      }, [dataX, dataY, xScale, yScale]);
-
-      // Provide a no-op pulse implementation for simple beacons
-      useImperativeHandle(ref, () => ({ pulse: () => {} }), []);
-
-      if (!pixelCoordinate) return;
-
-      if (isIdle) {
-        return (
-          <m.circle
-            animate={{ cx: pixelCoordinate.x, cy: pixelCoordinate.y }}
-            cx={pixelCoordinate.x}
-            cy={pixelCoordinate.y}
-            fill="var(--color-bg)"
-            r={5}
-            stroke="var(--color-fg)"
-            strokeWidth={3}
-            transition={defaultTransition}
-          />
-        );
-      }
-
-      return (
-        <circle
-          cx={pixelCoordinate.x}
-          cy={pixelCoordinate.y}
-          fill="var(--color-bg)"
-          r={5}
-          stroke="var(--color-fg)"
-          strokeWidth={3}
-        />
-      );
-    }),
   );
 
   return (
@@ -1595,15 +1567,67 @@ function MonotoneAssetPrice() {
     >
       <Scrubber
         hideOverlay
-        BeaconComponent={CustomScrubberBeacon}
+        BeaconComponent={BeaconComponent}
         LineComponent={SolidLine}
         label={scrubberLabel}
         labelElevated
       />
     </LineChart>
   );
-}
-```
+}`,
+    "./MonotoneScrubberBeacon.tsx": `import { memo, forwardRef, useMemo, useImperativeHandle } from 'react';
+import { useCartesianChartContext, projectPoint, defaultTransition, ScrubberBeaconProps } from '@coinbase/cds-web-visualization/chart';
+import { motion as m } from 'framer-motion';
+
+export const MonotoneScrubberBeacon = memo(
+  forwardRef(({ dataX, dataY, seriesId, isIdle }: ScrubberBeaconProps, ref) => {
+    const { getSeries, getXScale, getYScale } = useCartesianChartContext();
+    const targetSeries = getSeries(seriesId);
+    const xScale = getXScale();
+    const yScale = getYScale(targetSeries?.yAxisId);
+
+    const pixelCoordinate = useMemo(() => {
+      if (!xScale || !yScale) return;
+      return projectPoint({ x: dataX, y: dataY, xScale, yScale });
+    }, [dataX, dataY, xScale, yScale]);
+
+    // Provide a no-op pulse implementation for simple beacons
+    useImperativeHandle(ref, () => ({ pulse: () => {} }), []);
+
+    if (!pixelCoordinate) return;
+
+    if (isIdle) {
+      return (
+        <m.circle
+          animate={{ cx: pixelCoordinate.x, cy: pixelCoordinate.y }}
+          cx={pixelCoordinate.x}
+          cy={pixelCoordinate.y}
+          fill="var(--color-bg)"
+          r={5}
+          stroke="var(--color-fg)"
+          strokeWidth={3}
+          transition={defaultTransition}
+        />
+      );
+    }
+
+    return (
+      <circle
+        cx={pixelCoordinate.x}
+        cy={pixelCoordinate.y}
+        fill="var(--color-bg)"
+        r={5}
+        stroke="var(--color-fg)"
+        strokeWidth={3}
+      />
+    );
+  }),
+);`
+  }}
+>
+{`// Main file (Example.tsx) - editable
+// Switch tabs above to view other files`}
+</Playground>
 
 ### Asset Price Widget
 

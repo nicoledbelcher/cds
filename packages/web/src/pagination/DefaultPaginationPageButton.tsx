@@ -19,6 +19,8 @@ export const DefaultPaginationPageButton = forwardRef(
       onClick,
       isCurrentPage,
       disabled,
+      className,
+      style,
       accessibilityLabel,
       testID,
       ...props
@@ -34,9 +36,11 @@ export const DefaultPaginationPageButton = forwardRef(
         compact
         accessibilityLabel={accessibilityLabel}
         aria-current={isCurrentPage ? 'page' : undefined}
-        className={cx(isSingleDigit && circularButtonCss)}
+        className={cx(isSingleDigit && circularButtonCss, className)}
+        data-current={isCurrentPage}
         disabled={disabled}
         onClick={handleClick}
+        style={style}
         testID={testID}
         transparent={!isCurrentPage}
         variant={isCurrentPage ? 'primary' : 'secondary'}

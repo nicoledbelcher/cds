@@ -18,6 +18,13 @@ import {
   type VisualizationContainerDimension,
 } from './VisualizationContainer';
 
+const COMPONENT_STATIC_CLASSNAME = 'cds-ProgressCircle';
+const PROGRESS_CIRCLE_SVG_STATIC_CLASSNAME = 'cds-ProgressCircle-svg';
+const PROGRESS_CIRCLE_CIRCLE_STATIC_CLASSNAME = 'cds-ProgressCircle-circle';
+const PROGRESS_CIRCLE_PROGRESS_STATIC_CLASSNAME = 'cds-ProgressCircle-progress';
+const PROGRESS_CIRCLE_CONTENT_STATIC_CLASSNAME = 'cds-ProgressCircle-content';
+const PROGRESS_CIRCLE_CONTENT_INNER_STATIC_CLASSNAME = 'cds-ProgressCircle-contentInner';
+
 const svgCss = css`
   display: block;
   max-width: 100%;
@@ -75,6 +82,14 @@ export type ProgressCircleProps = ProgressCircleBaseProps & {
      * Custom styles for the foreground circle.
      */
     progress?: React.CSSProperties;
+    /**
+     * Custom styles for the content overlay container.
+     */
+    content?: React.CSSProperties;
+    /**
+     * Custom styles for the inner (clipped) content container.
+     */
+    contentInner?: React.CSSProperties;
   };
   /**
    * Custom class names for the progress circle.
@@ -96,6 +111,14 @@ export type ProgressCircleProps = ProgressCircleBaseProps & {
      * Class name for the progress circle foreground circle.
      */
     progress?: string;
+    /**
+     * Class name for the content overlay container.
+     */
+    content?: string;
+    /**
+     * Class name for the inner (clipped) content container.
+     */
+    contentInner?: string;
   };
 };
 
@@ -201,6 +224,8 @@ export const ProgressCircle = memo(
       const strokeWidth = useProgressSize(weight);
 
       const visSize = size ?? '100%';
+      const isContentHidden = Boolean(hideContent || hideText);
+      const hasCustomContent = Boolean(contentNode);
       return (
         <VisualizationContainer height={visSize} width={visSize}>
           {({ width, height, circleSize }: VisualizationContainerDimension) => (
@@ -211,7 +236,11 @@ export const ProgressCircle = memo(
               aria-valuemax={100}
               aria-valuemin={0}
               aria-valuenow={Math.round(progress * 100)}
-              className={cx(className, classNames?.root)}
+              className={cx(COMPONENT_STATIC_CLASSNAME, className, classNames?.root)}
+              data-disabled={disabled || undefined}
+              data-has-custom-content={hasCustomContent || undefined}
+              data-hide-content={isContentHidden || undefined}
+              data-weight={weight}
               height={height}
               justifyContent="center"
               role="progressbar"
@@ -230,7 +259,7 @@ export const ProgressCircle = memo(
                 <svg
                   key={circleSize}
                   aria-hidden
-                  className={cx(svgCss, classNames?.svg)}
+                  className={cx(svgCss, PROGRESS_CIRCLE_SVG_STATIC_CLASSNAME, classNames?.svg)}
                   height={circleSize}
                   style={styles?.svg}
                   width={circleSize}
@@ -241,11 +270,11 @@ export const ProgressCircle = memo(
                       strokeWidth,
                       stroke: 'var(--color-bgLine)',
                     })}
-                    className={classNames?.circle}
+                    className={cx(PROGRESS_CIRCLE_CIRCLE_STATIC_CLASSNAME, classNames?.circle)}
                     style={styles?.circle}
                   />
                   <ProgressCircleInner
-                    className={classNames?.progress}
+                    className={cx(PROGRESS_CIRCLE_PROGRESS_STATIC_CLASSNAME, classNames?.progress)}
                     color={color}
                     disableAnimateOnMount={disableAnimateOnMount}
                     onAnimationEnd={onAnimationEnd}
@@ -257,20 +286,26 @@ export const ProgressCircle = memo(
                     weight={weight}
                   />
                 </svg>
-                {!hideText && !hideContent && (
+                {!isContentHidden && (
                   <Box
+                    className={cx(PROGRESS_CIRCLE_CONTENT_STATIC_CLASSNAME, classNames?.content)}
                     height="100%"
                     position="absolute"
-                    style={{ padding: strokeWidth }}
+                    style={{ padding: strokeWidth, ...styles?.content }}
                     width="100%"
                   >
                     {/* We clip the content node to the circle to prevent the node from overflowing over the circle */}
                     <Box
                       alignItems="center"
                       borderRadius={1000}
+                      className={cx(
+                        PROGRESS_CIRCLE_CONTENT_INNER_STATIC_CLASSNAME,
+                        classNames?.contentInner,
+                      )}
                       height="100%"
                       justifyContent="center"
                       overflow="clip"
+                      style={styles?.contentInner}
                       width="100%"
                     >
                       {contentNode ?? (

@@ -14,6 +14,7 @@ import webPropsToc from ':docgen/web/pagination/Pagination/toc-props';
 
 import WebPropsTable from './_webPropsTable.mdx';
 import WebExamples, { toc as webExamplesToc } from './_webExamples.mdx';
+import WebStylesTable from './_webStylesTable.mdx';
 import webMetadata from './webMetadata.json';
 
 <VStack gap={5}>
@@ -23,5 +24,6 @@ import webMetadata from './webMetadata.json';
     webExamples={<WebExamples />}
     webExamplesToc={webExamplesToc}
     webPropsToc={webPropsToc}
+    webStylesTable={<WebStylesTable />}
   />
 </VStack>

@@ -8,7 +8,7 @@ import type {
   PaginationNavigationButtonProps,
   PaginationPageButtonProps,
 } from '../Pagination';
-import { Pagination } from '../Pagination';
+import { COMPONENT_STATIC_CLASSNAME, Pagination } from '../Pagination';
 
 describe('Pagination', () => {
   const defaultProps = {
@@ -456,5 +456,63 @@ describe('Pagination', () => {
     );
     // eslint-disable-next-line testing-library/no-container
     expect(container.querySelector('nav')).toBeInTheDocument();
+  });
+
+  it('applies static className to root element', () => {
+    renderComponent({ testID: 'pagination-test' });
+
+    const element = screen.getByTestId('pagination-test');
+    expect(element.className).toContain(COMPONENT_STATIC_CLASSNAME);
+  });
+
+  it('merges custom className with static className', () => {
+    renderComponent({ testID: 'pagination-test', className: 'custom-class' });
+
+    const element = screen.getByTestId('pagination-test');
+    expect(element.className).toContain(COMPONENT_STATIC_CLASSNAME);
+    expect(element.className).toContain('custom-class');
+  });
+
+  it('applies styles.root to the root element', () => {
+    renderComponent({
+      testID: 'pagination-test',
+      styles: { root: { backgroundColor: 'red' } },
+    });
+
+    const element = screen.getByTestId('pagination-test');
+    expect(element).toHaveStyle({ backgroundColor: 'red' });
+  });
+
+  it('merges style prop with styles.root (styles.root wins)', () => {
+    renderComponent({
+      testID: 'pagination-test',
+      style: { backgroundColor: 'blue' },
+      styles: { root: { backgroundColor: 'red' } },
+    });
+
+    const element = screen.getByTestId('pagination-test');
+    expect(element).toHaveStyle({ backgroundColor: 'red' });
+  });
+
+  it('applies classNames.root to the root element', () => {
+    renderComponent({
+      testID: 'pagination-test',
+      classNames: { root: 'custom-root-class' },
+    });
+
+    const element = screen.getByTestId('pagination-test');
+    expect(element.className).toContain('custom-root-class');
+  });
+
+  it('sets data attributes for styling hooks', () => {
+    renderComponent({
+      testID: 'pagination-test',
+      disabled: true,
+      showFirstLastButtons: true,
+    });
+
+    const element = screen.getByTestId('pagination-test');
+    expect(element).toHaveAttribute('data-disabled', 'true');
+    expect(element).toHaveAttribute('data-show-first-last-buttons', 'true');
   });
 });

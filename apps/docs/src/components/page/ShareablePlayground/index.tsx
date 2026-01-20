@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { LiveEditor, LiveError, LivePreview, LiveProvider } from 'react-live';
+import { LiveEditor, LivePreview, LiveProvider } from 'react-live';
 import { Collapsible } from '@coinbase/cds-web/collapsible/Collapsible';
 import { Icon } from '@coinbase/cds-web/icons/Icon';
 import { Box } from '@coinbase/cds-web/layout';
@@ -20,6 +20,13 @@ import { format } from 'prettier/standalone';
 
 import { usePlaygroundTheme } from '../../../theme/Layout/Provider/UnifiedThemeContext';
 import ReactLiveScope from '../../../theme/ReactLiveScope';
+import { PlaygroundError } from '../../../theme/Playground/PlaygroundError';
+import { PlaygroundToolbar } from '../../../theme/Playground/PlaygroundToolbar';
+import {
+  createCodeSandboxFiles,
+  extractDependencies,
+  openInCodeSandbox,
+} from '../../../theme/Playground/utils/codesandbox';
 
 import styles from './styles.module.css';
 
@@ -36,12 +43,9 @@ const PlaygroundEditorHeader = memo(() => {
 const renderErrorFallback = (params: any) => <ErrorBoundaryErrorMessageFallback {...params} />;
 
 const previewComponent = () => (
-  <>
-    <ErrorBoundary fallback={renderErrorFallback}>
-      <LivePreview />
-    </ErrorBoundary>
-    <LiveError />
-  </>
+  <ErrorBoundary fallback={renderErrorFallback}>
+    <LivePreview />
+  </ErrorBoundary>
 );
 
 const getSharedCode = () => {
@@ -87,33 +91,35 @@ const prettierOptions = {
   useTabs: false,
 } as const;
 
-type PlaygroundControlsProps = {
+type ShareablePlaygroundControlsProps = {
   onClickCopy: () => void;
   onClickShare: () => void;
 };
 
-const PlaygroundControls = memo(({ onClickCopy, onClickShare }: PlaygroundControlsProps) => {
-  return (
-    <HStack alignItems="center" gap={2} paddingTop={0.5}>
-      <Pressable noScaleOnPress accessibilityLabel="Copy code" onClick={onClickCopy}>
-        <HStack alignItems="center">
-          <Icon name="copy" paddingEnd={0.5} size="xs" />
-          <Text color="fgPrimary" font="label1">
-            Copy code
-          </Text>
-        </HStack>
-      </Pressable>
-      <Pressable noScaleOnPress accessibilityLabel="Share code" onClick={onClickShare}>
-        <HStack alignItems="center">
-          <Icon name="share" paddingEnd={0.5} size="xs" />
-          <Text color="fgPrimary" font="label1">
-            Share code
-          </Text>
-        </HStack>
-      </Pressable>
-    </HStack>
-  );
-});
+const ShareablePlaygroundControls = memo(
+  ({ onClickCopy, onClickShare }: ShareablePlaygroundControlsProps) => {
+    return (
+      <HStack alignItems="center" gap={2} paddingTop={0.5}>
+        <Pressable noScaleOnPress accessibilityLabel="Copy code" onClick={onClickCopy}>
+          <HStack alignItems="center">
+            <Icon name="copy" paddingEnd={0.5} size="xs" />
+            <Text color="fgPrimary" font="label1">
+              Copy code
+            </Text>
+          </HStack>
+        </Pressable>
+        <Pressable noScaleOnPress accessibilityLabel="Share code" onClick={onClickShare}>
+          <HStack alignItems="center">
+            <Icon name="share" paddingEnd={0.5} size="xs" />
+            <Text color="fgPrimary" font="label1">
+              Share code
+            </Text>
+          </HStack>
+        </Pressable>
+      </HStack>
+    );
+  },
+);
 
 type LiveProviderProps = React.ComponentProps<typeof LiveProvider>;
 
@@ -130,8 +136,10 @@ export const ShareablePlayground = memo(function Playground({
     () => defaultInitialCodeProp.replace(/\n$/, ''),
     [defaultInitialCodeProp],
   );
-  const [code, setCode] = useState(() => getSharedCode() ?? defaultInitialCode);
+  const initialCode = getSharedCode() ?? defaultInitialCode;
+  const [code, setCode] = useState(initialCode);
   const codeRef = useRef(code);
+  const originalCodeRef = useRef(initialCode);
   const toast = useToast();
   const { colorScheme, theme, prismTheme } = usePlaygroundTheme();
 
@@ -177,6 +185,25 @@ export const ShareablePlayground = memo(function Playground({
     }
   }, [defaultInitialCode, toast]);
 
+  const handleReset = useCallback(() => {
+    const originalCode = originalCodeRef.current;
+    codeRef.current = originalCode;
+    setCode(originalCode);
+    toast.show('Code reset to original');
+  }, [toast]);
+
+  const handleOpenCodeSandbox = useCallback(() => {
+    try {
+      const dependencies = extractDependencies(codeRef.current);
+      const files = createCodeSandboxFiles(codeRef.current);
+      openInCodeSandbox({ files, dependencies });
+      toast.show('Opening in CodeSandbox...');
+    } catch (error) {
+      toast.show('Failed to open in CodeSandbox');
+      console.error('CodeSandbox error:', error);
+    }
+  }, [toast]);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.code === 'KeyS' && (event.ctrlKey || event.metaKey)) {
@@ -203,13 +230,24 @@ export const ShareablePlayground = memo(function Playground({
           <VStack background="bg" borderRadius={400} color="fg" font="body" padding={3}>
             <BrowserOnly fallback={<div>Loading...</div>}>{previewComponent}</BrowserOnly>
           </VStack>
+          <PlaygroundError />
           <VStack paddingBottom={0.5} paddingTop={1}>
-            <VStack background="bg" borderRadius={400} overflow="hidden" width="100%">
+            <VStack position="relative" background="bg" borderRadius={400} overflow="hidden" width="100%">
               <PlaygroundEditorHeader />
               <LiveEditor className={styles.playgroundEditor} onChange={handleCodeChange} />
             </VStack>
           </VStack>
-          <PlaygroundControls onClickCopy={handleCopyToClipboard} onClickShare={handleShareCode} />
+          <HStack alignItems="center" gap={2} paddingTop={0.5}>
+            <ShareablePlaygroundControls
+              onClickCopy={handleCopyToClipboard}
+              onClickShare={handleShareCode}
+            />
+            <PlaygroundToolbar
+              onCopy={handleCopyToClipboard}
+              onOpenCodeSandbox={handleOpenCodeSandbox}
+              onReset={handleReset}
+            />
+          </HStack>
         </LiveProvider>
       </ThemeProvider>
     </VStack>

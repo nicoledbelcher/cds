@@ -1,5 +1,7 @@
 import { VStack } from '@coinbase/cds-web/layout';
 import { Text } from '@coinbase/cds-web/typography/Text';
+import { Link } from '@coinbase/cds-web/typography/Link';
+import DocusaurusLink from '@docusaurus/Link';
 
 import StylesTable from './StylesTable';
 
@@ -47,13 +49,17 @@ function ComponentStylesTable({ stylesAPI }: ComponentStylesTableProps) {
       <VStack alignContent="center" alignItems="center" gap={1.5} paddingBottom={4} paddingX={4}>
         <Text font="headline">No styles API available</Text>
         <Text font="body">This component does not expose a styles API.</Text>
+        <Text color="fgMuted" font="body">
+          <Link as={DocusaurusLink} to="/getting-started/styling">
+            Learn more about styling CDS components
+          </Link>
+        </Text>
       </VStack>
     );
   }
 
   return (
     <VStack gap={4} maxWidth="100%" paddingBottom={4} paddingX={{ base: 4, phone: 2 }} width="100%">
-      {/* Static Class Name Section */}
       {staticClassName && (
         <VStack gap={2}>
           <VStack gap={0.5}>
@@ -61,7 +67,11 @@ function ComponentStylesTable({ stylesAPI }: ComponentStylesTableProps) {
               Static class name
             </Text>
             <Text color="fgMuted" font="body">
-              Use this class to target the root element with CSS.
+              Use this class to target the root element with CSS.{' '}
+              <Link as={DocusaurusLink} to="/getting-started/styling">
+                Learn more about styling
+              </Link>
+              .
             </Text>
           </VStack>
           <Text mono color="fgPrimary" font="body">
@@ -69,8 +79,6 @@ function ComponentStylesTable({ stylesAPI }: ComponentStylesTableProps) {
           </Text>
         </VStack>
       )}
-
-      {/* Selectors Section */}
       {hasSelectors && (
         <VStack gap={2}>
           <VStack gap={0.5}>
@@ -78,19 +86,23 @@ function ComponentStylesTable({ stylesAPI }: ComponentStylesTableProps) {
               Selectors
             </Text>
             <Text color="fgMuted" font="body">
-              Target specific inner elements of the component.
+              Target specific inner elements of the component.{' '}
+              <Link as={DocusaurusLink} to="/getting-started/styling">
+                Learn more about styling
+              </Link>
+              .
             </Text>
           </VStack>
           <StylesTable
             columns={[
               { key: 'name', label: 'Selector', width: '30%' },
-              { key: 'staticClassName', label: 'Static class', width: '35%' },
+              { key: 'staticClassName', label: 'Static selector', width: '35%' },
               { key: 'description', label: 'Description', width: '35%' },
             ]}
             data={selectors.map((selector) => ({
               name: selector.name,
-              staticClassName: selector.staticClassName ? `.${selector.staticClassName}` : '–',
-              description: selector.description ?? '–',
+              staticClassName: selector.staticClassName ? `.${selector.staticClassName}` : '--',
+              description: selector.description ?? '--',
             }))}
           />
         </VStack>
@@ -104,7 +116,11 @@ function ComponentStylesTable({ stylesAPI }: ComponentStylesTableProps) {
               Data attributes
             </Text>
             <Text color="fgMuted" font="body">
-              Attributes set on the component based on its state or props.
+              Attributes set on the component based on its state or props.{' '}
+              <Link as={DocusaurusLink} to="/getting-started/styling">
+                Learn more about styling
+              </Link>
+              .
             </Text>
           </VStack>
           <StylesTable
@@ -117,8 +133,8 @@ function ComponentStylesTable({ stylesAPI }: ComponentStylesTableProps) {
             data={dataAttributes.map((attr) => ({
               selector: attr.selector,
               attribute: attr.attribute,
-              condition: attr.condition ?? '–',
-              values: attr.values ?? '–',
+              condition: attr.condition ?? '--',
+              values: attr.values ?? '--',
             }))}
           />
         </VStack>

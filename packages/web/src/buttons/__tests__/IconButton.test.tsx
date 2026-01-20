@@ -198,4 +198,25 @@ describe('IconButton', () => {
     expect(button).toHaveAttribute('data-variant', 'secondary');
     expect(button).toHaveAttribute('data-compact', 'true');
   });
+
+  it('applies static className to root element', () => {
+    render(
+      <DefaultThemeProvider>
+        <IconButton name={name} testID="test" />
+      </DefaultThemeProvider>,
+    );
+    const element = screen.getByTestId('test');
+    expect(element.className).toContain('cds-IconButton');
+  });
+
+  it('merges custom className with static className', () => {
+    render(
+      <DefaultThemeProvider>
+        <IconButton name={name} testID="test" className="custom-class" />
+      </DefaultThemeProvider>,
+    );
+    const element = screen.getByTestId('test');
+    expect(element.className).toContain('cds-IconButton');
+    expect(element.className).toContain('custom-class');
+  });
 });

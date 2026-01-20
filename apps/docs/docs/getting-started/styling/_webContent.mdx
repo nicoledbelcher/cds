@@ -145,6 +145,30 @@ We will continue to add the `classNames` prop to more components over time. Plea
 <MDXSection>
 <MDXArticle>
 
+## Static classnames
+
+Some components expose static CSS classnames that you can use to target them with CSS. You can come this with data-attributes to customize styles based on state.
+
+```css
+/* Target all Button components */
+.cds-Button {
+  border-radius: 8px;
+}
+
+/* Target Button when it's in a loading state */
+.cds-Button[data-loading] {
+  opacity: 0.7;
+}
+```
+
+Check a component's documentation page to see if it supports static classnames and what selectors are available.
+
+</MDXArticle>
+</MDXSection>
+
+<MDXSection>
+<MDXArticle>
+
 ## Component specific props
 
 Many components have their own specific props that can affect styling.

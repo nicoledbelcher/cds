@@ -272,4 +272,116 @@ describe('ProgressCircle tests', () => {
     // Without disableAnimateOnMount, should start at full circumference (empty) and animate to target
     expect(innerCircle).toHaveAttribute('stroke-dashoffset', circumference.toString());
   });
+
+  it('applies static className to root element', () => {
+    render(
+      <DefaultThemeProvider>
+        <ProgressCircle progress={0} size={100} testID="progress-circle-test" />
+      </DefaultThemeProvider>,
+    );
+
+    const element = screen.getByTestId('progress-circle-test');
+    expect(element.className).toContain('cds-ProgressCircle');
+  });
+
+  it('merges custom className with static className', () => {
+    render(
+      <DefaultThemeProvider>
+        <ProgressCircle className="custom-class" progress={0} size={100} testID="progress-circle-test" />
+      </DefaultThemeProvider>,
+    );
+
+    const element = screen.getByTestId('progress-circle-test');
+    expect(element.className).toContain('cds-ProgressCircle');
+    expect(element.className).toContain('custom-class');
+  });
+
+  it('applies styles.root to the root element', () => {
+    render(
+      <DefaultThemeProvider>
+        <ProgressCircle
+          progress={0}
+          size={100}
+          styles={{ root: { backgroundColor: 'red' } }}
+          testID="progress-circle-test"
+        />
+      </DefaultThemeProvider>,
+    );
+
+    const element = screen.getByTestId('progress-circle-test');
+    expect(element).toHaveStyle({ backgroundColor: 'red' });
+  });
+
+  it('merges style prop with styles.root (styles.root wins)', () => {
+    render(
+      <DefaultThemeProvider>
+        <ProgressCircle
+          progress={0}
+          size={100}
+          style={{ backgroundColor: 'blue' }}
+          styles={{ root: { backgroundColor: 'red' } }}
+          testID="progress-circle-test"
+        />
+      </DefaultThemeProvider>,
+    );
+
+    const element = screen.getByTestId('progress-circle-test');
+    expect(element).toHaveStyle({ backgroundColor: 'red' });
+  });
+
+  it('applies classNames selectors to inner elements', () => {
+    const { container } = render(
+      <DefaultThemeProvider>
+        <ProgressCircle
+          classNames={{
+            root: 'custom-root-class',
+            svg: 'custom-svg-class',
+            circle: 'custom-circle-class',
+            progress: 'custom-progress-class',
+            content: 'custom-content-class',
+            contentInner: 'custom-content-inner-class',
+          }}
+          progress={0.5}
+          size={100}
+          testID="progress-circle-test"
+        />
+      </DefaultThemeProvider>,
+    );
+
+    const element = screen.getByTestId('progress-circle-test');
+    expect(element.className).toContain('custom-root-class');
+
+    // eslint-disable-next-line testing-library/no-container
+    expect(container.querySelector('.custom-svg-class')).toBeInTheDocument();
+    // eslint-disable-next-line testing-library/no-container
+    expect(container.querySelector('.custom-circle-class')).toBeInTheDocument();
+    // eslint-disable-next-line testing-library/no-container
+    expect(container.querySelector('.custom-progress-class')).toBeInTheDocument();
+    // eslint-disable-next-line testing-library/no-container
+    expect(container.querySelector('.custom-content-class')).toBeInTheDocument();
+    // eslint-disable-next-line testing-library/no-container
+    expect(container.querySelector('.custom-content-inner-class')).toBeInTheDocument();
+  });
+
+  it('sets data attributes for styling hooks', () => {
+    render(
+      <DefaultThemeProvider>
+        <ProgressCircle
+          contentNode={<div>Custom</div>}
+          disabled
+          hideContent
+          progress={0}
+          size={100}
+          testID="progress-circle-test"
+          weight="heavy"
+        />
+      </DefaultThemeProvider>,
+    );
+
+    const element = screen.getByTestId('progress-circle-test');
+    expect(element).toHaveAttribute('data-disabled', 'true');
+    expect(element).toHaveAttribute('data-weight', 'heavy');
+    expect(element).toHaveAttribute('data-hide-content', 'true');
+    expect(element).toHaveAttribute('data-has-custom-content', 'true');
+  });
 });

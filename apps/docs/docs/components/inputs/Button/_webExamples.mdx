@@ -227,3 +227,82 @@ A full-width primary action with a compact secondary option.
   </Button>
 </VStack>
 ```
+
+## Multiple Files Example
+
+This example demonstrates the playground's multiple files support. You can organize code across multiple files, similar to how you'd structure a real project. The main file is editable, while other files are read-only. Switch between tabs to view different files.
+
+import Playground from '@theme/Playground';
+
+<Playground
+  files={{
+    "CounterApp.tsx": `import { useState } from 'react';
+import { VStack, HStack } from '@coinbase/cds-web/layout';
+import { Button } from '@coinbase/cds-web/buttons';
+import { useCounter } from './hooks/useCounter';
+import { CounterDisplay } from './components/CounterDisplay';
+
+function CounterApp() {
+  const { count, increment, decrement, reset } = useCounter(0);
+
+  return (
+    <VStack gap={3} padding={3}>
+      <CounterDisplay count={count} />
+      <HStack gap={2}>
+        <Button onClick={decrement} variant="secondary">
+          Decrement
+        </Button>
+        <Button onClick={reset} variant="secondary" transparent>
+          Reset
+        </Button>
+        <Button onClick={increment}>
+          Increment
+        </Button>
+      </HStack>
+    </VStack>
+  );
+}
+
+render(<CounterApp />);`,
+    "./hooks/useCounter.ts": `import { useState } from 'react';
+
+// Custom hook - read-only
+// This file demonstrates organizing hooks separately
+
+export function useCounter(initialValue = 0) {
+  const [count, setCount] = useState(initialValue);
+
+  const increment = () => setCount((prev) => prev + 1);
+  const decrement = () => setCount((prev) => prev - 1);
+  const reset = () => setCount(initialValue);
+
+  return { count, increment, decrement, reset };
+}`,
+    "./components/CounterDisplay.tsx": `import { VStack } from '@coinbase/cds-web/layout';
+import { Text } from '@coinbase/cds-web/typography';
+
+// Reusable component - read-only
+// This file demonstrates organizing components separately
+
+export function CounterDisplay({ count }) {
+  return (
+    <VStack
+      background="bgAlternate"
+      borderRadius={200}
+      padding={3}
+      alignItems="center"
+    >
+      <Text font="title1" color="fgPrimary">
+        {count}
+      </Text>
+      <Text font="label2" color="fgMuted">
+        Current count
+      </Text>
+    </VStack>
+  );
+}`
+  }}
+>
+{`// Main file (CounterApp.tsx) - editable
+// Switch tabs above to view other files`}
+</Playground>

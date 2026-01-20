@@ -154,9 +154,11 @@ apps/docs/docs/components/[docs-category]/[ComponentName]/
 ├── webMetadata.json         # If web version exists
 ├── _webExamples.mdx        # If web version exists
 ├── _webPropsTable.mdx      # If web version exists
+├── _webStylesTable.mdx    # If web version exists and has stylesAPI
 ├── mobileMetadata.json     # If mobile version exists
 ├── _mobileExamples.mdx    # If mobile version exists
-└── _mobilePropsTable.mdx  # If mobile version exists
+├── _mobilePropsTable.mdx  # If mobile version exists
+└── _mobileStylesTable.mdx # If mobile version exists and has stylesAPI
 ```
 
 ## File Templates
@@ -175,7 +177,25 @@ apps/docs/docs/components/[docs-category]/[ComponentName]/
   "relatedComponents": [
     { "label": "[componentName]", "url": "/components/[category]/[componentName]" }
   ],
-  "dependencies": [{ "name": "[peer-dependency-name]", "version": "[version-range]" }]
+  "dependencies": [{ "name": "[peer-dependency-name]", "version": "[version-range]" }],
+  "stylesAPI": {
+    "staticClassName": "cds-ComponentName",
+    "selectors": [
+      {
+        "name": "root",
+        "staticClassName": "cds-ComponentName",
+        "description": "Root element"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "attribute": "data-variant",
+        "selector": "root",
+        "condition": "variant prop is set",
+        "values": "primary | secondary"
+      }
+    ]
+  }
 }
 ```
 
@@ -188,6 +208,7 @@ apps/docs/docs/components/[docs-category]/[ComponentName]/
   2. Cross-reference those imports with `peerDependencies` in `packages/web/package.json`
   3. Use the exact version range from `peerDependencies` in the package.json file
 - `relatedComponents` should link to components commonly used together
+- `stylesAPI` is optional - only include if the component has static classnames, selectors, or data attributes. See "Styles API Documentation" section below for details
 
 #### mobileMetadata.json
 
@@ -200,7 +221,25 @@ apps/docs/docs/components/[docs-category]/[ComponentName]/
   "relatedComponents": [
     { "label": "[componentName]", "url": "/components/[category]/[componentName]" }
   ],
-  "dependencies": [{ "name": "[peer-dependency-name]", "version": "[version-range]" }]
+  "dependencies": [{ "name": "[peer-dependency-name]", "version": "[version-range]" }],
+  "stylesAPI": {
+    "staticClassName": "cds-ComponentName",
+    "selectors": [
+      {
+        "name": "root",
+        "staticClassName": "cds-ComponentName",
+        "description": "Root element"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "attribute": "data-variant",
+        "selector": "root",
+        "condition": "variant prop is set",
+        "values": "primary | secondary"
+      }
+    ]
+  }
 }
 ```
 
@@ -211,6 +250,7 @@ apps/docs/docs/components/[docs-category]/[ComponentName]/
   1. Check the component's source file for imports from external packages (e.g., `@shopify/react-native-skia`, `react-native-reanimated`, `react-native-gesture-handler`)
   2. Cross-reference those imports with `peerDependencies` in `packages/mobile/package.json`
   3. Use the exact version range from `peerDependencies` in the package.json file
+- `stylesAPI` is optional - only include if the component has static classnames, selectors, or data attributes. See "Styles API Documentation" section below for details
 
 ### Props Tables
 
@@ -244,6 +284,32 @@ import { sharedTypeAliases } from ':docgen/_types/sharedTypeAliases';
 />
 ```
 
+### Styles Tables
+
+#### \_webStylesTable.mdx
+
+Create this file only if the component has a `stylesAPI` field in `webMetadata.json`:
+
+```mdx
+import ComponentStylesTable from '@site/src/components/page/ComponentStylesTable';
+
+import webMetadata from './webMetadata.json';
+
+<ComponentStylesTable stylesAPI={webMetadata.stylesAPI} />
+```
+
+#### \_mobileStylesTable.mdx
+
+Create this file only if the component has a `stylesAPI` field in `mobileMetadata.json`:
+
+```mdx
+import ComponentStylesTable from '@site/src/components/page/ComponentStylesTable';
+
+import mobileMetadata from './mobileMetadata.json';
+
+<ComponentStylesTable stylesAPI={mobileMetadata.stylesAPI} />
+```
+
 ### Main Documentation (index.mdx)
 
 #### For Web-Only Components
@@ -263,6 +329,7 @@ import { ComponentTabsContainer } from '@site/src/components/page/ComponentTabsC
 import webPropsToc from ':docgen/web/[source-category]/[ComponentName]/toc-props';
 import WebPropsTable from './_webPropsTable.mdx';
 import WebExamples, { toc as webExamplesToc } from './_webExamples.mdx';
+import WebStylesTable from './_webStylesTable.mdx';
 import webMetadata from './webMetadata.json';
 
 <VStack gap={5}>
@@ -272,9 +339,14 @@ import webMetadata from './webMetadata.json';
     webExamples={<WebExamples />}
     webExamplesToc={webExamplesToc}
     webPropsToc={webPropsToc}
+    webStylesTable={<WebStylesTable />}
   />
 </VStack>
 ```
+
+**Note:** Only import `WebStylesTable` if the component has a `stylesAPI` field in `webMetadata.json`. The styles tab will automatically appear when the styles table is provided.
+
+````
 
 #### For Mobile-Only Components
 
@@ -293,6 +365,7 @@ import { ComponentTabsContainer } from '@site/src/components/page/ComponentTabsC
 import mobilePropsToc from ':docgen/mobile/[source-category]/[ComponentName]/toc-props';
 import MobilePropsTable from './_mobilePropsTable.mdx';
 import MobileExamples, { toc as mobileExamplesToc } from './_mobileExamples.mdx';
+import MobileStylesTable from './_mobileStylesTable.mdx';
 import mobileMetadata from './mobileMetadata.json';
 
 <VStack gap={5}>
@@ -302,9 +375,14 @@ import mobileMetadata from './mobileMetadata.json';
     mobileExamples={<MobileExamples />}
     mobileExamplesToc={mobileExamplesToc}
     mobilePropsToc={mobilePropsToc}
+    mobileStylesTable={<MobileStylesTable />}
   />
 </VStack>
-```
+````
+
+**Note:** Only import `MobileStylesTable` if the component has a `stylesAPI` field in `mobileMetadata.json`. The styles tab will automatically appear when the styles table is provided.
+
+````
 
 #### For Cross-Platform Components
 
@@ -326,6 +404,8 @@ import WebPropsTable from './_webPropsTable.mdx';
 import MobilePropsTable from './_mobilePropsTable.mdx';
 import WebExamples, { toc as webExamplesToc } from './_webExamples.mdx';
 import MobileExamples, { toc as mobileExamplesToc } from './_mobileExamples.mdx';
+import WebStylesTable from './_webStylesTable.mdx';
+import MobileStylesTable from './_mobileStylesTable.mdx';
 import webMetadata from './webMetadata.json';
 import mobileMetadata from './mobileMetadata.json';
 
@@ -344,9 +424,15 @@ import mobileMetadata from './mobileMetadata.json';
     mobileExamplesToc={mobileExamplesToc}
     webPropsToc={webPropsToc}
     mobilePropsToc={mobilePropsToc}
+    webStylesTable={<WebStylesTable />}
+    mobileStylesTable={<MobileStylesTable />}
   />
 </VStack>
-```
+````
+
+**Note:** Only import `WebStylesTable` and `MobileStylesTable` if the component has a `stylesAPI` field in the respective metadata files. The styles tab will automatically appear when the styles table is provided.
+
+`````
 
 ### Examples
 
@@ -377,7 +463,7 @@ Web examples use `jsx live` blocks which render interactively in the browser. Fo
 <[ComponentName]
   requiredProp="value"
 />
-```
+`````
 
 ## [Feature Category]
 
@@ -431,7 +517,8 @@ function [UseCaseName]() {
   );
 }
 ```
-````
+
+`````
 
 #### \_mobileExamples.mdx (Static Examples)
 
@@ -494,7 +581,76 @@ function [UseCaseName]() {
   );
 }
 ```
-````
+`````
+
+## Styles API Documentation
+
+If a component has static classnames, selectors, or data attributes, document them in the component's metadata and create a styles table.
+
+### Adding stylesAPI to Metadata
+
+Add a `stylesAPI` field to `webMetadata.json` or `mobileMetadata.json`:
+
+```json
+{
+  "stylesAPI": {
+    "staticClassName": "cds-ComponentName",
+    "selectors": [
+      {
+        "name": "root",
+        "staticClassName": "cds-ComponentName",
+        "description": "Root element"
+      },
+      {
+        "name": "label",
+        "staticClassName": "cds-ComponentName-label",
+        "description": "Label element"
+      }
+    ],
+    "dataAttributes": [
+      {
+        "attribute": "data-variant",
+        "selector": "root",
+        "condition": "variant prop is set",
+        "values": "primary | secondary | tertiary"
+      },
+      {
+        "attribute": "data-disabled",
+        "selector": "root",
+        "condition": "disabled prop is true"
+      }
+    ]
+  }
+}
+```
+
+**Fields:**
+
+- `staticClassName` (optional): The root static class name (e.g., `"cds-Button"`)
+- `selectors` (optional): Array of inner element selectors with their static classnames and descriptions
+- `dataAttributes` (optional): Array of data attributes that are set based on component state/props
+
+**For dataAttributes:**
+
+- `attribute`: The data attribute name (e.g., `"data-disabled"`)
+- `selector`: Which selector(s) receive this attribute (e.g., `"root"` or `"root, label"`)
+- `condition` (optional): When the attribute is set (e.g., `"disabled prop is true"`). Use `"--"` if not applicable
+- `values` (optional): Possible values for the attribute (e.g., `"primary | secondary"`). Use `"--"` if not applicable
+
+### Creating Styles Table Files
+
+After adding `stylesAPI` to metadata, create the corresponding styles table file:
+
+- `_webStylesTable.mdx` for web components
+- `_mobileStylesTable.mdx` for mobile components
+
+See the "Styles Tables" section in the file templates above for the file content.
+
+### Importing in index.mdx
+
+Import and pass the styles table to `ComponentTabsContainer`. The styles tab will automatically appear when the styles table is provided.
+
+**Reference:** See `apps/docs/docs/components/inputs/Button/` for a complete example with styles API documentation.
 
 ## Best Practices for Examples
 
@@ -536,6 +692,9 @@ Before completing, verify:
 - [ ] Set correct `platform_switcher_options`
 - [ ] Metadata files have correct package imports
 - [ ] Added `dependencies` field if component has peer dependencies
+- [ ] Added `stylesAPI` field if component has static classnames, selectors, or data attributes
+- [ ] Created styles table files (`_webStylesTable.mdx` or `_mobileStylesTable.mdx`) if `stylesAPI` is present
+- [ ] Imported and passed styles table to `ComponentTabsContainer` in `index.mdx` if styles table exists
 - [ ] Props tables import from correct package with correct variable names
 - [ ] Examples start with introductory prose
 - [ ] Examples include accessibility guidance

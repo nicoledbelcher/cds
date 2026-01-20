@@ -1,6 +1,7 @@
 import React, { useCallback, useRef } from 'react';
 
 import type { Polymorphic } from '../core/polymorphism';
+import { cx } from '../cx';
 import type { HStackDefaultElement, HStackProps } from '../layout/HStack';
 import { HStack } from '../layout/HStack';
 
@@ -10,6 +11,11 @@ import { DefaultPaginationNavigationTextButton } from './DefaultPaginationNaviga
 import { DefaultPaginationPageButton } from './DefaultPaginationPageButton';
 import type { PaginationOptions } from './usePagination';
 import { usePagination } from './usePagination';
+
+export const COMPONENT_STATIC_CLASSNAME = 'cds-Pagination';
+const PAGINATION_NAVIGATION_BUTTON_STATIC_CLASSNAME = 'cds-Pagination-navigationButton';
+const PAGINATION_PAGE_BUTTON_STATIC_CLASSNAME = 'cds-Pagination-pageButton';
+const PAGINATION_ELLIPSIS_STATIC_CLASSNAME = 'cds-Pagination-ellipsis';
 
 export type PaginationPageButtonProps = {
   /** The page number */
@@ -22,6 +28,10 @@ export type PaginationPageButtonProps = {
   isCurrentPage?: boolean;
   /** Whether the button is disabled */
   disabled?: boolean;
+  /** A CSS class name applied to this component */
+  className?: string;
+  /** Inline styles for this component */
+  style?: React.CSSProperties;
   /** Accessibility label for the button */
   accessibilityLabel?: string;
   /** Test ID for the button */
@@ -35,6 +45,10 @@ export type PaginationNavigationButtonProps = {
   onClick: () => void;
   /** Whether the button is disabled */
   disabled?: boolean;
+  /** A CSS class name applied to this component */
+  className?: string;
+  /** Inline styles for this component */
+  style?: React.CSSProperties;
   /** Accessibility label for the button */
   accessibilityLabel?: string;
   /** Test ID for the button */
@@ -44,6 +58,10 @@ export type PaginationNavigationButtonProps = {
 export type PaginationEllipsisProps = {
   /** Custom content to display instead of default "..." */
   content?: string;
+  /** A CSS class name applied to this component */
+  className?: string;
+  /** Inline styles for this component */
+  style?: React.CSSProperties;
   /** Test ID for the ellipsis element */
   testID?: string;
 };
@@ -95,6 +113,28 @@ export type PaginationBaseProps = Omit<PaginationOptions, 'initialPage'> & {
   PaginationNavigationButtonComponent?: PaginationNavigationButtonComponent;
   /** Custom component for rendering ellipsis */
   PaginationEllipsisComponent?: PaginationEllipsisComponent;
+
+  /**
+   * Styles API for targeting specific parts of the component.
+   * Note: Pagination's internal buttons have their own styles APIs.
+   */
+  styles?: {
+    root?: React.CSSProperties;
+    navigationButton?: React.CSSProperties;
+    pageButton?: React.CSSProperties;
+    ellipsis?: React.CSSProperties;
+  };
+
+  /**
+   * Class name API for targeting specific parts of the component.
+   * Note: Pagination's internal buttons have their own styles APIs.
+   */
+  classNames?: {
+    root?: string;
+    navigationButton?: string;
+    pageButton?: string;
+    ellipsis?: string;
+  };
 };
 
 export type PaginationProps = Polymorphic.ExtendableProps<
@@ -119,6 +159,10 @@ export const Pagination = ({
   PaginationEllipsisComponent = DefaultPaginationEllipsis,
   firstPageButtonLabel = 'First',
   lastPageButtonLabel = 'Last',
+  className,
+  style,
+  styles,
+  classNames,
   ...props
 }: PaginationProps) => {
   const { items, updateActivePage, goNextPage, goPrevPage, goFirstPage, goLastPage } =
@@ -175,8 +219,12 @@ export const Pagination = ({
       accessibilityLabel={accessibilityLabel}
       alignItems="center"
       as="nav"
+      className={cx(COMPONENT_STATIC_CLASSNAME, className, classNames?.root)}
+      data-disabled={disabled}
+      data-show-first-last-buttons={showFirstLastButtons}
       gap={0.5}
       justifyContent="center"
+      style={{ ...style, ...styles?.root }}
       testID={testID}
       {...props}
     >
@@ -184,8 +232,14 @@ export const Pagination = ({
         (PaginationNavigationButtonComponent === DefaultPaginationNavigationButton ? (
           <DefaultPaginationNavigationTextButton
             accessibilityLabel={accessibilityLabels?.first ?? 'First page'}
+            className={cx(
+              PAGINATION_NAVIGATION_BUTTON_STATIC_CLASSNAME,
+              classNames?.navigationButton,
+            )}
+            data-direction="first"
             disabled={activePage === 1 || disabled}
             onClick={handleGoFirstPage}
+            style={styles?.navigationButton}
             testID={testIDMap?.firstButton}
           >
             {firstPageButtonLabel}
@@ -193,24 +247,37 @@ export const Pagination = ({
         ) : (
           <PaginationNavigationButtonComponent
             accessibilityLabel={accessibilityLabels?.first ?? 'First page'}
+            className={cx(
+              PAGINATION_NAVIGATION_BUTTON_STATIC_CLASSNAME,
+              classNames?.navigationButton,
+            )}
             direction="first"
             disabled={activePage === 1 || disabled}
             onClick={handleGoFirstPage}
+            style={styles?.navigationButton}
             testID={testIDMap?.firstButton}
           />
         ))}
 
       <PaginationNavigationButtonComponent
         accessibilityLabel={accessibilityLabels?.previous ?? 'Previous page'}
+        className={cx(PAGINATION_NAVIGATION_BUTTON_STATIC_CLASSNAME, classNames?.navigationButton)}
         direction="previous"
         disabled={activePage === 1 || disabled}
         onClick={handleGoPreviousPage}
+        style={styles?.navigationButton}
         testID={testIDMap?.prevButton}
       />
 
       {items.map((item, index) => {
         if (item.type === 'ellipsis')
-          return <PaginationEllipsisComponent key={`ellipsis-${index}`} />;
+          return (
+            <PaginationEllipsisComponent
+              key={`ellipsis-${index}`}
+              className={cx(PAGINATION_ELLIPSIS_STATIC_CLASSNAME, classNames?.ellipsis)}
+              style={styles?.ellipsis}
+            />
+          );
 
         // Check if this is the current page
         const page = item.page;
@@ -222,11 +289,13 @@ export const Pagination = ({
             accessibilityLabel={
               accessibilityLabels?.page ? accessibilityLabels.page(page) : `Page ${page}`
             }
+            className={cx(PAGINATION_PAGE_BUTTON_STATIC_CLASSNAME, classNames?.pageButton)}
             data-pagenumber={page}
             disabled={disabled}
             isCurrentPage={isCurrentPage}
             onClick={handleGoToPage}
             page={page}
+            style={styles?.pageButton}
             testID={isCurrentPage ? `${testID}-current-page` : undefined}
           />
         );
@@ -234,9 +303,11 @@ export const Pagination = ({
 
       <PaginationNavigationButtonComponent
         accessibilityLabel={accessibilityLabels?.next ?? 'Next page'}
+        className={cx(PAGINATION_NAVIGATION_BUTTON_STATIC_CLASSNAME, classNames?.navigationButton)}
         direction="next"
         disabled={activePage === totalPages || disabled}
         onClick={handleGoNextPage}
+        style={styles?.navigationButton}
         testID={testIDMap?.nextButton}
       />
 
@@ -244,8 +315,14 @@ export const Pagination = ({
         (PaginationNavigationButtonComponent === DefaultPaginationNavigationButton ? (
           <DefaultPaginationNavigationTextButton
             accessibilityLabel={accessibilityLabels?.last ?? 'Last page'}
+            className={cx(
+              PAGINATION_NAVIGATION_BUTTON_STATIC_CLASSNAME,
+              classNames?.navigationButton,
+            )}
+            data-direction="last"
             disabled={activePage === totalPages || disabled}
             onClick={handleGoLastPage}
+            style={styles?.navigationButton}
             testID={testIDMap?.lastButton}
           >
             {lastPageButtonLabel}
@@ -253,9 +330,14 @@ export const Pagination = ({
         ) : (
           <PaginationNavigationButtonComponent
             accessibilityLabel={accessibilityLabels?.last ?? 'Last page'}
+            className={cx(
+              PAGINATION_NAVIGATION_BUTTON_STATIC_CLASSNAME,
+              classNames?.navigationButton,
+            )}
             direction="last"
             disabled={activePage === totalPages || disabled}
             onClick={handleGoLastPage}
+            style={styles?.navigationButton}
             testID={testIDMap?.lastButton}
           />
         ))}

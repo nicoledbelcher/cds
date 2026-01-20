@@ -15,7 +15,7 @@ import { TOCUpdater } from '../../../utils/toc/TOCManager';
 
 const examplesTab = { id: 'examples', label: 'Examples' };
 const propsTab = { id: 'props', label: 'Props' };
-const stylesTab = { id: 'styles', label: 'Styles API' };
+const stylesTab = { id: 'styles', label: 'Styles' };
 
 type ComponentMetaContainerProps = {
   webPropsTable?: React.ReactNode;
