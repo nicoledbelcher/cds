@@ -232,15 +232,56 @@ function CustomTitleTray() {
           }
           pin="right"
           onCloseComplete={handleClose}
-        >
-          {({ handleClose }) => (
-            <VStack gap={2} justifyContent="space-between" flexGrow={1} paddingBottom={1.5}>
-              <Text>This is the content of the tray.</Text>
-              <HStack justifyContent="flex-end">
-                <Button onClick={handleClose}>Close</Button>
-              </HStack>
-            </VStack>
+          footer={({ handleClose }) => (
+            <PageFooter
+              borderedTop
+              justifyContent="flex-end"
+              action={<Button onClick={handleClose}>Close</Button>}
+            />
           )}
+        >
+          <VStack gap={2} paddingBottom={2}>
+            <Text>This is the content of the tray.</Text>
+          </VStack>
+        </Tray>
+      )}
+    </VStack>
+  );
+}
+```
+
+```jsx live
+function BackArrowTray() {
+  const [visible, setVisible] = useState(false);
+  const handleOpen = () => setVisible(true);
+  const handleClose = () => setVisible(false);
+
+  return (
+    <VStack gap={2}>
+      <Button onClick={handleOpen}>Open Tray</Button>
+      {visible && (
+        <Tray
+          title={
+            <VStack>
+              <IconButton transparent margin={-1.5} name="backArrow" onClick={() => {}} />
+              <Text paddingTop={1.5} font="title3">
+                Header
+              </Text>
+            </VStack>
+          }
+          pin="right"
+          onCloseComplete={handleClose}
+          footer={({ handleClose }) => (
+            <PageFooter
+              borderedTop
+              justifyContent="flex-end"
+              action={<Button onClick={handleClose}>Close</Button>}
+            />
+          )}
+        >
+          <VStack gap={2} paddingBottom={2}>
+            <Text>This is the content of the tray.</Text>
+          </VStack>
         </Tray>
       )}
     </VStack>
