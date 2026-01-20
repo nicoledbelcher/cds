@@ -29,8 +29,8 @@ export type TrayBaseProps = Omit<DrawerBaseProps, 'pin' | 'children'> & {
   children?: React.ReactNode | TrayRenderChildren;
   /** ReactNode to render as the Tray header */
   header?: React.ReactNode;
-  /** ReactNode to render as the Tray footer */
-  footer?: React.ReactNode;
+  /** ReactNode to render as the Tray footer. Can be a ReactNode or a function that receives { handleClose }. */
+  footer?: React.ReactNode | TrayRenderChildren;
   pin?: DrawerProps['pin'];
   /**
    * Optional callback that, if provided, will be triggered when the Tray is toggled open/ closed
@@ -40,6 +40,8 @@ export type TrayBaseProps = Omit<DrawerBaseProps, 'pin' | 'children'> & {
   onVisibilityChange?: (context: 'visible' | 'hidden') => void;
   /** Text or ReactNode for optional Tray title */
   title?: React.ReactNode;
+  /** Hide the header (title) section of the tray */
+  hideHeader?: boolean;
 };
 
 export type TrayProps = TrayBaseProps &
@@ -71,6 +73,7 @@ export const Tray = memo(
       verticalDrawerPercentageOfView = defaultVerticalDrawerPercentageOfView,
       styles,
       pin = 'bottom',
+      hideHeader = false,
       ...props
     },
     ref,
@@ -98,16 +101,18 @@ export const Tray = memo(
     const renderChildren: TrayRenderChildren = useCallback(
       ({ handleClose }) => {
         const content = typeof children === 'function' ? children({ handleClose }) : children;
+        const footerContent = typeof footer === 'function' ? footer({ handleClose }) : footer;
+        const showHeader = !hideHeader && title;
 
         return (
           <VStack
             flexGrow={1}
             flexShrink={1}
             minHeight={0}
-            paddingTop={title ? 0 : 2}
+            paddingTop={showHeader ? 0 : 2}
             style={contentStyle}
           >
-            {title && (
+            {showHeader && (
               <Box justifyContent="center" onLayout={onTitleLayout} style={headerStyle}>
                 {typeof title === 'string' ? (
                   <Text
@@ -128,11 +133,21 @@ export const Tray = memo(
             <Box flexGrow={1} flexShrink={1} minHeight={0} width="100%">
               {content}
             </Box>
-            {footer}
+            {footerContent}
           </VStack>
         );
       },
-      [children, contentStyle, footer, header, headerStyle, onTitleLayout, title, titleStyle],
+      [
+        children,
+        contentStyle,
+        footer,
+        header,
+        headerStyle,
+        hideHeader,
+        onTitleLayout,
+        title,
+        titleStyle,
+      ],
     );
 
     useEffect(() => {
