@@ -1,6 +1,7 @@
 export * from './Alert';
 export * from './FocusTrap';
 export * from './FullscreenAlert';
+export * from './handlebar/HandleBar';
 export * from './modal/FullscreenModal';
 export * from './modal/FullscreenModalHeader';
 export * from './modal/FullscreenModalLayout';

@@ -27,8 +27,8 @@ export type TrayRenderChildren = React.FC<{ handleClose: () => void }>;
 
 export type TrayBaseProps = Omit<DrawerBaseProps, 'pin' | 'children'> & {
   children?: React.ReactNode | TrayRenderChildren;
-  /** ReactNode to render as the Tray header */
-  header?: React.ReactNode;
+  /** ReactNode to render as the Tray header. Can be a ReactNode or a function that receives { handleClose }. */
+  header?: React.ReactNode | TrayRenderChildren;
   /** ReactNode to render as the Tray footer. Can be a ReactNode or a function that receives { handleClose }. */
   footer?: React.ReactNode | TrayRenderChildren;
   pin?: DrawerProps['pin'];
@@ -101,18 +101,19 @@ export const Tray = memo(
     const renderChildren: TrayRenderChildren = useCallback(
       ({ handleClose }) => {
         const content = typeof children === 'function' ? children({ handleClose }) : children;
+        const headerContent = typeof header === 'function' ? header({ handleClose }) : header;
         const footerContent = typeof footer === 'function' ? footer({ handleClose }) : footer;
-        const showHeader = !hideHeader && title;
+        const showTitle = !hideHeader && title;
 
         return (
           <VStack
             flexGrow={1}
             flexShrink={1}
             minHeight={0}
-            paddingTop={showHeader ? 0 : 2}
+            paddingTop={showTitle ? 0 : 2}
             style={contentStyle}
           >
-            {showHeader && (
+            {showTitle && (
               <Box justifyContent="center" onLayout={onTitleLayout} style={headerStyle}>
                 {typeof title === 'string' ? (
                   <Text
@@ -129,7 +130,7 @@ export const Tray = memo(
                 )}
               </Box>
             )}
-            {header}
+            {headerContent}
             <Box flexGrow={1} flexShrink={1} minHeight={0} width="100%">
               {content}
             </Box>

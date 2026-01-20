@@ -22,6 +22,7 @@ import { Box, HStack } from '../../layout';
 import { VStack } from '../../layout/VStack';
 import { Text } from '../../typography/Text';
 import { FocusTrap } from '../FocusTrap';
+import { HandleBar } from '../handlebar/HandleBar';
 import { Overlay } from '../overlay/Overlay';
 import { Portal } from '../Portal';
 import { trayContainerId } from '../PortalProvider';
@@ -33,8 +34,8 @@ export type TrayRenderChildren = React.FC<{ handleClose: () => void }>;
 
 export type TrayBaseProps = {
   children?: React.ReactNode | TrayRenderChildren;
-  /** ReactNode to render as the Drawer header */
-  header?: React.ReactNode;
+  /** ReactNode to render as the Drawer header. Can be a ReactNode or a function that receives { handleClose }. */
+  header?: React.ReactNode | TrayRenderChildren;
   /** ReactNode to render as the Drawer footer. Can be a ReactNode or a function that receives { handleClose }. */
   footer?: React.ReactNode | TrayRenderChildren;
   /** HTML ID for the tray */
@@ -103,6 +104,16 @@ export type TrayBaseProps = {
    * @link https://reactnative.dev/docs/accessibility#accessibilityhint
    */
   closeAccessibilityHint?: SharedAccessibilityProps['accessibilityHint'];
+  /**
+   * Show a handle bar indicator at the top of the tray
+   * @default false
+   */
+  showHandleBar?: boolean;
+  /**
+   * Position of the handle bar relative to the tray content
+   * @default 'outside'
+   */
+  handleBarVariant?: 'inside' | 'outside';
 } & Pick<SharedAccessibilityProps, 'accessibilityLabel'>;
 
 export type TrayProps = TrayBaseProps & {
@@ -122,6 +133,10 @@ export type TrayProps = TrayBaseProps & {
     content?: React.CSSProperties;
     /** Styles for the footer section */
     footer?: React.CSSProperties;
+    /** Styles for the handle bar container */
+    handleBar?: React.CSSProperties;
+    /** Styles for the handle bar element */
+    handleBarHandle?: React.CSSProperties;
   };
   /** Class names for the tray elements */
   classNames?: {
@@ -139,6 +154,10 @@ export type TrayProps = TrayBaseProps & {
     content?: string;
     /** Class name for the footer section */
     footer?: string;
+    /** Class name for the handle bar container */
+    handleBar?: string;
+    /** Class name for the handle bar element */
+    handleBarHandle?: string;
   };
 };
 
@@ -185,6 +204,8 @@ export const Tray = memo(
       classNames,
       zIndex,
       pin = 'bottom',
+      showHandleBar,
+      handleBarVariant = 'outside',
       ...props
     },
     ref,
@@ -281,26 +302,49 @@ export const Tray = memo(
       [isSideTray, pin],
     );
 
+    // Handle bar only shows for bottom-pinned trays (matching mobile behavior)
+    const shouldShowHandleBar = showHandleBar && pin === 'bottom';
+    const showHandleBarOutside = shouldShowHandleBar && handleBarVariant === 'outside';
+    const showHandleBarInside = shouldShowHandleBar && handleBarVariant === 'inside';
+
     const animatedContainerStyle = useMemo(
       () => ({
         position: 'absolute',
         zIndex: 1,
         maxHeight: isSideTray ? undefined : verticalDrawerPercentageOfView,
         overflowY: 'auto',
+        // Allow overflow for outside handle bar positioning
+        ...(showHandleBarOutside && { overflow: 'visible' }),
         ...styles?.container,
       }),
-      [isSideTray, verticalDrawerPercentageOfView, styles?.container],
+      [isSideTray, verticalDrawerPercentageOfView, showHandleBarOutside, styles?.container],
+    );
+
+    const handleBarOutsideStyle: React.CSSProperties = useMemo(
+      () => ({
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        transform: 'translateY(-100%)',
+        ...styles?.handleBar,
+      }),
+      [styles?.handleBar],
+    );
+
+    // Inside variant uses bgInverse at 40% opacity with smaller width (matching mobile)
+    const handleBarInsideHandleStyle: React.CSSProperties = useMemo(
+      () => ({
+        width: 32,
+        backgroundColor: theme.color.bgInverse,
+        opacity: 0.4,
+        ...styles?.handleBarHandle,
+      }),
+      [theme.color.bgInverse, styles?.handleBarHandle],
     );
 
     if (!isOpen) return null;
-    // todo: would it be bad to not include horizontal padding on footer?
-    // We are going to recommend that consumers use PageFooter which has matching padding.
 
-    // Web never had handle implemented, is this fine?
-    // When we have the side tray, they want a divider for scrolling, which we can show in an example
-    // But how do we handel bottom padding below example buttons? how does that work?
-    // What about back arrow on tray?
-    // Also note that we use 'title' in code already, not 'header'.
     return (
       <OverlayContentContext.Provider value={overlayContentContextValue}>
         <Portal containerId={trayContainerId}>
@@ -338,6 +382,14 @@ export const Tray = memo(
                 style={animatedContainerStyle}
                 tabIndex={0}
               >
+                {showHandleBarOutside && (
+                  <HandleBar
+                    className={classNames?.handleBar}
+                    handleClassName={classNames?.handleBarHandle}
+                    handleStyle={styles?.handleBarHandle}
+                    style={handleBarOutsideStyle}
+                  />
+                )}
                 <VStack
                   ref={trayRef}
                   accessibilityLabel={accessibilityLabel}
@@ -356,6 +408,14 @@ export const Tray = memo(
                     maxWidth={isSideTray ? undefined : '70em'}
                     width="100%"
                   >
+                    {showHandleBarInside && (
+                      <HandleBar
+                        className={classNames?.handleBar}
+                        handleClassName={classNames?.handleBarHandle}
+                        handleStyle={handleBarInsideHandleStyle}
+                        style={styles?.handleBar}
+                      />
+                    )}
                     {!hideHeader && (
                       <HStack
                         alignItems={isSideTray ? 'flex-start' : 'center'}
@@ -395,6 +455,7 @@ export const Tray = memo(
                         )}
                       </HStack>
                     )}
+                    {header && (typeof header === 'function' ? header({ handleClose }) : header)}
                     <VStack
                       className={classNames?.content}
                       flexGrow={1}
