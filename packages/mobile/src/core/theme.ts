@@ -8,6 +8,18 @@ type Shadow = {
   shadowRadius?: ViewStyle['shadowRadius'];
 };
 
+export type ColorBlend = {
+  underlayColor: string;
+  darkColorThreshold: number;
+  lightColorThreshold: number;
+  noAdjustmentThreshold: number;
+  maxAdjustmentPercent: number; // Max percent difference of luminance adjustment we allow. Higher differences will be clamped to this value.
+  adjustmentCurve: 'quart'; // The curve used to calculate the base luminance adjustment value.
+  hoverBlendStrength: number; // blendStrength is how much we blend the colors together. Higher values will blend more.
+  pressedBlendStrength: number;
+  disabledBlendStrength: number;
+};
+
 export type ThemeConfig = {
   /** A unique identifier for the theme. */
   id?: string;
@@ -45,6 +57,8 @@ export type ThemeConfig = {
   shadow: { [key in ThemeVars.Shadow]: Shadow };
   /** The control size values. */
   controlSize: { [key in ThemeVars.ControlSize]: number };
+  lightColorBlending: { [key in ThemeVars.Color]: string };
+  darkColorBlending: { [key in ThemeVars.Color]: string };
 };
 
 export type Theme = ThemeConfig & {
