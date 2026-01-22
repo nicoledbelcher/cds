@@ -161,9 +161,40 @@ const DefaultExample = () => {
   );
 };
 
+const largeScaleTheme = {
+  ...coinbaseTheme,
+  id: 'coinbase-large-scale-story',
+  space: {
+    '0': 0,
+    '0.25': 3,
+    '0.5': 5,
+    '0.75': 8,
+    '1': 10,
+    '1.5': 15,
+    '2': 20,
+    '3': 30,
+    '4': 40,
+    '5': 50,
+    '6': 60,
+    '7': 72,
+    '8': 80,
+    '9': 90,
+    '10': 100,
+  },
+  fontSize: {
+    ...coinbaseTheme.fontSize,
+    body: 18,
+  },
+  lineHeight: {
+    ...coinbaseTheme.lineHeight,
+    body: 28,
+  },
+};
+
 const ThemeSpacingExample = () => {
   const [defaultValue, setDefaultValue] = useState<string | null>('1');
   const [denseValue, setDenseValue] = useState<string | null>('1');
+  const [largeValue, setLargeValue] = useState<string | null>('1');
 
   return (
     <VStack gap={3}>
@@ -192,6 +223,20 @@ const ThemeSpacingExample = () => {
             options={exampleOptions}
             placeholder="Empty value"
             value={denseValue}
+          />
+        </VStack>
+      </ThemeProvider>
+      <ThemeProvider activeColorScheme="light" theme={largeScaleTheme}>
+        <VStack background="bgSecondary" gap={2} padding={2}>
+          <Text color="fgMuted" font="body">
+            Larger spacing + text
+          </Text>
+          <Select
+            label="Theme spacing"
+            onChange={setLargeValue}
+            options={exampleOptions}
+            placeholder="Empty value"
+            value={largeValue}
           />
         </VStack>
       </ThemeProvider>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import type { ThemeConfig } from '../../../core/theme';
@@ -58,6 +58,36 @@ const denseSpacingTheme: ThemeConfig = {
   },
 };
 
+const largeScaleTheme: ThemeConfig = {
+  ...coinbaseTheme,
+  id: 'coinbase-large-scale-test',
+  space: {
+    '0': 0,
+    '0.25': 3,
+    '0.5': 5,
+    '0.75': 8,
+    '1': 10,
+    '1.5': 15,
+    '2': 20,
+    '3': 30,
+    '4': 40,
+    '5': 50,
+    '6': 60,
+    '7': 72,
+    '8': 80,
+    '9': 90,
+    '10': 100,
+  },
+  fontSize: {
+    ...coinbaseTheme.fontSize,
+    body: 18,
+  },
+  lineHeight: {
+    ...coinbaseTheme.lineHeight,
+    body: 28,
+  },
+};
+
 describe('DefaultSelectControl', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -84,6 +114,25 @@ describe('DefaultSelectControl', () => {
     it('uses dense spacing for min height', () => {
       const inputStack = renderWithTheme(denseSpacingTheme);
       expect(inputStack.props.minHeight).toBe(denseSpacingTheme.space['7']);
+    });
+  });
+
+  describe('Theme scale', () => {
+    const renderWithTheme = (theme: ThemeConfig) => {
+      render(
+        <DefaultThemeProvider theme={theme}>
+          <DefaultSelectControl {...defaultProps} />
+        </DefaultThemeProvider>,
+      );
+      return screen.getByText('Option 1');
+    };
+
+    it('uses larger font size and line height when provided', () => {
+      const textNode = renderWithTheme(largeScaleTheme);
+      const flattenedStyle = StyleSheet.flatten(textNode.props.style);
+
+      expect(flattenedStyle.fontSize).toBe(largeScaleTheme.fontSize.body);
+      expect(flattenedStyle.lineHeight).toBe(largeScaleTheme.lineHeight.body);
     });
   });
 

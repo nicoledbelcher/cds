@@ -47,6 +47,36 @@ const denseSpacingTheme: ThemeConfig = {
   },
 };
 
+const largeScaleTheme: ThemeConfig = {
+  ...coinbaseTheme,
+  id: 'coinbase-large-scale-test',
+  space: {
+    '0': 0,
+    '0.25': 3,
+    '0.5': 5,
+    '0.75': 8,
+    '1': 10,
+    '1.5': 15,
+    '2': 20,
+    '3': 30,
+    '4': 40,
+    '5': 50,
+    '6': 60,
+    '7': 72,
+    '8': 80,
+    '9': 90,
+    '10': 100,
+  },
+  fontSize: {
+    ...coinbaseTheme.fontSize,
+    body: '1.125rem',
+  },
+  lineHeight: {
+    ...coinbaseTheme.lineHeight,
+    body: '1.75rem',
+  },
+};
+
 describe('DefaultSelectControl', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -62,6 +92,7 @@ describe('DefaultSelectControl', () => {
       return {
         button: screen.getByRole('button'),
         themeRoot: container.firstElementChild as HTMLElement,
+        valueNode: screen.getByText('Option 1'),
       };
     };
 
@@ -77,6 +108,19 @@ describe('DefaultSelectControl', () => {
       expect(themeRoot.style.getPropertyValue('--space-7')).toBe(
         `${denseSpacingTheme.space['7']}px`,
       );
+    });
+
+    it('uses larger spacing and font size when provided', () => {
+      const { button, themeRoot, valueNode } = renderWithTheme(largeScaleTheme);
+      expect(button.style.getPropertyValue('--minHeight')).toBe('var(--space-7)');
+      expect(themeRoot.style.getPropertyValue('--space-7')).toBe(`${largeScaleTheme.space['7']}px`);
+      expect(themeRoot.style.getPropertyValue('--fontSize-body')).toBe(
+        largeScaleTheme.fontSize.body,
+      );
+      expect(themeRoot.style.getPropertyValue('--lineHeight-body')).toBe(
+        largeScaleTheme.lineHeight.body,
+      );
+      expect(valueNode).toBeInTheDocument();
     });
   });
 
