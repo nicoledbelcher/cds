@@ -88,7 +88,7 @@ const RadioCellWithRef = forwardRef(function RadioCell<T extends string>(
   const titleId = customTitleId ?? generatedTitleId;
   const descriptionId = customDescriptionId ?? generatedDescriptionId;
 
-  const interactableStyle = useMemo(() => {
+  const pressableStyle = useMemo(() => {
     return {
       '--border-color-unfocused': 'transparent',
       '--border-color-focused': 'var(--color-bgPrimary)',
@@ -116,7 +116,7 @@ const RadioCellWithRef = forwardRef(function RadioCell<T extends string>(
       gap={columnGap}
       noScaleOnPress={noScaleOnPress}
       padding={padding}
-      style={interactableStyle}
+      style={pressableStyle}
       tabIndex={-1}
       testID={testID}
       {...props}
