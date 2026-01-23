@@ -92,7 +92,6 @@ function BasicScrollingTray() {
           pin="bottom"
           showHandleBar
           hideCloseButton
-          handleBarVariant="inside"
           onCloseComplete={handleClose}
           footer={({ handleClose }) => (
             <PageFooter
@@ -175,7 +174,6 @@ function ResponsiveIllustrationTray() {
         <Tray
           pin={isPhone ? 'bottom' : 'right'}
           showHandleBar={isPhone}
-          handleBarVariant="inside"
           onCloseComplete={handleClose}
           hideCloseButton={isPhone}
           styles={
@@ -455,7 +453,7 @@ function CustomImageTray() {
 
 ### Handle Bar
 
-Add a visual handle bar indicator to the tray using `showHandleBar`. The handle bar can be positioned outside (default) or inside the tray content using `handleBarVariant`.
+Add a visual handle bar indicator to the tray using `showHandleBar`. The handle bar is positioned inside the tray content area, providing a visual affordance that matches mobile behavior.
 
 :::note
 The handle bar only appears when `pin="bottom"` (the default), matching mobile behavior where it serves as a drag-to-dismiss affordance.
@@ -484,44 +482,7 @@ function HandleBarTray() {
           )}
         >
           <VStack gap={2} paddingBottom={2}>
-            <Text>This tray has a handle bar positioned outside the container.</Text>
-          </VStack>
-        </Tray>
-      )}
-    </VStack>
-  );
-}
-```
-
-#### Handle Bar Inside
-
-Use `handleBarVariant="inside"` to position the handle bar inside the tray content area.
-
-```jsx live
-function HandleBarInsideTray() {
-  const [visible, setVisible] = useState(false);
-  const handleOpen = () => setVisible(true);
-  const handleClose = () => setVisible(false);
-
-  return (
-    <VStack gap={2}>
-      <Button onClick={handleOpen}>Open Tray with Inside Handle Bar</Button>
-      {visible && (
-        <Tray
-          title="Inside Handle Bar"
-          showHandleBar
-          handleBarVariant="inside"
-          onCloseComplete={handleClose}
-          footer={({ handleClose }) => (
-            <PageFooter
-              borderedTop
-              justifyContent="flex-end"
-              action={<Button onClick={handleClose}>Close</Button>}
-            />
-          )}
-        >
-          <VStack gap={2} paddingBottom={2}>
-            <Text>This tray has a handle bar positioned inside the container.</Text>
+            <Text>This tray has a handle bar inside the container.</Text>
           </VStack>
         </Tray>
       )}
@@ -607,6 +568,231 @@ function PinDirectionTray() {
 ```
 
 ## Composed Examples
+
+### Responsive Tray
+
+```jsx live
+function ResponsiveTrayExample() {
+  function ResponsiveTray({ styles, ...props }) {
+    const [visible, setVisible] = useState(false);
+    const { isPhone } = useBreakpoints();
+    const handleOpen = () => setVisible(true);
+    const handleClose = () => setVisible(false);
+
+    return (
+      <Tray
+        {...props}
+        pin={isPhone ? 'bottom' : 'right'}
+        showHandleBar={isPhone}
+        hideCloseButton={isPhone}
+        styles={{
+          ...styles,
+          content: {
+            paddingBottom: 'var(--space-3)',
+            ...styles?.content,
+          },
+        }}
+      />
+    );
+  }
+
+  function Example() {
+    const [visible, setVisible] = useState(false);
+    const handleOpen = () => setVisible(true);
+    const handleClose = () => setVisible(false);
+
+    return (
+      <VStack gap={2}>
+        <Button onClick={handleOpen}>Open Custom Header Tray</Button>
+        {visible && (
+          <ResponsiveTray onCloseComplete={handleClose} title="Header">
+            <Text>This is the content of the tray.</Text>
+          </ResponsiveTray>
+        )}
+      </VStack>
+    );
+  }
+
+  return <Example />;
+}
+```
+
+### Responsive with Illustration
+
+You can use breakpoints to create a responsive tray that adapts between mobile and desktop, in this case we also support a title and pictogram.
+
+```jsx live
+function ResponsiveIllustrationTrayExample() {
+  function ResponsiveIllustrationTray({ pictogram, title, ...props }) {
+    const [visible, setVisible] = useState(false);
+    const { isPhone } = useBreakpoints();
+    const handleOpen = () => setVisible(true);
+    const handleClose = () => setVisible(false);
+
+    return (
+      <Tray
+        {...props}
+        pin={isPhone ? 'bottom' : 'right'}
+        showHandleBar={isPhone}
+        hideCloseButton={isPhone}
+        title={
+          <VStack gap={isPhone ? 1.5 : 2}>
+            <Pictogram name={pictogram} />
+            <Text font="title3">{title}</Text>
+          </VStack>
+        }
+      />
+    );
+  }
+
+  function Example() {
+    const [visible, setVisible] = useState(false);
+    const handleOpen = () => setVisible(true);
+    const handleClose = () => setVisible(false);
+
+    return (
+      <VStack gap={2}>
+        <Button onClick={handleOpen}>Open Illustration Tray</Button>
+        {visible && (
+          <ResponsiveIllustrationTray
+            onCloseComplete={handleClose}
+            pictogram="addWallet"
+            title="Welcome aboard"
+          >
+            <Text color="fgMuted" paddingBottom={2}>
+              Curabitur commodo nulla vel dolor vulputate vestibulum. Nulla et nisl molestie,
+              interdum lorem id, viverra.
+            </Text>
+          </ResponsiveIllustrationTray>
+        )}
+      </VStack>
+    );
+  }
+
+  return <Example />;
+}
+```
+
+### Responsive with List Cells
+
+You can use Tray to let users select from a list of [ListCells](/components/data-display/ListCell).
+
+```jsx live
+function ResponsiveListCellsTrayExample() {
+  function ResponsiveListCellsTray(props) {
+    const [visible, setVisible] = useState(false);
+    const { isPhone } = useBreakpoints();
+    const handleOpen = () => setVisible(true);
+    const handleClose = () => setVisible(false);
+
+    return (
+      <Tray
+        {...props}
+        pin={isPhone ? 'bottom' : 'right'}
+        showHandleBar={isPhone}
+        hideCloseButton={isPhone}
+        styles={{
+          header: { paddingBottom: isPhone ? 'var(--space-0_75)' : 'var(--space-1)' },
+          content: { paddingBottom: 'var(--space-3)' },
+        }}
+      />
+    );
+  }
+
+  function Example() {
+    const [visible, setVisible] = useState(false);
+    const handleOpen = () => setVisible(true);
+    const handleClose = () => setVisible(false);
+
+    return (
+      <VStack gap={2}>
+        <Button onClick={handleOpen}>Open ListCells Tray</Button>
+        {visible && (
+          <ResponsiveListCellsTray onCloseComplete={handleClose} title="Section header">
+            {Array.from({ length: 20 }, (_, i) => (
+              <ListCell
+                key={i}
+                spacingVariant="condensed"
+                title="Title"
+                description="Description"
+                accessory="arrow"
+                onClick={() => alert('Cell clicked!')}
+                innerSpacing={{
+                  marginX: -4,
+                  paddingX: 4,
+                  paddingY: 1,
+                }}
+              />
+            ))}
+          </ResponsiveListCellsTray>
+        )}
+      </VStack>
+    );
+  }
+
+  return <Example />;
+}
+```
+
+### Responsive with Custom Header
+
+You can use Tray to show users a custom header.
+
+```jsx live
+function ResponsiveCustomHeaderTrayExample() {
+  function ResponsiveCustomHeaderTray({ headerSrc, ...props }) {
+    const [visible, setVisible] = useState(false);
+    const { isPhone } = useBreakpoints();
+    const handleOpen = () => setVisible(true);
+    const handleClose = () => setVisible(false);
+
+    return (
+      <Tray
+        {...props}
+        pin={isPhone ? 'bottom' : 'right'}
+        showHandleBar={isPhone}
+        hideCloseButton={isPhone}
+        styles={{
+          content: { paddingBottom: 'var(--space-3)' },
+          header: {
+            backgroundImage: `url(${headerSrc})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            minHeight: 220,
+          },
+        }}
+      />
+    );
+  }
+
+  function Example() {
+    const [visible, setVisible] = useState(false);
+    const handleOpen = () => setVisible(true);
+    const handleClose = () => setVisible(false);
+
+    return (
+      <VStack gap={2}>
+        <Button onClick={handleOpen}>Open Custom Header Tray</Button>
+        {visible && (
+          <ResponsiveCustomHeaderTray
+            onCloseComplete={handleClose}
+            headerSrc="https://images.ctfassets.net/o10es7wu5gm1/4BsskcYybNIDMYTeMpkFPG/216eb97727f834346649004a5d66cd3f/Coinbase_Press_Page_Product_Image.png?fm=avif&w=641&h=426&q=65"
+          >
+            <Text font="title3" paddingTop={2} paddingBottom={0.75}>
+              Header
+            </Text>
+            <VStack gap={2} paddingBottom={2}>
+              <Text>This is the content of the tray.</Text>
+            </VStack>
+          </ResponsiveCustomHeaderTray>
+        )}
+      </VStack>
+    );
+  }
+
+  return <Example />;
+}
+```
 
 ### Filter Menu
 

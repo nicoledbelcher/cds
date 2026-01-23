@@ -346,7 +346,6 @@ export const HandleBar = () => {
         {showInsideHandleBar && (
           <Tray
             showHandleBar
-            handleBarVariant="inside"
             onCloseComplete={() => setShowInsideHandleBar(false)}
             title="Handle Bar Inside"
           >
@@ -582,7 +581,6 @@ export const MobileWebResponsive = () => {
                 />
               )
             }
-            handleBarVariant="inside"
             header={
               isPhone ? (
                 <Box paddingBottom={0.75} paddingTop={1} paddingX={3}>
@@ -641,7 +639,6 @@ export const MobileWebResponsive = () => {
                 />
               )
             }
-            handleBarVariant="inside"
             header={
               isPhone ? (
                 <VStack alignItems="center" gap={2} paddingBottom={1} paddingTop={2}>
@@ -694,7 +691,6 @@ export const MobileWebResponsive = () => {
                 />
               )
             }
-            handleBarVariant="inside"
             header={
               isPhone ? (
                 <Box paddingBottom={0.75} paddingTop={1} paddingX={3}>
@@ -761,7 +757,6 @@ export const MobileWebResponsive = () => {
                 />
               )
             }
-            handleBarVariant="inside"
             header={
               isPhone ? (
                 <Box paddingBottom={0.75} paddingTop={1} paddingX={3}>
@@ -949,7 +944,6 @@ export const MobileWebFooterVariants = () => {
                 </Button>
               </Box>
             )}
-            handleBarVariant="inside"
             header={
               <Box paddingBottom={0.75} paddingTop={1} paddingX={3}>
                 <Text font="title3">Header</Text>
@@ -987,7 +981,6 @@ export const MobileWebFooterVariants = () => {
                 </HStack>
               </Box>
             )}
-            handleBarVariant="inside"
             header={
               <Box paddingBottom={0.75} paddingTop={1} paddingX={3}>
                 <Text font="title3">Confirm Action</Text>
@@ -1013,7 +1006,6 @@ export const MobileWebFooterVariants = () => {
           <Tray
             hideHeader
             showHandleBar
-            handleBarVariant="inside"
             header={
               <Box paddingBottom={0.75} paddingTop={1} paddingX={3}>
                 <Text font="title3">Select Option</Text>
@@ -1077,7 +1069,6 @@ export const IllustrationInformational = () => {
           <Tray
             hideHeader
             showHandleBar
-            handleBarVariant="inside"
             header={
               <VStack gap={1.5} paddingX={3}>
                 <Pictogram name="addWallet" />

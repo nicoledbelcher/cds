@@ -105,14 +105,11 @@ export type TrayBaseProps = {
    */
   closeAccessibilityHint?: SharedAccessibilityProps['accessibilityHint'];
   /**
-   * Show a handle bar indicator at the top of the tray
+   * Show a handle bar indicator at the top of the tray.
+   * The handle bar is positioned inside the tray content area.
+   * Only appears when `pin="bottom"`.
    */
   showHandleBar?: boolean;
-  /**
-   * Position of the handle bar relative to the tray content
-   * @default 'outside'
-   */
-  handleBarVariant?: 'inside' | 'outside';
   /**
    * Hide the close icon on the top right
    */
@@ -208,7 +205,6 @@ export const Tray = memo(
       zIndex,
       pin = 'bottom',
       showHandleBar,
-      handleBarVariant = 'outside',
       hideCloseButton,
       ...props
     },
@@ -316,8 +312,6 @@ export const Tray = memo(
 
     // Handle bar only shows for bottom-pinned trays (matching mobile behavior)
     const shouldShowHandleBar = showHandleBar && pin === 'bottom';
-    const showHandleBarOutside = shouldShowHandleBar && handleBarVariant === 'outside';
-    const showHandleBarInside = shouldShowHandleBar && handleBarVariant === 'inside';
 
     const animatedContainerStyle = useMemo(
       () => ({
@@ -326,27 +320,14 @@ export const Tray = memo(
         maxHeight: isSideTray ? undefined : verticalDrawerPercentageOfView,
         display: 'flex',
         flexDirection: 'column',
-        // Allow overflow for outside handle bar positioning
-        ...(showHandleBarOutside && { overflow: 'visible' }),
+        overflow: 'hidden',
         ...styles?.container,
       }),
-      [isSideTray, verticalDrawerPercentageOfView, showHandleBarOutside, styles?.container],
+      [isSideTray, verticalDrawerPercentageOfView, styles?.container],
     );
 
-    const handleBarOutsideStyle: React.CSSProperties = useMemo(
-      () => ({
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        transform: 'translateY(-100%)',
-        ...styles?.handleBar,
-      }),
-      [styles?.handleBar],
-    );
-
-    // Inside variant uses bgInverse at 40% opacity with smaller width (matching mobile)
-    const handleBarInsideHandleStyle: React.CSSProperties = useMemo(
+    // Handle bar uses bgInverse at 40% opacity with smaller width (matching mobile)
+    const handleBarHandleStyle: React.CSSProperties = useMemo(
       () => ({
         width: 32,
         backgroundColor: theme.color.bgInverse,
@@ -395,14 +376,6 @@ export const Tray = memo(
                 style={animatedContainerStyle}
                 tabIndex={0}
               >
-                {showHandleBarOutside && (
-                  <HandleBar
-                    className={classNames?.handleBar}
-                    handleClassName={classNames?.handleBarHandle}
-                    handleStyle={styles?.handleBarHandle}
-                    style={handleBarOutsideStyle}
-                  />
-                )}
                 <VStack
                   ref={trayRef}
                   accessibilityLabel={accessibilityLabel}
@@ -413,6 +386,7 @@ export const Tray = memo(
                   id={id}
                   minHeight={0}
                   onClick={handleTrayClick}
+                  overflow="hidden"
                   role={role}
                   width={isSideTray ? 'min(400px, 100vw)' : '100%'}
                 >
@@ -422,32 +396,32 @@ export const Tray = memo(
                     minHeight={0}
                     width="100%"
                   >
-                    {(showHandleBarInside || !hideHeader) && (
+                    {!hideHeader && (
                       <VStack
                         background="bgElevation2"
                         borderTopLeftRadius={pin === 'left' || pin === 'top' ? 0 : 600}
                         borderTopRightRadius={pin === 'right' || pin === 'top' ? 0 : 600}
                         borderedBottom={hasScrolledDown}
+                        className={classNames?.header}
                         flexShrink={0}
                         overflow="hidden"
+                        paddingBottom={0.75}
+                        paddingTop={shouldShowHandleBar ? 0 : isSideTray ? 4 : 2}
+                        style={styles?.header}
                       >
-                        {showHandleBarInside && (
+                        {shouldShowHandleBar && (
                           <HandleBar
                             className={classNames?.handleBar}
                             handleClassName={classNames?.handleBarHandle}
-                            handleStyle={handleBarInsideHandleStyle}
+                            handleStyle={handleBarHandleStyle}
                             style={styles?.handleBar}
                           />
                         )}
-                        {!hideHeader && (
+                        {(title || (!preventDismiss && !hideCloseButton)) && (
                           <HStack
                             alignItems={isSideTray ? 'flex-start' : 'center'}
-                            className={classNames?.header}
                             justifyContent={title ? 'space-between' : 'flex-end'}
-                            paddingBottom={0.75}
-                            paddingTop={showHandleBarInside ? 0 : isSideTray ? 4 : 2}
                             paddingX={horizontalPadding}
-                            style={styles?.header}
                           >
                             {title &&
                               (typeof title === 'string' ? (

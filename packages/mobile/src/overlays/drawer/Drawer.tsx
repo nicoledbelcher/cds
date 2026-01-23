@@ -62,6 +62,7 @@ export type DrawerBaseProps = SharedProps &
     /**
      * The HandleBar can be rendered inside or outside the drawer.
      * @default 'outside'
+     * @note The 'outside' variant is deprecated. Use 'inside' for new implementations.
      */
     handleBarVariant?: 'inside' | 'outside';
     /**
@@ -110,7 +111,7 @@ const overlayContentContextValue: OverlayContentContextValue = {
   isDrawer: true,
 };
 
-const overflowStyle = { overflow: 'hidden' as const, maxHeight: '100%' as const };
+const baseOverflowStyle = { overflow: 'hidden' as const, maxHeight: '100%' as const };
 
 export const Drawer = memo(
   forwardRef<DrawerRefBaseProps, DrawerProps>(function Drawer(
@@ -199,6 +200,11 @@ export const Drawer = memo(
     const showHandleBar = !hideHandleBar && pin === 'bottom';
     const showHandleBarOutside = showHandleBar && handleBarVariant === 'outside';
     const showHandleBarInside = showHandleBar && handleBarVariant === 'inside';
+
+    const contentStyle = useMemo(
+      () => [baseOverflowStyle, showHandleBarInside && { paddingHorizontal: theme.space[3] }],
+      [showHandleBarInside, theme.space],
+    );
 
     // leave 15% of the screenwidth as open area for menu drawer
     const horizontalDrawerWidth = useMemo(
@@ -327,7 +333,7 @@ export const Drawer = memo(
               style={drawerStyle}
             >
               {showHandleBarInside && handleBar}
-              <View style={overflowStyle}>{content}</View>
+              <View style={contentStyle}>{content}</View>
             </Box>
           </Box>
         </OverlayContentContext.Provider>

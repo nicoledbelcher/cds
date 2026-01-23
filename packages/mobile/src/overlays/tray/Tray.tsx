@@ -74,10 +74,14 @@ export const Tray = memo(
       styles,
       pin = 'bottom',
       hideHeader = false,
+      handleBarVariant = 'outside',
+      hideHandleBar,
       ...props
     },
     ref,
   ) {
+    // Handle bar inside only shows for bottom-pinned trays
+    const showHandleBarInside = !hideHandleBar && pin === 'bottom' && handleBarVariant === 'inside';
     const [titleHeight, setTitleHeight] = useState(0);
 
     const { contentStyle, headerStyle, titleStyle, drawerStyles } = useMemo(() => {
@@ -118,9 +122,8 @@ export const Tray = memo(
                 {typeof title === 'string' ? (
                   <Text
                     font="title3"
-                    paddingBottom={2}
-                    paddingTop={3}
-                    paddingX={3}
+                    paddingBottom={showHandleBarInside ? 0.75 : 2}
+                    paddingTop={showHandleBarInside ? 0 : 3}
                     style={titleStyle}
                   >
                     {title}
@@ -146,6 +149,7 @@ export const Tray = memo(
         headerStyle,
         hideHeader,
         onTitleLayout,
+        showHandleBarInside,
         title,
         titleStyle,
       ],
@@ -167,6 +171,8 @@ export const Tray = memo(
       <TrayContext.Provider value={trayContextValue}>
         <Drawer
           ref={ref}
+          handleBarVariant={handleBarVariant}
+          hideHandleBar={hideHandleBar}
           pin={pin}
           styles={drawerStyles}
           verticalDrawerPercentageOfView={trayContextValue.verticalDrawerPercentageOfView}
