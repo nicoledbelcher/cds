@@ -219,15 +219,17 @@ function OutlineBeacon() {
   }
 
   const InvertedBeacon = useMemo(
-    () => (props) => (
-      <DefaultScrubberBeacon
-        {...props}
-        stroke="var(--color-fg)"
-        color="var(--color-bg)"
-        radius={5}
-        strokeWidth={3}
-      />
-    ),
+    () =>
+      forwardRef((props, ref) => (
+        <DefaultScrubberBeacon
+          ref={ref}
+          {...props}
+          stroke="var(--color-fg)"
+          color="var(--color-bg)"
+          radius={5}
+          strokeWidth={3}
+        />
+      )),
     [],
   );
 

@@ -1642,15 +1642,17 @@ function MonotoneAssetPrice() {
   );
 
   const InvertedBeacon = useMemo(
-    () => (props) => (
-      <DefaultScrubberBeacon
-        {...props}
-        stroke={theme.color.fg}
-        color={theme.color.bg}
-        radius={5}
-        strokeWidth={3}
-      />
-    ),
+    () =>
+      forwardRef((props, ref) => (
+        <DefaultScrubberBeacon
+          ref={ref}
+          {...props}
+          stroke={theme.color.fg}
+          color={theme.color.bg}
+          radius={5}
+          strokeWidth={3}
+        />
+      )),
     [theme.color.fg, theme.color.bg],
   );
 

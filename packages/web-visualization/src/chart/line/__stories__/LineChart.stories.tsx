@@ -33,6 +33,7 @@ import {
   projectPoint,
   Scrubber,
   type ScrubberBeaconProps,
+  type ScrubberBeaconRef,
   type ScrubberLabelProps,
   type ScrubberRef,
   useCartesianChartContext,
@@ -2190,15 +2191,17 @@ function CustomBeaconSize() {
   }
 
   const InvertedBeacon = useMemo(
-    () => (props: ScrubberBeaconProps) => (
-      <DefaultScrubberBeacon
-        {...props}
-        color="var(--color-bg)"
-        radius={5}
-        stroke="var(--color-fg)"
-        strokeWidth={3}
-      />
-    ),
+    () =>
+      forwardRef<ScrubberBeaconRef, ScrubberBeaconProps>((props, ref) => (
+        <DefaultScrubberBeacon
+          ref={ref}
+          {...props}
+          color="var(--color-bg)"
+          radius={5}
+          stroke="var(--color-fg)"
+          strokeWidth={3}
+        />
+      )),
     [],
   );
 
