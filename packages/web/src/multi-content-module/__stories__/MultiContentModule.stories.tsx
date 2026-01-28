@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import type { IconName } from '@coinbase/cds-common';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { Button } from '../../buttons';
 import { ButtonGroup } from '../../buttons/ButtonGroup';
 import { CellMedia, ListCell } from '../../cells';
@@ -14,39 +15,26 @@ import { Pressable } from '../../system/Pressable';
 import { Text } from '../../typography/Text';
 import { MultiContentModule, type MultiContentModuleBaseProps } from '../MultiContentModule';
 
-type ListItem = {
-  icon: IconName;
-  title: string;
-  description: string;
-  active?: boolean;
+export default {
+  title: 'Components/MultiContentModule',
+  component: MultiContentModule,
 };
 
-type SocialMediaItem = {
-  name: string;
-  icon: React.ReactNode;
-};
+type ListItem = { icon: IconName; title: string; description: string; active?: boolean };
+type SocialMediaItem = { name: string; icon: React.ReactNode };
 
 const size = 24;
-
 const onClickConsole = () => console.log('onPress');
 
 const useTriggerFocus = () => {
   const triggerRef = useRef<HTMLButtonElement>(null);
-
-  const focusTrigger = () => {
-    triggerRef.current?.focus();
-  };
-
-  return {
-    triggerRef,
-    focusTrigger,
-  };
+  const focusTrigger = () => triggerRef.current?.focus();
+  return { triggerRef, focusTrigger };
 };
 
 const PasskeyIcon = () => {
   const theme = useTheme();
   const fill = theme.activeColorScheme === 'light' ? 'black' : 'white';
-
   return (
     <svg
       fill="none"
@@ -74,45 +62,36 @@ const GoogleIcon = () => {
       width={size}
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g id="icon">
-        <g id="logo googleg 48dp">
-          <path
-            clipRule="evenodd"
-            d="M24.02 12.7729C24.02 11.922 23.9436 11.1038 23.8018 10.3184H12.5V14.9602H18.9582C18.68 16.4602 17.8345 17.7311 16.5636 18.582V21.5929H20.4418C22.7109 19.5038 24.02 16.4274 24.02 12.7729Z"
-            fill={fill}
-            fillRule="evenodd"
-            id="Shape"
-          />
-          <path
-            clipRule="evenodd"
-            d="M12.5 24.4998C15.74 24.4998 18.4564 23.4252 20.4418 21.5925L16.5636 18.5816C15.4891 19.3016 14.1145 19.7271 12.5 19.7271C9.37455 19.7271 6.72909 17.6161 5.78546 14.7798H1.77637V17.8889C3.75091 21.8107 7.80909 24.4998 12.5 24.4998Z"
-            fill={fill}
-            fillRule="evenodd"
-            id="Shape_2"
-          />
-          <path
-            clipRule="evenodd"
-            d="M5.78545 14.7801C5.54545 14.0601 5.40909 13.291 5.40909 12.5001C5.40909 11.7091 5.54545 10.9401 5.78545 10.2201V7.11096H1.77636C0.963636 8.73096 0.5 10.5637 0.5 12.5001C0.5 14.4364 0.963636 16.2691 1.77636 17.8891L5.78545 14.7801Z"
-            fill={fill}
-            fillRule="evenodd"
-            id="Shape_3"
-          />
-          <path
-            clipRule="evenodd"
-            d="M12.5 5.27273C14.2618 5.27273 15.8436 5.87818 17.0873 7.06727L20.5291 3.62545C18.4509 1.68909 15.7345 0.5 12.5 0.5C7.80909 0.5 3.75091 3.18909 1.77637 7.11091L5.78546 10.22C6.72909 7.38364 9.37455 5.27273 12.5 5.27273Z"
-            fill={fill}
-            fillRule="evenodd"
-            id="Shape_4"
-          />
-        </g>
-      </g>
+      <path
+        clipRule="evenodd"
+        d="M24.02 12.7729C24.02 11.922 23.9436 11.1038 23.8018 10.3184H12.5V14.9602H18.9582C18.68 16.4602 17.8345 17.7311 16.5636 18.582V21.5929H20.4418C22.7109 19.5038 24.02 16.4274 24.02 12.7729Z"
+        fill={fill}
+        fillRule="evenodd"
+      />
+      <path
+        clipRule="evenodd"
+        d="M12.5 24.4998C15.74 24.4998 18.4564 23.4252 20.4418 21.5925L16.5636 18.5816C15.4891 19.3016 14.1145 19.7271 12.5 19.7271C9.37455 19.7271 6.72909 17.6161 5.78546 14.7798H1.77637V17.8889C3.75091 21.8107 7.80909 24.4998 12.5 24.4998Z"
+        fill={fill}
+        fillRule="evenodd"
+      />
+      <path
+        clipRule="evenodd"
+        d="M5.78545 14.7801C5.54545 14.0601 5.40909 13.291 5.40909 12.5001C5.40909 11.7091 5.54545 10.9401 5.78545 10.2201V7.11096H1.77636C0.963636 8.73096 0.5 10.5637 0.5 12.5001C0.5 14.4364 0.963636 16.2691 1.77636 17.8891L5.78545 14.7801Z"
+        fill={fill}
+        fillRule="evenodd"
+      />
+      <path
+        clipRule="evenodd"
+        d="M12.5 5.27273C14.2618 5.27273 15.8436 5.87818 17.0873 7.06727L20.5291 3.62545C18.4509 1.68909 15.7345 0.5 12.5 0.5C7.80909 0.5 3.75091 3.18909 1.77637 7.11091L5.78546 10.22C6.72909 7.38364 9.37455 5.27273 12.5 5.27273Z"
+        fill={fill}
+        fillRule="evenodd"
+      />
     </svg>
   );
 };
 
 const AppleIcon = () => {
   const theme = useTheme();
-
   const fill = theme.activeColorScheme === 'light' ? 'black' : 'white';
   return (
     <svg
@@ -122,13 +101,10 @@ const AppleIcon = () => {
       width={size}
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g id="Apple Logo">
-        <path
-          d="M21.2808 18.424C20.933 19.2275 20.5213 19.9672 20.0442 20.6472C19.394 21.5743 18.8616 22.216 18.4513 22.5724C17.8153 23.1573 17.1338 23.4568 16.4041 23.4739C15.8802 23.4739 15.2485 23.3248 14.513 23.0224C13.7752 22.7214 13.0972 22.5724 12.4772 22.5724C11.827 22.5724 11.1296 22.7214 10.3837 23.0224C9.63662 23.3248 9.03481 23.4824 8.57468 23.498C7.87491 23.5278 7.1774 23.2197 6.48118 22.5724C6.03681 22.1848 5.48099 21.5204 4.81515 20.5791C4.10075 19.5739 3.51342 18.4084 3.05329 17.0795C2.56051 15.6442 2.31348 14.2543 2.31348 12.9087C2.31348 11.3673 2.64654 10.0379 3.31366 8.92385C3.83796 8.029 4.53546 7.32312 5.40844 6.80493C6.28142 6.28674 7.22468 6.02267 8.24048 6.00578C8.7963 6.00578 9.52518 6.1777 10.431 6.51559C11.3342 6.85462 11.9141 7.02655 12.1684 7.02655C12.3585 7.02655 13.0028 6.82552 14.0949 6.42473C15.1278 6.05305 15.9995 5.89916 16.7136 5.95978C18.6487 6.11595 20.1024 6.87876 21.0693 8.25303C19.3386 9.30163 18.4826 10.7703 18.4996 12.6544C18.5152 14.122 19.0476 15.3432 20.0939 16.3129C20.5681 16.7629 21.0977 17.1107 21.6868 17.3578C21.5591 17.7283 21.4242 18.0832 21.2808 18.424ZM16.8428 0.960131C16.8428 2.11039 16.4226 3.18439 15.5849 4.17847C14.5741 5.36023 13.3514 6.04311 12.0256 5.93536C12.0087 5.79736 11.9989 5.65213 11.9989 5.49951C11.9989 4.39526 12.4796 3.21349 13.3333 2.24724C13.7595 1.75801 14.3015 1.35122 14.9588 1.02671C15.6147 0.707053 16.2352 0.530273 16.8187 0.5C16.8357 0.653772 16.8428 0.807554 16.8428 0.960116V0.960131Z"
-          fill={fill}
-          id="path4"
-        />
-      </g>
+      <path
+        d="M21.2808 18.424C20.933 19.2275 20.5213 19.9672 20.0442 20.6472C19.394 21.5743 18.8616 22.216 18.4513 22.5724C17.8153 23.1573 17.1338 23.4568 16.4041 23.4739C15.8802 23.4739 15.2485 23.3248 14.513 23.0224C13.7752 22.7214 13.0972 22.5724 12.4772 22.5724C11.827 22.5724 11.1296 22.7214 10.3837 23.0224C9.63662 23.3248 9.03481 23.4824 8.57468 23.498C7.87491 23.5278 7.1774 23.2197 6.48118 22.5724C6.03681 22.1848 5.48099 21.5204 4.81515 20.5791C4.10075 19.5739 3.51342 18.4084 3.05329 17.0795C2.56051 15.6442 2.31348 14.2543 2.31348 12.9087C2.31348 11.3673 2.64654 10.0379 3.31366 8.92385C3.83796 8.029 4.53546 7.32312 5.40844 6.80493C6.28142 6.28674 7.22468 6.02267 8.24048 6.00578C8.7963 6.00578 9.52518 6.1777 10.431 6.51559C11.3342 6.85462 11.9141 7.02655 12.1684 7.02655C12.3585 7.02655 13.0028 6.82552 14.0949 6.42473C15.1278 6.05305 15.9995 5.89916 16.7136 5.95978C18.6487 6.11595 20.1024 6.87876 21.0693 8.25303C19.3386 9.30163 18.4826 10.7703 18.4996 12.6544C18.5152 14.122 19.0476 15.3432 20.0939 16.3129C20.5681 16.7629 21.0977 17.1107 21.6868 17.3578C21.5591 17.7283 21.4242 18.0832 21.2808 18.424ZM16.8428 0.960131C16.8428 2.11039 16.4226 3.18439 15.5849 4.17847C14.5741 5.36023 13.3514 6.04311 12.0256 5.93536C12.0087 5.79736 11.9989 5.65213 11.9989 5.49951C11.9989 4.39526 12.4796 3.21349 13.3333 2.24724C13.7595 1.75801 14.3015 1.35122 14.9588 1.02671C15.6147 0.707053 16.2352 0.530273 16.8187 0.5C16.8357 0.653772 16.8428 0.807554 16.8428 0.960116V0.960131Z"
+        fill={fill}
+      />
     </svg>
   );
 };
@@ -159,25 +135,13 @@ const listItems: ListItem[] = [
 ];
 
 const socialMediaItems: SocialMediaItem[] = [
-  {
-    name: 'Passkey',
-    icon: <PasskeyIcon />,
-  },
-  {
-    name: 'Google',
-    icon: <GoogleIcon />,
-  },
-  {
-    name: 'Apple',
-    icon: <AppleIcon />,
-  },
-  {
-    name: 'Wallet',
-    icon: <Icon active color="fg" name="wallet" size="m" />,
-  },
+  { name: 'Passkey', icon: <PasskeyIcon /> },
+  { name: 'Google', icon: <GoogleIcon /> },
+  { name: 'Apple', icon: <AppleIcon /> },
+  { name: 'Wallet', icon: <Icon active color="fg" name="wallet" size="m" /> },
 ];
 
-export const Default = () => {
+const DefaultExample = () => {
   const [visible, setVisible] = useState(true);
   const { triggerRef, focusTrigger } = useTriggerFocus();
 
@@ -202,6 +166,7 @@ export const Default = () => {
       </MultiContentModule>
     </HStack>
   );
+
   return (
     <>
       <Button ref={triggerRef} onClick={() => setVisible(true)}>
@@ -220,7 +185,7 @@ export const Default = () => {
   );
 };
 
-export const WithBorder = () => {
+const WithBorderExample = () => {
   const [visible, setVisible] = useState(true);
   const { triggerRef, focusTrigger } = useTriggerFocus();
 
@@ -265,7 +230,7 @@ export const WithBorder = () => {
   );
 };
 
-export const WithButtonGroup = () => {
+const WithButtonGroupExample = () => {
   const [visible, setVisible] = useState(true);
   const { triggerRef, focusTrigger } = useTriggerFocus();
 
@@ -281,6 +246,7 @@ export const WithButtonGroup = () => {
       </ButtonGroup>
     </VStack>
   );
+
   const primaryContent = (
     <HStack justifyContent="center">
       <MultiContentModule bordered action={action} {...exampleProps}>
@@ -294,6 +260,7 @@ export const WithButtonGroup = () => {
       </MultiContentModule>
     </HStack>
   );
+
   return (
     <>
       <Button ref={triggerRef} onClick={() => setVisible(true)}>
@@ -312,7 +279,7 @@ export const WithButtonGroup = () => {
   );
 };
 
-export const WithEnd = () => {
+const WithEndExample = () => {
   const [visible, setVisible] = useState(true);
   const { triggerRef, focusTrigger } = useTriggerFocus();
 
@@ -349,6 +316,7 @@ export const WithEnd = () => {
       </HStack>
     </VStack>
   );
+
   const primaryContent = (
     <HStack justifyContent="center">
       <MultiContentModule
@@ -363,6 +331,7 @@ export const WithEnd = () => {
       </MultiContentModule>
     </HStack>
   );
+
   return (
     <>
       <Button ref={triggerRef} onClick={() => setVisible(true)}>
@@ -381,7 +350,7 @@ export const WithEnd = () => {
   );
 };
 
-export const WithLongContent = () => {
+const WithLongContentExample = () => {
   const [visible, setVisible] = useState(true);
   const { triggerRef, focusTrigger } = useTriggerFocus();
 
@@ -407,6 +376,7 @@ export const WithLongContent = () => {
       </MultiContentModule>
     </HStack>
   );
+
   return (
     <>
       <Button ref={triggerRef} onClick={() => setVisible(true)}>
@@ -425,7 +395,28 @@ export const WithLongContent = () => {
   );
 };
 
-export default {
-  title: 'Components/MultiContentModule',
-  component: MultiContentModule,
+export const All = () => {
+  return (
+    <ExampleScreen>
+      <Example title="Default">
+        <DefaultExample />
+      </Example>
+
+      <Example title="With Border">
+        <WithBorderExample />
+      </Example>
+
+      <Example title="With Button Group">
+        <WithButtonGroupExample />
+      </Example>
+
+      <Example title="With End">
+        <WithEndExample />
+      </Example>
+
+      <Example title="With Long Content">
+        <WithLongContentExample />
+      </Example>
+    </ExampleScreen>
+  );
 };

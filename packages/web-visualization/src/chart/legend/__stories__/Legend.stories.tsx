@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Chip } from '@coinbase/cds-web/chips';
+import { Example, ExampleScreen } from '@coinbase/cds-web/__stories__/storybook';
 import { Box, HStack, VStack } from '@coinbase/cds-web/layout';
 import { Text } from '@coinbase/cds-web/typography';
 
@@ -17,17 +18,6 @@ import { Legend, type LegendEntryProps } from '../Legend';
 export default {
   component: Legend,
   title: 'Components/Chart/Legend',
-};
-
-const Example: React.FC<React.PropsWithChildren<{ title: string }>> = ({ children, title }) => {
-  return (
-    <VStack gap={2}>
-      <Text as="h2" display="block" font="title3">
-        {title}
-      </Text>
-      {children}
-    </VStack>
-  );
 };
 
 const spectrumColors = [
@@ -732,7 +722,7 @@ const LegendShapes = () => {
 
 export const All = () => {
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <Shapes />
       <Basic />
       <AutoScale />
@@ -742,6 +732,6 @@ export const All = () => {
       <Interactive />
       <LegendShapes />
       <Accessible />
-    </VStack>
+    </ExampleScreen>
   );
 };

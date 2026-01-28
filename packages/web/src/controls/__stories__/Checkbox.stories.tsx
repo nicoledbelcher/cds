@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { css } from '@linaria/core';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { useCheckboxGroupState } from '../../hooks/useCheckboxGroupState';
 import { Box, VStack } from '../../layout';
 import { ThemeProvider } from '../../system/ThemeProvider';
@@ -9,7 +10,7 @@ import { Text } from '../../typography/Text';
 import { Checkbox } from '../Checkbox';
 import { CheckboxGroup } from '../CheckboxGroup';
 
-export const Normal = () => {
+const Normal = () => {
   const [checked, setChecked] = useState(false);
   return (
     <Checkbox checked={checked} name="normal-checkbox" onChange={() => setChecked((s) => !s)}>
@@ -18,10 +19,10 @@ export const Normal = () => {
   );
 };
 
-export const CustomColor = () => {
+const CustomColor = () => {
   const [checked, setChecked] = useState(false);
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <Checkbox
         checked={checked}
         controlColor="bgNegative"
@@ -53,11 +54,11 @@ export const CustomColor = () => {
       >
         Style props indeterminate
       </Checkbox>
-    </VStack>
+    </ExampleScreen>
   );
 };
 
-export const Indeterminate = () => {
+const Indeterminate = () => {
   const [indeterminate, setIndeterminate] = useState(false);
   return (
     <Checkbox
@@ -77,7 +78,7 @@ const darkNormalCss = css`
   background-color: var(--color-bg);
 `;
 
-export const DarkNormal = () => {
+const DarkNormal = () => {
   const [checked, setChecked] = useState(false);
   return (
     <ThemeProvider activeColorScheme="dark" theme={defaultTheme}>
@@ -91,43 +92,26 @@ export const DarkNormal = () => {
   );
 };
 
-export const NoLabel = () => {
+const NoLabel = () => {
   const [checked, setChecked] = useState(false);
   return <Checkbox checked={checked} onChange={() => setChecked((s) => !s)} />;
 };
 
-// This story does not render a label on purpose
-NoLabel.parameters = { a11y: { config: { rules: [{ id: 'label', enabled: false }] } } };
-
-export const DisabledUnselected = () => (
+const DisabledUnselected = () => (
   <Checkbox checked disabled>
     Disabled selected
   </Checkbox>
 );
 
-export const ReadOnlyUnselected = () => <Checkbox readOnly>Read-only unselected</Checkbox>;
-ReadOnlyUnselected.parameters = {
-  /**
-   * Color contrast ratio doesn't need to meet 4.5:1, as the element is disabled
-   * @link https://dequeuniversity.com/rules/axe/4.3/color-contrast
-   */
-  a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
-};
+const ReadOnlyUnselected = () => <Checkbox readOnly>Read-only unselected</Checkbox>;
 
-export const ReadOnlySelected = () => (
+const ReadOnlySelected = () => (
   <Checkbox checked readOnly>
     Read-only selected
   </Checkbox>
 );
-ReadOnlySelected.parameters = {
-  /**
-   * Color contrast ratio doesn't need to meet 4.5:1, as the element is disabled
-   * @link https://dequeuniversity.com/rules/axe/4.3/color-contrast
-   */
-  a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
-};
 
-export const MultiLineLabel = () => (
+const MultiLineLabel = () => (
   <Box width="250px">
     <Checkbox>
       This checkbox has a multi-line label. The checkbox and label should align at the top.
@@ -145,7 +129,7 @@ const options = {
 };
 const optionValues = Object.keys(options);
 
-export const Group = () => {
+const Group = () => {
   const [selectedValues, { toggle }] = useCheckboxGroupState(optionValues);
   return (
     <>
@@ -174,7 +158,7 @@ const gridLayoutCss = css`
   gap: 16px;
 `;
 
-export const CustomLayoutCheckboxGroup = () => {
+const CustomLayoutCheckboxGroup = () => {
   const [selectedValues, { toggle }] = useCheckboxGroupState(optionValues);
   return (
     <>
@@ -195,6 +179,65 @@ export const CustomLayoutCheckboxGroup = () => {
       </CheckboxGroup>
     </>
   );
+};
+
+export const All = () => (
+  <VStack gap={3}>
+    <Example title="Normal">
+      <Normal />
+    </Example>
+
+    <Example title="Custom Color">
+      <CustomColor />
+    </Example>
+
+    <Example title="Indeterminate">
+      <Indeterminate />
+    </Example>
+
+    <Example title="Dark Normal">
+      <DarkNormal />
+    </Example>
+
+    <Example title="No Label">
+      <NoLabel />
+    </Example>
+
+    <Example title="Disabled Unselected">
+      <DisabledUnselected />
+    </Example>
+
+    <Example title="Read-Only Unselected">
+      <ReadOnlyUnselected />
+    </Example>
+
+    <Example title="Read-Only Selected">
+      <ReadOnlySelected />
+    </Example>
+
+    <Example title="Multi-Line Label">
+      <MultiLineLabel />
+    </Example>
+
+    <Example title="Group">
+      <Group />
+    </Example>
+
+    <Example title="Custom Layout Checkbox Group">
+      <CustomLayoutCheckboxGroup />
+    </Example>
+  </VStack>
+);
+// a11y rules disabled for No Label and Read-Only stories intentionally
+All.parameters = {
+  a11y: {
+    config: {
+      rules: [
+        { id: 'label', enabled: false },
+        { id: 'color-contrast', enabled: false },
+      ],
+    },
+  },
 };
 
 export default {

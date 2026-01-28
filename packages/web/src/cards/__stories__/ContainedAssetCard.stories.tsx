@@ -2,6 +2,7 @@ import React from 'react';
 import { assets, ethBackground } from '@coinbase/cds-common/internal/data/assets';
 import { subheadIconSignMap } from '@coinbase/cds-common/tokens/sparkline';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { DotStatusColor } from '../../dots/DotStatusColor';
 import { HStack, VStack } from '../../layout';
 import { Text } from '../../typography/Text';
@@ -47,111 +48,108 @@ const examplePropsWithChildren: ContainedAssetCardProps = {
   ),
 } as const;
 
-export const Default = (): JSX.Element => {
+export const All = () => {
   return (
-    <VStack>
-      <ContainedAssetCard {...exampleProps} />
-    </VStack>
-  );
-};
+    <ExampleScreen>
+      <Example title="Default">
+        <VStack>
+          <ContainedAssetCard {...exampleProps} />
+        </VStack>
+      </Example>
 
-export const LongText = (): JSX.Element => {
-  return (
-    <VStack>
-      <ContainedAssetCard
-        {...exampleProps}
-        description="This is a very long description text that will get truncated"
-        subtitle="This is a very long subtitle text that will get truncated"
-        title="This is a very long title text that will get truncated"
-      />
-      <ContainedAssetCard
-        {...examplePropsWithChildren}
-        description="This is a very long description text that will get truncated"
-        size="l"
-        subtitle="This is a very long subtitle text that will get truncated"
-        title="This is a very long title text that will get truncated"
-      />
-    </VStack>
-  );
-};
+      <Example title="Long Text">
+        <VStack>
+          <ContainedAssetCard
+            {...exampleProps}
+            description="This is a very long description text that will get truncated"
+            subtitle="This is a very long subtitle text that will get truncated"
+            title="This is a very long title text that will get truncated"
+          />
+          <ContainedAssetCard
+            {...examplePropsWithChildren}
+            description="This is a very long description text that will get truncated"
+            size="l"
+            subtitle="This is a very long subtitle text that will get truncated"
+            title="This is a very long title text that will get truncated"
+          />
+        </VStack>
+      </Example>
 
-export const Vertical = (): JSX.Element => {
-  return (
-    <VStack gap={1}>
-      <ContainedAssetCard {...exampleProps} />
-      <ContainedAssetCard {...exampleProps} size="l" />
-      <ContainedAssetCard {...examplePropsWithChildren} size="l" />
-    </VStack>
-  );
-};
+      <Example title="Vertical">
+        <VStack gap={1}>
+          <ContainedAssetCard {...exampleProps} />
+          <ContainedAssetCard {...exampleProps} size="l" />
+          <ContainedAssetCard {...examplePropsWithChildren} size="l" />
+        </VStack>
+      </Example>
 
-export const Horizontal = (): JSX.Element => {
-  return (
-    <HStack gap={1}>
-      <ContainedAssetCard {...exampleProps} />
-      <ContainedAssetCard {...exampleProps} size="l" />
-      <ContainedAssetCard {...examplePropsWithChildren} size="l" />
-    </HStack>
-  );
-};
+      <Example title="Horizontal">
+        <HStack gap={1}>
+          <ContainedAssetCard {...exampleProps} />
+          <ContainedAssetCard {...exampleProps} size="l" />
+          <ContainedAssetCard {...examplePropsWithChildren} size="l" />
+        </HStack>
+      </Example>
 
-export const Custom = (): JSX.Element => {
-  return (
-    <ContainedAssetCard
-      {...exampleProps}
-      description={
-        <Text accessibilityLabel="Up 6.37%" as="p" color="fgPositive" display="block" font="label2">
-          {subheadIconSignMap.upwardTrend}6.37%
-        </Text>
-      }
-      header={
-        <img
-          alt="Image Alt"
-          aria-hidden="true"
-          height="32px"
-          src={assets.uni.imageUrl}
-          style={{ objectFit: 'cover', cursor: 'pointer', borderRadius: '100%' }}
-          width="32px"
+      <Example title="Custom">
+        <ContainedAssetCard
+          {...exampleProps}
+          description={
+            <Text
+              accessibilityLabel="Up 6.37%"
+              as="p"
+              color="fgPositive"
+              display="block"
+              font="label2"
+            >
+              {subheadIconSignMap.upwardTrend}6.37%
+            </Text>
+          }
+          header={
+            <img
+              alt="Image Alt"
+              aria-hidden="true"
+              height="32px"
+              src={assets.uni.imageUrl}
+              style={{ objectFit: 'cover', cursor: 'pointer', borderRadius: '100%' }}
+              width="32px"
+            />
+          }
+          subtitle="UNI"
+          title="$0.87"
         />
-      }
-      subtitle="UNI"
-      title="$0.87"
-    />
+      </Example>
+
+      <Example title="Carousel">
+        <HStack gap={2} overflow="scroll">
+          <ContainedAssetCard {...exampleProps} />
+          <ContainedAssetCard {...exampleProps} size="l" />
+          <ContainedAssetCard {...examplePropsWithChildren} size="l" />
+        </HStack>
+      </Example>
+
+      <Example title="Header With Dot Color Status">
+        <ContainedAssetCard
+          {...exampleProps}
+          header={
+            <DotStatusColor overlap="circular" pin="top-end" size="xs" variant="negative">
+              {exampleProps.header}
+            </DotStatusColor>
+          }
+        />
+      </Example>
+
+      <Example title="Custom Width">
+        <VStack>
+          <ContainedAssetCard {...exampleProps} maxWidth="none" />
+        </VStack>
+      </Example>
+    </ExampleScreen>
   );
 };
 
-Custom.parameters = {
-  percy: { enableJavaScript: true },
+All.parameters = {
   a11y: a11ySkipConfig,
-};
-
-export const Carousel = (): JSX.Element => (
-  <HStack gap={2} overflow="scroll">
-    <ContainedAssetCard {...exampleProps} />
-    <ContainedAssetCard {...exampleProps} size="l" />
-    <ContainedAssetCard {...examplePropsWithChildren} size="l" />
-  </HStack>
-);
-
-export const HeaderWithDotColorStatus = (): JSX.Element => {
-  return (
-    <ContainedAssetCard
-      {...exampleProps}
-      header={
-        <DotStatusColor overlap="circular" pin="top-end" size="xs" variant="negative">
-          {exampleProps.header}
-        </DotStatusColor>
-      }
-    />
-  );
-};
-
-export const CustomWidth = (): JSX.Element => {
-  return (
-    <VStack>
-      <ContainedAssetCard {...exampleProps} maxWidth="none" />
-    </VStack>
-  );
 };
 
 export default {

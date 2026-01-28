@@ -25,8 +25,9 @@ const Item: React.FC<React.PropsWithChildren<HStackProps<HStackDefaultElement>>>
   </HStack>
 );
 
+// This file uses a custom Example component with description support for documentation
 const Example: React.FC<
-  React.PropsWithChildren<{ title: string; description?: string | React.ReactNode }>
+  React.PropsWithChildren<{ title: string; description?: React.ReactNode }>
 > = ({ children, title, description }) => {
   return (
     <VStack gap={2}>

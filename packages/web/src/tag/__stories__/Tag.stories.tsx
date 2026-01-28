@@ -1,6 +1,7 @@
 import React from 'react';
 import startCase from 'lodash/startCase';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { VStack } from '../../layout';
 import { Tag, type TagBaseProps } from '../Tag';
 
@@ -72,38 +73,6 @@ const tagStories = {
   ],
 } as const;
 
-export const Default = () => <Tag {...tagStories.default[0]} />;
-
-export const All = () => (
-  <VStack alignItems="flex-start" flexWrap="nowrap" gap={2} padding={0.5}>
-    {tagStories.all.map((props) => (
-      <Tag key={`tag-${props.intent}-${props.colorScheme}-${props.children}`} {...props} />
-    ))}
-  </VStack>
-);
-
-export const Wildcard = () => (
-  <VStack alignItems="flex-start" flexWrap="nowrap" gap={2} padding={0.5}>
-    {tagStories.wildcard.map((props) => (
-      <Tag
-        key={`tag-wildcard-${props.children}-${props.background || ''}-${props.color || ''}`}
-        {...props}
-      />
-    ))}
-  </VStack>
-);
-
-export const Truncated = () => (
-  <VStack alignItems="flex-start" flexWrap="nowrap" gap={2} padding={0.5}>
-    {tagStories.truncated.map((props) => {
-      const keyString = `tag-truncated-${props.children}-${
-        'maxWidth' in props ? props.maxWidth : 'full'
-      }`;
-      return <Tag key={keyString} {...props} />;
-    })}
-  </VStack>
-);
-
 const textStyles = {
   padding: 0,
   margin: 0,
@@ -113,15 +82,53 @@ const textStyles = {
   fontFamily: 'var(--fontFamily-label1)',
 };
 
-export const HtmlTag = () => (
-  <div
-    style={{
-      background: 'rgb(var(--blue0))',
-      color: 'rgb(var(--blue60))',
-      borderRadius: 4,
-      padding: '2px 4px',
-    }}
-  >
-    <span style={textStyles}>HTML tag</span>
-  </div>
+export const All = () => (
+  <VStack gap={4}>
+    <Example title="Default">
+      <Tag {...tagStories.default[0]} />
+    </Example>
+
+    <Example title="All Variants">
+      <VStack alignItems="flex-start" flexWrap="nowrap" gap={2} padding={0.5}>
+        {tagStories.all.map((props) => (
+          <Tag key={`tag-${props.intent}-${props.colorScheme}-${props.children}`} {...props} />
+        ))}
+      </VStack>
+    </Example>
+
+    <Example title="Wildcard">
+      <VStack alignItems="flex-start" flexWrap="nowrap" gap={2} padding={0.5}>
+        {tagStories.wildcard.map((props) => (
+          <Tag
+            key={`tag-wildcard-${props.children}-${props.background || ''}-${props.color || ''}`}
+            {...props}
+          />
+        ))}
+      </VStack>
+    </Example>
+
+    <Example title="Truncated">
+      <VStack alignItems="flex-start" flexWrap="nowrap" gap={2} padding={0.5}>
+        {tagStories.truncated.map((props) => {
+          const keyString = `tag-truncated-${props.children}-${
+            'maxWidth' in props ? props.maxWidth : 'full'
+          }`;
+          return <Tag key={keyString} {...props} />;
+        })}
+      </VStack>
+    </Example>
+
+    <Example title="HTML Tag">
+      <div
+        style={{
+          background: 'rgb(var(--blue0))',
+          color: 'rgb(var(--blue60))',
+          borderRadius: 4,
+          padding: '2px 4px',
+        }}
+      >
+        <span style={textStyles}>HTML tag</span>
+      </div>
+    </Example>
+  </VStack>
 );

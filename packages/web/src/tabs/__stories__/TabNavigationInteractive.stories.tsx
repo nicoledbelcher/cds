@@ -5,7 +5,7 @@ import { fireEvent, userEvent, within } from '@storybook/testing-library';
 
 import { VStack } from '../../layout/VStack';
 import { Text } from '../../typography/Text';
-import { pauseStory } from '../../utils/storybook';
+import { pauseStory } from '../../__stories__/storybook';
 import { TabNavigation } from '../TabNavigation';
 
 const WAIT = 200;

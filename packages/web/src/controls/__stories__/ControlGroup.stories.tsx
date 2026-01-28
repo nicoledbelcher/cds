@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
+import { VStack } from '../../layout';
+import { Text } from '../../typography/Text';
 import { Checkbox } from '../Checkbox';
 import { CheckboxCell } from '../CheckboxCell';
 import { ControlGroup } from '../ControlGroup';
@@ -8,14 +10,10 @@ import { Radio } from '../Radio';
 import { RadioCell } from '../RadioCell';
 import { Switch } from '../Switch';
 
-const meta: Meta<typeof ControlGroup> = {
+export default {
   title: 'Components/ControlGroup',
   component: ControlGroup,
 };
-
-export default meta;
-
-type Story = StoryObj<typeof ControlGroup>;
 
 const radioOptions = [
   { value: '1', label: 'Radio Option 1' },
@@ -77,7 +75,7 @@ const switchOptions = [
   { value: '5', label: 'Switch 5', readOnly: true },
 ];
 
-const RadioGroup = () => {
+const RadioGroupExample = () => {
   const [value, setValue] = useState('1');
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value);
   return (
@@ -92,12 +90,7 @@ const RadioGroup = () => {
   );
 };
 
-export const RadioGroupStory: Story = {
-  name: 'RadioGroup',
-  render: () => <RadioGroup />,
-};
-
-const CheckboxGroup = () => {
+const CheckboxGroupExample = () => {
   const [value, setValue] = useState<string[]>(['1']);
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value: targetValue, checked } = e.target;
@@ -115,12 +108,7 @@ const CheckboxGroup = () => {
   );
 };
 
-export const CheckboxGroupStory: Story = {
-  name: 'CheckboxGroup',
-  render: CheckboxGroup,
-};
-
-const RadioCellGroup = () => {
+const RadioCellGroupExample = () => {
   const [value, setValue] = useState('1');
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value);
   return (
@@ -135,12 +123,7 @@ const RadioCellGroup = () => {
   );
 };
 
-export const RadioCellGroupStory: Story = {
-  name: 'RadioCellGroup',
-  render: RadioCellGroup,
-};
-
-const CheckboxCellGroup = () => {
+const CheckboxCellGroupExample = () => {
   const [value, setValue] = useState<string[]>(['1']);
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value: targetValue, checked } = e.target;
@@ -158,12 +141,7 @@ const CheckboxCellGroup = () => {
   );
 };
 
-export const CheckboxCellGroupStory: Story = {
-  name: 'CheckboxCellGroup',
-  render: CheckboxCellGroup,
-};
-
-const SwitchGroup = () => {
+const SwitchGroupExample = () => {
   const [value, setValue] = useState<string[]>(['1']);
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value: targetValue, checked } = e.target;
@@ -181,7 +159,28 @@ const SwitchGroup = () => {
   );
 };
 
-export const SwitchGroupStory: Story = {
-  name: 'SwitchGroup',
-  render: SwitchGroup,
+export const All = () => {
+  return (
+    <ExampleScreen>
+      <Example title="RadioGroup">
+        <RadioGroupExample />
+      </Example>
+
+      <Example title="CheckboxGroup">
+        <CheckboxGroupExample />
+      </Example>
+
+      <Example title="RadioCellGroup">
+        <RadioCellGroupExample />
+      </Example>
+
+      <Example title="CheckboxCellGroup">
+        <CheckboxCellGroupExample />
+      </Example>
+
+      <Example title="SwitchGroup">
+        <SwitchGroupExample />
+      </Example>
+    </ExampleScreen>
+  );
 };

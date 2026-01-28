@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { useMultiSelect } from '@coinbase/cds-common/select/useMultiSelect';
 import { css } from '@linaria/core';
 
+import { Example } from '../../../__stories__/storybook';
 import { Button } from '../../../buttons/Button';
 import { Icon } from '../../../icons/Icon';
 import { HStack } from '../../../layout/HStack';
@@ -65,26 +66,6 @@ const longLabelOptions: SelectOption[] = [
     label:
       'Cherry is a very long label that should test how the component handles extensive label content',
   },
-  {
-    value: 'date',
-    label:
-      'Date is a very long label that should test how the component handles extensive label content',
-  },
-  {
-    value: 'elderberry',
-    label:
-      'Elderberry is a very long label that should test how the component handles extensive label content',
-  },
-  {
-    value: 'fig',
-    label:
-      'Fig is a very long label that should test how the component handles extensive label content',
-  },
-  {
-    value: 'grape',
-    label:
-      'Grape is a very long label that should test how the component handles extensive label content',
-  },
 ];
 
 const countryOptions: SelectOption[] = [
@@ -109,10 +90,6 @@ const cryptoOptions: SelectOption[] = [
   { value: 'usdt', label: 'Tether', description: 'USDT • Stablecoin' },
   { value: 'bnb', label: 'BNB', description: 'BNB • Exchange Token' },
   { value: 'xrp', label: 'XRP', description: 'XRP • Payments' },
-  { value: 'sol', label: 'Solana', description: 'SOL • High Performance' },
-  { value: 'ada', label: 'Cardano', description: 'ADA • Academic Approach' },
-  { value: 'doge', label: 'Dogecoin', description: 'DOGE • Meme Coin' },
-  { value: 'avax', label: 'Avalanche', description: 'AVAX • Subnets' },
 ];
 
 const teamOptions: SelectOption[] = [
@@ -121,9 +98,6 @@ const teamOptions: SelectOption[] = [
   { value: 'bob', label: 'Bob Johnson', description: 'Product' },
   { value: 'alice', label: 'Alice Williams', description: 'Engineering' },
   { value: 'charlie', label: 'Charlie Brown', description: 'Marketing' },
-  { value: 'diana', label: 'Diana Prince', description: 'Sales' },
-  { value: 'eve', label: 'Eve Anderson', description: 'Engineering' },
-  { value: 'frank', label: 'Frank Miller', description: 'Support' },
 ];
 
 const customControlCss = css`
@@ -137,265 +111,167 @@ const customDropdownCss = css`
   border-radius: 12px;
 `;
 
-export const BasicUsage = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: ['apple', 'banana'] });
+/**
+ * All basic combobox variations: single/multi select, compact, variants, states
+ */
+export const All_Basics = () => {
+  const multi1 = useMultiSelect({ initialValue: ['apple', 'banana'] });
+  const multi2 = useMultiSelect({ initialValue: [] });
+  const multi3 = useMultiSelect({ initialValue: [] });
+  const multi4 = useMultiSelect({ initialValue: ['apple', 'banana'] });
+  const multi5 = useMultiSelect({ initialValue: [] });
+  const multi6 = useMultiSelect({ initialValue: [] });
+  const multi7 = useMultiSelect({ initialValue: [] });
+  const multi8 = useMultiSelect({ initialValue: [] });
+  const [single1, setSingle1] = useState<string | null>('apple');
+  const [single2, setSingle2] = useState<string | null>('apple');
+  const [single3, setSingle3] = useState<string | null>('apple');
+  const [single4, setSingle4] = useState<string | null>('apple');
 
   return (
-    <VStack gap={4}>
-      <Combobox
-        label="Select fruits"
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="Search and select fruits..."
-        type="multi"
-        value={value}
-      />
+    <VStack gap={4} padding={2}>
+      <Example title="Basic Multi Select">
+        <Combobox
+          label="Select fruits"
+          onChange={multi1.onChange}
+          options={fruitOptions}
+          placeholder="Search and select fruits..."
+          type="multi"
+          value={multi1.value}
+        />
+      </Example>
+
+      <Example title="Single Select">
+        <Combobox
+          label="Select fruit"
+          onChange={setSingle1}
+          options={singleFruitOptions}
+          placeholder="Search and select fruit..."
+          value={single1}
+        />
+      </Example>
+
+      <Example title="Compact Multi">
+        <Combobox
+          compact
+          label="Compact size"
+          onChange={multi2.onChange}
+          options={fruitOptions}
+          placeholder="Compact combobox..."
+          type="multi"
+          value={multi2.value}
+        />
+      </Example>
+
+      <Example title="Compact Single">
+        <Combobox
+          compact
+          label="Compact size"
+          onChange={setSingle2}
+          options={singleFruitOptions}
+          placeholder="Compact combobox..."
+          type="single"
+          value={single2}
+        />
+      </Example>
+
+      <Example title="Disabled">
+        <Combobox
+          disabled
+          label="Disabled combobox"
+          onChange={multi3.onChange}
+          options={fruitOptions}
+          placeholder="Cannot interact..."
+          type="multi"
+          value={multi4.value}
+        />
+      </Example>
+
+      <Example title="Helper Text">
+        <Combobox
+          helperText="Select up to 5 team members for this project"
+          label="Team members"
+          onChange={multi5.onChange}
+          options={teamOptions}
+          placeholder="Search team members..."
+          type="multi"
+          value={multi5.value}
+        />
+      </Example>
+
+      <Example title="Variants">
+        <VStack gap={2}>
+          <Combobox
+            label="Default variant"
+            onChange={multi6.onChange}
+            options={fruitOptions}
+            placeholder="Default style..."
+            type="multi"
+            value={multi6.value}
+          />
+          <Combobox
+            label="Positive variant"
+            onChange={multi7.onChange}
+            options={fruitOptions}
+            placeholder="Success style..."
+            type="multi"
+            value={multi7.value}
+            variant="positive"
+          />
+          <Combobox
+            label="Negative variant"
+            onChange={multi8.onChange}
+            options={fruitOptions}
+            placeholder="Error style..."
+            type="multi"
+            value={multi8.value}
+            variant="negative"
+          />
+        </VStack>
+      </Example>
+
+      <Example title="Borderless">
+        <HStack gap={2}>
+          <Combobox
+            bordered={false}
+            label="Borderless single"
+            onChange={setSingle3}
+            options={singleFruitOptions}
+            placeholder="Search fruits..."
+            type="single"
+            value={single3}
+          />
+          <Combobox
+            bordered={false}
+            label="Borderless multi"
+            onChange={setSingle4}
+            options={singleFruitOptions}
+            placeholder="Search fruits..."
+            type="single"
+            value={single4}
+          />
+        </HStack>
+      </Example>
     </VStack>
   );
 };
 
-export const SingleSelect = () => {
-  const [value, setValue] = useState<string | null>('apple');
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="Select fruits"
-        onChange={setValue}
-        options={singleFruitOptions}
-        placeholder="Search and select fruits..."
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const MultipleComboboxes = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-  const { value: insideValue, onChange: insideOnChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="Fruits"
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="Search fruits..."
-        type="multi"
-        value={value}
-      />
-      <Combobox
-        label="Inside"
-        onChange={insideOnChange}
-        options={fruitOptions}
-        placeholder="Search fruits..."
-        type="multi"
-        value={insideValue}
-      />
-    </VStack>
-  );
-};
-
-export const EmptySelectedValues = () => {
-  const { value, onChange } = useMultiSelect({
-    initialValue: [],
+/**
+ * All filtering, searching, and selection features
+ */
+export const All_Features = () => {
+  const multi1 = useMultiSelect({ initialValue: [] });
+  const multi2 = useMultiSelect({ initialValue: [] });
+  const multi3 = useMultiSelect({
+    initialValue: ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig', 'grape'],
   });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="Pre-selected fruits"
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="Search fruits..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const OptionsWithLongLabels = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="Options with long labels"
-        onChange={onChange}
-        options={longLabelOptions}
-        placeholder="Search fruits..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const OptionsWithLongLabelsSingleSelect = () => {
-  const [value, setValue] = useState<string | null>('apple');
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="Options with long labels"
-        onChange={setValue}
-        options={longLabelOptions}
-        placeholder="Search fruits..."
-        type="single"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const LongPlaceholder = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="Long placeholder"
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="This is a very long placeholder text that should test how the component handles extensive placeholder content"
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const ControlledSearch = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
+  const multi4 = useMultiSelect({ initialValue: ['us', 'ca', 'mx', 'uk', 'fr', 'de'] });
+  const multi5 = useMultiSelect({ initialValue: ['apple', 'banana'] });
+  const multi6 = useMultiSelect({ initialValue: [] });
+  const multi7 = useMultiSelect({ initialValue: [] });
+  const multi8 = useMultiSelect({ initialValue: ['apple', 'banana', 'cherry'] });
+  const multi9 = useMultiSelect({ initialValue: [] });
   const [searchText, setSearchText] = useState('');
-
-  return (
-    <VStack gap={4}>
-      <Text>Current search: &quot;{searchText}&quot;</Text>
-      <Combobox
-        label="Controlled search"
-        onChange={onChange}
-        onSearch={setSearchText}
-        options={fruitOptions}
-        placeholder="Type to search..."
-        searchText={searchText}
-        type="multi"
-        value={value}
-      />
-      <Button onClick={() => setSearchText('apple')}>Set search to &quot;apple&quot;</Button>
-    </VStack>
-  );
-};
-
-export const UncontrolledSearch = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        defaultSearchText="ban"
-        label="Default search text"
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="Search..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const ControlledOpen = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-  const [open, setOpen] = useState(false);
-
-  return (
-    <VStack gap={4}>
-      <HStack gap={2}>
-        <Button onClick={() => setOpen(true)}>Open</Button>
-        <Button onClick={() => setOpen(false)}>Close</Button>
-        <Text color="fg">{open ? 'Open' : 'Closed'}</Text>
-      </HStack>
-      <Combobox
-        label="Controlled dropdown"
-        onChange={onChange}
-        open={open}
-        options={fruitOptions}
-        placeholder="Controlled state..."
-        setOpen={setOpen}
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const DefaultOpen = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        defaultOpen
-        label="Opens by default"
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="Already open..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const WithDescriptions = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="Select countries"
-        onChange={onChange}
-        options={countryOptions}
-        placeholder="Search countries..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const HideSearchInput = () => {
-  const [singleValue, setSingleValue] = useState<string | null>(null);
-  const { value: multiValue, onChange: multiOnChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        hideSearchInput
-        label="Hide search input - multi"
-        onChange={multiOnChange}
-        options={fruitOptions}
-        placeholder="Empty value"
-        type="multi"
-        value={multiValue}
-      />
-      <Combobox
-        hideSearchInput
-        label="Hide search input - single"
-        onChange={setSingleValue}
-        options={fruitOptions}
-        placeholder="Empty value"
-        type="single"
-        value={singleValue}
-      />
-    </VStack>
-  );
-};
-
-export const CustomFilter = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
 
   const customFilterFunction = (options: SelectOptionList<'multi'>, searchText: string) => {
     const search = searchText.toLowerCase();
@@ -408,754 +284,166 @@ export const CustomFilter = () => {
   };
 
   return (
-    <VStack gap={4}>
-      <Text color="fgMuted" fontSize="caption">
-        Custom filter: Only matches start of words
-      </Text>
-      <Combobox
-        filterFunction={customFilterFunction}
-        label="Custom filter logic"
-        onChange={onChange}
-        options={cryptoOptions}
-        placeholder="Type to filter..."
-        type="multi"
-        value={value}
-      />
+    <VStack gap={4} padding={2}>
+      <Example title="With Descriptions">
+        <Combobox
+          label="Select countries"
+          onChange={multi1.onChange}
+          options={countryOptions}
+          placeholder="Search countries..."
+          type="multi"
+          value={multi1.value}
+        />
+      </Example>
+
+      <Example title="Controlled Search">
+        <VStack gap={2}>
+          <Text>Current search: &quot;{searchText}&quot;</Text>
+          <Combobox
+            label="Controlled search"
+            onChange={multi2.onChange}
+            onSearch={setSearchText}
+            options={fruitOptions}
+            placeholder="Type to search..."
+            searchText={searchText}
+            type="multi"
+            value={multi2.value}
+          />
+          <Button onClick={() => setSearchText('apple')}>Set search to &quot;apple&quot;</Button>
+        </VStack>
+      </Example>
+
+      <Example title="Custom Filter (starts with)">
+        <Combobox
+          filterFunction={customFilterFunction}
+          label="Custom filter logic"
+          onChange={multi9.onChange}
+          options={cryptoOptions}
+          placeholder="Type to filter..."
+          type="multi"
+          value={multi9.value}
+        />
+      </Example>
+
+      <Example title="Max Selected Display (3)">
+        <Combobox
+          label="Limited display"
+          maxSelectedOptionsToShow={3}
+          onChange={multi3.onChange}
+          options={fruitOptions}
+          placeholder="Shows max 3 selections..."
+          type="multi"
+          value={multi3.value}
+        />
+      </Example>
+
+      <Example title="Hidden Options Label">
+        <Combobox
+          hiddenSelectedOptionsLabel="countries"
+          label="Countries"
+          maxSelectedOptionsToShow={3}
+          onChange={multi4.onChange}
+          options={countryOptions}
+          placeholder="Select countries..."
+          type="multi"
+          value={multi4.value}
+        />
+      </Example>
+
+      <Example title="Select All">
+        <Combobox
+          label="With select all"
+          onChange={multi5.onChange}
+          options={fruitOptions}
+          placeholder="Can select all..."
+          selectAllLabel="Select all fruits"
+          type="multi"
+          value={multi5.value}
+        />
+      </Example>
+
+      <Example title="Hide Select All">
+        <Combobox
+          hideSelectAll
+          label="No select all"
+          onChange={multi6.onChange}
+          options={fruitOptions}
+          placeholder="No select all option..."
+          type="multi"
+          value={multi6.value}
+        />
+      </Example>
+
+      <Example title="Clear All">
+        <Combobox
+          clearAllLabel="Clear selection"
+          label="With clear all"
+          onChange={multi8.onChange}
+          options={fruitOptions}
+          placeholder="Can clear all..."
+          type="multi"
+          value={multi8.value}
+        />
+      </Example>
+
+      <Example title="Hide Search Input">
+        <Combobox
+          hideSearchInput
+          label="Hide search input"
+          onChange={multi7.onChange}
+          options={fruitOptions}
+          placeholder="Empty value"
+          type="multi"
+          value={multi7.value}
+        />
+      </Example>
+
+      <Example title="Empty Options">
+        <Combobox
+          emptyOptionsLabel="No matching fruits found"
+          label="Custom empty message"
+          onChange={multi6.onChange}
+          options={[]}
+          placeholder="No options available..."
+          type="multi"
+          value={multi6.value}
+        />
+      </Example>
+
+      <Example title="Disabled Options">
+        <Combobox
+          label="Some disabled options"
+          onChange={multi7.onChange}
+          options={fruitOptions.map((option, index) => ({
+            ...option,
+            disabled: index % 3 === 0,
+          }))}
+          placeholder="Some options disabled..."
+          type="multi"
+          value={multi7.value}
+        />
+      </Example>
     </VStack>
   );
 };
 
-export const CustomOnSearch = () => {
-  const [searchText, setSearchText] = useState('');
-  const [searchValue, setSearchValue] = useState('');
-  const [searching, setIsSearching] = useState(false);
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  const handleSearch = (searchText: string) => {
-    setIsSearching(true);
-    setTimeout(() => {
-      setIsSearching(false);
-      setSearchValue(searchText);
-    }, 3000);
-    setSearchText(searchText);
-  };
-
-  return (
-    <VStack gap={4}>
-      <Text fontSize="body">{searching ? 'Searching...' : 'Not searching'}</Text>
-      <Text fontSize="body">Search value: {searchValue}</Text>
-      <Combobox
-        onChange={onChange}
-        onSearch={handleSearch}
-        options={fruitOptions}
-        placeholder="Search..."
-        searchText={searchText}
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const Disabled = () => {
-  const { value, onChange } = useMultiSelect({
-    initialValue: ['apple', 'banana'],
-  });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        disabled
-        label="Disabled combobox"
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="Cannot interact..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const Compact = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        compact
-        label="Compact size"
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="Compact combobox..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const CompactSingleSelect = () => {
-  const [value, setValue] = useState<string | null>('apple');
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        compact
-        label="Compact size"
-        onChange={setValue}
-        options={singleFruitOptions}
-        placeholder="Compact combobox..."
-        type="single"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const HelperText = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        helperText="Select up to 5 team members for this project"
-        label="Team members"
-        onChange={onChange}
-        options={teamOptions}
-        placeholder="Search team members..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const Variants = () => {
-  const { value: value1, onChange: onChange1 } = useMultiSelect({ initialValue: [] });
-  const { value: value2, onChange: onChange2 } = useMultiSelect({ initialValue: [] });
-  const { value: value3, onChange: onChange3 } = useMultiSelect({ initialValue: [] });
-  const { value: value4, onChange: onChange4 } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="Default variant"
-        onChange={onChange1}
-        options={fruitOptions}
-        placeholder="Default style..."
-        type="multi"
-        value={value1}
-      />
-      <Combobox
-        label="Positive variant"
-        onChange={onChange2}
-        options={fruitOptions}
-        placeholder="Success style..."
-        type="multi"
-        value={value2}
-        variant="positive"
-      />
-      <Combobox
-        label="Negative variant"
-        onChange={onChange3}
-        options={fruitOptions}
-        placeholder="Error style..."
-        type="multi"
-        value={value3}
-        variant="negative"
-      />
-      <Combobox
-        label="Primary variant"
-        onChange={onChange4}
-        options={fruitOptions}
-        placeholder="Primary style..."
-        type="multi"
-        value={value4}
-        variant="primary"
-      />
-    </VStack>
-  );
-};
-
-export const StartNode = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="With icon"
-        onChange={onChange}
-        options={cryptoOptions}
-        placeholder="Search crypto..."
-        startNode={<Icon name="search" size="s" />}
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const EndNode = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        endNode={<Icon name="filter" size="s" />}
-        label="Custom end icon"
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="Custom icon..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const MaxSelectedDisplay = () => {
-  const { value, onChange } = useMultiSelect({
-    initialValue: ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig', 'grape'],
-  });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="Limited display"
-        maxSelectedOptionsToShow={3}
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="Shows max 3 selections..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const HiddenOptionsLabel = () => {
-  const { value, onChange } = useMultiSelect({
-    initialValue: ['us', 'ca', 'mx', 'uk', 'fr', 'de'],
-  });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        hiddenSelectedOptionsLabel="countries"
-        label="Countries"
-        maxSelectedOptionsToShow={3}
-        onChange={onChange}
-        options={countryOptions}
-        placeholder="Select countries..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const RemoveOptionLabel = () => {
-  const { value, onChange } = useMultiSelect({
-    initialValue: ['apple', 'banana'],
-  });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="Custom remove label"
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="Custom remove label"
-        removeSelectedOptionAccessibilityLabel="Delete"
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const AccessibilityLabel = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        accessibilityLabel="Custom dropdown accessibility label"
-        controlAccessibilityLabel="Custom control accessibility label"
-        label="Custom accessibility label"
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="Has accessibility label..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const SelectAll = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="With select all"
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="Can select all..."
-        selectAllLabel="Select all fruits"
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const HideSelectAll = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        hideSelectAll
-        label="No select all"
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="No select all option..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const ClearAll = () => {
-  const { value, onChange } = useMultiSelect({
-    initialValue: ['apple', 'banana', 'cherry'],
-  });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        clearAllLabel="Clear selection"
-        label="With clear all"
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="Can clear all..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const EmptyOptions = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        emptyOptionsLabel="No matching fruits found"
-        label="Custom empty message"
-        onChange={onChange}
-        options={[]}
-        placeholder="No options available..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const PersistentDropdown = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Text color="fgMuted" fontSize="caption">
-        Click outside will not close dropdown
-      </Text>
-      <Combobox
-        disableClickOutsideClose
-        label="Persistent dropdown"
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="Stays open..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const CustomStyles = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="Styled combobox"
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="Custom styles..."
-        styles={{
-          root: { padding: '8px' },
-          control: { borderRadius: '12px', border: '2px solid #667eea' },
-          dropdown: { borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' },
-          option: { padding: '12px' },
-          optionLabel: { fontWeight: 'bold' },
-        }}
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const CustomClasses = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        classNames={{
-          root: 'custom-root',
-          control: customControlCss,
-          dropdown: customDropdownCss,
-        }}
-        label="Custom CSS classes"
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="Custom classes..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const TestIdentifier = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="With test ID"
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="Has test ID..."
-        testID="fruit-combobox"
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const OptionsWithMedia = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  const optionsWithIcons: SelectOption[] = fruitOptions.slice(0, 5).map((option) => ({
-    ...option,
-    media: <Icon color="fgMuted" name="star" size="s" />,
-  }));
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="Options with icons"
-        onChange={onChange}
-        options={optionsWithIcons}
-        placeholder="Icons in options..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const OptionsWithAccessory = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  const optionsWithBadges: SelectOption[] = teamOptions.map((option) => ({
-    ...option,
-    accessory: (
-      <Text color="fgMuted" fontSize="caption">
-        {option.description}
-      </Text>
-    ),
-  }));
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="Team with badges"
-        onChange={onChange}
-        options={optionsWithBadges}
-        placeholder="Select team members..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const OptionsWithEnd = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  const optionsWithEnd: SelectOption[] = cryptoOptions.slice(0, 5).map((option) => ({
-    ...option,
-    end: (
-      <Text color="fgMuted" fontSize="caption">
-        {String(option.value).toUpperCase()}
-      </Text>
-    ),
-  }));
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="Crypto assets"
-        onChange={onChange}
-        options={optionsWithEnd}
-        placeholder="Select assets..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const DisabledOptions = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  const mixedOptions: SelectOption[] = fruitOptions.map((option, index) => ({
-    ...option,
-    disabled: index % 3 === 0,
-  }));
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="Some disabled options"
-        onChange={onChange}
-        options={mixedOptions}
-        placeholder="Some options disabled..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const LongList = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  const longOptions: SelectOption[] = Array.from({ length: 100 }, (_, i) => ({
-    value: `option${i}`,
-    label: `Option ${i + 1}`,
-    description: `Description for option ${i + 1}`,
-  }));
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="Large dataset"
-        onChange={onChange}
-        options={longOptions}
-        placeholder="Search from 100 options..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const NoResults = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-  const [searchText, setSearchText] = useState('xyz');
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        emptyOptionsLabel="No results found for your search"
-        label="No matches"
-        onChange={onChange}
-        onSearch={setSearchText}
-        options={fruitOptions}
-        placeholder="Try searching..."
-        searchText={searchText}
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const ValueMonitoring = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="Monitor selections"
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="Select to see values..."
-        type="multi"
-        value={value}
-      />
-      <VStack background="bgSecondary" borderRadius={400} gap={2} padding={3}>
-        <Text fontSize="label1" fontWeight="label1">
-          Selected values:
-        </Text>
-        <Text color="fgMuted" fontSize="caption">
-          {value.length > 0 ? value.join(', ') : 'None selected'}
-        </Text>
-      </VStack>
-    </VStack>
-  );
-};
-
-export const ChangeHandler = () => {
-  const [value, setValue] = useState<string[]>([]);
-  const [lastChange, setLastChange] = useState<string>('');
-
-  const handleChange = (newValue: string | string[] | null) => {
-    const arrayValue = Array.isArray(newValue) ? newValue : [newValue];
-    setValue(arrayValue as string[]);
-    setLastChange(`Changed to: ${JSON.stringify(newValue)}`);
-  };
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="Track changes"
-        onChange={handleChange}
-        options={fruitOptions}
-        placeholder="Select to track changes..."
-        type="multi"
-        value={value}
-      />
-      <Text color="fgMuted" fontSize="caption">
-        {lastChange || 'No changes yet'}
-      </Text>
-    </VStack>
-  );
-};
-
-export const RefImperativeHandle = () => {
+/**
+ * All advanced features: custom components, styling, refs, large datasets
+ */
+export const All_Advanced = () => {
+  const multi1 = useMultiSelect({ initialValue: [] });
+  const multi2 = useMultiSelect({ initialValue: [] });
+  const multi3 = useMultiSelect({ initialValue: [] });
+  const multi4 = useMultiSelect({ initialValue: [] });
+  const multi5 = useMultiSelect({ initialValue: [] });
+  const multi6 = useMultiSelect({ initialValue: [] });
+  const multi7 = useMultiSelect({ initialValue: [] });
   const comboboxRef = useRef<ComboboxRef>(null);
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-  return (
-    <VStack gap={4}>
-      <HStack gap={2}>
-        <Button onClick={() => comboboxRef.current?.setOpen?.(true)}>Open</Button>
-        <Button onClick={() => comboboxRef.current?.setOpen?.(false)}>Close</Button>
-        <Text color="fg">{comboboxRef.current?.open ? 'Open' : 'Closed'}</Text>
-      </HStack>
-      <Combobox
-        ref={comboboxRef}
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="Select fruits..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
+  const [open, setOpen] = useState(false);
 
-export const MultipleInstances = () => {
-  const fruits = useMultiSelect({ initialValue: [] });
-  const countries = useMultiSelect({ initialValue: [] });
-  const crypto = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="Fruits"
-        onChange={fruits.onChange}
-        options={fruitOptions}
-        placeholder="Select fruits..."
-        type="multi"
-        value={fruits.value}
-      />
-      <Combobox
-        label="Countries"
-        onChange={countries.onChange}
-        options={countryOptions}
-        placeholder="Select countries..."
-        type="multi"
-        value={countries.value}
-      />
-      <Combobox
-        label="Cryptocurrencies"
-        onChange={crypto.onChange}
-        options={cryptoOptions}
-        placeholder="Select crypto..."
-        type="multi"
-        value={crypto.value}
-      />
-    </VStack>
-  );
-};
-
-export const DynamicOptions = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-  const [options, setOptions] = useState(fruitOptions.slice(0, 5));
-
-  const addOption = () => {
-    const remaining = fruitOptions.filter(
-      (fruit) => !options.some((opt) => opt.value === fruit.value),
-    );
-    if (remaining.length > 0) {
-      setOptions([...options, remaining[0]]);
-    }
+  const CustomComponent: ComboboxControlComponent = (props) => {
+    return <DefaultComboboxControl {...props} searchText={`${props.value?.length ?? 0}`} />;
   };
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        label="Dynamic options"
-        onChange={onChange}
-        options={options}
-        placeholder="Options can change..."
-        type="multi"
-        value={value}
-      />
-      <Button compact onClick={addOption}>
-        Add more options
-      </Button>
-    </VStack>
-  );
-};
-
-const CustomComponent: ComboboxControlComponent = (props) => {
-  return <DefaultComboboxControl {...props} searchText={`${props.value?.length ?? 0}`} />;
-};
-
-export const CustomControlComponent = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
-
-  return (
-    <VStack gap={4}>
-      <Combobox
-        ComboboxControlComponent={CustomComponent}
-        label="Custom control component - search field always shows the number of selected options"
-        onChange={onChange}
-        options={fruitOptions}
-        placeholder="Select fruits..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
-
-export const StressTest = () => {
-  const { value, onChange } = useMultiSelect({ initialValue: [] });
 
   const hugeOptions: SelectOption[] = Array.from({ length: 1000 }, (_, i) => ({
     value: `item${i}`,
@@ -1164,48 +452,197 @@ export const StressTest = () => {
   }));
 
   return (
-    <VStack gap={4}>
-      <Text color="fgMuted" fontSize="caption">
-        1000 options with search
-      </Text>
-      <Combobox
-        label="Performance test"
-        onChange={onChange}
-        options={hugeOptions}
-        placeholder="Search 1000 items..."
-        type="multi"
-        value={value}
-      />
-    </VStack>
-  );
-};
+    <VStack gap={4} padding={2}>
+      <Example title="Start Node">
+        <Combobox
+          label="With icon"
+          onChange={multi1.onChange}
+          options={cryptoOptions}
+          placeholder="Search crypto..."
+          startNode={<Icon name="search" size="s" />}
+          type="multi"
+          value={multi1.value}
+        />
+      </Example>
 
-export const Borderless = () => {
-  const [singleValue, setSingleValue] = useState<string | null>('apple');
-  const { value: multiValue, onChange: multiOnChange } = useMultiSelect({
-    initialValue: ['apple'],
-  });
+      <Example title="End Node">
+        <Combobox
+          endNode={<Icon name="filter" size="s" />}
+          label="Custom end icon"
+          onChange={multi2.onChange}
+          options={fruitOptions}
+          placeholder="Custom icon..."
+          type="multi"
+          value={multi2.value}
+        />
+      </Example>
 
-  return (
-    <VStack gap={4}>
-      <Combobox
-        bordered={false}
-        label="Borderless single select"
-        onChange={setSingleValue}
-        options={singleFruitOptions}
-        placeholder="Search fruits..."
-        type="single"
-        value={singleValue}
-      />
-      <Combobox
-        bordered={false}
-        label="Borderless multi select"
-        onChange={multiOnChange}
-        options={fruitOptions}
-        placeholder="Search fruits..."
-        type="multi"
-        value={multiValue}
-      />
+      <Example title="Options with Media">
+        <Combobox
+          label="Options with icons"
+          onChange={multi3.onChange}
+          options={fruitOptions.slice(0, 5).map((option) => ({
+            ...option,
+            media: <Icon color="fgMuted" name="star" size="s" />,
+          }))}
+          placeholder="Icons in options..."
+          type="multi"
+          value={multi3.value}
+        />
+      </Example>
+
+      <Example title="Options with Accessory">
+        <Combobox
+          label="Team with badges"
+          onChange={multi4.onChange}
+          options={teamOptions.map((option) => ({
+            ...option,
+            accessory: (
+              <Text color="fgMuted" fontSize="caption">
+                {option.description}
+              </Text>
+            ),
+          }))}
+          placeholder="Select team members..."
+          type="multi"
+          value={multi4.value}
+        />
+      </Example>
+
+      <Example title="Controlled Open">
+        <VStack gap={2}>
+          <HStack gap={2}>
+            <Button onClick={() => setOpen(true)}>Open</Button>
+            <Button onClick={() => setOpen(false)}>Close</Button>
+            <Text color="fg">{open ? 'Open' : 'Closed'}</Text>
+          </HStack>
+          <Combobox
+            label="Controlled dropdown"
+            onChange={multi5.onChange}
+            open={open}
+            options={fruitOptions}
+            placeholder="Controlled state..."
+            setOpen={setOpen}
+            type="multi"
+            value={multi5.value}
+          />
+        </VStack>
+      </Example>
+
+      <Example title="Ref Imperative Handle">
+        <VStack gap={2}>
+          <HStack gap={2}>
+            <Button onClick={() => comboboxRef.current?.setOpen?.(true)}>Open</Button>
+            <Button onClick={() => comboboxRef.current?.setOpen?.(false)}>Close</Button>
+          </HStack>
+          <Combobox
+            ref={comboboxRef}
+            onChange={multi6.onChange}
+            options={fruitOptions}
+            placeholder="Select fruits..."
+            type="multi"
+            value={multi6.value}
+          />
+        </VStack>
+      </Example>
+
+      <Example title="Custom Control Component">
+        <Combobox
+          ComboboxControlComponent={CustomComponent}
+          label="Shows count of selected options"
+          onChange={multi7.onChange}
+          options={fruitOptions}
+          placeholder="Select fruits..."
+          type="multi"
+          value={multi7.value}
+        />
+      </Example>
+
+      <Example title="Custom Styles">
+        <Combobox
+          label="Styled combobox"
+          onChange={multi1.onChange}
+          options={fruitOptions}
+          placeholder="Custom styles..."
+          styles={{
+            root: { padding: '8px' },
+            control: { borderRadius: '12px', border: '2px solid #667eea' },
+            dropdown: { borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' },
+            option: { padding: '12px' },
+            optionLabel: { fontWeight: 'bold' },
+          }}
+          type="multi"
+          value={multi1.value}
+        />
+      </Example>
+
+      <Example title="Custom CSS Classes">
+        <Combobox
+          classNames={{
+            root: 'custom-root',
+            control: customControlCss,
+            dropdown: customDropdownCss,
+          }}
+          label="Custom CSS classes"
+          onChange={multi2.onChange}
+          options={fruitOptions}
+          placeholder="Custom classes..."
+          type="multi"
+          value={multi2.value}
+        />
+      </Example>
+
+      <Example title="Long List (100 options)">
+        <Combobox
+          label="Large dataset"
+          onChange={multi3.onChange}
+          options={Array.from({ length: 100 }, (_, i) => ({
+            value: `option${i}`,
+            label: `Option ${i + 1}`,
+            description: `Description for option ${i + 1}`,
+          }))}
+          placeholder="Search from 100 options..."
+          type="multi"
+          value={multi3.value}
+        />
+      </Example>
+
+      <Example title="Stress Test (1000 options)">
+        <Text color="fgMuted" fontSize="caption">
+          1000 options with search
+        </Text>
+        <Combobox
+          label="Performance test"
+          onChange={multi4.onChange}
+          options={hugeOptions}
+          placeholder="Search 1000 items..."
+          type="multi"
+          value={multi4.value}
+        />
+      </Example>
+
+      <Example title="Long Labels">
+        <Combobox
+          label="Options with long labels"
+          onChange={multi5.onChange}
+          options={longLabelOptions}
+          placeholder="Search fruits..."
+          type="multi"
+          value={multi5.value}
+        />
+      </Example>
+
+      <Example title="Persistent Dropdown">
+        <Combobox
+          disableClickOutsideClose
+          label="Persistent dropdown"
+          onChange={multi6.onChange}
+          options={fruitOptions}
+          placeholder="Stays open..."
+          type="multi"
+          value={multi6.value}
+        />
+      </Example>
     </VStack>
   );
 };

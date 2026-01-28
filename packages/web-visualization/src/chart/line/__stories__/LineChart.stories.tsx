@@ -5,6 +5,7 @@ import { prices } from '@coinbase/cds-common/internal/data/prices';
 import { sparklineInteractiveData } from '@coinbase/cds-common/internal/visualizations/SparklineInteractiveData';
 import { useTabsContext } from '@coinbase/cds-common/tabs/TabsContext';
 import type { TabValue } from '@coinbase/cds-common/tabs/useTabs';
+import { Example, ExampleScreen } from '@coinbase/cds-web/__stories__/storybook';
 import { ListCell } from '@coinbase/cds-web/cells';
 import { useBreakpoints } from '@coinbase/cds-web/hooks/useBreakpoints';
 import { Box, HStack, VStack } from '@coinbase/cds-web/layout';
@@ -54,20 +55,6 @@ const sampleData = [10, 22, 29, 45, 98, 45, 22, 52, 21, 4, 68, 20, 21, 58];
 export default {
   component: LineChart,
   title: 'Components/Chart/LineChart',
-};
-
-const Example: React.FC<
-  React.PropsWithChildren<{ title: string; description?: string | React.ReactNode }>
-> = ({ children, title, description }) => {
-  return (
-    <VStack gap={2}>
-      <Text as="h2" display="block" font="title3">
-        {title}
-      </Text>
-      {description}
-      {children}
-    </VStack>
-  );
 };
 
 function MultipleLine() {
@@ -1691,7 +1678,7 @@ function CustomBeaconSize() {
 
 export const All = () => {
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <Example title="Basic">
         <LineChart
           showArea
@@ -1896,7 +1883,7 @@ export const All = () => {
       <Example title="Custom Beacon Size">
         <CustomBeaconSize />
       </Example>
-    </VStack>
+    </ExampleScreen>
   );
 };
 

@@ -1,6 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { loremIpsum } from '@coinbase/cds-common/internal/data/loremIpsum';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { Accordion, AccordionItem } from '../../accordion';
 import { Button } from '../../buttons/Button';
 import { FeedCard } from '../../cards/FeedCard';
@@ -15,7 +16,6 @@ export default {
   parameters: {
     a11y: {
       config: {
-        /** Heading order issue is coming from Card. We need to either fix in Card or deprecate */
         rules: [{ id: 'heading-order', selector: '*:not(h3)' }],
       },
     },
@@ -24,15 +24,12 @@ export default {
 
 const useTriggerFocus = () => {
   const triggerRef = useRef<HTMLButtonElement>(null);
-
-  return {
-    triggerRef,
-  };
+  return { triggerRef };
 };
 
 const contentStyle = { justifyContent: 'center', marginLeft: 'auto' };
 
-export const Basic = () => {
+const BasicExample = () => {
   const [visible, setVisible] = useState(true);
   const setVisibleToTrue = useCallback(() => setVisible(true), []);
   const setVisibleToFalse = useCallback(() => setVisible(false), []);
@@ -71,7 +68,7 @@ export const Basic = () => {
   );
 };
 
-export const NoTitle = () => {
+const NoTitleExample = () => {
   const [visible, setVisible] = useState(true);
   const setVisibleToFalse = useCallback(() => setVisible(false), []);
   const setVisibleToTrue = useCallback(() => setVisible(true), []);
@@ -110,7 +107,7 @@ export const NoTitle = () => {
   );
 };
 
-export const NoSecondary = () => {
+const NoSecondaryExample = () => {
   const [visible, setVisible] = useState(true);
   const setVisibleToFalse = useCallback(() => setVisible(false), []);
   const setVisibleToTrue = useCallback(() => setVisible(true), []);
@@ -140,7 +137,7 @@ export const NoSecondary = () => {
   );
 };
 
-export const Example = () => {
+const ExampleModal = () => {
   const [visible, setVisible] = useState(true);
   const setVisibleToTrue = useCallback(() => setVisible(true), []);
   const setVisibleToFalse = useCallback(() => setVisible(false), []);
@@ -221,7 +218,7 @@ export const Example = () => {
   );
 };
 
-export const SecondaryContentDivider = () => {
+const SecondaryContentDividerExample = () => {
   const [visible, setVisible] = useState(true);
   const setVisibleToFalse = useCallback(() => setVisible(false), []);
   const setVisibleToTrue = useCallback(() => setVisible(true), []);
@@ -261,7 +258,7 @@ export const SecondaryContentDivider = () => {
   );
 };
 
-export const CenterPrimary = () => {
+const CenterPrimaryExample = () => {
   const [visible, setVisible] = useState(true);
   const setVisibleToFalse = useCallback(() => setVisible(false), []);
   const setVisibleToTrue = useCallback(() => setVisible(true), []);
@@ -289,5 +286,35 @@ export const CenterPrimary = () => {
         visible={visible}
       />
     </>
+  );
+};
+
+export const All = () => {
+  return (
+    <ExampleScreen>
+      <Example title="Basic">
+        <BasicExample />
+      </Example>
+
+      <Example title="No Title">
+        <NoTitleExample />
+      </Example>
+
+      <Example title="No Secondary">
+        <NoSecondaryExample />
+      </Example>
+
+      <Example title="Example with Components">
+        <ExampleModal />
+      </Example>
+
+      <Example title="Secondary Content Divider">
+        <SecondaryContentDividerExample />
+      </Example>
+
+      <Example title="Center Primary">
+        <CenterPrimaryExample />
+      </Example>
+    </ExampleScreen>
   );
 };

@@ -4,6 +4,7 @@ import {
   sparklineInteractiveData,
   sparklineInteractiveHoverData,
 } from '@coinbase/cds-common/internal/visualizations/SparklineInteractiveData';
+import { Example, ExampleScreen } from '@coinbase/cds-web/__stories__/storybook';
 import { Box, VStack } from '@coinbase/cds-web/layout';
 import { css } from '@linaria/core';
 
@@ -35,29 +36,15 @@ const getFormattingConfigForPeriod = (period: SparklinePeriod) => {
   switch (period) {
     case 'hour':
     case 'day':
-      return {
-        hour: 'numeric',
-        minute: 'numeric',
-      } as const;
-
+      return { hour: 'numeric', minute: 'numeric' } as const;
     case 'week':
     case 'month':
-      return {
-        month: 'numeric',
-        day: 'numeric',
-      } as const;
-
+      return { month: 'numeric', day: 'numeric' } as const;
     case 'year':
     case 'all':
-      return {
-        month: 'numeric',
-        year: 'numeric',
-      } as const;
+      return { month: 'numeric', year: 'numeric' } as const;
     default:
-      return {
-        month: 'numeric',
-        day: 'numeric',
-      } as const;
+      return { month: 'numeric', day: 'numeric' } as const;
   }
 };
 
@@ -85,19 +72,16 @@ const getDateHoverOptions = (period: SparklinePeriod) => {
 };
 
 function numToLocaleString(num: number) {
-  return num.toLocaleString('en-US', {
-    maximumFractionDigits: 2,
-  });
+  return num.toLocaleString('en-US', { maximumFractionDigits: 2 });
 }
 
 function generateSubHead(
   point: ChartDataPoint,
   period: SparklinePeriod,
-  sparklineInteractiveData: Record<SparklinePeriod, ChartDataPoint[]>,
+  data: Record<SparklinePeriod, ChartDataPoint[]>,
 ): SparklineInteractiveSubHead {
-  const data = sparklineInteractiveData[period];
-  const firstPoint = data[0];
-
+  const periodData = data[period];
+  const firstPoint = periodData[0];
   const increase = point.value > firstPoint.value;
   return {
     percent: `${numToLocaleString(
@@ -123,10 +107,7 @@ const SparklineInteractiveWrapper = (props: any) => {
   const formatDateWithConfig = useCallback(
     (value: Date, period: SparklinePeriod) => {
       const config = getFormattingConfigForPeriod(period);
-      return value.toLocaleString('en-US', {
-        ...timezoneObj,
-        ...config,
-      });
+      return value.toLocaleString('en-US', { ...timezoneObj, ...config });
     },
     [timezoneObj],
   );
@@ -152,609 +133,9 @@ const SparklineInteractiveWrapper = (props: any) => {
   );
 };
 
-export const Default = () => (
-  <React.StrictMode>
-    <SparklineInteractiveWrapper data={sparklineInteractiveData} strokeColor={strokeColor} />
-  </React.StrictMode>
-);
-Default.bind({});
-Default.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const Compact = () => (
-  <SparklineInteractiveWrapper compact data={sparklineInteractiveData} strokeColor={strokeColor} />
-);
-
-Compact.bind({});
-Compact.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const Contained = () => (
-  <React.StrictMode>
-    <VStack borderColor="bgNegative" borderWidth={100}>
-      <SparklineInteractiveWrapper data={sparklineInteractiveData} strokeColor={strokeColor} />
-    </VStack>
-  </React.StrictMode>
-);
-
-Contained.bind({});
-Contained.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const DisableScrubbing = () => (
-  <SparklineInteractiveWrapper
-    disableScrubbing
-    data={sparklineInteractiveData}
-    strokeColor={strokeColor}
-  />
-);
-
-DisableScrubbing.bind({});
-DisableScrubbing.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const HidePeriodSelector = () => (
-  <SparklineInteractiveWrapper
-    hidePeriodSelector
-    data={sparklineInteractiveData}
-    strokeColor={strokeColor}
-  />
-);
-
-HidePeriodSelector.bind({});
-HidePeriodSelector.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const yAxisScaling = () => (
-  <SparklineInteractiveWrapper
-    data={sparklineInteractiveData}
-    strokeColor={strokeColor}
-    yAxisScalingFactor={0.1}
-  />
-);
-
-yAxisScaling.bind({});
-yAxisScaling.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const AutoStrokeColor = () => (
-  <React.StrictMode>
-    <SparklineInteractiveWrapper data={sparklineInteractiveData} strokeColor={autoStrokeColor} />
-  </React.StrictMode>
-);
-
-AutoStrokeColor.bind({});
-AutoStrokeColor.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const CustomRGBStrokeColor = () => (
-  <React.StrictMode>
-    <SparklineInteractiveWrapper data={sparklineInteractiveData} strokeColor={rgbStrokeColor} />
-  </React.StrictMode>
-);
-
-CustomRGBStrokeColor.bind({});
-CustomRGBStrokeColor.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const CustomRGBAStrokeColor = () => (
-  <React.StrictMode>
-    <SparklineInteractiveWrapper data={sparklineInteractiveData} strokeColor={rgbaStrokeColor} />
-  </React.StrictMode>
-);
-
-CustomRGBAStrokeColor.bind({});
-CustomRGBAStrokeColor.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const FillDisabled = () => (
-  <React.StrictMode>
-    <SparklineInteractiveWrapper
-      data={sparklineInteractiveData}
-      fill={false}
-      strokeColor={strokeColor}
-    />
-  </React.StrictMode>
-);
-FillDisabled.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const FallbackPositive = () => <SparklineInteractiveWrapper strokeColor={strokeColor} />;
-
-FallbackPositive.bind({});
-FallbackPositive.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const FallbackNegative = () => (
-  <SparklineInteractiveWrapper fallbackType="negative" strokeColor={strokeColor} />
-);
-
-FallbackNegative.bind({});
-FallbackNegative.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const FallbackCompact = () => (
-  <SparklineInteractiveWrapper compact strokeColor={strokeColor} />
-);
-
-FallbackCompact.bind({});
-FallbackCompact.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-const formatHoverPrice = (price: number) => {
-  return `$${price.toLocaleString('en-US')}`;
-};
-
-export const HoverPrice = () => {
-  return (
-    <SparklineInteractiveWrapper
-      fill
-      data={sparklineInteractiveData}
-      formatHoverPrice={formatHoverPrice}
-      strokeColor={strokeColor}
-    />
-  );
-};
-
-HoverPrice.bind({});
-HoverPrice.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const NoHoverDate = () => (
-  <SparklineInteractiveWrapper
-    fill
-    hideHoverDate
-    data={sparklineInteractiveData}
-    strokeColor={strokeColor}
-  />
-);
-
-NoHoverDate.bind({});
-NoHoverDate.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const WithHeaderNode = () => {
-  const [currentPeriod, setCurrentPeriod] = useState<SparklinePeriod>(DEFAULT_PERIOD);
-  const headerRef = useRef<SparklineInteractiveHeaderRef>(null);
-  const data = sparklineInteractiveData[currentPeriod];
-  const lastPoint = data[data.length - 1];
-  const timezoneObj = useMemo(() => ({ timeZone: 'America/New_York' }), []);
-
-  const formatDateWithConfig = useCallback(
-    (value: Date, period: SparklinePeriod) => {
-      const config = getFormattingConfigForPeriod(period);
-      return value.toLocaleString('en-US', {
-        ...timezoneObj,
-        ...config,
-      });
-    },
-    [timezoneObj],
-  );
-
-  const formatHoverDate = useCallback(
-    (date: Date, period: SparklinePeriod) => {
-      return date.toLocaleString('en-US', {
-        ...timezoneObj,
-        ...getDateHoverOptions(period),
-      });
-    },
-    [timezoneObj],
-  );
-
-  const handleScrub = useCallback(({ point, period }: ChartScrubParams<SparklinePeriod>) => {
-    headerRef.current?.update({
-      title: `$${point.value.toLocaleString('en-US')}`,
-      subHead: generateSubHead(point, period, sparklineInteractiveData),
-    });
-  }, []);
-
-  const handleScrubEnd = useCallback(() => {
-    headerRef.current?.update({
-      title: `$${numToLocaleString(lastPoint.value)}`,
-      subHead: generateSubHead(lastPoint, currentPeriod, sparklineInteractiveData),
-    });
-  }, [currentPeriod, lastPoint]);
-
-  const handleOnPeriodChanged = useCallback((period: SparklinePeriod) => {
-    setCurrentPeriod(period);
-    const newData = sparklineInteractiveData[period];
-    const newLastPoint = newData[newData.length - 1];
-
-    headerRef.current?.update({
-      title: `$${numToLocaleString(newLastPoint.value)}`,
-      subHead: generateSubHead(newLastPoint, period, sparklineInteractiveData),
-    });
-  }, []);
-
-  const header = (
-    <SparklineInteractiveHeader
-      ref={headerRef}
-      defaultLabel="Bitcoin Price"
-      defaultSubHead={generateSubHead(lastPoint, currentPeriod, sparklineInteractiveData)}
-      defaultTitle={`$${numToLocaleString(lastPoint.value)}`}
-    />
-  );
-
-  return (
-    <SparklineInteractive
-      data={sparklineInteractiveData}
-      defaultPeriod={DEFAULT_PERIOD}
-      formatDate={formatDateWithConfig}
-      formatHoverDate={formatHoverDate}
-      headerNode={header}
-      onPeriodChanged={handleOnPeriodChanged}
-      onScrub={handleScrub}
-      onScrubEnd={handleScrubEnd}
-      periods={periods}
-      strokeColor="#F7931A"
-    />
-  );
-};
-
-WithHeaderNode.bind({});
-WithHeaderNode.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const TimePeriodGutter = () => {
-  return (
-    <SparklineInteractiveWrapper
-      data={sparklineInteractiveData}
-      strokeColor={strokeColor}
-      timePeriodGutter={3}
-    />
-  );
-};
-
-TimePeriodGutter.bind({});
-TimePeriodGutter.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const HoverData = () => {
-  return (
-    <SparklineInteractiveWrapper
-      data={sparklineInteractiveData}
-      hoverData={sparklineInteractiveHoverData}
-      strokeColor={strokeColor}
-    />
-  );
-};
-
-HoverData.bind({});
-HoverData.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const HoverDataWithFill = () => {
-  return (
-    <SparklineInteractiveWrapper
-      fill
-      data={sparklineInteractiveData}
-      hoverData={sparklineInteractiveHoverData}
-      strokeColor={strokeColor}
-    />
-  );
-};
-
-HoverDataWithFill.bind({});
-HoverDataWithFill.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const BottomPeriodSelector = () => {
-  return (
-    <SparklineInteractiveWrapper
-      data={sparklineInteractiveData}
-      periodSelectorPlacement="below"
-      strokeColor={strokeColor}
-    />
-  );
-};
-
-BottomPeriodSelector.bind({});
-BottomPeriodSelector.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const VStackedSparkline = () => {
-  return (
-    <VStack width="100%">
-      <Box width="100%">
-        <SparklineInteractiveWrapper data={sparklineInteractiveData} strokeColor={strokeColor} />
-      </Box>
-      <Box background="bgSecondary" height={20} paddingTop={8} width="100%">
-        This is an element below the sparkline
-      </Box>
-    </VStack>
-  );
-};
-
-VStackedSparkline.bind({});
-VStackedSparkline.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const NoDataInSelectedPeriod = () => {
-  return (
-    <React.StrictMode>
-      <SparklineInteractiveWrapper
-        data={{ ...sparklineInteractiveData, hour: [] }}
-        strokeColor={strokeColor}
-      />
-    </React.StrictMode>
-  );
-};
-NoDataInSelectedPeriod.bind({});
-NoDataInSelectedPeriod.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
 const customPaddingCss = css`
   padding: var(--space-2);
 `;
-
-export const WithCustomStyles = () => {
-  const [currentPeriod, setCurrentPeriod] = useState<SparklinePeriod>(DEFAULT_PERIOD);
-  const headerRef = useRef<SparklineInteractiveHeaderRef>(null);
-  const data = sparklineInteractiveData[currentPeriod];
-  const lastPoint = data[data.length - 1];
-  const timezoneObj = useMemo(() => ({ timeZone: 'America/New_York' }), []);
-
-  const formatDateWithConfig = useCallback(
-    (value: Date, period: SparklinePeriod) => {
-      const config = getFormattingConfigForPeriod(period);
-      return value.toLocaleString('en-US', {
-        ...timezoneObj,
-        ...config,
-      });
-    },
-    [timezoneObj],
-  );
-
-  const formatHoverDate = useCallback(
-    (date: Date, period: SparklinePeriod) => {
-      return date.toLocaleString('en-US', {
-        ...timezoneObj,
-        ...getDateHoverOptions(period),
-      });
-    },
-    [timezoneObj],
-  );
-
-  const handleScrub = useCallback(({ point, period }: ChartScrubParams<SparklinePeriod>) => {
-    headerRef.current?.update({
-      title: `$${point.value.toLocaleString('en-US')}`,
-      subHead: generateSubHead(point, period, sparklineInteractiveData),
-    });
-  }, []);
-
-  const handleScrubEnd = useCallback(() => {
-    headerRef.current?.update({
-      title: `$${numToLocaleString(lastPoint.value)}`,
-      subHead: generateSubHead(lastPoint, currentPeriod, sparklineInteractiveData),
-    });
-  }, [currentPeriod, lastPoint]);
-
-  const handleOnPeriodChanged = useCallback((period: SparklinePeriod) => {
-    setCurrentPeriod(period);
-    const newData = sparklineInteractiveData[period];
-    const newLastPoint = newData[newData.length - 1];
-
-    headerRef.current?.update({
-      title: `$${numToLocaleString(newLastPoint.value)}`,
-      subHead: generateSubHead(newLastPoint, period, sparklineInteractiveData),
-    });
-  }, []);
-
-  const header = (
-    <SparklineInteractiveHeader
-      ref={headerRef}
-      defaultLabel="Bitcoin Price"
-      defaultSubHead={generateSubHead(lastPoint, currentPeriod, sparklineInteractiveData)}
-      defaultTitle={`$${numToLocaleString(lastPoint.value)}`}
-    />
-  );
-
-  return (
-    <SparklineInteractive
-      classNames={{
-        root: customPaddingCss,
-      }}
-      data={sparklineInteractiveData}
-      defaultPeriod={DEFAULT_PERIOD}
-      formatDate={formatDateWithConfig}
-      formatHoverDate={formatHoverDate}
-      headerNode={header}
-      onPeriodChanged={handleOnPeriodChanged}
-      onScrub={handleScrub}
-      onScrubEnd={handleScrubEnd}
-      periods={periods}
-      strokeColor="#F7931A"
-      styles={{
-        header: {
-          paddingLeft: 0,
-          paddingRight: 0,
-        },
-      }}
-    />
-  );
-};
-
-WithCustomStyles.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const DottedFillType = () => (
-  <React.StrictMode>
-    <SparklineInteractiveWrapper
-      data={sparklineInteractiveData}
-      fillType="dotted"
-      strokeColor={strokeColor}
-    />
-  </React.StrictMode>
-);
-
-DottedFillType.bind({});
-DottedFillType.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const YScaleCustom = () => (
-  <React.StrictMode>
-    <SparklineInteractiveWrapper
-      data={sparklineInteractiveData}
-      fillType="dotted"
-      strokeColor={strokeColor}
-      yAxisScalingFactor={0.1}
-    />
-  </React.StrictMode>
-);
-
-YScaleCustom.bind({});
-YScaleCustom.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
 
 const centeredContainerCss = css`
   display: flex;
@@ -773,18 +154,340 @@ const narrowSparklineCss = css`
   border-radius: var(--borderRadius-200);
 `;
 
-export const CenteredNarrowOnWideScreen = () => (
-  <React.StrictMode>
-    <div className={centeredContainerCss}>
-      <div className={narrowSparklineCss}>
+const formatHoverPrice = (price: number) => `$${price.toLocaleString('en-US')}`;
+
+const WithHeaderNodeExample = () => {
+  const [currentPeriod, setCurrentPeriod] = useState<SparklinePeriod>(DEFAULT_PERIOD);
+  const headerRef = useRef<SparklineInteractiveHeaderRef>(null);
+  const data = sparklineInteractiveData[currentPeriod];
+  const lastPoint = data[data.length - 1];
+  const timezoneObj = useMemo(() => ({ timeZone: 'America/New_York' }), []);
+
+  const formatDateWithConfig = useCallback(
+    (value: Date, period: SparklinePeriod) => {
+      const config = getFormattingConfigForPeriod(period);
+      return value.toLocaleString('en-US', { ...timezoneObj, ...config });
+    },
+    [timezoneObj],
+  );
+
+  const formatHoverDate = useCallback(
+    (date: Date, period: SparklinePeriod) => {
+      return date.toLocaleString('en-US', {
+        ...timezoneObj,
+        ...getDateHoverOptions(period),
+      });
+    },
+    [timezoneObj],
+  );
+
+  const handleScrub = useCallback(({ point, period }: ChartScrubParams<SparklinePeriod>) => {
+    headerRef.current?.update({
+      title: `$${point.value.toLocaleString('en-US')}`,
+      subHead: generateSubHead(point, period, sparklineInteractiveData),
+    });
+  }, []);
+
+  const handleScrubEnd = useCallback(() => {
+    headerRef.current?.update({
+      title: `$${numToLocaleString(lastPoint.value)}`,
+      subHead: generateSubHead(lastPoint, currentPeriod, sparklineInteractiveData),
+    });
+  }, [currentPeriod, lastPoint]);
+
+  const handleOnPeriodChanged = useCallback((period: SparklinePeriod) => {
+    setCurrentPeriod(period);
+    const newData = sparklineInteractiveData[period];
+    const newLastPoint = newData[newData.length - 1];
+    headerRef.current?.update({
+      title: `$${numToLocaleString(newLastPoint.value)}`,
+      subHead: generateSubHead(newLastPoint, period, sparklineInteractiveData),
+    });
+  }, []);
+
+  const header = (
+    <SparklineInteractiveHeader
+      ref={headerRef}
+      defaultLabel="Bitcoin Price"
+      defaultSubHead={generateSubHead(lastPoint, currentPeriod, sparklineInteractiveData)}
+      defaultTitle={`$${numToLocaleString(lastPoint.value)}`}
+    />
+  );
+
+  return (
+    <SparklineInteractive
+      data={sparklineInteractiveData}
+      defaultPeriod={DEFAULT_PERIOD}
+      formatDate={formatDateWithConfig}
+      formatHoverDate={formatHoverDate}
+      headerNode={header}
+      onPeriodChanged={handleOnPeriodChanged}
+      onScrub={handleScrub}
+      onScrubEnd={handleScrubEnd}
+      periods={periods}
+      strokeColor="#F7931A"
+    />
+  );
+};
+
+const WithCustomStylesExample = () => {
+  const [currentPeriod, setCurrentPeriod] = useState<SparklinePeriod>(DEFAULT_PERIOD);
+  const headerRef = useRef<SparklineInteractiveHeaderRef>(null);
+  const data = sparklineInteractiveData[currentPeriod];
+  const lastPoint = data[data.length - 1];
+  const timezoneObj = useMemo(() => ({ timeZone: 'America/New_York' }), []);
+
+  const formatDateWithConfig = useCallback(
+    (value: Date, period: SparklinePeriod) => {
+      const config = getFormattingConfigForPeriod(period);
+      return value.toLocaleString('en-US', { ...timezoneObj, ...config });
+    },
+    [timezoneObj],
+  );
+
+  const formatHoverDate = useCallback(
+    (date: Date, period: SparklinePeriod) => {
+      return date.toLocaleString('en-US', {
+        ...timezoneObj,
+        ...getDateHoverOptions(period),
+      });
+    },
+    [timezoneObj],
+  );
+
+  const handleScrub = useCallback(({ point, period }: ChartScrubParams<SparklinePeriod>) => {
+    headerRef.current?.update({
+      title: `$${point.value.toLocaleString('en-US')}`,
+      subHead: generateSubHead(point, period, sparklineInteractiveData),
+    });
+  }, []);
+
+  const handleScrubEnd = useCallback(() => {
+    headerRef.current?.update({
+      title: `$${numToLocaleString(lastPoint.value)}`,
+      subHead: generateSubHead(lastPoint, currentPeriod, sparklineInteractiveData),
+    });
+  }, [currentPeriod, lastPoint]);
+
+  const handleOnPeriodChanged = useCallback((period: SparklinePeriod) => {
+    setCurrentPeriod(period);
+    const newData = sparklineInteractiveData[period];
+    const newLastPoint = newData[newData.length - 1];
+    headerRef.current?.update({
+      title: `$${numToLocaleString(newLastPoint.value)}`,
+      subHead: generateSubHead(newLastPoint, period, sparklineInteractiveData),
+    });
+  }, []);
+
+  const header = (
+    <SparklineInteractiveHeader
+      ref={headerRef}
+      defaultLabel="Bitcoin Price"
+      defaultSubHead={generateSubHead(lastPoint, currentPeriod, sparklineInteractiveData)}
+      defaultTitle={`$${numToLocaleString(lastPoint.value)}`}
+    />
+  );
+
+  return (
+    <SparklineInteractive
+      classNames={{ root: customPaddingCss }}
+      data={sparklineInteractiveData}
+      defaultPeriod={DEFAULT_PERIOD}
+      formatDate={formatDateWithConfig}
+      formatHoverDate={formatHoverDate}
+      headerNode={header}
+      onPeriodChanged={handleOnPeriodChanged}
+      onScrub={handleScrub}
+      onScrubEnd={handleScrubEnd}
+      periods={periods}
+      strokeColor="#F7931A"
+      styles={{ header: { paddingLeft: 0, paddingRight: 0 } }}
+    />
+  );
+};
+
+export const All = () => (
+  <ExampleScreen>
+    {/* Basic Variations */}
+    <Example title="Default">
+      <SparklineInteractiveWrapper data={sparklineInteractiveData} strokeColor={strokeColor} />
+    </Example>
+
+    <Example title="Compact">
+      <SparklineInteractiveWrapper
+        compact
+        data={sparklineInteractiveData}
+        strokeColor={strokeColor}
+      />
+    </Example>
+
+    <Example title="Contained">
+      <VStack borderColor="bgNegative" borderWidth={100}>
         <SparklineInteractiveWrapper data={sparklineInteractiveData} strokeColor={strokeColor} />
+      </VStack>
+    </Example>
+
+    <Example title="Disable Scrubbing">
+      <SparklineInteractiveWrapper
+        disableScrubbing
+        data={sparklineInteractiveData}
+        strokeColor={strokeColor}
+      />
+    </Example>
+
+    <Example title="Hide Period Selector">
+      <SparklineInteractiveWrapper
+        hidePeriodSelector
+        data={sparklineInteractiveData}
+        strokeColor={strokeColor}
+      />
+    </Example>
+
+    <Example title="Y-Axis Scaling (0.1)">
+      <SparklineInteractiveWrapper
+        data={sparklineInteractiveData}
+        strokeColor={strokeColor}
+        yAxisScalingFactor={0.1}
+      />
+    </Example>
+
+    {/* Stroke Colors */}
+    <Example title="Auto Stroke Color">
+      <SparklineInteractiveWrapper data={sparklineInteractiveData} strokeColor={autoStrokeColor} />
+    </Example>
+
+    <Example title="Custom RGB Stroke Color">
+      <SparklineInteractiveWrapper data={sparklineInteractiveData} strokeColor={rgbStrokeColor} />
+    </Example>
+
+    <Example title="Custom RGBA Stroke Color">
+      <SparklineInteractiveWrapper data={sparklineInteractiveData} strokeColor={rgbaStrokeColor} />
+    </Example>
+
+    {/* Fill Options */}
+    <Example title="Fill Disabled">
+      <SparklineInteractiveWrapper
+        data={sparklineInteractiveData}
+        fill={false}
+        strokeColor={strokeColor}
+      />
+    </Example>
+
+    <Example title="Dotted Fill Type">
+      <SparklineInteractiveWrapper
+        data={sparklineInteractiveData}
+        fillType="dotted"
+        strokeColor={strokeColor}
+      />
+    </Example>
+
+    {/* Fallback States */}
+    <Example title="Fallback Positive (excluded from Percy)">
+      <SparklineInteractiveWrapper strokeColor={strokeColor} />
+    </Example>
+
+    <Example title="Fallback Negative (excluded from Percy)">
+      <SparklineInteractiveWrapper fallbackType="negative" strokeColor={strokeColor} />
+    </Example>
+
+    <Example title="Fallback Compact (excluded from Percy)">
+      <SparklineInteractiveWrapper compact strokeColor={strokeColor} />
+    </Example>
+
+    {/* Hover Features */}
+    <Example title="Hover Price">
+      <SparklineInteractiveWrapper
+        fill
+        data={sparklineInteractiveData}
+        formatHoverPrice={formatHoverPrice}
+        strokeColor={strokeColor}
+      />
+    </Example>
+
+    <Example title="No Hover Date">
+      <SparklineInteractiveWrapper
+        fill
+        hideHoverDate
+        data={sparklineInteractiveData}
+        strokeColor={strokeColor}
+      />
+    </Example>
+
+    <Example title="Hover Data">
+      <SparklineInteractiveWrapper
+        data={sparklineInteractiveData}
+        hoverData={sparklineInteractiveHoverData}
+        strokeColor={strokeColor}
+      />
+    </Example>
+
+    <Example title="Hover Data With Fill">
+      <SparklineInteractiveWrapper
+        fill
+        data={sparklineInteractiveData}
+        hoverData={sparklineInteractiveHoverData}
+        strokeColor={strokeColor}
+      />
+    </Example>
+
+    {/* Period Selector */}
+    <Example title="Bottom Period Selector">
+      <SparklineInteractiveWrapper
+        data={sparklineInteractiveData}
+        periodSelectorPlacement="below"
+        strokeColor={strokeColor}
+      />
+    </Example>
+
+    <Example title="Time Period Gutter (3)">
+      <SparklineInteractiveWrapper
+        data={sparklineInteractiveData}
+        strokeColor={strokeColor}
+        timePeriodGutter={3}
+      />
+    </Example>
+
+    {/* Layout */}
+    <Example title="VStacked Sparkline">
+      <VStack width="100%">
+        <Box width="100%">
+          <SparklineInteractiveWrapper data={sparklineInteractiveData} strokeColor={strokeColor} />
+        </Box>
+        <Box background="bgSecondary" height={20} paddingTop={8} width="100%">
+          This is an element below the sparkline
+        </Box>
+      </VStack>
+    </Example>
+
+    <Example title="Centered Narrow On Wide Screen">
+      <div className={centeredContainerCss}>
+        <div className={narrowSparklineCss}>
+          <SparklineInteractiveWrapper data={sparklineInteractiveData} strokeColor={strokeColor} />
+        </div>
       </div>
-    </div>
-  </React.StrictMode>
+    </Example>
+
+    {/* Edge Cases */}
+    <Example title="No Data In Selected Period">
+      <SparklineInteractiveWrapper
+        data={{ ...sparklineInteractiveData, hour: [] }}
+        strokeColor={strokeColor}
+      />
+    </Example>
+
+    {/* With Header Node */}
+    <Example title="With Header Node">
+      <WithHeaderNodeExample />
+    </Example>
+
+    {/* Custom Styles */}
+    <Example title="With Custom Styles">
+      <WithCustomStylesExample />
+    </Example>
+  </ExampleScreen>
 );
 
-CenteredNarrowOnWideScreen.bind({});
-CenteredNarrowOnWideScreen.parameters = {
+All.parameters = {
   percy: { enableJavaScript: true },
   a11y: {
     config: {

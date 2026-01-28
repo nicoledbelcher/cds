@@ -2,9 +2,10 @@ import React, { useCallback, useState } from 'react';
 import { usePrefixedId } from '@coinbase/cds-common/hooks/usePrefixedId';
 import { loremIpsum } from '@coinbase/cds-common/internal/data/loremIpsum';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { Button } from '../../buttons';
 import { DotCount } from '../../dots';
-import { HStack } from '../../layout';
+import { HStack, VStack } from '../../layout';
 import { Text } from '../../typography/Text';
 import { Collapsible } from '..';
 
@@ -13,7 +14,7 @@ export default {
   title: 'Components/Collapsible',
 };
 
-export const BasicCollapsible = () => {
+const BasicCollapsibleExample = () => {
   const [collapsed, setCollapsed] = useState(true);
   const [triggerId, collapsibleId] = usePrefixedId(['trigger', 'collapsible']);
 
@@ -39,7 +40,7 @@ export const BasicCollapsible = () => {
   );
 };
 
-export const DefaultExpanded = () => {
+const DefaultExpandedExample = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [triggerId, collapsibleId] = usePrefixedId(['trigger', 'collapsible']);
 
@@ -65,7 +66,7 @@ export const DefaultExpanded = () => {
   );
 };
 
-export const Horizontal = () => {
+const HorizontalExample = () => {
   const [collapsed, setCollapsed] = useState(true);
   const [triggerId, collapsibleId] = usePrefixedId(['trigger', 'collapsible']);
 
@@ -99,7 +100,7 @@ export const Horizontal = () => {
   );
 };
 
-export const RevealTop = () => {
+const RevealTopExample = () => {
   const [collapsed, setCollapsed] = useState(true);
   const [triggerId, collapsibleId] = usePrefixedId(['trigger', 'collapsible']);
 
@@ -120,7 +121,7 @@ export const RevealTop = () => {
   );
 };
 
-export const Scroll = () => {
+const ScrollExample = () => {
   const [collapsed, setCollapsed] = useState(true);
   const [triggerId, collapsibleId] = usePrefixedId(['trigger', 'collapsible']);
 
@@ -148,5 +149,31 @@ export const Scroll = () => {
         <Text font="body">{loremIpsum.repeat(10)}</Text>
       </Collapsible>
     </>
+  );
+};
+
+export const All = () => {
+  return (
+    <ExampleScreen>
+      <Example title="Basic Collapsible">
+        <BasicCollapsibleExample />
+      </Example>
+
+      <Example title="Default Expanded">
+        <DefaultExpandedExample />
+      </Example>
+
+      <Example title="Horizontal">
+        <HorizontalExample />
+      </Example>
+
+      <Example title="Reveal Top">
+        <RevealTopExample />
+      </Example>
+
+      <Example title="Scroll">
+        <ScrollExample />
+      </Example>
+    </ExampleScreen>
   );
 };

@@ -1,15 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import type {
-  ComponentMeta,
-  ComponentStory,
-} from '@storybook/react/dist/ts3.9/client/preview/types-6-3';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { Button } from '../../buttons/Button';
 import { HStack } from '../../layout/HStack';
 import { VStack } from '../../layout/VStack';
+import { Text } from '../../typography/Text';
 import { PortalProvider } from '../PortalProvider';
 import { TooltipContent } from '../tooltip/TooltipContent';
-import type { PopperTooltipProps } from '../tooltip/TooltipProps';
 
 export default {
   title: 'Components/Tooltip/TooltipContent',
@@ -17,9 +14,9 @@ export default {
   parameters: {
     layout: 'padded',
   },
-} as ComponentMeta<typeof TooltipContent>;
+};
 
-const BasicTooltipContent = ({ content }: PopperTooltipProps) => {
+const BasicTooltipContentWrapper = ({ content }: { content: React.ReactNode }) => {
   const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -39,35 +36,11 @@ const BasicTooltipContent = ({ content }: PopperTooltipProps) => {
   );
 };
 
-const Template: ComponentStory<typeof BasicTooltipContent> = (args: PopperTooltipProps) => (
-  <BasicTooltipContent {...args} />
-);
-
-export const Default = Template.bind({});
-
-Default.args = {
-  content: 'This is the tooltip Content',
-};
-
-export const TooltipLongContent = Template.bind({});
-
 const longContent =
   'This is the tooltip Content. This is just really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really Long.';
 
-TooltipLongContent.args = {
-  content: longContent,
-};
-
-export const TooltipLongWordContent = Template.bind({});
-
 const longWordContent =
   'ThisisReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyLongWordContent. This is just really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really Long.';
-
-TooltipLongWordContent.args = {
-  content: longWordContent,
-};
-
-export const VStackNodeContent = Template.bind({});
 
 const VStackNode = (
   <VStack gap={2}>
@@ -77,12 +50,6 @@ const VStackNode = (
   </VStack>
 );
 
-VStackNodeContent.args = {
-  content: VStackNode,
-};
-
-export const HStackNodeContent = Template.bind({});
-
 const HStackNode = (
   <HStack gap={2}>
     <Button>Btn 1</Button>
@@ -91,6 +58,28 @@ const HStackNode = (
   </HStack>
 );
 
-HStackNodeContent.args = {
-  content: HStackNode,
+export const All = () => {
+  return (
+    <ExampleScreen>
+      <Example title="Default">
+        <BasicTooltipContentWrapper content="This is the tooltip Content" />
+      </Example>
+
+      <Example title="Tooltip Long Content">
+        <BasicTooltipContentWrapper content={longContent} />
+      </Example>
+
+      <Example title="Tooltip Long Word Content">
+        <BasicTooltipContentWrapper content={longWordContent} />
+      </Example>
+
+      <Example title="VStack Node Content">
+        <BasicTooltipContentWrapper content={VStackNode} />
+      </Example>
+
+      <Example title="HStack Node Content">
+        <BasicTooltipContentWrapper content={HStackNode} />
+      </Example>
+    </ExampleScreen>
+  );
 };

@@ -2,6 +2,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { assets } from '@coinbase/cds-common/internal/data/assets';
 import { sparklineInteractiveData } from '@coinbase/cds-common/internal/visualizations/SparklineInteractiveData';
 import { useTheme } from '@coinbase/cds-web';
+import { Example, ExampleScreen } from '@coinbase/cds-web/__stories__/storybook';
 import { VStack } from '@coinbase/cds-web/layout';
 import { Text } from '@coinbase/cds-web/typography';
 
@@ -16,18 +17,6 @@ import { SolidLine } from '../SolidLine';
 export default {
   component: ReferenceLine,
   title: 'Components/Chart/ReferenceLine',
-};
-
-const Example: React.FC<
-  React.PropsWithChildren<{ title: string; description?: string | React.ReactNode }>
-> = ({ children, title, description }) => {
-  return (
-    <VStack gap={2}>
-      <Text font="headline">{title}</Text>
-      {description}
-      {children}
-    </VStack>
-  );
 };
 
 // Memoized label components for performance

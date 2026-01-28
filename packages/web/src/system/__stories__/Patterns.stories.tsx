@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { Button } from '../../buttons';
 import { Checkbox } from '../../controls';
 import { Icon } from '../../icons/Icon';
@@ -13,7 +14,7 @@ export default {
   title: 'Components/Patterns',
 };
 
-export const Error = () => {
+const ErrorExample = () => {
   const [visible, setVisible] = useState(true);
 
   return (
@@ -33,7 +34,7 @@ export const Error = () => {
   );
 };
 
-export const DisclosureLowFriction = () => {
+const DisclosureLowFrictionExample = () => {
   const [visible, setVisible] = useState(true);
 
   const data = useMemo(
@@ -41,17 +42,17 @@ export const DisclosureLowFriction = () => {
       {
         id: 1,
         headline: 'Benefit to highlight 1',
-        body: 'Bullets explaining selling points and potential risks (can include “learn more” links).',
+        body: 'Bullets explaining selling points and potential risks (can include "learn more" links).',
       },
       {
         id: 2,
         headline: 'Risk to highlight 1',
-        body: 'Bullets explaining selling points and potential risks (can include “learn more” links).',
+        body: 'Bullets explaining selling points and potential risks (can include "learn more" links).',
       },
       {
         id: 3,
         headline: 'Risk to highlight 2',
-        body: 'Bullets explaining selling points and potential risks (can include “learn more” links).',
+        body: 'Bullets explaining selling points and potential risks (can include "learn more" links).',
       },
     ],
     [],
@@ -103,7 +104,7 @@ export const DisclosureLowFriction = () => {
   );
 };
 
-export const DisclosureMediumFriction = () => {
+const DisclosureMediumFrictionExample = () => {
   const [visible, setVisible] = useState(true);
 
   const data = useMemo(
@@ -111,12 +112,12 @@ export const DisclosureMediumFriction = () => {
       {
         id: 1,
         headline: 'Risk to highlight 1',
-        body: 'Bullets explaining selling points and potential risks (include “learn more” links in risk bullets).',
+        body: 'Bullets explaining selling points and potential risks (include "learn more" links in risk bullets).',
       },
       {
         id: 2,
         headline: 'Risk to highlight 2',
-        body: 'Bullets explaining selling points and potential risks (include “learn more” links in risk bullets).',
+        body: 'Bullets explaining selling points and potential risks (include "learn more" links in risk bullets).',
       },
     ],
     [],
@@ -168,7 +169,7 @@ export const DisclosureMediumFriction = () => {
   );
 };
 
-export const DisclosureHighFrictionBenefit = () => {
+const DisclosureHighFrictionBenefitExample = () => {
   const [visible, setVisible] = useState(true);
 
   const data = useMemo(
@@ -229,7 +230,7 @@ export const DisclosureHighFrictionBenefit = () => {
   );
 };
 
-export const DisclosureHighFrictionRisk = () => {
+const DisclosureHighFrictionRiskExample = () => {
   const data = useMemo(
     () => [
       {
@@ -319,5 +320,31 @@ export const DisclosureHighFrictionRisk = () => {
         />
       </Modal>
     </>
+  );
+};
+
+export const All = () => {
+  return (
+    <ExampleScreen>
+      <Example title="Error">
+        <ErrorExample />
+      </Example>
+
+      <Example title="Disclosure Low Friction">
+        <DisclosureLowFrictionExample />
+      </Example>
+
+      <Example title="Disclosure Medium Friction">
+        <DisclosureMediumFrictionExample />
+      </Example>
+
+      <Example title="Disclosure High Friction Benefit">
+        <DisclosureHighFrictionBenefitExample />
+      </Example>
+
+      <Example title="Disclosure High Friction Risk">
+        <DisclosureHighFrictionRiskExample />
+      </Example>
+    </ExampleScreen>
   );
 };

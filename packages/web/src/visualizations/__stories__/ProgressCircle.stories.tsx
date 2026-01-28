@@ -3,6 +3,7 @@ import { assets } from '@coinbase/cds-common/internal/data/assets';
 import { avatarSizes } from '@coinbase/cds-common/internal/data/avatars';
 import { css } from '@linaria/core';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { Button } from '../../buttons';
 import { Icon } from '../../icons';
 import { Box, HStack, VStack } from '../../layout';
@@ -18,7 +19,7 @@ export default {
   title: 'Components/ProgressCircle',
 };
 
-export const Default = () => {
+const Default = () => {
   return (
     <ProgressContainerWithButtons>
       {({ calculateProgress }) => (
@@ -35,7 +36,7 @@ export const Default = () => {
   );
 };
 
-export const Heavy = () => {
+const Heavy = () => {
   return (
     <ProgressContainerWithButtons>
       {({ calculateProgress }) => (
@@ -48,7 +49,7 @@ export const Heavy = () => {
   );
 };
 
-export const NoText = () => {
+const NoText = () => {
   return (
     <ProgressContainerWithButtons>
       {({ calculateProgress }) => (
@@ -61,7 +62,7 @@ export const NoText = () => {
   );
 };
 
-export const Disabled = () => {
+const Disabled = () => {
   return (
     <HStack gap={2}>
       <ProgressCircle disabled progress={0} size={100} />
@@ -72,7 +73,7 @@ export const Disabled = () => {
   );
 };
 
-export const Colors = () => {
+const Colors = () => {
   return (
     <HStack gap={2}>
       <ProgressCircle color="bgPositive" progress={0.5} size={100} />
@@ -84,7 +85,7 @@ export const Colors = () => {
   );
 };
 
-export const AnimationCallbacks = () => {
+const AnimationCallbacks = () => {
   const [animationStatus, setAnimationStatus] = React.useState<string>('Ready');
 
   const handleAnimationStart = useCallback(() => {
@@ -96,7 +97,7 @@ export const AnimationCallbacks = () => {
   }, []);
 
   return (
-    <VStack gap={4}>
+    <ExampleScreen>
       <Text as="p" display="block" font="label1">
         Animation Status: {animationStatus}
       </Text>
@@ -112,12 +113,11 @@ export const AnimationCallbacks = () => {
           </HStack>
         )}
       </ProgressContainerWithButtons>
-    </VStack>
+    </ExampleScreen>
   );
 };
-AnimationCallbacks.parameters = { percy: { enableJavaScript: true } };
 
-export const FillParent = () => {
+const FillParent = () => {
   return (
     <ProgressContainerWithButtons>
       {({ calculateProgress }) => (
@@ -142,9 +142,8 @@ export const FillParent = () => {
     </ProgressContainerWithButtons>
   );
 };
-FillParent.parameters = { percy: { enableJavaScript: true } };
 
-export const CustomTextColor = () => {
+const CustomTextColor = () => {
   return (
     <ProgressContainerWithButtons>
       {({ calculateProgress }) => (
@@ -170,15 +169,14 @@ export const CustomTextColor = () => {
     </ProgressContainerWithButtons>
   );
 };
-CustomTextColor.parameters = { percy: { enableJavaScript: true } };
 
 const progressCss = css`
   stroke: var(--strokeColor);
 `;
 
-export const WithAsset = () => {
+const WithAsset = () => {
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <HStack gap={2}>
         <ProgressCircle
           contentNode={
@@ -311,14 +309,14 @@ export const WithAsset = () => {
             />
           ))}
       </HStack>
-    </VStack>
+    </ExampleScreen>
   );
 };
 
-export const CustomStyles = () => {
+const CustomStyles = () => {
   const [disabled, setDisabled] = useState(false);
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <HStack gap={2}>
         <ProgressCircle
           contentNode={
@@ -356,11 +354,11 @@ export const CustomStyles = () => {
         />
       </HStack>
       <Button onClick={() => setDisabled(!disabled)}>Toggle Disabled</Button>
-    </VStack>
+    </ExampleScreen>
   );
 };
 
-export const Thin = () => {
+const Thin = () => {
   return (
     <ProgressContainerWithButtons>
       {({ calculateProgress }) => (
@@ -373,7 +371,7 @@ export const Thin = () => {
   );
 };
 
-export const DisableAnimateOnMount = () => {
+const DisableAnimateOnMount = () => {
   return (
     <ProgressContainerWithButtons>
       {({ calculateProgress }) => (
@@ -382,4 +380,56 @@ export const DisableAnimateOnMount = () => {
     </ProgressContainerWithButtons>
   );
 };
-DisableAnimateOnMount.parameters = { percy: { enableJavaScript: true } };
+
+export const All = () => (
+  <VStack gap={3}>
+    <Example title="Default">
+      <Default />
+    </Example>
+
+    <Example title="Heavy">
+      <Heavy />
+    </Example>
+
+    <Example title="No Text">
+      <NoText />
+    </Example>
+
+    <Example title="Disabled">
+      <Disabled />
+    </Example>
+
+    <Example title="Colors">
+      <Colors />
+    </Example>
+
+    <Example title="Animation Callbacks">
+      <AnimationCallbacks />
+    </Example>
+
+    <Example title="Fill Parent">
+      <FillParent />
+    </Example>
+
+    <Example title="Custom Text Color">
+      <CustomTextColor />
+    </Example>
+
+    <Example title="With Asset">
+      <WithAsset />
+    </Example>
+
+    <Example title="Custom Styles">
+      <CustomStyles />
+    </Example>
+
+    <Example title="Thin">
+      <Thin />
+    </Example>
+
+    <Example title="Disable Animate On Mount">
+      <DisableAnimateOnMount />
+    </Example>
+  </VStack>
+);
+All.parameters = { percy: { enableJavaScript: true } };

@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useAlert } from '@coinbase/cds-common/overlays/useAlert';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { Button } from '../../buttons/Button';
-import { Switch } from '../../controls/Switch';
 import { VStack } from '../../layout';
+import { Text } from '../../typography/Text';
 import { Alert } from '../Alert';
 import { PortalProvider } from '../PortalProvider';
 
@@ -14,7 +15,7 @@ export default {
 
 const onPressConsole = () => console.log('pressed');
 
-export const BasicAlert = () => {
+const BasicAlertExample = () => {
   const [visible, setVisible] = useState(true);
 
   const toggleOn = useCallback(() => setVisible(true), []);
@@ -37,7 +38,7 @@ export const BasicAlert = () => {
   );
 };
 
-export const LongTitleAlert = () => {
+const LongTitleAlertExample = () => {
   const [visible, setVisible] = useState(true);
 
   const toggleOn = useCallback(() => setVisible(true), []);
@@ -60,7 +61,7 @@ export const LongTitleAlert = () => {
   );
 };
 
-const AlertExample = () => {
+const AlertWithPortal = () => {
   const { open, close } = useAlert();
 
   const showAlert = useCallback(
@@ -89,15 +90,15 @@ const AlertExample = () => {
   return <Button onClick={showAlert}>Show Alert</Button>;
 };
 
-export const PortalAlert = () => {
+const PortalAlertExample = () => {
   return (
     <PortalProvider>
-      <AlertExample />
+      <AlertWithPortal />
     </PortalProvider>
   );
 };
 
-export const SingleActionAlert = () => {
+const SingleActionAlertExample = () => {
   const [visible, setVisible] = useState(true);
 
   const toggleOn = useCallback(() => setVisible(true), []);
@@ -119,7 +120,7 @@ export const SingleActionAlert = () => {
   );
 };
 
-export const AlertWithVerticalActions = () => {
+const VerticalActionsAlertExample = () => {
   const [visible, setVisible] = useState(true);
 
   const toggleOn = useCallback(() => setVisible(true), []);
@@ -140,5 +141,31 @@ export const AlertWithVerticalActions = () => {
         visible={visible}
       />
     </>
+  );
+};
+
+export const All = () => {
+  return (
+    <ExampleScreen>
+      <Example title="Basic Alert">
+        <BasicAlertExample />
+      </Example>
+
+      <Example title="Long Title Alert">
+        <LongTitleAlertExample />
+      </Example>
+
+      <Example title="Portal Alert">
+        <PortalAlertExample />
+      </Example>
+
+      <Example title="Single Action Alert">
+        <SingleActionAlertExample />
+      </Example>
+
+      <Example title="Alert with Vertical Actions">
+        <VerticalActionsAlertExample />
+      </Example>
+    </ExampleScreen>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { curves, durations } from '@coinbase/cds-common/motion/tokens';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { IconButton } from '../../buttons';
 import { Button } from '../../buttons/Button';
 import { Icon } from '../../icons';
@@ -15,7 +16,7 @@ export default {
   component: RollingNumber,
 };
 
-export const Examples = () => {
+const Examples = () => {
   const [price, setPrice] = useState<number>(12345.67);
   const [difference, setDifference] = useState<number>(0);
   const onNext = () =>
@@ -30,7 +31,7 @@ export const Examples = () => {
   const trendColor = difference >= 0 ? 'fgPositive' : 'fgNegative';
 
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <Text font="label1">Basic example</Text>
       <RollingNumber
         format={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }}
@@ -83,16 +84,16 @@ export const Examples = () => {
         />
       </HStack>
       <Button onClick={onNext}>Next</Button>
-    </VStack>
+    </ExampleScreen>
   );
 };
 
-export const FontCustomization = () => {
+const FontCustomization = () => {
   const [price, setPrice] = useState<number>(9876.54);
   const onNext = () =>
     setPrice((p) => Math.max(0, Math.round((p + (Math.random() - 0.5) * 100) * 100) / 100));
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <Text font="label1">Font sizes, weights, and line heights</Text>
       <RollingNumber
         fontSize="display3"
@@ -132,16 +133,16 @@ export const FontCustomization = () => {
         value={price}
       />
       <Button onClick={onNext}>Next</Button>
-    </VStack>
+    </ExampleScreen>
   );
 };
 
-export const ColorAndTransition = () => {
+const ColorAndTransition = () => {
   const [price, setPrice] = useState<number>(555.55);
   const onNext = () =>
     setPrice((p) => Math.max(0, Math.round((p + (Math.random() - 0.5) * 50) * 100) / 100));
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <Text font="label1">Color pulse and custom transition</Text>
       <RollingNumber
         colorPulseOnUpdate
@@ -211,17 +212,17 @@ export const ColorAndTransition = () => {
         value={price}
       />
       <Button onClick={onNext}>Next</Button>
-    </VStack>
+    </ExampleScreen>
   );
 };
 
-export const Polymorphism = () => {
+const Polymorphism = () => {
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <Text font="label1">Polymorphism</Text>
       <RollingNumber as="h1" format={{ style: 'currency', currency: 'USD' }} value={12345.67} />
       <RollingNumber as="p" format={{ style: 'currency', currency: 'USD' }} value={12345.67} />
-    </VStack>
+    </ExampleScreen>
   );
 };
 
@@ -253,7 +254,7 @@ const useTestValues = () => {
   };
 };
 
-export const Format = () => {
+const Format = () => {
   const { value, onNext } = useTestValues();
   const format = {
     style: 'currency' as const,
@@ -263,17 +264,17 @@ export const Format = () => {
     notation: 'compact' as const,
   };
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <Text font="label1">Compact number with currency sign</Text>
       <RollingNumber font="display1" format={format} value={value} />
       <Text font="label1">Number without grouping</Text>
       <RollingNumber font="display1" format={{ useGrouping: false }} value={value} />
       <Button onClick={onNext}>Next</Button>
-    </VStack>
+    </ExampleScreen>
   );
 };
 
-export const PrefixAndSuffix = () => {
+const PrefixAndSuffix = () => {
   const { value, prefix, suffix, iconPrefix, iconSuffix, onNext } = useTestValues();
   const format = {
     style: 'currency' as const,
@@ -283,7 +284,7 @@ export const PrefixAndSuffix = () => {
   };
 
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <Text font="label1">Simple text prefix and suffix</Text>
       <RollingNumber
         colorPulseOnUpdate
@@ -312,16 +313,16 @@ export const PrefixAndSuffix = () => {
         value={value}
       />
       <Button onClick={onNext}>Next</Button>
-    </VStack>
+    </ExampleScreen>
   );
 };
 
-export const StyleOverrides = () => {
+const StyleOverrides = () => {
   const [price, setPrice] = useState<number>(12345.67);
   const onNext = () =>
     setPrice((p) => Math.max(0, Math.round((p + (Math.random() - 0.5) * 200) * 100) / 100));
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <Text font="label1">Style overrides per section</Text>
       <RollingNumber
         colorPulseOnUpdate
@@ -351,7 +352,7 @@ export const StyleOverrides = () => {
         value={price}
       />
       <Button onClick={onNext}>Next</Button>
-    </VStack>
+    </ExampleScreen>
   );
 };
 
@@ -371,7 +372,7 @@ const fonts = [
   'legal',
 ] as const;
 
-export const Subscript = () => {
+const Subscript = () => {
   const values = [
     0.0000000001, 0.00009, 0.000012, 0.0000001, 0.000000001, 0.000000000000000000000011,
   ];
@@ -381,7 +382,7 @@ export const Subscript = () => {
   const format = { minimumFractionDigits: 2, maximumFractionDigits: 25 };
 
   return (
-    <VStack gap={1}>
+    <ExampleScreen>
       <Text font="label1">Subscript for small decimals</Text>
       <Text as="span" font="label2">
         Default:
@@ -401,11 +402,11 @@ export const Subscript = () => {
         />
       ))}
       <Button onClick={onNext}>Next</Button>
-    </VStack>
+    </ExampleScreen>
   );
 };
 
-export const UserProvidedFormattedValue = () => {
+const UserProvidedFormattedValue = () => {
   const btcPrices = [
     { value: 98_765.43, formattedValue: '¥98,765.43 BTC' },
     { value: 931.42, formattedValue: '$931.42 BTC' },
@@ -428,7 +429,7 @@ export const UserProvidedFormattedValue = () => {
   const onNext = () => setIdx((idx + 1) % 5);
 
   return (
-    <VStack gap={1}>
+    <ExampleScreen>
       <Text font="label1">User provided formatted value</Text>
       <Text font="label2">BTC prices</Text>
       <RollingNumber
@@ -448,13 +449,13 @@ export const UserProvidedFormattedValue = () => {
         value={subscripts[idx].value}
       />
       <Button onClick={onNext}>Next</Button>
-    </VStack>
+    </ExampleScreen>
   );
 };
 
-export const Accessibility = () => {
+const Accessibility = () => {
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <Text font="label1">Override screen reader label (compact notation)</Text>
       <RollingNumber
         accessibilityLabel="1,230 followers"
@@ -473,18 +474,18 @@ export const Accessibility = () => {
         suffix={<Icon name="heart" size="s" />}
         value={25}
       />
-    </VStack>
+    </ExampleScreen>
   );
 };
 
-export const SingleTransition = () => {
+const SingleTransition = () => {
   const [price, setPrice] = useState<number>(12345.67);
   const onUp = () => setPrice((p) => Math.round((p + Math.random() * 100) * 100) / 100);
   const onDown = () =>
     setPrice((p) => Math.max(0, Math.round((p - Math.random() * 100) * 100) / 100));
 
   return (
-    <VStack gap={3}>
+    <ExampleScreen>
       <RollingNumber
         colorPulseOnUpdate
         digitTransitionVariant="single"
@@ -521,11 +522,11 @@ export const SingleTransition = () => {
           />
         </VStack>
       </HStack>
-    </VStack>
+    </ExampleScreen>
   );
 };
 
-export const Fun = () => {
+const Fun = () => {
   // Counter
   const [count, setCount] = useState(0);
 
@@ -580,7 +581,7 @@ export const Fun = () => {
   const lbSeconds = timeLeft % 60;
 
   return (
-    <VStack gap={3}>
+    <ExampleScreen>
       {/* Counter */}
       <VStack gap={1}>
         <Text font="label1">Counter</Text>
@@ -745,6 +746,58 @@ export const Fun = () => {
           <Button onClick={() => placeBid(1000)}>+$1000</Button>
         </HStack>
       </VStack>
-    </VStack>
+    </ExampleScreen>
   );
 };
+
+export const All = () => (
+  <VStack gap={3}>
+    <Example title="Examples">
+      <Examples />
+    </Example>
+
+    <Example title="Font Customization">
+      <FontCustomization />
+    </Example>
+
+    <Example title="Color And Transition">
+      <ColorAndTransition />
+    </Example>
+
+    <Example title="Polymorphism">
+      <Polymorphism />
+    </Example>
+
+    <Example title="Format">
+      <Format />
+    </Example>
+
+    <Example title="Prefix And Suffix">
+      <PrefixAndSuffix />
+    </Example>
+
+    <Example title="Style Overrides">
+      <StyleOverrides />
+    </Example>
+
+    <Example title="Subscript">
+      <Subscript />
+    </Example>
+
+    <Example title="User Provided Formatted Value">
+      <UserProvidedFormattedValue />
+    </Example>
+
+    <Example title="Accessibility">
+      <Accessibility />
+    </Example>
+
+    <Example title="Single Transition">
+      <SingleTransition />
+    </Example>
+
+    <Example title="Fun">
+      <Fun />
+    </Example>
+  </VStack>
+);

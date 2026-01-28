@@ -2,10 +2,12 @@ import React from 'react';
 import { BrowserRouter as Router, Link as RRLink } from 'react-router-dom';
 import { noop } from '@coinbase/cds-utils';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
+import { VStack } from '../../layout/VStack';
 import { Link } from '../Link';
 import { Text } from '../Text';
 
-export const Default = () => (
+const Default = () => (
   <div>
     <Link href="https://www.google.com/">Default</Link>
     <br />
@@ -15,13 +17,13 @@ export const Default = () => (
   </div>
 );
 
-export const VariantBody = () => (
+const VariantBody = () => (
   <Link font="body" href="https://www.google.com/">
     Body
   </Link>
 );
 
-export const NegativeColor = () => (
+const NegativeColor = () => (
   <div>
     <Link color="fgNegative" font="headline" href="https://www.google.com/">
       Negative
@@ -29,7 +31,7 @@ export const NegativeColor = () => (
   </div>
 );
 
-export const Underline = () => (
+const Underline = () => (
   <div>
     <Link underline href="https://www.google.com/">
       Default
@@ -49,7 +51,7 @@ export const Underline = () => (
   </div>
 );
 
-export const InAParagraph = () => (
+const InAParagraph = () => (
   <div>
     <Text as="p" display="block" font="body">
       This is a paragraph, and we can include inline links{' '}
@@ -66,7 +68,7 @@ export const InAParagraph = () => (
   </div>
 );
 
-export const InheritParentTextStyles = () => (
+const InheritParentTextStyles = () => (
   <div>
     <Text font="body">
       Go here: <Link href="https://www.coinbase.com">Inherited</Link>
@@ -74,7 +76,7 @@ export const InheritParentTextStyles = () => (
   </div>
 );
 
-export const DifferentTextStyle = () => (
+const DifferentTextStyle = () => (
   <div>
     <Text display="inline" font="body">
       Go here:{' '}
@@ -85,7 +87,7 @@ export const DifferentTextStyle = () => (
   </div>
 );
 
-export const OpenWindowInExistingTab = () => (
+const OpenWindowInExistingTab = () => (
   <div>
     <Link font="title1" href="https://www.google.com/" target="_blank">
       Default
@@ -93,7 +95,7 @@ export const OpenWindowInExistingTab = () => (
   </div>
 );
 
-export const SetsRelToNorefferer = () => (
+const SetsRelToNorefferer = () => (
   <div>
     <Link font="title2" href="https://www.google.com/" rel="noreferrer">
       Default
@@ -101,7 +103,7 @@ export const SetsRelToNorefferer = () => (
   </div>
 );
 
-export const SetsRelToNoopener = () => (
+const SetsRelToNoopener = () => (
   <div>
     <Link font="title3" href="https://www.google.com/" rel="noopener">
       Default
@@ -109,7 +111,7 @@ export const SetsRelToNoopener = () => (
   </div>
 );
 
-export const OnClick = () => (
+const OnClick = () => (
   <div>
     <Link font="headline" href="#tagname" onClick={noop} rel="noopener">
       Link onClick
@@ -117,7 +119,7 @@ export const OnClick = () => (
   </div>
 );
 
-export const RenderContainer = () => (
+const RenderContainer = () => (
   <div>
     <Router>
       <Link as={RRLink} color="fgPrimary" font="body" onClick={noop} to="/invoices">
@@ -127,7 +129,7 @@ export const RenderContainer = () => (
   </div>
 );
 
-export const RenderContainerColor = () => (
+const RenderContainerColor = () => (
   <div>
     <Router>
       <Link as={RRLink} color="fgNegative" font="label1" onClick={noop} to="/invoices">
@@ -135,6 +137,62 @@ export const RenderContainerColor = () => (
       </Link>
     </Router>
   </div>
+);
+
+export const All = () => (
+  <VStack gap={3}>
+    <Example title="Default">
+      <Default />
+    </Example>
+
+    <Example title="Variant Body">
+      <VariantBody />
+    </Example>
+
+    <Example title="Negative Color">
+      <NegativeColor />
+    </Example>
+
+    <Example title="Underline">
+      <Underline />
+    </Example>
+
+    <Example title="In A Paragraph">
+      <InAParagraph />
+    </Example>
+
+    <Example title="Inherit Parent Text Styles">
+      <InheritParentTextStyles />
+    </Example>
+
+    <Example title="Different Text Style">
+      <DifferentTextStyle />
+    </Example>
+
+    <Example title="Open Window In Existing Tab">
+      <OpenWindowInExistingTab />
+    </Example>
+
+    <Example title="Sets Rel To Norefferer">
+      <SetsRelToNorefferer />
+    </Example>
+
+    <Example title="Sets Rel To Noopener">
+      <SetsRelToNoopener />
+    </Example>
+
+    <Example title="On Click">
+      <OnClick />
+    </Example>
+
+    <Example title="Render Container">
+      <RenderContainer />
+    </Example>
+
+    <Example title="Render Container Color">
+      <RenderContainerColor />
+    </Example>
+  </VStack>
 );
 
 export default {

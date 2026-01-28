@@ -1,7 +1,7 @@
-import React from 'react';
 import type { InputVariant } from '@coinbase/cds-common';
 import type { ThemeVars } from '@coinbase/cds-common/core/theme';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { Box } from '../../layout/Box';
 import { InputIcon } from '../InputIcon';
 import { TextInput } from '../TextInput';
@@ -22,61 +22,57 @@ const variantColorMap: Record<InputVariant, ThemeVars.Color> = {
   secondary: 'bgSecondary',
 };
 
-export const AddCustomColor = () => {
+export const All = () => {
   return (
-    <TextInput
-      label="Label"
-      start={<InputIcon active disableInheritFocusStyle color="fg" name="add" />}
-    />
-  );
-};
-
-export const AddCustomColorEnd = () => {
-  return (
-    <TextInput
-      end={<InputIcon active disableInheritFocusStyle color="fg" name="add" />}
-      label="Label"
-    />
-  );
-};
-
-export const Basic = () => {
-  return (
-    <>
-      {variants.map((variant) => (
+    <ExampleScreen>
+      <Example title="Add Custom Color">
         <TextInput
-          key={`${variant}-inputicon`}
-          label={variant}
-          start={<InputIcon active color={variantColorMap[variant]} name="add" />}
-          variant={variant}
+          label="Label"
+          start={<InputIcon active disableInheritFocusStyle color="fg" name="add" />}
         />
-      ))}
-    </>
-  );
-};
+      </Example>
 
-export const BasicEnd = () => {
-  return <TextInput end={<InputIcon active name="add" />} label="Label" />;
-};
+      <Example title="Add Custom Color End">
+        <TextInput
+          end={<InputIcon active disableInheritFocusStyle color="fg" name="add" />}
+          label="Label"
+        />
+      </Example>
 
-export const DefaultsToForeground = () => {
-  return <TextInput label="Search" start={<InputIcon name="search" />} variant="foregroundMuted" />;
-};
+      <Example title="Basic">
+        <>
+          {variants.map((variant) => (
+            <TextInput
+              key={`${variant}-inputicon`}
+              label={variant}
+              start={<InputIcon active color={variantColorMap[variant]} name="add" />}
+              variant={variant}
+            />
+          ))}
+        </>
+      </Example>
 
-export const InvalidPlacement = () => {
-  return (
-    <Box background="bgAlternate">
-      <InputIcon active name="add" />
-    </Box>
-  );
-};
+      <Example title="Basic End">
+        <TextInput end={<InputIcon active name="add" />} label="Label" />
+      </Example>
 
-export const SetColorAndInheritFocusStyle = () => {
-  return (
-    <TextInput
-      label="Search"
-      start={<InputIcon color="fgPositive" name="search" />}
-      variant="foregroundMuted"
-    />
+      <Example title="Defaults To Foreground">
+        <TextInput label="Search" start={<InputIcon name="search" />} variant="foregroundMuted" />
+      </Example>
+
+      <Example title="Invalid Placement">
+        <Box background="bgAlternate">
+          <InputIcon active name="add" />
+        </Box>
+      </Example>
+
+      <Example title="Set Color And Inherit Focus Style">
+        <TextInput
+          label="Search"
+          start={<InputIcon color="fgPositive" name="search" />}
+          variant="foregroundMuted"
+        />
+      </Example>
+    </ExampleScreen>
   );
 };

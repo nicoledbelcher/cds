@@ -1,6 +1,8 @@
 import React from 'react';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { Box } from '../../layout/Box';
+import { VStack } from '../../layout/VStack';
 import { InputIconButton } from '../InputIconButton';
 import { TextInput } from '../TextInput';
 
@@ -11,88 +13,88 @@ export default {
 
 const variants = ['foreground', 'foregroundMuted', 'primary', 'negative', 'positive'] as const;
 
-export const AddCustomColor = () => {
+export const All = () => {
   return (
-    <TextInput
-      label="Label"
-      start={
-        <InputIconButton
-          active
-          disableInheritFocusStyle
-          accessibilityLabel="Add"
-          name="add"
-          variant="foregroundMuted"
-        />
-      }
-    />
-  );
-};
-
-export const AddCustomColorEnd = () => {
-  return (
-    <TextInput
-      end={
-        <InputIconButton
-          active
-          disableInheritFocusStyle
-          transparent
-          accessibilityLabel="Add"
-          name="add"
-          variant="foregroundMuted"
-        />
-      }
-      label="Label"
-    />
-  );
-};
-
-export const Basic = () => {
-  return (
-    <>
-      {variants.map((variant) => (
+    <ExampleScreen>
+      <Example title="Add Custom Color">
         <TextInput
-          key={`${variant}-input-iconbutton`}
-          label={variant}
+          label="Label"
           start={
-            <InputIconButton active accessibilityLabel="Add" name="add" variant="foregroundMuted" />
+            <InputIconButton
+              active
+              disableInheritFocusStyle
+              accessibilityLabel="Add"
+              name="add"
+              variant="foregroundMuted"
+            />
           }
-          variant={variant}
         />
-      ))}
-    </>
-  );
-};
+      </Example>
 
-export const BasicEnd = () => {
-  return (
-    <TextInput end={<InputIconButton active accessibilityLabel="Add" name="add" />} label="Label" />
-  );
-};
+      <Example title="Add Custom Color End">
+        <TextInput
+          end={
+            <InputIconButton
+              active
+              disableInheritFocusStyle
+              transparent
+              accessibilityLabel="Add"
+              name="add"
+              variant="foregroundMuted"
+            />
+          }
+          label="Label"
+        />
+      </Example>
 
-export const DefaultsToPrimary = () => {
-  return (
-    <TextInput
-      label="Label"
-      start={<InputIconButton accessibilityLabel="Search" name="search" />}
-      variant="foregroundMuted"
-    />
-  );
-};
+      <Example title="Basic">
+        <>
+          {variants.map((variant) => (
+            <TextInput
+              key={`${variant}-input-iconbutton`}
+              label={variant}
+              start={
+                <InputIconButton
+                  active
+                  accessibilityLabel="Add"
+                  name="add"
+                  variant="foregroundMuted"
+                />
+              }
+              variant={variant}
+            />
+          ))}
+        </>
+      </Example>
 
-export const InvalidPlacement = () => {
-  return (
-    <Box background="bgAlternate">
-      <InputIconButton active accessibilityLabel="Add" name="add" variant="foregroundMuted" />
-    </Box>
-  );
-};
+      <Example title="Basic End">
+        <TextInput
+          end={<InputIconButton active accessibilityLabel="Add" name="add" />}
+          label="Label"
+        />
+      </Example>
 
-export const SetColorAndInheritFocusStyle = () => {
-  return (
-    <TextInput
-      label="Search"
-      start={<InputIconButton accessibilityLabel="Search" name="search" variant="secondary" />}
-      variant="foregroundMuted"
-    />
+      <Example title="Defaults To Primary">
+        <TextInput
+          label="Label"
+          start={<InputIconButton accessibilityLabel="Search" name="search" />}
+          variant="foregroundMuted"
+        />
+      </Example>
+
+      <Example title="Invalid Placement">
+        <Box background="bgAlternate">
+          <InputIconButton active accessibilityLabel="Add" name="add" variant="foregroundMuted" />
+        </Box>
+      </Example>
+
+      <Example title="Set Color And Inherit Focus Style">
+        <TextInput
+          label="Search"
+          start={<InputIconButton accessibilityLabel="Search" name="search" variant="secondary" />}
+          variant="foregroundMuted"
+        />
+      </Example>
+    </ExampleScreen>
   );
 };

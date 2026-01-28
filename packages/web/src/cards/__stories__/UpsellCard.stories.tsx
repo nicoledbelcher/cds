@@ -1,6 +1,7 @@
 import React from 'react';
 import { coinbaseOneLogo } from '@coinbase/cds-common/internal/data/assets';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { Button } from '../../buttons';
 import { HStack, VStack } from '../../layout';
 import { Text } from '../../typography/Text';
@@ -26,77 +27,87 @@ const compactProps = {
   onClick: onClickConsole,
 } satisfies UpsellCardProps;
 
-export const Default = (): JSX.Element => <UpsellCard {...exampleProps} />;
-
-export const Compact = (): JSX.Element => <UpsellCard {...compactProps} />;
-
-export const Vertical = (): JSX.Element => (
-  <VStack gap={1.5}>
-    <UpsellCard {...exampleProps} />
-    <UpsellCard {...exampleProps} />
-  </VStack>
-);
-
-export const Horizontal = (): JSX.Element => (
-  <HStack gap={1.5}>
-    <UpsellCard {...exampleProps} />
-    <UpsellCard {...exampleProps} />
-  </HStack>
-);
-
-export const LongText = (): JSX.Element => (
-  <UpsellCard
-    {...exampleProps}
-    action="This is a really long action"
-    description="This is a really long description for the UpsellCard component"
-    title="This is a really long title."
-  />
-);
-
-export const CustomTextNodes = (): JSX.Element => {
+export const All = () => {
   return (
-    <UpsellCard
-      {...exampleProps}
-      action={
-        <Button
-          compact
-          flush="start"
-          numberOfLines={1}
-          onClick={onClickConsole}
-          variant="secondary"
-        >
-          Sign up
-        </Button>
-      }
-      dangerouslySetBackground="rgb(var(--blue80))"
-      description={
-        <Text as="p" color="fgInverse" display="block" font="label2">
-          Start your free 30 day trial of Coinbase One
-        </Text>
-      }
-      title={
-        <Text as="h3" color="fgInverse" display="block" font="headline">
-          Coinbase One
-        </Text>
-      }
-    />
+    <ExampleScreen>
+      <Example title="Default">
+        <UpsellCard {...exampleProps} />
+      </Example>
+
+      <Example title="Compact">
+        <UpsellCard {...compactProps} />
+      </Example>
+
+      <Example title="Vertical">
+        <VStack gap={1.5}>
+          <UpsellCard {...exampleProps} />
+          <UpsellCard {...exampleProps} />
+        </VStack>
+      </Example>
+
+      <Example title="Horizontal">
+        <HStack gap={1.5}>
+          <UpsellCard {...exampleProps} />
+          <UpsellCard {...exampleProps} />
+        </HStack>
+      </Example>
+
+      <Example title="Long Text">
+        <UpsellCard
+          {...exampleProps}
+          action="This is a really long action"
+          description="This is a really long description for the UpsellCard component"
+          title="This is a really long title."
+        />
+      </Example>
+
+      <Example title="Custom Text Nodes">
+        <UpsellCard
+          {...exampleProps}
+          action={
+            <Button
+              compact
+              flush="start"
+              numberOfLines={1}
+              onClick={onClickConsole}
+              variant="secondary"
+            >
+              Sign up
+            </Button>
+          }
+          dangerouslySetBackground="rgb(var(--blue80))"
+          description={
+            <Text as="p" color="fgInverse" display="block" font="label2">
+              Start your free 30 day trial of Coinbase One
+            </Text>
+          }
+          title={
+            <Text as="h3" color="fgInverse" display="block" font="headline">
+              Coinbase One
+            </Text>
+          }
+        />
+      </Example>
+
+      <Example title="Custom Background">
+        <UpsellCard {...exampleProps} dangerouslySetBackground="rgb(var(--yellow20))" />
+      </Example>
+
+      <Example title="Custom Width">
+        <UpsellCard {...exampleProps} width="100%" />
+      </Example>
+
+      <Example title="Carousel">
+        <HStack gap={2} overflow="scroll">
+          <UpsellCard {...exampleProps} />
+          <UpsellCard {...exampleProps} />
+          <UpsellCard {...exampleProps} />
+          <UpsellCard {...exampleProps} />
+        </HStack>
+      </Example>
+    </ExampleScreen>
   );
 };
-
-export const CustomBackground = (): JSX.Element => {
-  return <UpsellCard {...exampleProps} dangerouslySetBackground="rgb(var(--yellow20))" />;
-};
-
-export const CustomWidth = (): JSX.Element => <UpsellCard {...exampleProps} width="100%" />;
-
-export const Carousel = (): JSX.Element => (
-  <HStack gap={2} overflow="scroll">
-    <UpsellCard {...exampleProps} />
-    <UpsellCard {...exampleProps} />
-    <UpsellCard {...exampleProps} />
-    <UpsellCard {...exampleProps} />
-  </HStack>
-);
 
 export default {
   title: 'Components/Cards/UpsellCard',

@@ -1,6 +1,7 @@
 import React from 'react';
 import { loremIpsum } from '@coinbase/cds-common/internal/data/loremIpsum';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { Button } from '../../buttons';
 import { Box } from '../../layout/Box';
 import { VStack } from '../../layout/VStack';
@@ -40,399 +41,231 @@ const examplePropsWithMargin: ExampleProps = {
   children: shortMessage,
 };
 
-const styleProps: BannerProps[] = [
-  {
-    variant: 'warning',
-    title: 'Warning message',
-    startIcon: 'warning',
-    startIconActive: true,
-    children: shortMessage,
-    startIconAccessibilityLabel: 'Warning',
-    closeAccessibilityLabel: 'Close',
-  },
-  {
-    variant: 'informational',
-    title: 'Informative message',
-    startIcon: 'info',
-    startIconActive: true,
-    children: shortMessage,
-    startIconAccessibilityLabel: 'Information',
-    closeAccessibilityLabel: 'Close',
-  },
-  {
-    variant: 'promotional',
-    title: 'Promotional message',
-    startIcon: 'info',
-    startIconActive: true,
-    children: shortMessage,
-    startIconAccessibilityLabel: 'Information',
-    closeAccessibilityLabel: 'Close',
-  },
-  {
-    variant: 'error',
-    title: 'Error message',
-    startIcon: 'error',
-    startIconActive: true,
-    children: shortMessage,
-    startIconAccessibilityLabel: 'Error',
-    closeAccessibilityLabel: 'Close',
-  },
-];
-
-const Banners = ({ title, props }: { title: string; props: BannerProps }) => {
-  return (
-    <>
-      <Text as="h1" display="block" font="title1">
-        {title}
-      </Text>
-      <Banner {...props} />
-      <Text as="h1" display="block" font="title1">
-        {title} with wrapping Box
-      </Text>
-
-      <Box background="bgPositiveWash" height={300}>
-        <Banner {...props} />
-      </Box>
-      <Text as="h1" display="block" font="title1">
-        {title} with wrapping VStack
-      </Text>
-
-      <VStack background="bgPositiveWash" gap={2} height={300}>
-        <Banner {...props} />
-        <Banner {...props} />
-      </VStack>
-      <Text as="h1" display="block" font="title1">
-        {title} with wrapping HStack
-      </Text>
-
-      <Box background="bgPositiveWash" gap={2} height={300}>
-        <Banner {...props} />
-        <Banner {...props} />
-      </Box>
-      <Text as="h1" display="block" font="title1">
-        {title} with showDismiss
-      </Text>
-      <Banner {...props} showDismiss onClose={() => {}} title={`${title} with showDismiss`} />
-      <Text as="h1" display="block" font="title1">
-        {title} with showDismiss and wrapping Box
-      </Text>
-
-      <Box background="bgPositiveWash" height={300}>
-        <Banner {...props} showDismiss onClose={() => {}} title={`${title} with showDismiss`} />
-      </Box>
-      <Text as="h1" display="block" font="title1">
-        {title} with showDismiss and wrapping VStack
-      </Text>
-      <VStack background="bgPositiveWash" gap={2} height={300}>
-        <Banner {...props} showDismiss onClose={() => {}} title={`${title} with showDismiss`} />
-        <Banner {...props} showDismiss onClose={() => {}} title={`${title} with showDismiss`} />
-      </VStack>
-
-      <Text as="h1" display="block" font="title1">
-        {title} with showDismiss and wrapping HStack
-      </Text>
-      <Box background="bgPositiveWash" gap={2} height={300}>
-        <Banner {...props} showDismiss onClose={() => {}} title={`${title} with showDismiss`} />
-        <Banner {...props} showDismiss onClose={() => {}} title={`${title} with showDismiss`} />
-      </Box>
-
-      <Text as="h1" display="block" font="title1">
-        {title} with Action
-      </Text>
-      <Banner {...props} primaryAction={primaryAction} />
-      <Text as="h1" display="block" font="title1">
-        {title} with multiple Actions
-      </Text>
-      <Banner {...props} primaryAction={primaryAction} secondaryAction={secondaryAction} />
-      <Text as="h1" display="block" font="title1">
-        Primary Action is not a Link
-      </Text>
-      <Banner {...props} primaryAction={<Button compact>Primary Action</Button>} />
-      <Text as="h1" display="block" font="title1">
-        Secondary Action is not a Link
-      </Text>
-      <Banner {...props} secondaryAction={<Button compact>Secondary Action</Button>} />
-      <Text as="h1" display="block" font="title1">
-        {title} Long Text with Action
-      </Text>
-      <Banner
-        {...props}
-        primaryAction={primaryAction}
-        title={`${title} Long Text with Action. ${longMessage}`}
-      >
-        {longMessage}
-      </Banner>
-      <Text as="h1" display="block" font="title1">
-        {title} with Action and showDismiss
-      </Text>
-      <Banner
-        {...props}
-        showDismiss
-        onClose={() => {}}
-        primaryAction={primaryAction}
-        title={`${title} with Action and showDismiss`}
-      />
-      <Text as="h1" display="block" font="title1">
-        {title} Long Text and showDismiss
-      </Text>
-      <Banner
-        {...props}
-        showDismiss
-        onClose={() => {}}
-        title={`${title} Long Text and showDismiss. ${longMessage}`}
-      >
-        {longMessage}
-      </Banner>
-      <Text as="h1" display="block" font="title1">
-        {title} Long Text with Action and showDismiss
-      </Text>
-      <Banner
-        {...props}
-        showDismiss
-        onClose={() => {}}
-        primaryAction={primaryAction}
-        secondaryAction={secondaryAction}
-        title={`${title} Long Text with Action and showDismiss. ${longMessage}`}
-      >
-        {longMessage}
-      </Banner>
-    </>
-  );
-};
+const borderRadiusValues = [0, 200, 400] as const;
 
 export const All = () => {
   return (
-    <VStack gap={2}>
-      {styleProps.map((props) => (
-        <VStack key={`styles-${props.variant}`} gap={2}>
-          <Banners props={props} title={`Contextual ${props.variant}`} />
-          <Banners props={{ ...props, styleVariant: 'inline' }} title={`Inline ${props.variant}`} />
-          <Banners
-            props={{ ...props, label, styleVariant: 'global' }}
-            title={`Global ${props.variant}`}
+    <ExampleScreen>
+      <Example title="Global">
+        <Banner
+          showDismiss
+          startIconActive
+          closeAccessibilityLabel="Close"
+          primaryAction={primaryAction}
+          secondaryAction={secondaryAction}
+          startIcon="error"
+          startIconAccessibilityLabel="Error"
+          styleVariant="global"
+          title={`Global ${shortMessage}`}
+          variant="error"
+        >
+          <Text as="p" display="block" font="label2">
+            {shortMessage} <Link href="https://www.coinbase.com">Learn more</Link>
+          </Text>
+        </Banner>
+      </Example>
+
+      <Example title="Inline">
+        <Banner
+          showDismiss
+          startIconActive
+          closeAccessibilityLabel="Close"
+          primaryAction={primaryAction}
+          secondaryAction={secondaryAction}
+          startIcon="warning"
+          startIconAccessibilityLabel="Warning"
+          styleVariant="inline"
+          title={`Inline ${shortMessage}`}
+          variant="warning"
+        >
+          <Link font="label2" href="https://www.coinbase.com">
+            Learn more
+          </Link>
+        </Banner>
+      </Example>
+
+      <Example title="Contextual">
+        <Banner
+          showDismiss
+          startIconActive
+          closeAccessibilityLabel="Close"
+          label={label}
+          primaryAction={primaryAction}
+          secondaryAction={secondaryAction}
+          startIcon="info"
+          startIconAccessibilityLabel="Information"
+          variant="promotional"
+        >
+          <Text as="p" display="block" font="label2">
+            {shortMessage} <Link href="https://www.coinbase.com">Learn more</Link>
+          </Text>
+        </Banner>
+      </Example>
+
+      <Example title="Variants">
+        <VStack gap={2}>
+          <Banner
+            startIconActive
+            closeAccessibilityLabel="Close"
+            startIcon="warning"
+            startIconAccessibilityLabel="Warning"
+            title="Warning message"
+            variant="warning"
+          >
+            {shortMessage}
+          </Banner>
+          <Banner
+            startIconActive
+            closeAccessibilityLabel="Close"
+            startIcon="info"
+            startIconAccessibilityLabel="Information"
+            title="Informative message"
+            variant="informational"
+          >
+            {shortMessage}
+          </Banner>
+          <Banner
+            startIconActive
+            closeAccessibilityLabel="Close"
+            startIcon="info"
+            startIconAccessibilityLabel="Information"
+            title="Promotional message"
+            variant="promotional"
+          >
+            {shortMessage}
+          </Banner>
+          <Banner
+            startIconActive
+            closeAccessibilityLabel="Close"
+            startIcon="error"
+            startIconAccessibilityLabel="Error"
+            title="Error message"
+            variant="error"
+          >
+            {shortMessage}
+          </Banner>
+        </VStack>
+      </Example>
+
+      <Example title="With Actions">
+        <VStack gap={2}>
+          <Banner
+            {...exampleProps}
+            primaryAction={primaryAction}
+            title="With Primary Action"
+            variant="informational"
+          />
+          <Banner
+            {...exampleProps}
+            primaryAction={primaryAction}
+            secondaryAction={secondaryAction}
+            title="With Multiple Actions"
+            variant="error"
+          />
+          <Banner
+            {...exampleProps}
+            primaryAction={<Button compact>Primary Action</Button>}
+            title="Button as Primary Action"
+            variant="warning"
           />
         </VStack>
-      ))}
-    </VStack>
-  );
-};
+      </Example>
 
-export const BannerWithLink = () => {
-  return (
-    <VStack gap={2}>
-      <Text as="h1" display="block" font="title1">
-        Global
-      </Text>
-      <Banner
-        showDismiss
-        startIconActive
-        closeAccessibilityLabel="Close"
-        primaryAction={primaryAction}
-        secondaryAction={secondaryAction}
-        startIcon="error"
-        startIconAccessibilityLabel="Error"
-        styleVariant="global"
-        title={`Global ${shortMessage}`}
-        variant="error"
-      >
-        <Text as="p" display="block" font="label2">
-          {shortMessage} <Link href="https://www.coinbase.com">Learn more</Link>
-        </Text>
-      </Banner>
-      <Text as="h1" display="block" font="title1">
-        Inline
-      </Text>
-      <Banner
-        showDismiss
-        startIconActive
-        closeAccessibilityLabel="Close"
-        primaryAction={primaryAction}
-        secondaryAction={secondaryAction}
-        startIcon="warning"
-        startIconAccessibilityLabel="Warning"
-        styleVariant="inline"
-        title={`Inline ${shortMessage}`}
-        variant="warning"
-      >
-        <Link font="label2" href="https://www.coinbase.com">
-          Learn more
-        </Link>
-      </Banner>
-      <Text as="h1" display="block" font="title1">
-        Contextual
-      </Text>
-      <Banner
-        showDismiss
-        startIconActive
-        closeAccessibilityLabel="Close"
-        label={label}
-        primaryAction={primaryAction}
-        secondaryAction={secondaryAction}
-        startIcon="info"
-        startIconAccessibilityLabel="Information"
-        variant="promotional"
-      >
-        <Text as="p" display="block" font="label2">
-          {shortMessage} <Link href="https://www.coinbase.com">Learn more</Link>
-        </Text>
-      </Banner>
-    </VStack>
-  );
-};
-
-export const CustomMargin = () => {
-  return (
-    <VStack gap={2} marginX={-0.5}>
-      <Text as="h1" display="block" font="title1">
-        Global
-      </Text>
-      <Banner
-        {...examplePropsWithMargin}
-        showDismiss
-        startIconAccessibilityLabel="Information"
-        styleVariant="global"
-        title="Global informational Message"
-        variant="informational"
-      />
-      <Banner
-        {...examplePropsWithMargin}
-        showDismiss
-        startIconAccessibilityLabel="Information"
-        styleVariant="global"
-        title="Global promotional Message"
-        variant="promotional"
-      />
-      <Banner
-        {...examplePropsWithMargin}
-        startIconActive
-        startIcon="warning"
-        startIconAccessibilityLabel="Warning"
-        styleVariant="global"
-        variant="warning"
-      />
-      <Banner {...examplePropsWithMargin} styleVariant="global" variant="error" />
-      <Text as="h1" display="block" font="title1">
-        Inline
-      </Text>
-      <Banner
-        {...examplePropsWithMargin}
-        showDismiss
-        startIconAccessibilityLabel="Information"
-        styleVariant="inline"
-        title="Inline informational Message"
-        variant="informational"
-      />
-      <Banner
-        {...examplePropsWithMargin}
-        showDismiss
-        startIconAccessibilityLabel="Information"
-        styleVariant="inline"
-        title="Inline promotional Message"
-        variant="promotional"
-      />
-      <Banner
-        {...examplePropsWithMargin}
-        startIconActive
-        startIcon="warning"
-        startIconAccessibilityLabel="Warning"
-        styleVariant="inline"
-        variant="warning"
-      />
-      <Banner {...examplePropsWithMargin} styleVariant="inline" variant="error" />
-    </VStack>
-  );
-};
-
-const borderRadiusValues = [0, 200, 400] as const;
-
-export const BorderRadiusExamples = () => {
-  return (
-    <VStack gap={2}>
-      <Text as="h1" display="block" font="title1">
-        Contextual
-      </Text>
-      <VStack gap={2}>
-        {borderRadiusValues.map((radius) => (
+      <Example title="With Dismiss">
+        <VStack gap={2}>
           <Banner
-            key={`contextual-${radius}`}
             {...exampleProps}
-            borderRadius={radius}
-            title={`Contextual radius ${radius}`}
+            showDismiss
+            onClose={() => {}}
+            title="With Dismiss Button"
             variant="informational"
-          >
-            {shortMessage}
-          </Banner>
-        ))}
-      </VStack>
-      <Text as="h1" display="block" font="title1">
-        Inline
-      </Text>
-      <VStack gap={2}>
-        {borderRadiusValues.map((radius) => (
+          />
           <Banner
-            key={`inline-${radius}`}
             {...exampleProps}
-            borderRadius={radius}
+            showDismiss
+            onClose={() => {}}
+            primaryAction={primaryAction}
+            title="With Dismiss and Actions"
+            variant="error"
+          />
+        </VStack>
+      </Example>
+
+      <Example title="Long Content">
+        <Banner
+          {...exampleProps}
+          showDismiss
+          onClose={() => {}}
+          primaryAction={primaryAction}
+          secondaryAction={secondaryAction}
+          title={`Long Text ${longMessage.slice(0, 100)}`}
+          variant="warning"
+        >
+          {longMessage.slice(0, 200)}
+        </Banner>
+      </Example>
+
+      <Example title="Custom Margin">
+        <VStack gap={2} marginX={-0.5}>
+          <Banner
+            {...examplePropsWithMargin}
+            showDismiss
+            startIconAccessibilityLabel="Information"
+            styleVariant="global"
+            title="Global with margin"
+            variant="informational"
+          />
+          <Banner
+            {...examplePropsWithMargin}
+            showDismiss
+            startIconAccessibilityLabel="Information"
             styleVariant="inline"
-            title={`Inline radius ${radius}`}
-            variant="informational"
-          >
-            {shortMessage}
-          </Banner>
-        ))}
-      </VStack>
-    </VStack>
-  );
-};
+            title="Inline with margin"
+            variant="promotional"
+          />
+        </VStack>
+      </Example>
 
-export const CustomAlignment = () => {
-  return (
-    <VStack gap={2}>
-      <Text as="h1" display="block" font="title1">
-        Vertical Align
-      </Text>
-      <Banner
-        {...exampleProps}
-        alignItems="center"
-        startIconAccessibilityLabel="Information"
-        variant="informational"
-      />
-      <Banner
-        {...exampleProps}
-        showDismiss
-        alignItems="center"
-        startIconAccessibilityLabel="Information"
-        title="Promotional Message"
-        variant="promotional"
-      />
-      <Banner
-        {...exampleProps}
-        alignItems={{
-          base: 'flex-start',
-          tablet: 'center',
-          desktop: 'center',
-        }}
-        primaryAction={primaryAction}
-        secondaryAction={secondaryAction}
-        variant="error"
-      />
-      <Banner
-        {...exampleProps}
-        showDismiss
-        startIconActive
-        alignItems={{
-          base: 'flex-start',
-          tablet: 'center',
-          desktop: 'center',
-        }}
-        primaryAction={primaryAction}
-        secondaryAction={secondaryAction}
-        startIcon="warning"
-        startIconAccessibilityLabel="Warning"
-        title="Warning Message"
-        variant="warning"
-      />
-    </VStack>
+      <Example title="Border Radius">
+        <VStack gap={2}>
+          {borderRadiusValues.map((radius) => (
+            <Banner
+              key={`contextual-${radius}`}
+              {...exampleProps}
+              borderRadius={radius}
+              title={`Radius ${radius}`}
+              variant="informational"
+            >
+              {shortMessage}
+            </Banner>
+          ))}
+        </VStack>
+      </Example>
+
+      <Example title="Custom Alignment">
+        <VStack gap={2}>
+          <Banner
+            {...exampleProps}
+            alignItems="center"
+            startIconAccessibilityLabel="Information"
+            title="Center Aligned"
+            variant="informational"
+          />
+          <Banner
+            {...exampleProps}
+            alignItems={{
+              base: 'flex-start',
+              tablet: 'center',
+              desktop: 'center',
+            }}
+            primaryAction={primaryAction}
+            secondaryAction={secondaryAction}
+            title="Responsive Alignment"
+            variant="error"
+          />
+        </VStack>
+      </Example>
+    </ExampleScreen>
   );
 };
 

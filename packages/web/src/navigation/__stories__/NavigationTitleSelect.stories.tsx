@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { VStack } from '../../layout';
 import { Text } from '../../typography/Text';
 import { NavigationTitleSelect } from '../NavigationTitleSelect';
@@ -36,9 +37,8 @@ const complexOptions = [
   { label: <Text font="headline">👤 Profile</Text>, id: 'profile' },
 ];
 
-export const Default = () => {
+const DefaultExample = () => {
   const [value, setValue] = useState('dashboard');
-
   return (
     <NavigationTitleSelect
       accessibilityLabel="Select page"
@@ -49,9 +49,8 @@ export const Default = () => {
   );
 };
 
-export const WithManyOptions = () => {
+const ManyOptionsExample = () => {
   const [value, setValue] = useState('dashboard');
-
   return (
     <NavigationTitleSelect
       accessibilityLabel="Select page from many options"
@@ -62,9 +61,8 @@ export const WithManyOptions = () => {
   );
 };
 
-export const WithComplexLabels = () => {
+const ComplexLabelsExample = () => {
   const [value, setValue] = useState('home');
-
   return (
     <NavigationTitleSelect
       accessibilityLabel="Select page with icons"
@@ -75,11 +73,10 @@ export const WithComplexLabels = () => {
   );
 };
 
-export const WithCustomColor = () => {
+const CustomColorExample = () => {
   const [value, setValue] = useState('dashboard');
-
   return (
-    <VStack gap={3}>
+    <ExampleScreen>
       <NavigationTitleSelect
         accessibilityLabel="Select page with primary color"
         color="fgPrimary"
@@ -94,11 +91,11 @@ export const WithCustomColor = () => {
         options={defaultOptions}
         value={value}
       />
-    </VStack>
+    </ExampleScreen>
   );
 };
 
-export const Interactive = () => {
+const InteractiveExample = () => {
   const [value, setValue] = useState('dashboard');
   const [selectedOption, setSelectedOption] = useState(defaultOptions[0]);
 
@@ -111,7 +108,7 @@ export const Interactive = () => {
   };
 
   return (
-    <VStack gap={4}>
+    <ExampleScreen>
       <NavigationTitleSelect
         accessibilityLabel="Interactive navigation title"
         onChange={handleChange}
@@ -132,6 +129,32 @@ export const Interactive = () => {
           {selectedOption.label} (ID: {selectedOption.id})
         </Text>
       </VStack>
-    </VStack>
+    </ExampleScreen>
+  );
+};
+
+export const All = () => {
+  return (
+    <ExampleScreen>
+      <Example title="Default">
+        <DefaultExample />
+      </Example>
+
+      <Example title="With Many Options">
+        <ManyOptionsExample />
+      </Example>
+
+      <Example title="With Complex Labels">
+        <ComplexLabelsExample />
+      </Example>
+
+      <Example title="With Custom Color">
+        <CustomColorExample />
+      </Example>
+
+      <Example title="Interactive">
+        <InteractiveExample />
+      </Example>
+    </ExampleScreen>
   );
 };

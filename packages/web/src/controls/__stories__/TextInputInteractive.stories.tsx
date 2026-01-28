@@ -3,7 +3,7 @@ import { expect } from '@storybook/jest';
 import type { ComponentStoryObj } from '@storybook/react';
 import { userEvent, waitFor, within } from '@storybook/testing-library';
 
-import { pauseStory } from '../../utils/storybook';
+import { pauseStory } from '../../__stories__/storybook';
 
 import { AddressForm } from './AddressForm';
 

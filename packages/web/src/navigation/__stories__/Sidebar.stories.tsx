@@ -7,6 +7,7 @@ import { Icon, LogoMark, SubBrandLogoMark } from '../../icons';
 import { Box, HStack, Spacer, VStack } from '../../layout';
 import { PortalProvider } from '../../overlays/PortalProvider';
 import { Pressable } from '../../system';
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { Text } from '../../typography/Text';
 import { Sidebar, SidebarItem, SidebarMoreMenu } from '..';
 
@@ -32,7 +33,7 @@ const items = [
   { title: 'DeFi', icon: 'defi' as const },
 ];
 
-export const Default = () => {
+const Default = () => {
   return (
     <>
       <Text as="h1" display="block" font="title1">
@@ -44,7 +45,7 @@ export const Default = () => {
   );
 };
 
-export const Condensed = () => {
+const Condensed = () => {
   return (
     <>
       <Text as="h1" display="block" font="title1">
@@ -56,7 +57,7 @@ export const Condensed = () => {
   );
 };
 
-export const Custom = () => {
+const Custom = () => {
   return (
     <>
       <Text as="h1" display="block" font="title1">
@@ -68,7 +69,7 @@ export const Custom = () => {
   );
 };
 
-export const ControlledCollapse = () => {
+const ControlledCollapse = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [moreMenuValue, setMoreMenuValue] = useState<string | undefined>(undefined);
   const [collapsed, setCollapsed] = useState(true);
@@ -134,7 +135,7 @@ export const ControlledCollapse = () => {
   );
 };
 
-export const AutoCollapse = () => {
+const AutoCollapse = () => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
@@ -162,7 +163,7 @@ export const AutoCollapse = () => {
   );
 };
 
-export const CustomLogo = () => {
+const CustomLogo = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -204,7 +205,7 @@ export const CustomLogo = () => {
   );
 };
 
-export const RenderEnd = () => {
+const RenderEnd = () => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   const renderEnd = (isCollapsed: boolean) => (
@@ -255,7 +256,7 @@ export const RenderEnd = () => {
   );
 };
 
-export const CustomStyles = () => {
+const CustomStyles = () => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
@@ -304,7 +305,7 @@ export const CustomStyles = () => {
   );
 };
 
-export const ApplicationShell = () => {
+const ApplicationShell = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [moreMenuValue, setMoreMenuValue] = useState<string | undefined>(undefined);
   const navItems = items.slice(0, 5);
@@ -407,7 +408,7 @@ export const ApplicationShell = () => {
   );
 };
 
-export const CondensedTradingInterface = () => {
+const CondensedTradingInterface = () => {
   const tradingItems = [
     { title: 'Spot', icon: 'chartCandles' as const },
     { title: 'Futures', icon: 'chartBar' as const },
@@ -474,7 +475,7 @@ const customEndCss = css`
   padding-top: var(--spacing-6);
 `;
 
-export const CustomClassNames = () => {
+const CustomClassNames = () => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
@@ -520,3 +521,51 @@ export const CustomClassNames = () => {
     </PortalProvider>
   );
 };
+
+export const All = () => (
+  <VStack gap={3}>
+    <Example title="Default">
+      <Default />
+    </Example>
+
+    <Example title="Condensed">
+      <Condensed />
+    </Example>
+
+    <Example title="Custom">
+      <Custom />
+    </Example>
+
+    <Example title="Controlled Collapse">
+      <ControlledCollapse />
+    </Example>
+
+    <Example title="Auto Collapse">
+      <AutoCollapse />
+    </Example>
+
+    <Example title="Custom Logo">
+      <CustomLogo />
+    </Example>
+
+    <Example title="Render End">
+      <RenderEnd />
+    </Example>
+
+    <Example title="Custom Styles">
+      <CustomStyles />
+    </Example>
+
+    <Example title="Application Shell">
+      <ApplicationShell />
+    </Example>
+
+    <Example title="Condensed Trading Interface">
+      <CondensedTradingInterface />
+    </Example>
+
+    <Example title="Custom Class Names">
+      <CustomClassNames />
+    </Example>
+  </VStack>
+);

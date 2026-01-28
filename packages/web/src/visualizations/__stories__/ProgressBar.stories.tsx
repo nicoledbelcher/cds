@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { HStack, VStack } from '../../layout';
 import { Text } from '../../typography/Text';
 import { ProgressBar } from '../ProgressBar';
@@ -12,7 +13,7 @@ export default {
   title: 'Components/ProgressBar',
 };
 
-export const Default = () => {
+const Default = () => {
   return (
     <ProgressContainerWithButtons>
       {({ calculateProgress }) => (
@@ -24,9 +25,7 @@ export const Default = () => {
     </ProgressContainerWithButtons>
   );
 };
-Default.parameters = { percy: { enableJavaScript: true } };
-
-export const Thin = () => {
+const Thin = () => {
   return (
     <ProgressContainerWithButtons>
       {({ calculateProgress }) => (
@@ -38,9 +37,7 @@ export const Thin = () => {
     </ProgressContainerWithButtons>
   );
 };
-Thin.parameters = { percy: { enableJavaScript: true } };
-
-export const Semiheavy = () => {
+const Semiheavy = () => {
   return (
     <ProgressContainerWithButtons>
       {({ calculateProgress }) => (
@@ -52,9 +49,7 @@ export const Semiheavy = () => {
     </ProgressContainerWithButtons>
   );
 };
-Semiheavy.parameters = { percy: { enableJavaScript: true } };
-
-export const Heavy = () => {
+const Heavy = () => {
   return (
     <ProgressContainerWithButtons>
       {({ calculateProgress }) => (
@@ -66,9 +61,7 @@ export const Heavy = () => {
     </ProgressContainerWithButtons>
   );
 };
-Heavy.parameters = { percy: { enableJavaScript: true } };
-
-export const LabelAbove = () => {
+const LabelAbove = () => {
   return (
     <ProgressContainerWithButtons>
       {({ calculateProgress }) => (
@@ -92,9 +85,7 @@ export const LabelAbove = () => {
     </ProgressContainerWithButtons>
   );
 };
-LabelAbove.parameters = { percy: { enableJavaScript: true } };
-
-export const LabelBelow = () => {
+const LabelBelow = () => {
   return (
     <ProgressContainerWithButtons>
       {({ calculateProgress }) => (
@@ -118,11 +109,9 @@ export const LabelBelow = () => {
     </ProgressContainerWithButtons>
   );
 };
-LabelBelow.parameters = { percy: { enableJavaScript: true } };
-
-export const LabelAtBoundsBelow = () => {
+const LabelAtBoundsBelow = () => {
   return (
-    <VStack gap={4}>
+    <ExampleScreen>
       <ProgressContainerWithButtons>
         {({ calculateProgress }) => (
           <VStack gap={2}>
@@ -164,12 +153,10 @@ export const LabelAtBoundsBelow = () => {
           </HStack>
         )}
       </ProgressContainerWithButtons>
-    </VStack>
+    </ExampleScreen>
   );
 };
-LabelAtBoundsBelow.parameters = { percy: { enableJavaScript: true } };
-
-export const LabelBeside = () => {
+const LabelBeside = () => {
   return (
     <ProgressContainerWithButtons>
       {({ calculateProgress }) => (
@@ -192,11 +179,9 @@ export const LabelBeside = () => {
     </ProgressContainerWithButtons>
   );
 };
-LabelBeside.parameters = { percy: { enableJavaScript: true } };
-
-export const Disabled = () => {
+const Disabled = () => {
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <ProgressBarWithFixedLabels disabled labelPlacement="beside" startLabel={50}>
         <ProgressBar disabled progress={0.5} />
       </ProgressBarWithFixedLabels>
@@ -212,36 +197,21 @@ export const Disabled = () => {
       <ProgressBarWithFloatLabel disabled label={70} progress={0.7}>
         <ProgressBar disabled progress={0.7} />
       </ProgressBarWithFloatLabel>
-    </VStack>
+    </ExampleScreen>
   );
 };
-Disabled.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      /**
-       * Color contrast ratio doesn't need to meet 4.5:1, as the element is disabled
-       * @link https://dequeuniversity.com/rules/axe/4.3/color-contrast
-       */
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const Colors = () => {
+const Colors = () => {
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <ProgressBar color="bgPositive" progress={0.5} />
       <ProgressBar color="bgNegative" progress={0.5} />
       <ProgressBar color="bgPrimary" progress={0.5} />
       <ProgressBar color="bgWarning" progress={0.5} />
       <ProgressBar color="fg" progress={0.5} />
       <ProgressBar disabled color="fg" progress={0.5} />
-    </VStack>
+    </ExampleScreen>
   );
 };
-Colors.parameters = { percy: { enableJavaScript: true } };
-
 const renderStartLabelNum = (num: number) => {
   return <Text font="title3">${num.toLocaleString()}</Text>;
 };
@@ -258,7 +228,7 @@ const renderCustomStringLabel: (num: number) => string = (num: number) => {
   return `$${num.toLocaleString()}`;
 };
 
-export const CustomLabels = () => {
+const CustomLabels = () => {
   return (
     <ProgressContainerWithButtons hideIncrease>
       {() => (
@@ -283,7 +253,7 @@ export const CustomLabels = () => {
   );
 };
 
-export const CustomStringLabel = () => {
+const CustomStringLabel = () => {
   return (
     <ProgressContainerWithButtons hideIncrease>
       {() => (
@@ -308,9 +278,7 @@ export const CustomStringLabel = () => {
     </ProgressContainerWithButtons>
   );
 };
-CustomStringLabel.parameters = { percy: { enableJavaScript: true } };
-
-export const AnimationCallbacks = () => {
+const AnimationCallbacks = () => {
   const [animationStatus, setAnimationStatus] = React.useState<string>('Ready');
 
   const handleAnimationStart = useCallback(() => {
@@ -322,7 +290,7 @@ export const AnimationCallbacks = () => {
   }, []);
 
   return (
-    <VStack gap={4}>
+    <ExampleScreen>
       <Text as="p" display="block" font="label1">
         Animation Status: {animationStatus}
       </Text>
@@ -343,12 +311,10 @@ export const AnimationCallbacks = () => {
           </VStack>
         )}
       </ProgressContainerWithButtons>
-    </VStack>
+    </ExampleScreen>
   );
 };
-AnimationCallbacks.parameters = { percy: { enableJavaScript: true } };
-
-export const DisableAnimateOnMount = () => {
+const DisableAnimateOnMount = () => {
   return (
     <ProgressContainerWithButtons>
       {({ calculateProgress }) => (
@@ -384,9 +350,7 @@ export const DisableAnimateOnMount = () => {
     </ProgressContainerWithButtons>
   );
 };
-DisableAnimateOnMount.parameters = { percy: { enableJavaScript: true } };
-
-export const CustomStyles = () => {
+const CustomStyles = () => {
   return (
     <ProgressContainerWithButtons>
       {({ calculateProgress }) => (
@@ -412,9 +376,7 @@ export const CustomStyles = () => {
     </ProgressContainerWithButtons>
   );
 };
-CustomStyles.parameters = { percy: { enableJavaScript: true } };
-
-export const CustomStylesWithLabels = () => {
+const CustomStylesWithLabels = () => {
   return (
     <ProgressContainerWithButtons>
       {({ calculateProgress }) => (
@@ -461,4 +423,80 @@ export const CustomStylesWithLabels = () => {
     </ProgressContainerWithButtons>
   );
 };
-CustomStylesWithLabels.parameters = { percy: { enableJavaScript: true } };
+
+export const All = () => (
+  <VStack gap={3}>
+    <Example title="Default">
+      <Default />
+    </Example>
+
+    <Example title="Thin">
+      <Thin />
+    </Example>
+
+    <Example title="Semiheavy">
+      <Semiheavy />
+    </Example>
+
+    <Example title="Heavy">
+      <Heavy />
+    </Example>
+
+    <Example title="Label Above">
+      <LabelAbove />
+    </Example>
+
+    <Example title="Label Below">
+      <LabelBelow />
+    </Example>
+
+    <Example title="Label At Bounds Below">
+      <LabelAtBoundsBelow />
+    </Example>
+
+    <Example title="Label Beside">
+      <LabelBeside />
+    </Example>
+
+    <Example title="Disabled">
+      <Disabled />
+    </Example>
+
+    <Example title="Colors">
+      <Colors />
+    </Example>
+
+    <Example title="Custom Labels">
+      <CustomLabels />
+    </Example>
+
+    <Example title="Custom String Label">
+      <CustomStringLabel />
+    </Example>
+
+    <Example title="Animation Callbacks">
+      <AnimationCallbacks />
+    </Example>
+
+    <Example title="Disable Animate On Mount">
+      <DisableAnimateOnMount />
+    </Example>
+
+    <Example title="Custom Styles">
+      <CustomStyles />
+    </Example>
+
+    <Example title="Custom Styles With Labels">
+      <CustomStylesWithLabels />
+    </Example>
+  </VStack>
+);
+All.parameters = {
+  percy: { enableJavaScript: true },
+  a11y: {
+    config: {
+      // Color contrast ratio doesn't need to meet 4.5:1 for disabled elements
+      rules: [{ id: 'color-contrast', enabled: false }],
+    },
+  },
+};

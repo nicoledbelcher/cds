@@ -1,6 +1,7 @@
 import React from 'react';
 import { squareAssets } from '@coinbase/cds-common/internal/data/assets';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { Button } from '../../buttons/Button';
 import { HStack } from '../../layout/HStack';
 import { VStack } from '../../layout/VStack';
@@ -49,104 +50,110 @@ const compactMediaProps: NudgeCardProps = {
   media: <img alt="placeholder" src={squareAssets.human3} width={60} />,
 };
 
-export const Default = () => (
-  <VStack gap={2}>
-    <NudgeCard {...exampleProps} />
-    <NudgeCard {...exampleProps} onDismissPress={() => {}} />
-    <NudgeCard {...exampleProps} mediaPosition="left" />
-    <NudgeCard {...exampleProps} mediaPosition="left" onDismissPress={() => {}} />
-  </VStack>
-);
+export const All = () => {
+  return (
+    <ExampleScreen>
+      <Example title="Default">
+        <VStack gap={2}>
+          <NudgeCard {...exampleProps} />
+          <NudgeCard {...exampleProps} onDismissPress={() => {}} />
+          <NudgeCard {...exampleProps} mediaPosition="left" />
+          <NudgeCard {...exampleProps} mediaPosition="left" onDismissPress={() => {}} />
+        </VStack>
+      </Example>
 
-export const Compact = () => (
-  <VStack gap={2}>
-    <NudgeCard {...compactProps} />
-    <NudgeCard {...compactProps} onDismissPress={() => {}} />
-    <NudgeCard {...compactProps} mediaPosition="left" />{' '}
-    <NudgeCard {...compactProps} mediaPosition="left" onDismissPress={() => {}} />
-  </VStack>
-);
+      <Example title="Compact">
+        <VStack gap={2}>
+          <NudgeCard {...compactProps} />
+          <NudgeCard {...compactProps} onDismissPress={() => {}} />
+          <NudgeCard {...compactProps} mediaPosition="left" />{' '}
+          <NudgeCard {...compactProps} mediaPosition="left" onDismissPress={() => {}} />
+        </VStack>
+      </Example>
 
-export const CustomMedia = () => (
-  <VStack gap={2}>
-    <NudgeCard {...exampleMediaProps} />
-    <NudgeCard {...exampleMediaProps} onDismissPress={() => {}} />
-    <NudgeCard {...compactMediaProps} />
-    <NudgeCard {...compactMediaProps} onDismissPress={() => {}} />
-    <NudgeCard {...exampleMediaProps} mediaPosition="left" />
-    <NudgeCard {...exampleMediaProps} mediaPosition="left" onDismissPress={() => {}} />
-  </VStack>
-);
+      <Example title="Custom Media">
+        <VStack gap={2}>
+          <NudgeCard {...exampleMediaProps} />
+          <NudgeCard {...exampleMediaProps} onDismissPress={() => {}} />
+          <NudgeCard {...compactMediaProps} />
+          <NudgeCard {...compactMediaProps} onDismissPress={() => {}} />
+          <NudgeCard {...exampleMediaProps} mediaPosition="left" />
+          <NudgeCard {...exampleMediaProps} mediaPosition="left" onDismissPress={() => {}} />
+        </VStack>
+      </Example>
 
-export const LongText = () => (
-  <HStack gap={2}>
-    <NudgeCard {...longProps} />
-    <NudgeCard
-      description="I'll get truncated after one line"
-      numberOfLines={1}
-      pictogram="addCard"
-      title="I can be multiple lines long even if my description is not"
-    />
-  </HStack>
-);
+      <Example title="Long Text">
+        <HStack gap={2}>
+          <NudgeCard {...longProps} />
+          <NudgeCard
+            description="I'll get truncated after one line"
+            numberOfLines={1}
+            pictogram="addCard"
+            title="I can be multiple lines long even if my description is not"
+          />
+        </HStack>
+      </Example>
 
-export const VerticallyStacked = () => (
-  <VStack gap={2}>
-    <NudgeCard {...exampleProps} />
-    <NudgeCard {...exampleProps} />
-    <NudgeCard {...exampleProps} />
-  </VStack>
-);
+      <Example title="Vertically Stacked">
+        <VStack gap={2}>
+          <NudgeCard {...exampleProps} />
+          <NudgeCard {...exampleProps} />
+          <NudgeCard {...exampleProps} />
+        </VStack>
+      </Example>
 
-export const Carousel = () => (
-  <HStack gap={2} overflow="scroll">
-    <NudgeCard {...exampleProps} onDismissPress={() => {}} />
-    <NudgeCard {...longProps} numberOfLines={3} onDismissPress={() => {}} />
-    <NudgeCard {...exampleProps} />
-  </HStack>
-);
+      <Example title="Carousel">
+        <HStack gap={2} overflow="scroll">
+          <NudgeCard {...exampleProps} onDismissPress={() => {}} />
+          <NudgeCard {...longProps} numberOfLines={3} onDismissPress={() => {}} />
+          <NudgeCard {...exampleProps} />
+        </HStack>
+      </Example>
 
-export const CustomDimensions = () => (
-  <VStack gap={2}>
-    <NudgeCard
-      {...exampleProps}
-      height={150}
-      minHeight={150}
-      minWidth={250}
-      numberOfLines={1}
-      width={250}
-    />
-    <NudgeCard {...exampleProps} minWidth={380} numberOfLines={1} width={380} />
-    <NudgeCard {...exampleProps} maxHeight={150} maxWidth={250} numberOfLines={1} />
-    <NudgeCard {...exampleProps} width="100%" />
-    <NudgeCard {...exampleProps} mediaPosition="left" width="100%" />
-  </VStack>
-);
+      <Example title="Custom Dimensions">
+        <VStack gap={2}>
+          <NudgeCard
+            {...exampleProps}
+            height={150}
+            minHeight={150}
+            minWidth={250}
+            numberOfLines={1}
+            width={250}
+          />
+          <NudgeCard {...exampleProps} minWidth={380} numberOfLines={1} width={380} />
+          <NudgeCard {...exampleProps} maxHeight={150} maxWidth={250} numberOfLines={1} />
+          <NudgeCard {...exampleProps} width="100%" />
+          <NudgeCard {...exampleProps} mediaPosition="left" width="100%" />
+        </VStack>
+      </Example>
 
-export const CustomTextNodes = () => (
-  <NudgeCard
-    {...exampleProps}
-    action={
-      <HStack paddingBottom={1}>
-        <Button compact onClick={() => {}}>
-          Custom action
-        </Button>
-      </HStack>
-    }
-    description={
-      <Text as="p" color="fgMuted" display="block" font="body">
-        Custom description
-      </Text>
-    }
-    title={
-      <Text as="h3" color="fgPrimary" display="block" font="headline">
-        Custom title
-      </Text>
-    }
-  />
-);
+      <Example title="Custom Text Nodes">
+        <NudgeCard
+          {...exampleProps}
+          action={
+            <HStack paddingBottom={1}>
+              <Button compact onClick={() => {}}>
+                Custom action
+              </Button>
+            </HStack>
+          }
+          description={
+            <Text as="p" color="fgMuted" display="block" font="body">
+              Custom description
+            </Text>
+          }
+          title={
+            <Text as="h3" color="fgPrimary" display="block" font="headline">
+              Custom title
+            </Text>
+          }
+        />
+      </Example>
+    </ExampleScreen>
+  );
+};
 
 export default {
   title: 'Components/Cards/NudgeCard',
-  component: Default,
+  component: NudgeCard,
 };

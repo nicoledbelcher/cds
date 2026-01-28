@@ -1,6 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { loremIpsum } from '@coinbase/cds-common/internal/data/loremIpsum';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { Accordion, AccordionItem } from '../../accordion';
 import { Button, ButtonGroup, IconButton } from '../../buttons';
 import { FeedCard } from '../../cards/FeedCard';
@@ -14,21 +15,14 @@ import { FullscreenModalLayout } from '../modal/FullscreenModalLayout';
 export default {
   title: 'Components/FullscreenModalLayout',
   component: FullscreenModalLayout,
-  parameters: {
-    // Add parameters if needed, e.g., a11y
-  },
 };
 
-// Shared setup hook (copied from original)
 const useTriggerFocus = () => {
   const triggerRef = useRef<HTMLButtonElement>(null);
-
-  return {
-    triggerRef,
-  };
+  return { triggerRef };
 };
 
-export const BasicCenterPanel = () => {
+const BasicCenterPanelExample = () => {
   const [visible, setVisible] = useState(true);
   const setVisibleToTrue = useCallback(() => setVisible(true), []);
   const setVisibleToFalse = useCallback(() => setVisible(false), []);
@@ -74,9 +68,8 @@ export const BasicCenterPanel = () => {
     </>
   );
 };
-BasicCenterPanel.storyName = 'Basic (Center Panel)';
 
-export const TwoColumnLeftCenter = () => {
+const TwoColumnExample = () => {
   const [visible, setVisible] = useState(true);
   const setVisibleToTrue = useCallback(() => setVisible(true), []);
   const setVisibleToFalse = useCallback(() => setVisible(false), []);
@@ -129,9 +122,8 @@ export const TwoColumnLeftCenter = () => {
     </>
   );
 };
-TwoColumnLeftCenter.storyName = 'Two Column (Left + Center)';
 
-export const ThreeColumn = () => {
+const ThreeColumnExample = () => {
   const [visible, setVisible] = useState(true);
   const setVisibleToTrue = useCallback(() => setVisible(true), []);
   const setVisibleToFalse = useCallback(() => setVisible(false), []);
@@ -189,9 +181,8 @@ export const ThreeColumn = () => {
     </>
   );
 };
-ThreeColumn.storyName = 'Three Column (Left + Center + Right)';
 
-export const WithAllPanels = () => {
+const AllPanelsExample = () => {
   const [visible, setVisible] = useState(true);
   const setVisibleToTrue = useCallback(() => setVisible(true), []);
   const setVisibleToFalse = useCallback(() => setVisible(false), []);
@@ -261,9 +252,8 @@ export const WithAllPanels = () => {
     </>
   );
 };
-WithAllPanels.storyName = 'All Panels';
 
-export const Example = () => {
+const FullExample = () => {
   const [visible, setVisible] = useState(true);
   const setVisibleToTrue = useCallback(() => setVisible(true), []);
   const setVisibleToFalse = useCallback(() => setVisible(false), []);
@@ -274,10 +264,7 @@ export const Example = () => {
       author="Earn crypto"
       avatar="https://images.ctfassets.net/q5ulk4bp65r7/3rv8jr1B1Z1dZ2EhHqo7dp/e74ddbf1cd4836b83d34fe5cec351d78/Alt-Coin.png?w=768&fm=png"
       description="Amp is an Ethereum token that can be used as collateral to provide instant settlement assurance any time value is transferred."
-      headerAction={{
-        name: 'more',
-        variant: 'foregroundMuted',
-      }}
+      headerAction={{ name: 'more', variant: 'foregroundMuted' }}
       image="https://images.ctfassets.net/q5ulk4bp65r7/3rv8jr1B1Z1dZ2EhHqo7dp/e74ddbf1cd4836b83d34fe5cec351d78/Alt-Coin.png?w=768&fm=png"
       mediaPlacement="above"
       metadata="Dec 18"
@@ -380,20 +367,10 @@ export const Example = () => {
       </HStack>
       <HStack borderedTop justifyContent="flex-end" padding={2}>
         <ButtonGroup>
-          <Button
-            onClick={() => {
-              alert('Cancel clicked');
-            }}
-            variant="secondary"
-          >
+          <Button onClick={() => alert('Cancel clicked')} variant="secondary">
             Cancel
           </Button>
-          <Button
-            onClick={() => {
-              alert('OK clicked');
-            }}
-            variant="primary"
-          >
+          <Button onClick={() => alert('OK clicked')} variant="primary">
             OK
           </Button>
         </ButtonGroup>
@@ -415,4 +392,29 @@ export const Example = () => {
     </>
   );
 };
-Example.storyName = 'Example';
+
+export const All = () => {
+  return (
+    <ExampleScreen>
+      <Example title="Basic (Center Panel)">
+        <BasicCenterPanelExample />
+      </Example>
+
+      <Example title="Two Column (Left + Center)">
+        <TwoColumnExample />
+      </Example>
+
+      <Example title="Three Column (Left + Center + Right)">
+        <ThreeColumnExample />
+      </Example>
+
+      <Example title="All Panels">
+        <AllPanelsExample />
+      </Example>
+
+      <Example title="Full Example">
+        <FullExample />
+      </Example>
+    </ExampleScreen>
+  );
+};

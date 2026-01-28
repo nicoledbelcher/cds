@@ -5,8 +5,8 @@ import { dataCards } from '@coinbase/cds-common/internal/data/dataCards';
 import { featureEntryCards } from '@coinbase/cds-common/internal/data/featureEntryCards';
 import { feedImages } from '@coinbase/cds-common/internal/data/feedImages';
 import { loremIpsum } from '@coinbase/cds-common/internal/data/loremIpsum';
-import { baseConfig, storyBuilder } from '@coinbase/cds-common/internal/utils/storyBuilder';
 
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { Button } from '../../buttons';
 import { Box, VStack } from '../../layout';
 import { LoremIpsum } from '../../layout/__stories__/LoremIpsum';
@@ -20,46 +20,6 @@ import type { FeedCardProps } from '../FeedCard';
 import { FeedCard as FeedCardComponent } from '../FeedCard';
 import type { LikeButtonBaseProps } from '../LikeButton';
 
-const cardParameters = {
-  /**
-   * TODO: Remove this percy skip
-   */
-  percy: { skip: true },
-  wrapper: CardGroup,
-  wrapperProps: { background: 'bg', borderedBottom: true },
-} as const;
-const builder = storyBuilder({ parameters: cardParameters });
-
-/* -------------------------------------------------------------------------- */
-/*                             Announcement Cards                             */
-/* -------------------------------------------------------------------------- */
-const announcementCardBuilder = builder(AnnouncementCardComponent);
-
-export const AnnouncementCard = announcementCardBuilder.build(
-  announcementCards[0] as AnnouncementCardProps,
-);
-export const AnnouncementCards = announcementCardBuilder.buildSheet(
-  announcementCards as AnnouncementCardProps[],
-);
-
-/* -------------------------------------------------------------------------- */
-/*                                 Data Cards                                 */
-/* -------------------------------------------------------------------------- */
-const dataCardsBuilder = builder(DataCardComponent);
-export const DataCard = dataCardsBuilder.build(dataCards[0]);
-export const DataCards = dataCardsBuilder.buildSheet(dataCards);
-
-/* -------------------------------------------------------------------------- */
-/*                             FeatureEntry Cards                             */
-/* -------------------------------------------------------------------------- */
-const featureEntryCardBuilder = builder(FeatureEntryCardComponent);
-
-export const FeatureEntryCard = featureEntryCardBuilder.build(featureEntryCards[0]);
-export const FeatureEntryCards = featureEntryCardBuilder.buildSheet(featureEntryCards);
-
-/* -------------------------------------------------------------------------- */
-/*                                 Feed Cards                                 */
-/* -------------------------------------------------------------------------- */
 const likeCounter = ({ count: countProp = 0, liked: likedProp }: LikeButtonBaseProps) => {
   return function useLikeButtonProps() {
     const [count, setCount] = useState(countProp);
@@ -86,7 +46,7 @@ const likeCounter = ({ count: countProp = 0, liked: likedProp }: LikeButtonBaseP
   };
 };
 
-const defaultProps = {
+const defaultFeedProps = {
   avatar: avatars[0],
   author: 'Author Name',
   metadata: 'News • Dec 18',
@@ -109,12 +69,12 @@ const defaultProps = {
 
 const feedCards = [
   {
-    ...defaultProps,
+    ...defaultFeedProps,
     key: 'card1',
     title: 'Russia Values Local Crypto at $200 Billion as Rules Near',
   } as const,
   {
-    ...defaultProps,
+    ...defaultFeedProps,
     key: 'card2',
     avatar: avatars[1],
     image: feedImages[1],
@@ -129,42 +89,6 @@ const feedCards = [
   } as const,
 ];
 
-export const FeedCard = ({ ...props }: FeedCardProps) => {
-  return (
-    <FeedCardComponent
-      background="bg"
-      {...feedCards[0]}
-      like={feedCards[0].like() as LikeButtonBaseProps}
-      maxWidth={800}
-      {...props}
-    />
-  );
-};
-
-FeedCard.bind({});
-FeedCard.args = baseConfig.args;
-FeedCard.argTypes = baseConfig.argTypes;
-FeedCard.parameters = {
-  ...baseConfig.parameters,
-  ...cardParameters,
-};
-
-export const FeedCards = () => {
-  return (
-    <CardGroup>
-      {feedCards.map(({ like: getLikeProps, ...item }) => (
-        <FeedCardComponent {...item} like={getLikeProps()} maxWidth={800} />
-      ))}
-    </CardGroup>
-  );
-};
-
-FeedCards.bind({});
-FeedCards.args = FeedCard.args;
-FeedCards.parameters = FeedCard.parameters;
-FeedCards.argTypes = FeedCard.argTypes;
-
-// below is copied from cardBuilder.tsx
 const sharedWrapperProps = {
   position: 'relative',
   width: '100%',
@@ -178,119 +102,170 @@ const pinnedSharedWrapperProps = {
   height: 250,
 } as const;
 
-const PressableCards = () => (
-  <VStack gap={2} {...sharedWrapperProps}>
-    <Card {...sharedPressProps} elevation={0}>
-      <LoremIpsum title="Elevation 0" />
-    </Card>
-    <Card {...sharedPressProps} elevation={1}>
-      <LoremIpsum title="Elevation 1" />
-    </Card>
-    <Card {...sharedPressProps} elevation={2}>
-      <LoremIpsum title="Elevation 2" />
-    </Card>
-    <Card {...sharedPressProps} elevation={2} width="50%">
-      <LoremIpsum title="Half width" />
-    </Card>
-    <Card {...sharedPressProps} elevation={2} size="medium">
-      <LoremIpsum title="Medium size" />
-    </Card>
-    <Card {...sharedPressProps} borderRadius={400} elevation={1}>
-      <LoremIpsum title="With Border Radius" />
-    </Card>
-  </VStack>
-);
+export const All = () => {
+  return (
+    <ExampleScreen>
+      <Example title="Announcement Card">
+        <CardGroup borderedBottom background="bg">
+          <AnnouncementCardComponent {...(announcementCards[0] as AnnouncementCardProps)} />
+        </CardGroup>
+      </Example>
 
-const PressableColoredCards = () => (
-  <VStack gap={2} {...sharedWrapperProps}>
-    <Card {...sharedPressProps} background="bgPrimary">
-      <LoremIpsum color="fgInverse" title="Primary" />
-    </Card>
+      <Example title="Announcement Cards">
+        <CardGroup borderedBottom background="bg">
+          {(announcementCards as AnnouncementCardProps[]).map((card, index) => (
+            <AnnouncementCardComponent key={index} {...card} />
+          ))}
+        </CardGroup>
+      </Example>
 
-    <Card {...sharedPressProps} background="bgPositive">
-      <LoremIpsum color="fgInverse" title="Positive" />
-    </Card>
+      <Example title="Data Card">
+        <CardGroup borderedBottom background="bg">
+          <DataCardComponent {...dataCards[0]} />
+        </CardGroup>
+      </Example>
 
-    <Card {...sharedPressProps} background="bgNegative">
-      <LoremIpsum color="fgInverse" title="Negative" />
-    </Card>
-  </VStack>
-);
+      <Example title="Data Cards">
+        <CardGroup borderedBottom background="bg">
+          {dataCards.map((card) => (
+            <DataCardComponent {...card} />
+          ))}
+        </CardGroup>
+      </Example>
 
-const NonClickableCards = () => (
-  <VStack gap={2} {...sharedWrapperProps}>
-    <Card {...sharedProps} elevation={1}>
-      <LoremIpsum title="Elevation 1" />
-      <Button variant="secondary">Secondary button</Button>
-    </Card>
+      <Example title="Feature Entry Card">
+        <CardGroup borderedBottom background="bg">
+          <FeatureEntryCardComponent {...featureEntryCards[0]} />
+        </CardGroup>
+      </Example>
 
-    <Card {...sharedProps} elevation={2}>
-      <LoremIpsum title="Elevation 2" />
-      <Button variant="secondary">Secondary button</Button>
-    </Card>
-  </VStack>
-);
+      <Example title="Feature Entry Cards">
+        <CardGroup borderedBottom background="bg">
+          {featureEntryCards.map((card) => (
+            <FeatureEntryCardComponent {...card} />
+          ))}
+        </CardGroup>
+      </Example>
 
-const NonClickableColoredCards = () => (
-  <VStack gap={2} {...sharedWrapperProps}>
-    <Card {...sharedProps} background="bgPrimary">
-      <LoremIpsum color="fgInverse" title="Primary" />
-    </Card>
+      <Example title="Feed Card">
+        <CardGroup borderedBottom background="bg">
+          <FeedCardComponent
+            background="bg"
+            {...feedCards[0]}
+            like={feedCards[0].like() as LikeButtonBaseProps}
+            maxWidth={800}
+          />
+        </CardGroup>
+      </Example>
 
-    <Card {...sharedProps} background="bgPositive">
-      <LoremIpsum color="fgInverse" title="Positive" />
-    </Card>
+      <Example title="Feed Cards">
+        <CardGroup>
+          {feedCards.map(({ like: getLikeProps, ...item }) => (
+            <FeedCardComponent {...item} like={getLikeProps()} maxWidth={800} />
+          ))}
+        </CardGroup>
+      </Example>
 
-    <Card {...sharedProps} background="bgNegative">
-      <LoremIpsum color="fgInverse" title="Negative" />
-    </Card>
-  </VStack>
-);
+      <Example title="Pressable Cards">
+        <VStack gap={2} {...sharedWrapperProps}>
+          <Card {...sharedPressProps} elevation={0}>
+            <LoremIpsum title="Elevation 0" />
+          </Card>
+          <Card {...sharedPressProps} elevation={1}>
+            <LoremIpsum title="Elevation 1" />
+          </Card>
+          <Card {...sharedPressProps} elevation={2}>
+            <LoremIpsum title="Elevation 2" />
+          </Card>
+          <Card {...sharedPressProps} elevation={2} width="50%">
+            <LoremIpsum title="Half width" />
+          </Card>
+          <Card {...sharedPressProps} elevation={2} size="medium">
+            <LoremIpsum title="Medium size" />
+          </Card>
+          <Card {...sharedPressProps} borderRadius={400} elevation={1}>
+            <LoremIpsum title="With Border Radius" />
+          </Card>
+        </VStack>
+      </Example>
 
-const PinnedTopCard = () => (
-  <Box {...pinnedSharedWrapperProps} background="bgAlternate">
-    <Card {...pinnedSharedProps} pin="top">
-      <LoremIpsum concise title="Top" />
-    </Card>
-  </Box>
-);
+      <Example title="Pressable Colored Cards">
+        <VStack gap={2} {...sharedWrapperProps}>
+          <Card {...sharedPressProps} background="bgPrimary">
+            <LoremIpsum color="fgInverse" title="Primary" />
+          </Card>
+          <Card {...sharedPressProps} background="bgPositive">
+            <LoremIpsum color="fgInverse" title="Positive" />
+          </Card>
+          <Card {...sharedPressProps} background="bgNegative">
+            <LoremIpsum color="fgInverse" title="Negative" />
+          </Card>
+        </VStack>
+      </Example>
 
-const PinnedRightCard = () => (
-  <Box {...pinnedSharedWrapperProps} background="bgAlternate">
-    <Card {...pinnedSharedProps} pin="right">
-      <LoremIpsum concise title="Right" />
-    </Card>
-  </Box>
-);
+      <Example title="Non-Clickable Cards">
+        <VStack gap={2} {...sharedWrapperProps}>
+          <Card {...sharedProps} elevation={1}>
+            <LoremIpsum title="Elevation 1" />
+            <Button variant="secondary">Secondary button</Button>
+          </Card>
+          <Card {...sharedProps} elevation={2}>
+            <LoremIpsum title="Elevation 2" />
+            <Button variant="secondary">Secondary button</Button>
+          </Card>
+        </VStack>
+      </Example>
 
-const PinnedBottomCard = () => (
-  <Box {...pinnedSharedWrapperProps} background="bgAlternate">
-    <Card {...pinnedSharedProps} pin="bottom">
-      <LoremIpsum concise title="Bottom" />
-    </Card>
-  </Box>
-);
+      <Example title="Non-Clickable Colored Cards">
+        <VStack gap={2} {...sharedWrapperProps}>
+          <Card {...sharedProps} background="bgPrimary">
+            <LoremIpsum color="fgInverse" title="Primary" />
+          </Card>
+          <Card {...sharedProps} background="bgPositive">
+            <LoremIpsum color="fgInverse" title="Positive" />
+          </Card>
+          <Card {...sharedProps} background="bgNegative">
+            <LoremIpsum color="fgInverse" title="Negative" />
+          </Card>
+        </VStack>
+      </Example>
 
-const PinnedLeftCard = () => (
-  <Box {...pinnedSharedWrapperProps} background="bgAlternate">
-    <Card {...pinnedSharedProps} pin="left">
-      <LoremIpsum concise title="Left" />
-    </Card>
-  </Box>
-);
+      <Example title="Pinned Top Card">
+        <Box {...pinnedSharedWrapperProps} background="bgAlternate">
+          <Card {...pinnedSharedProps} pin="top">
+            <LoremIpsum concise title="Top" />
+          </Card>
+        </Box>
+      </Example>
 
-export {
-  NonClickableCards,
-  NonClickableColoredCards,
-  PinnedBottomCard,
-  PinnedLeftCard,
-  PinnedRightCard,
-  PinnedTopCard,
-  PressableCards,
-  PressableColoredCards,
+      <Example title="Pinned Right Card">
+        <Box {...pinnedSharedWrapperProps} background="bgAlternate">
+          <Card {...pinnedSharedProps} pin="right">
+            <LoremIpsum concise title="Right" />
+          </Card>
+        </Box>
+      </Example>
+
+      <Example title="Pinned Bottom Card">
+        <Box {...pinnedSharedWrapperProps} background="bgAlternate">
+          <Card {...pinnedSharedProps} pin="bottom">
+            <LoremIpsum concise title="Bottom" />
+          </Card>
+        </Box>
+      </Example>
+
+      <Example title="Pinned Left Card">
+        <Box {...pinnedSharedWrapperProps} background="bgAlternate">
+          <Card {...pinnedSharedProps} pin="left">
+            <LoremIpsum concise title="Left" />
+          </Card>
+        </Box>
+      </Example>
+    </ExampleScreen>
+  );
 };
 
 export default {
   title: 'Components/Cards',
-  component: FeedCard,
+  component: All,
 };

@@ -5,6 +5,7 @@ import { useTheme } from '../../hooks/useTheme';
 import { Box } from '../../layout/Box';
 import { VStack } from '../../layout/VStack';
 import { ThemeProvider } from '../../system/ThemeProvider';
+import { Example, ExampleScreen } from '../../__stories__/storybook';
 import { Switch } from '../Switch';
 
 const darkModeWrapperCss = css`
@@ -23,7 +24,7 @@ const DarkModeWrapper = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export const Normal = () => {
+const Normal = () => {
   const [checked, setChecked] = useState(false);
   return (
     <Switch checked={checked} onChange={() => setChecked((prevChecked) => !prevChecked)}>
@@ -32,10 +33,10 @@ export const Normal = () => {
   );
 };
 
-export const CustomColors = () => {
+const CustomColors = () => {
   const [checked, setChecked] = useState(false);
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <Switch
         checked={checked}
         controlColor="bgNegative"
@@ -54,10 +55,11 @@ export const CustomColors = () => {
       >
         Style props
       </Switch>
-    </VStack>
+    </ExampleScreen>
   );
 };
-export const DarkNormal = () => {
+
+const DarkNormal = () => {
   const [checked, setChecked] = useState(false);
   return (
     <DarkModeWrapper>
@@ -68,38 +70,34 @@ export const DarkNormal = () => {
   );
 };
 
-export const NoLabel = () => {
+const NoLabel = () => {
   const [checked, setChecked] = useState(false);
   return <Switch checked={checked} onChange={() => setChecked((prevChecked) => !prevChecked)} />;
 };
-// This is intention to check the view of Switch without any text
-NoLabel.parameters = {
-  a11y: { config: { rules: [{ id: 'label', enabled: false }] } },
-};
 
-export const On = () => <Switch checked>On</Switch>;
+const On = () => <Switch checked>On</Switch>;
 
-export const DisabledOff = () => <Switch disabled>Disabled off</Switch>;
+const DisabledOff = () => <Switch disabled>Disabled off</Switch>;
 
-export const DisabledOn = () => (
+const DisabledOn = () => (
   <Switch checked disabled>
     Disabled on
   </Switch>
 );
 
-export const DarkNormalOn = () => (
+const DarkNormalOn = () => (
   <DarkModeWrapper>
     <Switch checked>On</Switch>
   </DarkModeWrapper>
 );
 
-export const DarkNormalDisabledOff = () => (
+const DarkNormalDisabledOff = () => (
   <DarkModeWrapper>
     <Switch disabled>Disabled off</Switch>
   </DarkModeWrapper>
 );
 
-export const DarkNormalDisabledOn = () => (
+const DarkNormalDisabledOn = () => (
   <DarkModeWrapper>
     <Box>
       <Switch checked disabled>
@@ -109,7 +107,7 @@ export const DarkNormalDisabledOn = () => (
   </DarkModeWrapper>
 );
 
-export const MultiLineLabel = () => (
+const MultiLineLabel = () => (
   <Box width="250px">
     <Switch>
       This switch has a multi-line label. The switch and label should align at the top.
@@ -117,11 +115,67 @@ export const MultiLineLabel = () => (
   </Box>
 );
 
-export const Elevation = () => (
+const Elevation = () => (
   <Box>
     <Switch elevation={1}>Elevation</Switch>
   </Box>
 );
+
+export const All = () => (
+  <VStack gap={3}>
+    <Example title="Normal">
+      <Normal />
+    </Example>
+
+    <Example title="Custom Colors">
+      <CustomColors />
+    </Example>
+
+    <Example title="Dark Normal">
+      <DarkNormal />
+    </Example>
+
+    <Example title="No Label">
+      <NoLabel />
+    </Example>
+
+    <Example title="On">
+      <On />
+    </Example>
+
+    <Example title="Disabled Off">
+      <DisabledOff />
+    </Example>
+
+    <Example title="Disabled On">
+      <DisabledOn />
+    </Example>
+
+    <Example title="Dark Normal On">
+      <DarkNormalOn />
+    </Example>
+
+    <Example title="Dark Normal Disabled Off">
+      <DarkNormalDisabledOff />
+    </Example>
+
+    <Example title="Dark Normal Disabled On">
+      <DarkNormalDisabledOn />
+    </Example>
+
+    <Example title="Multi Line Label">
+      <MultiLineLabel />
+    </Example>
+
+    <Example title="Elevation">
+      <Elevation />
+    </Example>
+  </VStack>
+);
+// No Label example is intentional to check the view of Switch without any text
+All.parameters = {
+  a11y: { config: { rules: [{ id: 'label', enabled: false }] } },
+};
 
 export default {
   title: 'Components/Switch',

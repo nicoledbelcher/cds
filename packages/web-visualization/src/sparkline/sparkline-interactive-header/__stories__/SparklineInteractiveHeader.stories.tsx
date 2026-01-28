@@ -1,8 +1,9 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import type { ChartDataPoint, ChartScrubParams } from '@coinbase/cds-common';
 import { sparklineInteractiveData } from '@coinbase/cds-common/internal/visualizations/SparklineInteractiveData';
+import { Example, ExampleScreen } from '@coinbase/cds-web/__stories__/storybook';
 import { Icon } from '@coinbase/cds-web/icons';
-import { HStack } from '@coinbase/cds-web/layout';
+import { HStack, VStack } from '@coinbase/cds-web/layout';
 import { Text } from '@coinbase/cds-web/typography';
 
 import { SparklineInteractive } from '../../sparkline-interactive/SparklineInteractive';
@@ -42,29 +43,15 @@ const getFormattingConfigForPeriod = (period: SparklinePeriod) => {
   switch (period) {
     case 'hour':
     case 'day':
-      return {
-        hour: 'numeric',
-        minute: 'numeric',
-      } as const;
-
+      return { hour: 'numeric', minute: 'numeric' } as const;
     case 'week':
     case 'month':
-      return {
-        month: 'numeric',
-        day: 'numeric',
-      } as const;
-
+      return { month: 'numeric', day: 'numeric' } as const;
     case 'year':
     case 'all':
-      return {
-        month: 'numeric',
-        year: 'numeric',
-      } as const;
+      return { month: 'numeric', year: 'numeric' } as const;
     default:
-      return {
-        month: 'numeric',
-        day: 'numeric',
-      } as const;
+      return { month: 'numeric', day: 'numeric' } as const;
   }
 };
 
@@ -82,39 +69,27 @@ const getDateHoverOptions = (period: SparklinePeriod) => {
         minute: 'numeric',
       } as const;
     default:
-      return {
-        weekday: 'short',
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      } as const;
+      return { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' } as const;
   }
 };
 
 function numToLocaleString(num: number) {
-  return num.toLocaleString('en-US', {
-    maximumFractionDigits: 2,
-  });
+  return num.toLocaleString('en-US', { maximumFractionDigits: 2 });
 }
 
 function generateSubHead(
   point: ChartDataPoint,
   period: SparklinePeriod,
-  sparklineInteractiveData: Record<SparklinePeriod, ChartDataPoint[]>,
+  data: Record<SparklinePeriod, ChartDataPoint[]>,
 ): SparklineInteractiveSubHead {
-  const data = sparklineInteractiveData[period];
-  const firstPoint = data[0];
-
+  const periodData = data[period];
+  const firstPoint = periodData[0];
   const increase = point.value > firstPoint.value;
   return {
-    percent: `${numToLocaleString(
-      Math.abs((point.value - firstPoint.value) / firstPoint.value) * 100,
-    )}%`,
+    percent: `${numToLocaleString(Math.abs((point.value - firstPoint.value) / firstPoint.value) * 100)}%`,
     sign: increase ? 'upwardTrend' : 'downwardTrend',
     variant: increase ? 'positive' : 'negative',
-    accessibilityLabel: `on ${new Intl.DateTimeFormat('en-US').format(point?.date)}, ${
-      increase ? 'up' : 'down'
-    }`,
+    accessibilityLabel: `on ${new Intl.DateTimeFormat('en-US').format(point?.date)}, ${increase ? 'up' : 'down'}`,
     priceChange: `$${numToLocaleString(Math.abs(point.value - firstPoint.value))}`,
   };
 }
@@ -150,28 +125,21 @@ const SparklineInteractiveWithHeader = ({
   const timezoneObj = useMemo(() => ({ timeZone: 'America/New_York' }), []);
   const [currentPeriod, setCurrentPeriod] = useState<SparklinePeriod>(DEFAULT_PERIOD);
   const headerRef = useRef<SparklineInteractiveHeaderRef>(null);
-  const sparklineData = data;
   const periodValues = alternatePeriods ? periodsAlt : periods;
-  const chartData = sparklineData[currentPeriod];
+  const chartData = data[currentPeriod];
   const lastPoint = chartData[chartData.length - 1];
 
   const formatDateWithConfig = useCallback(
     (value: Date, period: SparklinePeriod) => {
       const config = getFormattingConfigForPeriod(period);
-      return value.toLocaleString('en-US', {
-        ...timezoneObj,
-        ...config,
-      });
+      return value.toLocaleString('en-US', { ...timezoneObj, ...config });
     },
     [timezoneObj],
   );
 
   const formatHoverDate = useCallback(
     (date: Date, period: SparklinePeriod) => {
-      return date.toLocaleString('en-US', {
-        ...timezoneObj,
-        ...getDateHoverOptions(period),
-      });
+      return date.toLocaleString('en-US', { ...timezoneObj, ...getDateHoverOptions(period) });
     },
     [timezoneObj],
   );
@@ -180,31 +148,30 @@ const SparklineInteractiveWithHeader = ({
     ({ point, period }: ChartScrubParams<SparklinePeriod>) => {
       headerRef.current?.update({
         title: `$${point.value.toLocaleString('en-US')}`,
-        subHead: generateSubHead(point, period, sparklineData),
+        subHead: generateSubHead(point, period, data),
       });
     },
-    [sparklineData],
+    [data],
   );
 
   const handleScrubEnd = useCallback(() => {
     headerRef.current?.update({
       title: `$${numToLocaleString(lastPoint.value)}`,
-      subHead: generateSubHead(lastPoint, currentPeriod, sparklineData),
+      subHead: generateSubHead(lastPoint, currentPeriod, data),
     });
-  }, [currentPeriod, lastPoint, sparklineData]);
+  }, [currentPeriod, lastPoint, data]);
 
   const handleOnPeriodChanged = useCallback(
     (period: SparklinePeriod) => {
       setCurrentPeriod(period);
-      const newData = sparklineData[period];
+      const newData = data[period];
       const newLastPoint = newData[newData.length - 1];
-
       headerRef.current?.update({
         title: `$${numToLocaleString(newLastPoint.value)}`,
-        subHead: generateSubHead(newLastPoint, period, sparklineData),
+        subHead: generateSubHead(newLastPoint, period, data),
       });
     },
-    [sparklineData],
+    [data],
   );
 
   const header = (
@@ -212,7 +179,7 @@ const SparklineInteractiveWithHeader = ({
       ref={headerRef}
       compact={compact}
       defaultLabel={labelNode ? 'CustomHeader' : 'Bitcoin Price'}
-      defaultSubHead={generateSubHead(lastPoint, currentPeriod, sparklineData)}
+      defaultSubHead={generateSubHead(lastPoint, currentPeriod, data)}
       defaultTitle={`$${numToLocaleString(lastPoint.value)}`}
       labelNode={labelNode}
     />
@@ -236,77 +203,7 @@ const SparklineInteractiveWithHeader = ({
   );
 };
 
-export const Default = () => {
-  return <SparklineInteractiveWithHeader data={sparklineInteractiveData} />;
-};
-
-Default.bind({});
-Default.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const CustomLabel = () => {
-  return (
-    <SparklineInteractiveWithHeader data={sparklineInteractiveData} labelNode={<HeaderLabel />} />
-  );
-};
-
-CustomLabel.bind({});
-CustomLabel.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const Compact = () => {
-  return <SparklineInteractiveWithHeader compact data={sparklineInteractiveData} />;
-};
-
-Compact.bind({});
-Compact.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const BottomPeriodSelector = () => {
-  return (
-    <SparklineInteractiveWithHeader
-      compact
-      data={sparklineInteractiveData}
-      periodSelectorPlacement="below"
-    />
-  );
-};
-
-BottomPeriodSelector.parameters = { percy: { enableJavaScript: true } };
-
-export const AlternatePeriods = () => {
-  return <SparklineInteractiveWithHeader alternatePeriods data={sparklineInteractiveData} />;
-};
-
-AlternatePeriods.bind({});
-AlternatePeriods.parameters = {
-  percy: { enableJavaScript: true },
-  a11y: {
-    config: {
-      rules: [{ id: 'color-contrast', enabled: false }],
-    },
-  },
-};
-
-export const CustomTitle = () => {
+const CustomTitleExample = () => {
   const headerRef = useRef<SparklineInteractiveHeaderRef | null>(null);
   const [currentPeriod, setCurrentPeriod] = useState<SparklinePeriod>('day');
   const data = sparklineInteractiveData[currentPeriod];
@@ -317,20 +214,14 @@ export const CustomTitle = () => {
   const formatDateWithConfig = useCallback(
     (value: Date, period: SparklinePeriod) => {
       const config = getFormattingConfigForPeriod(period);
-      return value.toLocaleString('en-US', {
-        ...timezoneObj,
-        ...config,
-      });
+      return value.toLocaleString('en-US', { ...timezoneObj, ...config });
     },
     [timezoneObj],
   );
 
   const formatHoverDate = useCallback(
     (date: Date, period: SparklinePeriod) => {
-      return date.toLocaleString('en-US', {
-        ...timezoneObj,
-        ...getDateHoverOptions(period),
-      });
+      return date.toLocaleString('en-US', { ...timezoneObj, ...getDateHoverOptions(period) });
     },
     [timezoneObj],
   );
@@ -355,14 +246,11 @@ export const CustomTitle = () => {
 
   const handleOnPeriodChanged = useCallback((period: SparklinePeriod) => {
     setCurrentPeriod(period);
-
     const newData = sparklineInteractiveData[period];
     const newLastPoint = newData[newData.length - 1];
-
     headerRef.current?.update({
       subHead: generateSubHead(newLastPoint, period, sparklineInteractiveData),
     });
-
     if (titleRef.current) {
       titleRef.current.innerText = `$${numToLocaleString(newLastPoint.value)}`;
     }
@@ -397,4 +285,41 @@ export const CustomTitle = () => {
       strokeColor="#F7931A"
     />
   );
+};
+
+export const All = () => {
+  return (
+    <ExampleScreen>
+      <Example title="Default">
+        <SparklineInteractiveWithHeader data={sparklineInteractiveData} />
+      </Example>
+      <Example title="Compact">
+        <SparklineInteractiveWithHeader compact data={sparklineInteractiveData} />
+      </Example>
+      <Example title="Custom Title">
+        <CustomTitleExample />
+      </Example>
+      <Example title="Bottom Period Selector">
+        <SparklineInteractiveWithHeader
+          compact
+          data={sparklineInteractiveData}
+          periodSelectorPlacement="below"
+        />
+      </Example>
+      <Example title="Custom Label">
+        <SparklineInteractiveWithHeader
+          data={sparklineInteractiveData}
+          labelNode={<HeaderLabel />}
+        />
+      </Example>
+      <Example title="Alternate Periods">
+        <SparklineInteractiveWithHeader alternatePeriods data={sparklineInteractiveData} />
+      </Example>
+    </ExampleScreen>
+  );
+};
+
+All.parameters = {
+  percy: { enableJavaScript: true },
+  a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
 };
