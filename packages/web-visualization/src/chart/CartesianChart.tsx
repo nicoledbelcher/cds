@@ -85,8 +85,6 @@ export type CartesianChartBaseProps = Omit<BoxBaseProps, 'accessibilityLabel'> &
      * - When a function: Called with the highlighted item to generate dynamic labels during interaction
      */
     accessibilityLabel?: string | ((item: HighlightedItem) => string);
-
-    // Legacy props for backwards compatibility
     /**
      * @deprecated Use `enableHighlighting={false}` instead. Will be removed in next major version.
      */
@@ -515,6 +513,10 @@ export const CartesianChart = memo(
         </Box>
       );
 
+      // Determine flex direction based on legend position
+      const isLegendVertical = legendPosition === 'left' || legendPosition === 'right';
+      const legendFlexDirection = isLegendVertical ? 'row' : 'column';
+
       return (
         <CartesianChartProvider value={contextValue}>
           <HighlightProvider
@@ -526,27 +528,7 @@ export const CartesianChart = memo(
             svgRef={svgRef}
           >
             {legend ? (
-              <Box
-                ref={(node) => {
-                  const svgElement = node as unknown as SVGSVGElement;
-                  svgRef.current = svgElement;
-                  // Forward the ref to the user
-                  if (ref) {
-                    if (typeof ref === 'function') {
-                      ref(svgElement);
-                    } else {
-                      (ref as React.MutableRefObject<SVGSVGElement | null>).current = svgElement;
-                    }
-                  }
-                }}
-                aria-live="polite"
-                as="svg"
-                className={cx(isHighlightingEnabled && focusStylesCss, classNames?.chart)}
-                height="100%"
-                style={styles?.chart}
-                tabIndex={isHighlightingEnabled ? 0 : undefined}
-                width="100%"
-              >
+              <Box {...rootBoxProps} display="flex" flexDirection={legendFlexDirection}>
                 {(legendPosition === 'top' || legendPosition === 'left') && legendElement}
                 {chartContent}
                 {(legendPosition === 'bottom' || legendPosition === 'right') && legendElement}

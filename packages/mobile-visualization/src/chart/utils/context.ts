@@ -164,35 +164,6 @@ export type HighlightedItem = {
 };
 
 // ============================================================================
-// Backwards Compatibility Aliases (Deprecated)
-// ============================================================================
-
-/**
- * @deprecated Use `enableHighlighting` instead.
- */
-export type InteractionMode = 'none' | 'single' | 'multi';
-
-/**
- * @deprecated Use `HighlightScope` instead.
- */
-export type InteractionScope = HighlightScope;
-
-/**
- * @deprecated Use `HighlightedItem` instead.
- */
-export type ActiveItem = HighlightedItem;
-
-/**
- * @deprecated Use `HighlightedItem[]` instead.
- */
-export type ActiveItems = Array<HighlightedItem>;
-
-/**
- * @deprecated Use `HighlightedItem[]` instead.
- */
-export type InteractionState = HighlightedItem | HighlightedItem[] | undefined | null;
-
-// ============================================================================
 // Interaction Registry Types (for coordinate-based hit testing on mobile)
 // ============================================================================
 
@@ -306,47 +277,4 @@ export const useHighlightContext = (): HighlightContextValue => {
  */
 export const useOptionalHighlightContext = (): HighlightContextValue | undefined => {
   return useContext(HighlightContext);
-};
-
-// ============================================================================
-// Backwards Compatibility (Deprecated)
-// ============================================================================
-
-/**
- * @deprecated Use `HighlightContextValue` instead.
- */
-export type InteractionContextValue = {
-  mode: InteractionMode;
-  scope: InteractionScope;
-  activeItem: SharedValue<InteractionState>;
-  setActiveItem: (state: InteractionState) => void;
-  registerBar: (bounds: ElementBounds) => void;
-  unregisterBar: (seriesId: string, dataIndex: number) => void;
-  registerPoint: (bounds: PointBounds) => void;
-  unregisterPoint: (seriesId: string, dataIndex: number) => void;
-  registerLine: (path: LinePath) => void;
-  unregisterLine: (seriesId: string) => void;
-};
-
-/**
- * @deprecated Use `HighlightContext` instead.
- */
-export const InteractionContext = createContext<InteractionContextValue | undefined>(undefined);
-
-/**
- * @deprecated Use `useHighlightContext` instead.
- */
-export const useInteractionContext = (): InteractionContextValue => {
-  const context = useContext(InteractionContext);
-  if (!context) {
-    throw new Error('useInteractionContext must be used within an InteractionProvider');
-  }
-  return context;
-};
-
-/**
- * @deprecated Use `useOptionalHighlightContext` instead.
- */
-export const useOptionalInteractionContext = (): InteractionContextValue | undefined => {
-  return useContext(InteractionContext);
 };

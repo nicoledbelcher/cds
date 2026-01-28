@@ -102,8 +102,6 @@ export type CartesianChartBaseProps = Omit<BoxBaseProps, 'fontFamily' | 'accessi
      * @default 10
      */
     accessibilityChunkCount?: number;
-
-    // Legacy props for backwards compatibility
     /**
      * @deprecated Use `enableHighlighting` instead. Will be removed in next major version.
      */
