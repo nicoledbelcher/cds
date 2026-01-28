@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useMemo } from 'react';
 import { Examples } from '@coinbase/cds-web/dates/__stories__/Calendar.stories';
+import { Example, ExampleScreen } from '@coinbase/cds-web/__stories__/storybook';
 import { HStack, VStack } from '@coinbase/cds-web/layout';
 import { Text } from '@coinbase/cds-web/typography';
 
@@ -13,20 +14,6 @@ import { XAxis, YAxis } from '..';
 export default {
   component: XAxis,
   title: 'Components/Chart/Axis',
-};
-
-const Example: React.FC<
-  React.PropsWithChildren<{ title: string; description?: string | React.ReactNode }>
-> = ({ children, title, description }) => {
-  return (
-    <VStack gap={2}>
-      <Text as="h3" display="block" font="title3">
-        {title}
-      </Text>
-      {description}
-      {children}
-    </VStack>
-  );
 };
 
 const ThinSolidLine = memo((props: SolidLineProps) => <SolidLine {...props} strokeWidth={1} />);
@@ -501,7 +488,7 @@ const DomainLimitType = ({ limit }: { limit: 'nice' | 'strict' }) => {
 
 export const All = () => {
   return (
-    <VStack gap={3}>
+    <ExampleScreen>
       <Example title="Basic">
         <Simple />
       </Example>
@@ -520,14 +507,7 @@ export const All = () => {
       <Example title="Band Axis Grid Alignment">
         <BandAxisGridAlignment />
       </Example>
-      <Example
-        description={
-          <Text color="fgMuted" font="body">
-            Using a function to filter which ticks are shown on a band scale.
-          </Text>
-        }
-        title="Band Scale - Tick Filtering"
-      >
+      <Example title="Band Scale - Tick Filtering">
         <BandScaleTickFiltering />
       </Example>
       <Example title="Band Scale - Explicit Ticks">
@@ -547,6 +527,6 @@ export const All = () => {
       <Example title="Custom Tick Mark Sizes">
         <CustomTickMarkSizes />
       </Example>
-    </VStack>
+    </ExampleScreen>
   );
 };

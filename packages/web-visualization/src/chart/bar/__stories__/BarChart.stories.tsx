@@ -1,5 +1,6 @@
 import React, { memo, useId } from 'react';
 import { candles as btcCandles } from '@coinbase/cds-common/internal/data/candles';
+import { Example, ExampleScreen } from '@coinbase/cds-web/__stories__/storybook';
 import { HStack, VStack } from '@coinbase/cds-web/layout';
 import { Text } from '@coinbase/cds-web/typography';
 
@@ -19,20 +20,6 @@ import { Bar, type BarComponentProps } from '..';
 export default {
   title: 'Components/Chart/BarChart',
   component: BarChart,
-};
-
-const Example: React.FC<
-  React.PropsWithChildren<{ title: string; description?: string | React.ReactNode }>
-> = ({ children, title, description }) => {
-  return (
-    <VStack gap={2}>
-      <Text as="h2" display="block" font="title3">
-        {title}
-      </Text>
-      {description}
-      {children}
-    </VStack>
-  );
 };
 
 const ThinSolidLine = memo((props: SolidLineProps) => <SolidLine {...props} strokeWidth={1} />);
@@ -406,7 +393,7 @@ const Candlesticks = () => {
 
 export const All = () => {
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <Example title="Basic">
         <BarChart
           showXAxis
@@ -556,15 +543,7 @@ export const All = () => {
       <Example title="Candlestick Chart">
         <Candlesticks />
       </Example>
-      <Example
-        description={
-          <Text color="fgMuted" font="body">
-            Simple gain/loss chart. Bars below zero are red (negative), bars at or above zero are
-            green (positive). Uses hard transition at 0.
-          </Text>
-        }
-        title="Gradient - Gain/Loss"
-      >
+      <Example title="Gradient - Gain/Loss">
         <BarChart
           showXAxis
           showYAxis
@@ -607,15 +586,7 @@ export const All = () => {
           }}
         />
       </Example>
-      <Example
-        description={
-          <Text color="fgMuted" font="body">
-            Continuous gradient applied to bars. Each bar&apos;s color is determined by its value,
-            transitioning smoothly from green (low) to yellow (mid) to red (high).
-          </Text>
-        }
-        title="Gradient - Continuous (Y-Axis)"
-      >
+      <Example title="Gradient - Continuous (Y-Axis)">
         <BarChart
           showXAxis
           showYAxis
@@ -644,15 +615,7 @@ export const All = () => {
           }}
         />
       </Example>
-      <Example
-        description={
-          <Text color="fgMuted" font="body">
-            Hard transitions at 30 and 45. Bars below 30 are green (cool), 30-45 are yellow (warm),
-            and above 45 are red (hot).
-          </Text>
-        }
-        title="Gradient - Hard Transitions (Y-Axis)"
-      >
+      <Example title="Gradient - Hard Transitions (Y-Axis)">
         <BarChart
           showXAxis
           showYAxis
@@ -684,15 +647,7 @@ export const All = () => {
           }}
         />
       </Example>
-      <Example
-        description={
-          <Text color="fgMuted" font="body">
-            Gradient applied on X-axis (category index). Each bar gets a color based on its position
-            in the chart, creating a rainbow effect.
-          </Text>
-        }
-        title="Gradient - Continuous (X-Axis)"
-      >
+      <Example title="Gradient - Continuous (X-Axis)">
         <BarChart
           showXAxis
           showYAxis
@@ -722,15 +677,7 @@ export const All = () => {
           }}
         />
       </Example>
-      <Example
-        description={
-          <Text color="fgMuted" font="body">
-            Stacked bars with gradient. Each series can have its own gradient configuration,
-            allowing for complex color compositions.
-          </Text>
-        }
-        title="Gradient - Stacked Bars"
-      >
+      <Example title="Gradient - Stacked Bars">
         <BarChart
           showXAxis
           showYAxis
@@ -777,6 +724,6 @@ export const All = () => {
           <BandGridPositionExample position="end" />
         </HStack>
       </Example>
-    </VStack>
+    </ExampleScreen>
   );
 };

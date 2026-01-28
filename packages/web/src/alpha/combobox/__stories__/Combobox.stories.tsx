@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { useMultiSelect } from '@coinbase/cds-common/select/useMultiSelect';
 import { css } from '@linaria/core';
 
-import { Example } from '../../../__stories__/storybook';
+import { Example, ExampleScreen } from '../../../__stories__/storybook';
 import { Button } from '../../../buttons/Button';
 import { Icon } from '../../../icons/Icon';
 import { HStack } from '../../../layout/HStack';
@@ -129,7 +129,7 @@ export const All_Basics = () => {
   const [single4, setSingle4] = useState<string | null>('apple');
 
   return (
-    <VStack gap={4} padding={2}>
+    <ExampleScreen>
       <Example title="Basic Multi Select">
         <Combobox
           label="Select fruits"
@@ -252,7 +252,7 @@ export const All_Basics = () => {
           />
         </HStack>
       </Example>
-    </VStack>
+    </ExampleScreen>
   );
 };
 
@@ -284,7 +284,7 @@ export const All_Features = () => {
   };
 
   return (
-    <VStack gap={4} padding={2}>
+    <ExampleScreen>
       <Example title="With Descriptions">
         <Combobox
           label="Select countries"
@@ -423,7 +423,7 @@ export const All_Features = () => {
           value={multi7.value}
         />
       </Example>
-    </VStack>
+    </ExampleScreen>
   );
 };
 
@@ -452,7 +452,7 @@ export const All_Advanced = () => {
   }));
 
   return (
-    <VStack gap={4} padding={2}>
+    <ExampleScreen>
       <Example title="Start Node">
         <Combobox
           label="With icon"
@@ -643,6 +643,6 @@ export const All_Advanced = () => {
           value={multi6.value}
         />
       </Example>
-    </VStack>
+    </ExampleScreen>
   );
 };

@@ -2,10 +2,10 @@ import { useMemo, useState } from 'react';
 import { assets } from '@coinbase/cds-common/internal/data/assets';
 import { useMultiSelect } from '@coinbase/cds-common/select/useMultiSelect';
 
+import { Example } from '../../../__stories__/storybook';
 import { VStack } from '../../../layout/VStack';
 import { RemoteImage } from '../../../media/RemoteImage';
 import { RemoteImageGroup } from '../../../media/RemoteImageGroup';
-import { Example } from '../../../__stories__/storybook';
 import type { SelectOption, SelectOptionGroup, SelectType } from '../../select/Select';
 import { SelectChip } from '../SelectChip';
 

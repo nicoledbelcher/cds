@@ -2,6 +2,7 @@ import { forwardRef, memo, useMemo, useState } from 'react';
 import { assets } from '@coinbase/cds-common/internal/data/assets';
 import { useTabsContext } from '@coinbase/cds-common/tabs/TabsContext';
 import type { TabValue } from '@coinbase/cds-common/tabs/useTabs';
+import { Example, ExampleScreen } from '@coinbase/cds-web/__stories__/storybook';
 import { IconButton } from '@coinbase/cds-web/buttons';
 import { useTheme } from '@coinbase/cds-web/hooks/useTheme';
 import { Box, HStack, VStack } from '@coinbase/cds-web/layout';
@@ -19,18 +20,6 @@ import { LiveTabLabel, PeriodSelector, PeriodSelectorActiveIndicator } from '../
 export default {
   component: PeriodSelector,
   title: 'Components/Chart/PeriodSelector',
-};
-
-const Example: React.FC<
-  React.PropsWithChildren<{ title: string; description?: string | React.ReactNode }>
-> = ({ children, title, description }) => {
-  return (
-    <VStack gap={2}>
-      <Text font="headline">{title}</Text>
-      {description}
-      {children}
-    </VStack>
-  );
 };
 
 const PeriodSelectorExample = () => {
@@ -281,7 +270,7 @@ const ColoredExcludingLivePeriodSelectorExample = () => {
 
 export const All = () => {
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <Example title="Basic Example">
         <PeriodSelectorExample />
       </Example>
@@ -300,6 +289,6 @@ export const All = () => {
       <Example title="Colored Excluding Live Period Selector">
         <ColoredExcludingLivePeriodSelectorExample />
       </Example>
-    </VStack>
+    </ExampleScreen>
   );
 };

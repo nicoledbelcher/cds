@@ -2,6 +2,7 @@ import React, { memo, useCallback, useId, useMemo, useState } from 'react';
 import { assets } from '@coinbase/cds-common/internal/data/assets';
 import { candles as btcCandles } from '@coinbase/cds-common/internal/data/candles';
 import type { TabValue } from '@coinbase/cds-common/tabs/useTabs';
+import { Example, ExampleScreen } from '@coinbase/cds-web/__stories__/storybook';
 import { Radio } from '@coinbase/cds-web/controls/Radio';
 import { Box, type BoxBaseProps, Divider, HStack, VStack } from '@coinbase/cds-web/layout';
 import { RemoteImage } from '@coinbase/cds-web/media';
@@ -552,21 +553,9 @@ function TradingTrends() {
   );
 }
 
-const Example: React.FC<
-  React.PropsWithChildren<{ title: string; description?: string | React.ReactNode }>
-> = ({ children, title, description }) => {
-  return (
-    <VStack gap={2}>
-      <Text font="headline">{title}</Text>
-      {description}
-      {children}
-    </VStack>
-  );
-};
-
 export const Miscellaneous = () => {
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <Example title="Multiple Types">
         <MultipleChart />
       </Example>
@@ -582,6 +571,6 @@ export const Miscellaneous = () => {
       <Example title="Trading Trends">
         <TradingTrends />
       </Example>
-    </VStack>
+    </ExampleScreen>
   );
 };

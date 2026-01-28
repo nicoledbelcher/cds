@@ -1,3 +1,4 @@
+import { Example, ExampleScreen } from '@coinbase/cds-web/__stories__/storybook';
 import { VStack } from '@coinbase/cds-web/layout';
 import { Text } from '@coinbase/cds-web/typography';
 
@@ -10,23 +11,9 @@ export default {
   component: AreaChart,
 };
 
-const Example: React.FC<
-  React.PropsWithChildren<{ title: string; description?: string | React.ReactNode }>
-> = ({ children, title, description }) => {
-  return (
-    <VStack gap={2}>
-      <Text as="h2" display="block" font="title3">
-        {title}
-      </Text>
-      {description}
-      {children}
-    </VStack>
-  );
-};
-
 export const All = () => {
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <Example title="Basic">
         <AreaChart
           enableScrubbing
@@ -126,6 +113,6 @@ export const All = () => {
           ]}
         />
       </Example>
-    </VStack>
+    </ExampleScreen>
   );
 };

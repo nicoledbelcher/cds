@@ -3,8 +3,6 @@ import { assets } from '@coinbase/cds-common/internal/data/assets';
 import { sparklineInteractiveData } from '@coinbase/cds-common/internal/visualizations/SparklineInteractiveData';
 import { useTheme } from '@coinbase/cds-web';
 import { Example, ExampleScreen } from '@coinbase/cds-web/__stories__/storybook';
-import { VStack } from '@coinbase/cds-web/layout';
-import { Text } from '@coinbase/cds-web/typography';
 
 import { useCartesianChartContext } from '../../ChartProvider';
 import { ChartText } from '../../text/ChartText';
@@ -18,11 +16,6 @@ export default {
   component: ReferenceLine,
   title: 'Components/Chart/ReferenceLine',
 };
-
-// Memoized label components for performance
-const LeftAlignedLabel = memo<React.ComponentProps<typeof DefaultReferenceLineLabel>>((props) => (
-  <DefaultReferenceLineLabel {...props} dx={16} horizontalAlignment="left" />
-));
 
 const LeftAlignedLabelWithOffset = memo<React.ComponentProps<typeof DefaultReferenceLineLabel>>(
   (props) => <DefaultReferenceLineLabel {...props} dx={8} horizontalAlignment="left" />,
@@ -340,7 +333,7 @@ const PriceTargetChart = () => {
 
 export const All = () => {
   return (
-    <VStack gap={2}>
+    <ExampleScreen>
       <Example title="Simple Reference Line">
         <LineChart
           showArea
@@ -377,10 +370,7 @@ export const All = () => {
           <ReferenceLine dataY={50} label="$50" labelDx={16} labelHorizontalAlignment="left" />
         </LineChart>
       </Example>
-      <Example
-        description="Using labelDx, labelDy, labelHorizontalAlignment, and labelVerticalAlignment props"
-        title="Label Customization"
-      >
+      <Example title="Label Customization">
         <LineChart
           showArea
           height={250}
@@ -463,6 +453,6 @@ export const All = () => {
       <Example title="Price Target">
         <PriceTargetChart />
       </Example>
-    </VStack>
+    </ExampleScreen>
   );
 };
