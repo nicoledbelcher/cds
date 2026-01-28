@@ -1,0 +1,319 @@
+import { MDXSection } from '@site/src/components/page/MDXSection';
+import { MDXArticle } from '@site/src/components/page/MDXArticle';
+
+<MDXSection>
+<MDXArticle>
+
+## Overview
+
+Chart highlighting on mobile enables users to interact with data points through touch gestures. When a user long-presses and drags on the chart, the highlighted data point is tracked with haptic feedback.
+
+Key features:
+
+- **Touch Gestures**: Long-press to activate, drag to explore data points
+- **Haptic Feedback**: Light impact feedback on start and end of interaction
+- **Multi-touch**: Track multiple touch points simultaneously
+- **Controlled & Uncontrolled Modes**: Manage state internally or externally
+- **Series Highlighting**: Optionally track which specific series is being touched
+- **Accessibility**: VoiceOver support with configurable region modes
+
+</MDXArticle>
+</MDXSection>
+
+<MDXSection>
+<MDXArticle>
+
+## Basic Usage
+
+Highlighting is enabled by default on all Cartesian charts. Use the `onHighlightChange` callback to respond to user interactions.
+
+```tsx
+import { LineChart, Scrubber } from '@coinbase/cds-mobile-visualization';
+import type { HighlightedItem } from '@coinbase/cds-mobile-visualization';
+
+function BasicHighlighting() {
+  const [highlight, setHighlight] = useState<HighlightedItem[]>([]);
+  const data = [10, 22, 29, 45, 98, 45, 22, 52, 21, 4, 68, 20, 21, 58];
+
+  const displayIndex = highlight[0]?.dataIndex;
+  const displayValue =
+    displayIndex !== undefined && displayIndex !== null
+      ? `$${data[displayIndex].toFixed(2)}`
+      : 'Long-press to see value';
+
+  return (
+    <VStack gap={2}>
+      <Text font="body">{displayValue}</Text>
+      <LineChart
+        showArea
+        height={200}
+        onHighlightChange={setHighlight}
+        series={[{ id: 'prices', data }]}
+      >
+        <Scrubber />
+      </LineChart>
+    </VStack>
+  );
+}
+```
+
+The `onHighlightChange` callback receives an array of `HighlightedItem` objects:
+
+```ts
+type HighlightedItem = {
+  dataIndex: number | null; // Index of the highlighted data point
+  seriesId: string | null; // ID of the highlighted series (when using highlightScope.series)
+};
+```
+
+</MDXArticle>
+</MDXSection>
+
+<MDXSection>
+<MDXArticle>
+
+## Controlled State
+
+For full control over the highlighted state, use the `highlight` prop along with `onHighlightChange`.
+
+```tsx
+function ControlledHighlighting() {
+  const [highlight, setHighlight] = useState<HighlightedItem[] | undefined>(undefined);
+  const data = [10, 22, 29, 45, 98, 45, 22, 52, 21, 4, 68, 20, 21, 58];
+
+  return (
+    <VStack gap={2}>
+      <HStack gap={1}>
+        <Button compact onPress={() => setHighlight([{ dataIndex: 0, seriesId: null }])}>
+          First
+        </Button>
+        <Button compact onPress={() => setHighlight([{ dataIndex: 6, seriesId: null }])}>
+          Middle
+        </Button>
+        <Button compact onPress={() => setHighlight(undefined)} variant="secondary">
+          Clear
+        </Button>
+      </HStack>
+
+      <LineChart showArea height={200} highlight={highlight} series={[{ id: 'prices', data }]}>
+        <Scrubber />
+      </LineChart>
+    </VStack>
+  );
+}
+```
+
+### Controlled Mode Behavior
+
+| `highlight` value           | Behavior                                                                                                              |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `undefined`                 | **Uncontrolled mode** - Chart manages its own state                                                                   |
+| `[]` (empty array)          | **Controlled mode** - No items highlighted, user interactions don't change the UI but `onHighlightChange` still fires |
+| `[{ dataIndex, seriesId }]` | **Controlled mode** - Specified items are highlighted                                                                 |
+
+</MDXArticle>
+</MDXSection>
+
+<MDXSection>
+<MDXArticle>
+
+## Disabling Highlighting
+
+Set `enableHighlighting={false}` to disable all highlighting functionality.
+
+```tsx
+<LineChart enableHighlighting={false} showArea height={200} series={[{ id: 'prices', data }]} />
+```
+
+</MDXArticle>
+</MDXSection>
+
+<MDXSection>
+<MDXArticle>
+
+## Series Highlighting
+
+Enable series highlighting to track which specific bar or series the user is touching:
+
+```tsx
+function SeriesHighlighting() {
+  const [highlight, setHighlight] = useState<HighlightedItem[]>([]);
+
+  return (
+    <VStack gap={2}>
+      <Text font="body">
+        {highlight.length > 0
+          ? `Index: ${highlight[0]?.dataIndex} | Series: ${highlight[0]?.seriesId ?? 'none'}`
+          : 'Long-press over a bar...'}
+      </Text>
+
+      <BarChart
+        height={250}
+        highlightScope={{ dataIndex: true, series: true }}
+        onHighlightChange={setHighlight}
+        series={[
+          { id: 'A', data: [3, 4, 1, 6, 5], color: 'red' },
+          { id: 'B', data: [4, 3, 1, 5, 8], color: 'green' },
+        ]}
+        xAxis={{ scaleType: 'band', data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] }}
+      />
+    </VStack>
+  );
+}
+```
+
+### highlightScope Options
+
+```ts
+type HighlightScope = {
+  dataIndex?: boolean; // Track which data index is highlighted (default: true)
+  series?: boolean; // Track which series is highlighted (default: false)
+};
+```
+
+</MDXArticle>
+</MDXSection>
+
+<MDXSection>
+<MDXArticle>
+
+## Accessibility
+
+Mobile charts support VoiceOver with configurable accessibility modes.
+
+### accessibilityMode Options
+
+| Mode        | Description                                       |
+| ----------- | ------------------------------------------------- |
+| `'chunked'` | Divides chart into N accessible regions (default) |
+| `'item'`    | Each data point is an accessible region           |
+
+```tsx
+<LineChart
+  accessibilityLabel={(item) =>
+    item.dataIndex !== null
+      ? `Day ${item.dataIndex + 1}: $${data[item.dataIndex].toFixed(2)}`
+      : 'Interacting with price chart'
+  }
+  accessibilityMode="chunked"
+  accessibilityChunkCount={10}
+  height={200}
+  series={[{ id: 'prices', data }]}
+>
+  <Scrubber />
+</LineChart>
+```
+
+</MDXArticle>
+</MDXSection>
+
+<MDXSection>
+<MDXArticle>
+
+## Using the Highlight Context
+
+Access the highlight state from child components using the `useHighlightContext` hook:
+
+```tsx
+import { useHighlightContext } from '@coinbase/cds-mobile-visualization';
+
+function CustomHighlightIndicator() {
+  const { highlight, enabled, scope, setHighlight } = useHighlightContext();
+
+  // highlight is a SharedValue<HighlightedItem[]> for UI thread performance
+  // Use useAnimatedReaction or useDerivedValue to react to changes
+
+  return (
+    // Custom indicator implementation
+  );
+}
+```
+
+### Context Value
+
+```ts
+type HighlightContextValue = {
+  enabled: boolean; // Whether highlighting is enabled
+  scope: HighlightScope; // What aspects are being tracked
+  highlight: SharedValue<HighlightedItem[]>; // Current highlighted items (Reanimated SharedValue)
+  setHighlight: (items: HighlightedItem[]) => void; // Update highlight state
+  // ... element registration methods for hit testing
+};
+```
+
+:::note
+On mobile, `highlight` is a Reanimated `SharedValue` for UI thread performance. Use `useAnimatedReaction` or `useDerivedValue` to react to changes efficiently.
+:::
+
+</MDXArticle>
+</MDXSection>
+
+<MDXSection>
+<MDXArticle>
+
+## Migration from Legacy Props
+
+The following legacy props are still supported for backwards compatibility but are deprecated:
+
+| Legacy Prop                | New Prop             |
+| -------------------------- | -------------------- |
+| `enableScrubbing`          | `enableHighlighting` |
+| `onScrubberPositionChange` | `onHighlightChange`  |
+| `interaction`              | `enableHighlighting` |
+| `interactionScope`         | `highlightScope`     |
+| `activeItem`               | `highlight`          |
+| `activeItems`              | `highlight`          |
+| `onInteractionChange`      | `onHighlightChange`  |
+
+```tsx
+// Legacy (still works)
+<LineChart
+  enableScrubbing
+  onScrubberPositionChange={(index) => console.log(index)}
+  {...props}
+/>
+
+// Recommended
+<LineChart
+  enableHighlighting
+  onHighlightChange={(items) => console.log(items[0]?.dataIndex)}
+  {...props}
+/>
+```
+
+</MDXArticle>
+</MDXSection>
+
+<MDXSection>
+<MDXArticle>
+
+## API Reference
+
+### Chart Props
+
+| Prop                      | Type                                            | Default               | Description                         |
+| ------------------------- | ----------------------------------------------- | --------------------- | ----------------------------------- |
+| `enableHighlighting`      | `boolean`                                       | `true`                | Enable/disable highlighting         |
+| `highlight`               | `HighlightedItem[]`                             | `undefined`           | Controlled highlight state          |
+| `onHighlightChange`       | `(items: HighlightedItem[]) => void`            | -                     | Callback when highlight changes     |
+| `highlightScope`          | `HighlightScope`                                | `{ dataIndex: true }` | What aspects to track               |
+| `accessibilityLabel`      | `string \| ((item: HighlightedItem) => string)` | -                     | Accessibility label                 |
+| `accessibilityMode`       | `'chunked' \| 'item'`                           | `'chunked'`           | VoiceOver region mode               |
+| `accessibilityChunkCount` | `number`                                        | `10`                  | Number of chunks for 'chunked' mode |
+
+### Types
+
+```ts
+type HighlightedItem = {
+  dataIndex: number | null;
+  seriesId: string | null;
+};
+
+type HighlightScope = {
+  dataIndex?: boolean;
+  series?: boolean;
+};
+```
+
+</MDXArticle>
+</MDXSection>

@@ -3,7 +3,7 @@ import { useTheme } from '@coinbase/cds-mobile/hooks/useTheme';
 
 import { useCartesianChartContext } from '../ChartProvider';
 import { Path } from '../Path';
-import { getBarPath, useOptionalInteractionContext } from '../utils';
+import { getBarPath, useOptionalHighlightContext } from '../utils';
 
 import type { BarComponentProps } from './Bar';
 
@@ -12,8 +12,8 @@ export type DefaultBarProps = BarComponentProps;
 /**
  * Default bar component that renders a solid bar with animation support.
  *
- * Automatically registers bounds for series interaction hit testing when
- * `interactionScope.series` is enabled.
+ * Automatically registers bounds for series highlighting hit testing when
+ * `highlightScope.series` is enabled.
  */
 export const DefaultBar = memo<DefaultBarProps>(
   ({
@@ -35,16 +35,16 @@ export const DefaultBar = memo<DefaultBarProps>(
     transition,
   }) => {
     const { animate } = useCartesianChartContext();
-    const interactionContext = useOptionalInteractionContext();
+    const highlightContext = useOptionalHighlightContext();
 
-    // Register bar bounds for hit testing when series interaction is enabled
+    // Register bar bounds for hit testing when series highlighting is enabled
     useEffect(() => {
-      if (!interactionContext?.scope.series || !seriesId) return;
+      if (!highlightContext?.scope.series || !seriesId) return;
 
       // Get the data index as a number
       const dataIndex = typeof dataX === 'number' ? dataX : 0;
 
-      interactionContext.registerBar({
+      highlightContext.registerBar({
         x,
         y,
         width,
@@ -54,9 +54,9 @@ export const DefaultBar = memo<DefaultBarProps>(
       });
 
       return () => {
-        interactionContext.unregisterBar(seriesId, dataIndex);
+        highlightContext.unregisterBar(seriesId, dataIndex);
       };
-    }, [x, y, width, height, dataX, seriesId, interactionContext]);
+    }, [x, y, width, height, dataX, seriesId, highlightContext]);
     const theme = useTheme();
 
     const defaultFill = fill || theme.color.fgPrimary;

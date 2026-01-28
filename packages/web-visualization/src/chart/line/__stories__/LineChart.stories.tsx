@@ -22,12 +22,11 @@ import { Text, TextLabel1 } from '@coinbase/cds-web/typography';
 import { m } from 'framer-motion';
 
 import {
-  type ActiveItem,
   type AxisBounds,
   DefaultScrubberBeacon,
   DefaultScrubberLabel,
   defaultTransition,
-  type InteractionState,
+  type HighlightedItem,
   PeriodSelector,
   PeriodSelectorActiveIndicator,
   Point,
@@ -1645,9 +1644,8 @@ function HighlightLineSegments() {
 
   const [scrubberPosition, setScrubberPosition] = useState<number | undefined>(undefined);
 
-  const handleInteractionChange = useCallback((state: InteractionState) => {
-    const item = state as ActiveItem | undefined;
-    setScrubberPosition(item?.dataIndex ?? undefined);
+  const handleHighlightChange = useCallback((items: HighlightedItem[]) => {
+    setScrubberPosition(items[0]?.dataIndex ?? undefined);
   }, []);
 
   // Calculate which month (~30-day segment) the scrubber is in
@@ -1694,8 +1692,7 @@ function HighlightLineSegments() {
     <LineChart
       animate={false}
       height={{ base: 200, tablet: 225, desktop: 250 }}
-      interaction="single"
-      onInteractionChange={handleInteractionChange}
+      onHighlightChange={handleHighlightChange}
       series={[{ id: 'btc', data: prices, gradient }]}
       style={{ outlineColor: assets.btc.color }}
     >
@@ -1772,27 +1769,26 @@ function AdaptiveDetail() {
 
   // Memoized chart component - only re-renders when data or isScrubbing changes
   type MemoizedChartProps = {
-    activeItem: ActiveItem | undefined;
+    highlight: HighlightedItem[] | undefined;
     data: number[];
     isScrubbing: boolean;
-    onInteractionChange: (state: InteractionState) => void;
+    onHighlightChange: (items: HighlightedItem[]) => void;
     scrubberLabel: (index: number) => string;
   };
 
   const MemoizedChart = memo(
-    ({ activeItem, data, isScrubbing, onInteractionChange, scrubberLabel }: MemoizedChartProps) => {
+    ({ highlight, data, isScrubbing, onHighlightChange, scrubberLabel }: MemoizedChartProps) => {
       console.log('[MemoizedChart] Rendering with:', {
-        activeItem,
+        highlight,
         dataLength: data.length,
         isScrubbing,
         strokeWidth: isScrubbing ? 2 : 4,
       });
       return (
         <LineChart
-          activeItem={activeItem}
           height={{ base: 200, tablet: 250, desktop: 300 }}
-          interaction="single"
-          onInteractionChange={onInteractionChange}
+          highlight={highlight}
+          onHighlightChange={onHighlightChange}
           series={[
             {
               id: 'btc',
@@ -1945,22 +1941,22 @@ function AdaptiveDetail() {
       return closestIdx;
     }, []);
 
-    // Compute controlled activeItem based on selected timestamp and current display data
-    // Return undefined (not null) when not interacting to allow uncontrolled user input
-    // Return ActiveItem when interacting to control position across dataset changes
-    const activeItem = useMemo<ActiveItem | undefined>(() => {
+    // Compute controlled highlight based on selected timestamp and current display data
+    // Return undefined when not interacting to allow uncontrolled user input
+    // Return HighlightedItem[] when interacting to control position across dataset changes
+    const highlight = useMemo<HighlightedItem[] | undefined>(() => {
       if (selectedTimestamp === null) {
-        console.log('[AdaptiveDetail] activeItem: undefined (no timestamp)');
+        console.log('[AdaptiveDetail] highlight: undefined (no timestamp)');
         return undefined;
       }
 
       const dataIndex = findClosestIndex(selectedTimestamp, displayTimestamps);
-      console.log('[AdaptiveDetail] activeItem computed:', {
+      console.log('[AdaptiveDetail] highlight computed:', {
         selectedTimestamp: selectedTimestamp.toISOString(),
         dataIndex,
         displayTimestampsLength: displayTimestamps.length,
       });
-      return { dataIndex, seriesId: null };
+      return [{ dataIndex, seriesId: null }];
     }, [selectedTimestamp, displayTimestamps, findClosestIndex]);
 
     const onPeriodChange = useCallback(
@@ -1970,11 +1966,11 @@ function AdaptiveDetail() {
       [tabs],
     );
 
-    // Store the timestamp when interaction changes, not the dataIndex
+    // Store the timestamp when highlight changes, not the dataIndex
     // Uses ref to always get latest displayTimestamps, avoiding stale closure issues
-    const handleInteractionChange = useCallback((state: InteractionState) => {
-      const item = state as ActiveItem | undefined;
-      console.log('[AdaptiveDetail] handleInteractionChange called:', {
+    const handleHighlightChange = useCallback((items: HighlightedItem[]) => {
+      const item = items[0];
+      console.log('[AdaptiveDetail] handleHighlightChange called:', {
         item,
         displayTimestampsRefLength: displayTimestampsRef.current.length,
       });
@@ -1987,7 +1983,7 @@ function AdaptiveDetail() {
           exitTimeoutRef.current = null;
         }
         const timestamp = displayTimestampsRef.current[item.dataIndex];
-        console.log('[AdaptiveDetail] Setting interaction:', {
+        console.log('[AdaptiveDetail] Setting highlight:', {
           dataIndex: item.dataIndex,
           timestamp: timestamp?.toISOString(),
         });
@@ -1997,10 +1993,10 @@ function AdaptiveDetail() {
       } else {
         // User stopped interacting - delay before switching back to sampled data
         // This prevents the race condition where switching data while mouse is still
-        // over the chart causes an immediate re-interaction
+        // over the chart causes an immediate re-highlight
         console.log('[AdaptiveDetail] Starting exit timeout (50ms)');
         exitTimeoutRef.current = setTimeout(() => {
-          console.log('[AdaptiveDetail] Exit timeout fired - clearing interaction');
+          console.log('[AdaptiveDetail] Exit timeout fired - clearing highlight');
           setIsInteracting(false);
           setSelectedTimestamp(null);
           exitTimeoutRef.current = null;
@@ -2106,10 +2102,10 @@ function AdaptiveDetail() {
           </VStack>
         </HStack>
         <MemoizedChart
-          activeItem={activeItem}
           data={displayData}
+          highlight={highlight}
           isScrubbing={isScrubbing}
-          onInteractionChange={handleInteractionChange}
+          onHighlightChange={handleHighlightChange}
           scrubberLabel={scrubberLabel}
         />
         <PeriodSelector

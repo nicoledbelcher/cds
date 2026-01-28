@@ -2,7 +2,7 @@ import React, { memo, useCallback, useMemo } from 'react';
 import { m as motion } from 'framer-motion';
 
 import { useCartesianChartContext } from '../ChartProvider';
-import { getBarPath, useOptionalInteractionContext } from '../utils';
+import { getBarPath, useOptionalHighlightContext } from '../utils';
 
 import type { BarComponentProps } from './Bar';
 
@@ -19,7 +19,7 @@ export type DefaultBarProps = BarComponentProps & {
 
 /**
  * Default bar component that renders a solid bar with animation.
- * Automatically tracks series interaction when `interactionScope.series` is enabled.
+ * Automatically tracks series highlighting when `highlightScope.series` is enabled.
  */
 export const DefaultBar = memo<DefaultBarProps>(
   ({
@@ -39,7 +39,7 @@ export const DefaultBar = memo<DefaultBarProps>(
     ...props
   }) => {
     const { animate } = useCartesianChartContext();
-    const interactionContext = useOptionalInteractionContext();
+    const highlightContext = useOptionalHighlightContext();
 
     const initialPath = useMemo(() => {
       if (!animate) return undefined;
@@ -49,36 +49,40 @@ export const DefaultBar = memo<DefaultBarProps>(
       return getBarPath(x, initialY, width, minHeight, borderRadius, !!roundTop, !!roundBottom);
     }, [animate, x, originY, width, borderRadius, roundTop, roundBottom]);
 
-    // Get the data index as a number for interaction
+    // Get the data index as a number for highlighting
     const dataIndex = typeof dataX === 'number' ? dataX : null;
 
     const handleMouseEnter = useCallback(() => {
-      if (!interactionContext || interactionContext.mode === 'none') return;
-      if (!interactionContext.scope.series) return;
+      if (!highlightContext || !highlightContext.enabled) return;
+      if (!highlightContext.scope.series) return;
 
-      interactionContext.setActiveItem({
-        dataIndex,
-        seriesId: seriesId ?? null,
-      });
-    }, [interactionContext, dataIndex, seriesId]);
+      highlightContext.setHighlight([
+        {
+          dataIndex,
+          seriesId: seriesId ?? null,
+        },
+      ]);
+    }, [highlightContext, dataIndex, seriesId]);
 
     const handleMouseLeave = useCallback(() => {
-      if (!interactionContext || interactionContext.mode === 'none') return;
-      if (!interactionContext.scope.series) return;
+      if (!highlightContext || !highlightContext.enabled) return;
+      if (!highlightContext.scope.series) return;
 
       // Reset to just dataIndex (keep dataIndex tracking, clear series)
-      if (interactionContext.scope.dataIndex) {
-        interactionContext.setActiveItem({
-          dataIndex,
-          seriesId: null,
-        });
+      if (highlightContext.scope.dataIndex) {
+        highlightContext.setHighlight([
+          {
+            dataIndex,
+            seriesId: null,
+          },
+        ]);
       } else {
-        interactionContext.setActiveItem(undefined);
+        highlightContext.setHighlight([]);
       }
-    }, [interactionContext, dataIndex, seriesId]);
+    }, [highlightContext, dataIndex, seriesId]);
 
     // Only add event handlers when series scope is enabled
-    const eventHandlers = interactionContext?.scope.series
+    const eventHandlers = highlightContext?.scope.series
       ? {
           onMouseEnter: handleMouseEnter,
           onMouseLeave: handleMouseLeave,

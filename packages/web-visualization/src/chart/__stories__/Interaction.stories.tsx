@@ -10,8 +10,8 @@ import { CartesianChart } from '../CartesianChart';
 import { useCartesianChartContext } from '../ChartProvider';
 import { Line, LineChart, ReferenceLine, SolidLine } from '../line';
 import { Scrubber } from '../scrubber';
-import type { ActiveItem, ActiveItems, InteractionState } from '../utils';
-import { useInteractionContext, useScrubberContext } from '../utils';
+import type { HighlightedItem } from '../utils';
+import { useHighlightContext, useScrubberContext } from '../utils';
 
 export default {
   title: 'Components/Chart/Interaction',
@@ -28,12 +28,12 @@ const formatPrice = (value: number) =>
   }).format(value);
 
 /**
- * Basic interaction with the new API
+ * Basic highlighting with the new API
  */
-export function BasicInteraction() {
-  const [activeItem, setActiveItem] = useState<ActiveItem | undefined>(undefined);
+export function BasicHighlighting() {
+  const [highlight, setHighlight] = useState<HighlightedItem[]>([]);
 
-  const accessibilityLabel = useCallback((item: ActiveItem) => {
+  const accessibilityLabel = useCallback((item: HighlightedItem) => {
     if (item.dataIndex === null) return 'Interacting with chart';
     return `Day ${item.dataIndex + 1}: ${formatPrice(samplePrices[item.dataIndex])}`;
   }, []);
@@ -41,15 +41,16 @@ export function BasicInteraction() {
   return (
     <VStack gap={2}>
       <Text as="h2" font="title3">
-        Basic Interaction (Single Mode)
+        Basic Highlighting
       </Text>
       <Text as="p" color="fgMuted">
-        Hover or touch the chart to see interaction state.
+        Hover or touch the chart to see highlight state.
       </Text>
 
       <Box background="bgSecondary" borderRadius={200} padding={2}>
         <Text font="body">
-          Active: {activeItem ? `dataIndex: ${activeItem.dataIndex}` : 'Not interacting'}
+          Active:{' '}
+          {highlight.length > 0 ? `dataIndex: ${highlight[0]?.dataIndex}` : 'Not interacting'}
         </Text>
       </Box>
 
@@ -58,8 +59,7 @@ export function BasicInteraction() {
         showYAxis
         accessibilityLabel={accessibilityLabel}
         height={250}
-        interaction="single"
-        onInteractionChange={(state) => setActiveItem(state as ActiveItem | undefined)}
+        onHighlightChange={setHighlight}
         series={[{ id: 'price', data: samplePrices }]}
       >
         <Scrubber />
@@ -69,12 +69,12 @@ export function BasicInteraction() {
 }
 
 /**
- * Controlled state - programmatically set the active item
+ * Controlled state - programmatically set the highlighted item
  */
 export function ControlledState() {
-  // null = controlled mode with no active item (ignores user input)
-  // ActiveItem = controlled mode with specific active item
-  const [activeItem, setActiveItem] = useState<ActiveItem | null>(null);
+  // null = controlled mode with no highlights
+  // HighlightedItem[] = controlled mode with specific highlights
+  const [highlight, setHighlight] = useState<HighlightedItem[] | undefined>(undefined);
 
   return (
     <VStack gap={2}>
@@ -87,35 +87,34 @@ export function ControlledState() {
       </Text>
 
       <HStack gap={1}>
-        <Button compact onClick={() => setActiveItem({ dataIndex: 0, seriesId: null })}>
+        <Button compact onClick={() => setHighlight([{ dataIndex: 0, seriesId: null }])}>
           First
         </Button>
-        <Button compact onClick={() => setActiveItem({ dataIndex: 14, seriesId: null })}>
+        <Button compact onClick={() => setHighlight([{ dataIndex: 14, seriesId: null }])}>
           Middle
         </Button>
-        <Button compact onClick={() => setActiveItem({ dataIndex: 29, seriesId: null })}>
+        <Button compact onClick={() => setHighlight([{ dataIndex: 29, seriesId: null }])}>
           Last
         </Button>
-        <Button compact onClick={() => setActiveItem(null)} variant="secondary">
+        <Button compact onClick={() => setHighlight(undefined)} variant="secondary">
           Clear
         </Button>
       </HStack>
 
       <Box background="bgSecondary" borderRadius={200} padding={2}>
         <Text font="body">
-          Index: {activeItem?.dataIndex ?? 'none'}
-          {activeItem?.dataIndex !== undefined &&
-            activeItem.dataIndex !== null &&
-            ` (${formatPrice(samplePrices[activeItem.dataIndex])})`}
+          Index: {highlight?.[0]?.dataIndex ?? 'none'}
+          {highlight?.[0]?.dataIndex !== undefined &&
+            highlight[0].dataIndex !== null &&
+            ` (${formatPrice(samplePrices[highlight[0].dataIndex])})`}
         </Text>
       </Box>
 
       <LineChart
         showArea
         showYAxis
-        activeItem={activeItem}
         height={250}
-        interaction="single"
+        highlight={highlight}
         series={[{ id: 'price', data: samplePrices }]}
       >
         <Scrubber />
@@ -125,24 +124,24 @@ export function ControlledState() {
 }
 
 /**
- * Interaction disabled
+ * Highlighting disabled
  */
-export function InteractionDisabled() {
+export function HighlightingDisabled() {
   return (
     <VStack gap={2}>
       <Text as="h2" font="title3">
-        Interaction Disabled
+        Highlighting Disabled
       </Text>
       <Text as="p" color="fgMuted">
-        Set interaction=&quot;none&quot; to disable all interaction.
+        Set enableHighlighting=false to disable all highlighting.
       </Text>
 
       <LineChart
         showArea
         showYAxis
         accessibilityLabel="Bitcoin price chart - display only"
+        enableHighlighting={false}
         height={250}
-        interaction="none"
         series={[{ id: 'price', data: samplePrices }]}
       />
     </VStack>
@@ -196,7 +195,6 @@ export function AccessibilityLabels() {
           showArea
           accessibilityLabel="Bitcoin price chart showing 30 days"
           height={200}
-          interaction="single"
           series={[{ id: 'price', data: samplePrices }]}
         >
           <Scrubber />
@@ -209,13 +207,12 @@ export function AccessibilityLabels() {
         </Text>
         <LineChart
           showArea
-          accessibilityLabel={(item: ActiveItem) =>
+          accessibilityLabel={(item: HighlightedItem) =>
             item.dataIndex !== null
               ? `Day ${item.dataIndex + 1}: ${formatPrice(samplePrices[item.dataIndex])}`
               : 'Interacting with chart'
           }
           height={200}
-          interaction="single"
           series={[{ id: 'price', data: samplePrices }]}
         >
           <Scrubber />
@@ -226,10 +223,10 @@ export function AccessibilityLabels() {
 }
 
 /**
- * Multi-series chart with interaction
+ * Multi-series chart with highlighting
  */
-export function MultiSeriesInteraction() {
-  const [activeItem, setActiveItem] = useState<ActiveItem | undefined>(undefined);
+export function MultiSeriesHighlighting() {
+  const [highlight, setHighlight] = useState<HighlightedItem[]>([]);
 
   const series1Data = useMemo(() => samplePrices, []);
   const series2Data = useMemo(() => samplePrices.map((p) => p * 0.8 + Math.random() * 1000), []);
@@ -237,17 +234,17 @@ export function MultiSeriesInteraction() {
   return (
     <VStack gap={2}>
       <Text as="h2" font="title3">
-        Multi-Series Interaction
+        Multi-Series Highlighting
       </Text>
 
       <Box background="bgSecondary" borderRadius={200} padding={2}>
         <Text font="body">
-          Index: {activeItem?.dataIndex ?? 'none'}
-          {activeItem?.dataIndex !== undefined && activeItem.dataIndex !== null && (
+          Index: {highlight[0]?.dataIndex ?? 'none'}
+          {highlight[0]?.dataIndex !== undefined && highlight[0].dataIndex !== null && (
             <>
               {' '}
-              | BTC: {formatPrice(series1Data[activeItem.dataIndex])} | ETH:{' '}
-              {formatPrice(series2Data[activeItem.dataIndex])}
+              | BTC: {formatPrice(series1Data[highlight[0].dataIndex])} | ETH:{' '}
+              {formatPrice(series2Data[highlight[0].dataIndex])}
             </>
           )}
         </Text>
@@ -255,8 +252,7 @@ export function MultiSeriesInteraction() {
 
       <CartesianChart
         height={250}
-        interaction="single"
-        onInteractionChange={(state) => setActiveItem(state as ActiveItem | undefined)}
+        onHighlightChange={setHighlight}
         series={[
           { id: 'btc', data: series1Data, color: 'var(--color-fgPrimary)', label: 'BTC' },
           { id: 'eth', data: series2Data, color: 'var(--color-fgPositive)', label: 'ETH' },
@@ -272,23 +268,23 @@ export function MultiSeriesInteraction() {
 }
 
 /**
- * Interaction callback details
+ * Highlight callback details
  */
-export function InteractionCallbackDetails() {
+export function HighlightCallbackDetails() {
   const [events, setEvents] = useState<string[]>([]);
 
-  const handleInteractionChange = useCallback((state: InteractionState) => {
-    const item = state as ActiveItem | undefined;
+  const handleHighlightChange = useCallback((items: HighlightedItem[]) => {
+    const item = items[0];
     const event = item
       ? `{ dataIndex: ${item.dataIndex}, seriesId: ${item.seriesId ?? 'null'} }`
-      : 'undefined';
+      : '[]';
     setEvents((prev) => [...prev.slice(-9), event]);
   }, []);
 
   return (
     <VStack gap={2}>
       <Text as="h2" font="title3">
-        Interaction Callback Details
+        Highlight Callback Details
       </Text>
 
       <Box background="bgSecondary" borderRadius={200} padding={2} style={{ minHeight: 150 }}>
@@ -311,8 +307,7 @@ export function InteractionCallbackDetails() {
       <LineChart
         showArea
         height={200}
-        interaction="single"
-        onInteractionChange={handleInteractionChange}
+        onHighlightChange={handleHighlightChange}
         series={[{ id: 'price', data: samplePrices }]}
       >
         <Scrubber />
@@ -322,15 +317,14 @@ export function InteractionCallbackDetails() {
 }
 
 /**
- * Multi-touch interaction with reference lines
+ * Multi-touch highlighting with reference lines
  */
-export function MultiTouchInteraction() {
-  const [activeItems, setActiveItems] = useState<ActiveItems>([]);
+export function MultiTouchHighlighting() {
+  const [highlight, setHighlight] = useState<HighlightedItem[]>([]);
 
-  // Custom component that renders a ReferenceLine for each active touch point
+  // Custom component that renders a ReferenceLine for each highlighted touch point
   const MultiTouchReferenceLines = memo(() => {
-    const { activeItem } = useInteractionContext();
-    const items = (activeItem as ActiveItems) ?? [];
+    const { highlight: items } = useHighlightContext();
 
     // Different colors for each touch point
     const colors = [
@@ -361,7 +355,7 @@ export function MultiTouchInteraction() {
   return (
     <VStack gap={2}>
       <Text as="h2" font="title3">
-        Multi-Touch Interaction
+        Multi-Touch Highlighting
       </Text>
       <Text as="p" color="fgMuted">
         Use multiple fingers on a touch device to see multiple reference lines. Each touch point
@@ -370,9 +364,9 @@ export function MultiTouchInteraction() {
 
       <Box background="bgSecondary" borderRadius={200} padding={2}>
         <Text font="body">
-          Active touches: {activeItems.length}
-          {activeItems.length > 0 &&
-            ` (${activeItems.map((item) => `Day ${(item.dataIndex ?? 0) + 1}`).join(', ')})`}
+          Active touches: {highlight.length}
+          {highlight.length > 0 &&
+            ` (${highlight.map((item) => `Day ${(item.dataIndex ?? 0) + 1}`).join(', ')})`}
         </Text>
       </Box>
 
@@ -381,8 +375,7 @@ export function MultiTouchInteraction() {
         showYAxis
         height={300}
         inset={{ top: 40 }}
-        interaction="multi"
-        onInteractionChange={(state) => setActiveItems((state as ActiveItems) ?? [])}
+        onHighlightChange={setHighlight}
         series={[{ id: 'price', data: samplePrices }]}
       >
         <MultiTouchReferenceLines />
@@ -423,14 +416,10 @@ const BandwidthHighlight = memo(() => {
 });
 
 /**
- * Synchronized interaction across multiple charts
+ * Synchronized highlighting across multiple charts
  */
 export function SynchronizedCharts() {
-  const [activeItem, setActiveItem] = useState<ActiveItem | null>(null);
-
-  const handleInteractionChange = useCallback((state: InteractionState) => {
-    setActiveItem((state as ActiveItem) ?? null);
-  }, []);
+  const [highlight, setHighlight] = useState<HighlightedItem[] | undefined>(undefined);
 
   return (
     <VStack gap={2}>
@@ -447,31 +436,30 @@ export function SynchronizedCharts() {
           <Button
             key={index}
             compact
-            onClick={() => setActiveItem({ dataIndex: index, seriesId: null })}
-            variant={activeItem?.dataIndex === index ? 'primary' : 'secondary'}
+            onClick={() => setHighlight([{ dataIndex: index, seriesId: null }])}
+            variant={highlight?.[0]?.dataIndex === index ? 'primary' : 'secondary'}
           >
             {label}
           </Button>
         ))}
-        <Button compact onClick={() => setActiveItem(null)} variant="tertiary">
+        <Button compact onClick={() => setHighlight(undefined)} variant="tertiary">
           Clear
         </Button>
       </HStack>
 
       <Box background="bgSecondary" borderRadius={200} padding={2}>
         <Text font="body">
-          Highlighted index: {activeItem?.dataIndex ?? 'none'}
-          {activeItem?.dataIndex !== null &&
-            activeItem?.dataIndex !== undefined &&
-            ` (A: ${seriesA[activeItem.dataIndex]}, B: ${seriesB[activeItem.dataIndex]})`}
+          Highlighted index: {highlight?.[0]?.dataIndex ?? 'none'}
+          {highlight?.[0]?.dataIndex !== null &&
+            highlight?.[0]?.dataIndex !== undefined &&
+            ` (A: ${seriesA[highlight[0].dataIndex]}, B: ${seriesB[highlight[0].dataIndex]})`}
         </Text>
       </Box>
 
       <CartesianChart
-        activeItem={activeItem}
         height={200}
-        interaction="single"
-        onInteractionChange={handleInteractionChange}
+        highlight={highlight}
+        onHighlightChange={setHighlight}
         series={[
           { id: 'A', data: seriesA, label: 'Series A', color: 'var(--color-fgPrimary)' },
           { id: 'B', data: seriesB, label: 'Series B', color: 'var(--color-fgPositive)' },
@@ -485,10 +473,9 @@ export function SynchronizedCharts() {
       </CartesianChart>
 
       <CartesianChart
-        activeItem={activeItem}
         height={200}
-        interaction="single"
-        onInteractionChange={handleInteractionChange}
+        highlight={highlight}
+        onHighlightChange={setHighlight}
         series={[
           { id: 'A', data: seriesA, label: 'Series A', color: 'var(--color-fgPrimary)' },
           { id: 'B', data: seriesB, label: 'Series B', color: 'var(--color-fgPositive)' },
@@ -506,14 +493,10 @@ export function SynchronizedCharts() {
 }
 
 /**
- * Series interaction - track which specific bar/series is being hovered
+ * Series highlighting - track which specific bar/series is being hovered
  */
-export function SeriesInteraction() {
-  const [activeItem, setActiveItem] = useState<ActiveItem | undefined>(undefined);
-
-  const handleInteractionChange = useCallback((state: InteractionState) => {
-    setActiveItem(state as ActiveItem | undefined);
-  }, []);
+export function SeriesHighlighting() {
+  const [highlight, setHighlight] = useState<HighlightedItem[]>([]);
 
   const seriesColors: Record<string, string> = {
     A: 'var(--color-fgPrimary)',
@@ -524,7 +507,7 @@ export function SeriesInteraction() {
   return (
     <VStack gap={2}>
       <Text as="h2" font="title3">
-        Series Interaction
+        Series Highlighting
       </Text>
       <Text as="p" color="fgMuted">
         Hover over individual bars to see both dataIndex and seriesId tracked. Uses InteractiveBar
@@ -533,15 +516,19 @@ export function SeriesInteraction() {
 
       <Box background="bgSecondary" borderRadius={200} padding={2}>
         <Text font="body">
-          {activeItem ? (
+          {highlight.length > 0 ? (
             <>
-              Index: {activeItem.dataIndex ?? 'none'}
-              {activeItem.seriesId && (
+              Index: {highlight[0]?.dataIndex ?? 'none'}
+              {highlight[0]?.seriesId && (
                 <>
                   {' '}
                   | Series:{' '}
-                  <Text as="span" font="body" style={{ color: seriesColors[activeItem.seriesId] }}>
-                    {activeItem.seriesId}
+                  <Text
+                    as="span"
+                    font="body"
+                    style={{ color: seriesColors[highlight[0].seriesId] }}
+                  >
+                    {highlight[0].seriesId}
                   </Text>
                 </>
               )}
@@ -554,9 +541,8 @@ export function SeriesInteraction() {
 
       <BarChart
         height={250}
-        interaction="single"
-        interactionScope={{ dataIndex: true, series: true }}
-        onInteractionChange={handleInteractionChange}
+        highlightScope={{ dataIndex: true, series: true }}
+        onHighlightChange={setHighlight}
         series={[
           { id: 'A', data: seriesA, label: 'Series A', color: seriesColors.A },
           { id: 'B', data: seriesB, label: 'Series B', color: seriesColors.B },
@@ -572,12 +558,12 @@ export function SeriesInteraction() {
  * Test overlapping bars with separate BarPlots to verify z-order behavior
  */
 export function OverlappingBarsZOrder() {
-  const [activeItem, setActiveItem] = useState<ActiveItem | undefined>(undefined);
+  const [highlight, setHighlight] = useState<HighlightedItem[]>([]);
   const [eventLog, setEventLog] = useState<string[]>([]);
 
-  const handleInteractionChange = useCallback((state: InteractionState) => {
-    const item = state as ActiveItem | undefined;
-    setActiveItem(item);
+  const handleHighlightChange = useCallback((items: HighlightedItem[]) => {
+    const item = items[0];
+    setHighlight(items);
 
     // Log the event
     if (item) {
@@ -603,15 +589,19 @@ export function OverlappingBarsZOrder() {
 
       <Box background="bgSecondary" borderRadius={200} padding={2}>
         <Text font="body">
-          {activeItem ? (
+          {highlight.length > 0 ? (
             <>
-              Index: {activeItem.dataIndex ?? 'none'}
-              {activeItem.seriesId && (
+              Index: {highlight[0]?.dataIndex ?? 'none'}
+              {highlight[0]?.seriesId && (
                 <>
                   {' '}
                   | Series:{' '}
-                  <Text as="span" font="body" style={{ color: seriesColors[activeItem.seriesId] }}>
-                    {activeItem.seriesId}
+                  <Text
+                    as="span"
+                    font="body"
+                    style={{ color: seriesColors[highlight[0].seriesId] }}
+                  >
+                    {highlight[0].seriesId}
                   </Text>
                 </>
               )}
@@ -624,10 +614,9 @@ export function OverlappingBarsZOrder() {
 
       <CartesianChart
         height={300}
+        highlightScope={{ dataIndex: true, series: true }}
         inset={{ top: 8, bottom: 8, left: 0, right: 0 }}
-        interaction="single"
-        interactionScope={{ dataIndex: true, series: true }}
-        onInteractionChange={handleInteractionChange}
+        onHighlightChange={handleHighlightChange}
         series={[
           {
             id: 'revenue',
@@ -731,11 +720,8 @@ type FadeableLineProps = React.ComponentProps<typeof SolidLine> & {
 
 const FadeableLine = memo<FadeableLineProps>(
   ({ seriesId, strokeWidth = 2, activeStrokeWidth, ...props }) => {
-    const interactionContext = useInteractionContext();
-    const activeSeriesId =
-      interactionContext.activeItem && !Array.isArray(interactionContext.activeItem)
-        ? interactionContext.activeItem.seriesId
-        : null;
+    const highlightContext = useHighlightContext();
+    const activeSeriesId = highlightContext.highlight[0]?.seriesId ?? null;
 
     // Determine if this line is active, faded, or neutral
     const isActive = activeSeriesId === seriesId;
@@ -759,16 +745,12 @@ const FadeableLine = memo<FadeableLineProps>(
 );
 
 /**
- * Line series interaction with interactionOffset for larger hit area
+ * Line series highlighting with interactionOffset for larger hit area
  */
-export function LineSeriesInteraction() {
-  const [activeItem, setActiveItem] = useState<ActiveItem | undefined>(undefined);
+export function LineSeriesHighlighting() {
+  const [highlight, setHighlight] = useState<HighlightedItem[]>([]);
   const [interactionOffset, setInteractionOffset] = useState(8);
   const [enableFade, setEnableFade] = useState(true);
-
-  const handleInteractionChange = useCallback((state: InteractionState) => {
-    setActiveItem(state as ActiveItem | undefined);
-  }, []);
 
   const seriesColors: Record<string, string> = {
     btc: 'var(--color-fgPrimary)',
@@ -784,7 +766,7 @@ export function LineSeriesInteraction() {
   return (
     <VStack gap={2}>
       <Text as="h2" font="title3">
-        Line Series Interaction
+        Line Series Highlighting
       </Text>
       <Text as="p" color="fgMuted">
         Hover over the lines to highlight a specific series. Other lines fade out when one is
@@ -813,15 +795,19 @@ export function LineSeriesInteraction() {
 
       <Box background="bgSecondary" borderRadius={200} padding={2}>
         <Text font="body">
-          {activeItem ? (
+          {highlight.length > 0 ? (
             <>
-              Index: {activeItem.dataIndex ?? 'none'}
-              {activeItem.seriesId && (
+              Index: {highlight[0]?.dataIndex ?? 'none'}
+              {highlight[0]?.seriesId && (
                 <>
                   {' '}
                   | Series:{' '}
-                  <Text as="span" font="body" style={{ color: seriesColors[activeItem.seriesId] }}>
-                    {activeItem.seriesId}
+                  <Text
+                    as="span"
+                    font="body"
+                    style={{ color: seriesColors[highlight[0].seriesId] }}
+                  >
+                    {highlight[0].seriesId}
                   </Text>
                 </>
               )}
@@ -838,9 +824,8 @@ export function LineSeriesInteraction() {
 
       <CartesianChart
         height={300}
-        interaction="single"
-        interactionScope={{ dataIndex: true, series: true }}
-        onInteractionChange={handleInteractionChange}
+        highlightScope={{ dataIndex: true, series: true }}
+        onHighlightChange={setHighlight}
         series={[
           { id: 'btc', data: btcData, color: seriesColors.btc },
           { id: 'eth', data: ethData, color: seriesColors.eth },

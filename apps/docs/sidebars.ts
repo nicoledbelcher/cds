@@ -611,6 +611,11 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              id: 'components/graphs/Highlighting/highlighting',
+              label: 'Highlighting',
+            },
+            {
+              type: 'doc',
               id: 'components/graphs/Legend/legend',
               label: 'Legend',
             },

@@ -3,7 +3,7 @@ import type { SharedProps } from '@coinbase/cds-common/types';
 
 import { Gradient } from '../gradient';
 import { Path, type PathProps } from '../Path';
-import { useOptionalInteractionContext } from '../utils';
+import { useOptionalHighlightContext } from '../utils';
 
 import type { LineComponentProps } from './Line';
 
@@ -26,7 +26,7 @@ export type SolidLineProps = SharedProps &
 /**
  * A customizable solid line component.
  * Supports gradient for gradient effects and smooth data transitions.
- * Automatically tracks series interaction when `interactionScope.series` is enabled.
+ * Automatically tracks series highlighting when `highlightScope.series` is enabled.
  */
 export const SolidLine = memo<SolidLineProps>(
   ({
@@ -46,46 +46,46 @@ export const SolidLine = memo<SolidLineProps>(
     ...props
   }) => {
     const gradientId = useId();
-    const interactionContext = useOptionalInteractionContext();
+    const highlightContext = useOptionalHighlightContext();
 
-    // Series interaction handlers
+    // Series highlight handlers
     const handleMouseEnter = useCallback(() => {
-      if (!interactionContext || interactionContext.mode === 'none') return;
-      if (!interactionContext.scope.series) return;
+      if (!highlightContext || !highlightContext.enabled) return;
+      if (!highlightContext.scope.series) return;
 
-      // Get current dataIndex from active item (preserve it)
-      const currentItem = interactionContext.activeItem;
-      const currentDataIndex =
-        currentItem && !Array.isArray(currentItem) ? currentItem.dataIndex : null;
+      // Get current dataIndex from highlight (preserve it)
+      const currentDataIndex = highlightContext.highlight[0]?.dataIndex ?? null;
 
-      interactionContext.setActiveItem({
-        dataIndex: currentDataIndex,
-        seriesId: seriesId ?? null,
-      });
-    }, [interactionContext, seriesId]);
+      highlightContext.setHighlight([
+        {
+          dataIndex: currentDataIndex,
+          seriesId: seriesId ?? null,
+        },
+      ]);
+    }, [highlightContext, seriesId]);
 
     const handleMouseLeave = useCallback(() => {
-      if (!interactionContext || interactionContext.mode === 'none') return;
-      if (!interactionContext.scope.series) return;
+      if (!highlightContext || !highlightContext.enabled) return;
+      if (!highlightContext.scope.series) return;
 
-      // Get current dataIndex from active item (preserve it)
-      const currentItem = interactionContext.activeItem;
-      const currentDataIndex =
-        currentItem && !Array.isArray(currentItem) ? currentItem.dataIndex : null;
+      // Get current dataIndex from highlight (preserve it)
+      const currentDataIndex = highlightContext.highlight[0]?.dataIndex ?? null;
 
       // Reset seriesId but keep dataIndex tracking
-      if (interactionContext.scope.dataIndex) {
-        interactionContext.setActiveItem({
-          dataIndex: currentDataIndex,
-          seriesId: null,
-        });
+      if (highlightContext.scope.dataIndex) {
+        highlightContext.setHighlight([
+          {
+            dataIndex: currentDataIndex,
+            seriesId: null,
+          },
+        ]);
       } else {
-        interactionContext.setActiveItem(undefined);
+        highlightContext.setHighlight([]);
       }
-    }, [interactionContext, seriesId]);
+    }, [highlightContext, seriesId]);
 
-    // Determine if we need event handling (series interaction enabled with a seriesId)
-    const needsEventHandling = interactionContext?.scope.series && seriesId;
+    // Determine if we need event handling (series highlighting enabled with a seriesId)
+    const needsEventHandling = highlightContext?.scope.series && seriesId;
 
     // Calculate event handler path stroke width (with optional interactionOffset for larger hit area)
     const eventPathStrokeWidth =

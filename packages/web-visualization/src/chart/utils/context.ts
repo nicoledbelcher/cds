@@ -112,105 +112,131 @@ export const useScrubberContext = (): ScrubberContextValue => {
 };
 
 // ============================================================================
-// Interaction Types (New API)
+// Highlight Types
 // ============================================================================
 
 /**
- * Interaction mode - controls how many simultaneous interactions to track.
- * - 'none': Interaction disabled
- * - 'single': Single pointer/touch interaction (default)
- * - 'multi': Multi-touch/multi-pointer interaction
+ * Controls what aspects of the data can be highlighted.
  */
-export type InteractionMode = 'none' | 'single' | 'multi';
-
-/**
- * Controls what aspects of the data can be interacted with.
- */
-export type InteractionScope = {
+export type HighlightScope = {
   /**
-   * Whether interaction tracks data index (x-axis position).
+   * Whether highlighting tracks data index (x-axis position).
    * @default true
    */
   dataIndex?: boolean;
   /**
-   * Whether interaction tracks specific series.
+   * Whether highlighting tracks specific series.
    * @default false
    */
   series?: boolean;
 };
 
 /**
- * Represents a single active item during interaction.
- * - `undefined` means the user is not interacting with the chart
- * - `null` values mean the user is interacting but not over a specific item/series
+ * Represents a single highlighted item.
+ * `null` values mean the user is interacting but not over a specific item/series.
  */
-export type ActiveItem = {
+export type HighlightedItem = {
   /**
-   * The data index (x-axis position) being interacted with.
+   * The data index (x-axis position) being highlighted.
    * `null` when interacting but not over a data point.
    */
   dataIndex: number | null;
   /**
-   * The series ID being interacted with.
+   * The series ID being highlighted.
    * `null` when series scope is disabled or not over a specific series.
    */
   seriesId: string | null;
 };
 
 /**
- * Active items for multi-touch/multi-pointer interaction.
+ * Context value for chart highlight state.
  */
-export type ActiveItems = Array<ActiveItem>;
-
-/**
- * Unified interaction state.
- * - For 'single' mode: `ActiveItem | undefined`
- * - For 'multi' mode: `ActiveItems` (empty array when not interacting)
- */
-export type InteractionState = ActiveItem | ActiveItems | undefined;
-
-/**
- * Context value for chart interaction state.
- */
-export type InteractionContextValue = {
+export type HighlightContextValue = {
   /**
-   * The current interaction mode.
+   * Whether highlighting is enabled.
    */
-  mode: InteractionMode;
+  enabled: boolean;
   /**
-   * The interaction scope configuration.
+   * The highlight scope configuration.
    */
-  scope: InteractionScope;
+  scope: HighlightScope;
   /**
-   * The current active item(s) during interaction.
-   * For 'single' mode: `ActiveItem | undefined`
-   * For 'multi' mode: `ActiveItems`
+   * The currently highlighted items.
    */
-  activeItem: InteractionState;
+  highlight: HighlightedItem[];
   /**
-   * Callback to update the active item state.
+   * Callback to update the highlight state.
    */
-  setActiveItem: (item: InteractionState) => void;
+  setHighlight: (items: HighlightedItem[]) => void;
 };
 
-export const InteractionContext = createContext<InteractionContextValue | undefined>(undefined);
+export const HighlightContext = createContext<HighlightContextValue | undefined>(undefined);
 
 /**
- * Hook to access the interaction context.
- * @throws Error if used outside of an InteractionProvider
+ * Hook to access the highlight context.
+ * @throws Error if used outside of a HighlightProvider
  */
-export const useInteractionContext = (): InteractionContextValue => {
-  const context = useContext(InteractionContext);
+export const useHighlightContext = (): HighlightContextValue => {
+  const context = useContext(HighlightContext);
   if (!context) {
-    throw new Error('useInteractionContext must be used within an InteractionProvider');
+    throw new Error('useHighlightContext must be used within a HighlightProvider');
   }
   return context;
 };
 
 /**
- * Hook to optionally access the interaction context.
- * Returns undefined if not within an InteractionProvider.
+ * Hook to optionally access the highlight context.
+ * Returns undefined if not within a HighlightProvider.
  */
-export const useOptionalInteractionContext = (): InteractionContextValue | undefined => {
-  return useContext(InteractionContext);
+export const useOptionalHighlightContext = (): HighlightContextValue | undefined => {
+  return useContext(HighlightContext);
 };
+
+// ============================================================================
+// Backwards-compatible aliases (deprecated)
+// ============================================================================
+
+/**
+ * @deprecated Use `HighlightScope` instead.
+ */
+export type InteractionScope = HighlightScope;
+
+/**
+ * @deprecated Use `HighlightedItem` instead.
+ */
+export type ActiveItem = HighlightedItem;
+
+/**
+ * @deprecated Use `HighlightedItem[]` instead.
+ */
+export type ActiveItems = HighlightedItem[];
+
+/**
+ * @deprecated Use `HighlightedItem[]` instead.
+ */
+export type InteractionState = HighlightedItem[];
+
+/**
+ * @deprecated No longer used. Highlighting is always enabled via boolean.
+ */
+export type InteractionMode = 'none' | 'single' | 'multi';
+
+/**
+ * @deprecated Use `HighlightContextValue` instead.
+ */
+export type InteractionContextValue = HighlightContextValue;
+
+/**
+ * @deprecated Use `HighlightContext` instead.
+ */
+export const InteractionContext = HighlightContext;
+
+/**
+ * @deprecated Use `useHighlightContext` instead.
+ */
+export const useInteractionContext = useHighlightContext;
+
+/**
+ * @deprecated Use `useOptionalHighlightContext` instead.
+ */
+export const useOptionalInteractionContext = useOptionalHighlightContext;

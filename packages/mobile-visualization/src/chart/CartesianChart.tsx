@@ -6,6 +6,7 @@ import type { BoxBaseProps, BoxProps } from '@coinbase/cds-mobile/layout';
 import { Box } from '@coinbase/cds-mobile/layout';
 import { Canvas, Skia, type SkTypefaceFontProvider } from '@shopify/react-native-skia';
 
+import { type HighlightProps, HighlightProvider } from './interaction/HighlightProvider';
 import { InteractionProvider } from './interaction/InteractionProvider';
 import { convertToSerializableScale, type SerializableScale } from './utils/scale';
 import { useChartContextBridge } from './ChartContextBridge';
@@ -27,6 +28,7 @@ import {
   getAxisScale,
   getChartInset,
   getStackedSeriesData as calculateStackedSeriesData,
+  type HighlightedItem,
   type InteractionMode,
   type InteractionScope,
   type InteractionState,
@@ -47,109 +49,96 @@ const ChartCanvas = memo(
   },
 );
 
-export type CartesianChartBaseProps = Omit<BoxBaseProps, 'fontFamily' | 'accessibilityLabel'> & {
-  /**
-   * Configuration objects that define how to visualize the data.
-   * Each series contains its own data array.
-   */
-  series?: Array<Series>;
-  /**
-   * Whether to animate the chart.
-   * @default true
-   */
-  animate?: boolean;
-  /**
-   * Configuration for x-axis.
-   */
-  xAxis?: Partial<Omit<AxisConfigProps, 'id'>>;
-  /**
-   * Configuration for y-axis(es). Can be a single config or array of configs.
-   */
-  yAxis?: Partial<AxisConfigProps> | Partial<AxisConfigProps>[];
-  /**
-   * Inset around the entire chart (outside the axes).
-   */
-  inset?: number | Partial<ChartInset>;
-  /**
-   * Whether to show the legend or a custom legend element.
-   * - `true` renders the default Legend component
-   * - A React element renders that element as the legend
-   * - `false` or omitted hides the legend
-   */
-  legend?: boolean | React.ReactNode;
-  /**
-   * Position of the legend relative to the chart.
-   * @default 'bottom'
-   */
-  legendPosition?: LegendPosition;
-  /**
-   * Accessibility label for the legend group.
-   * @default 'Legend'
-   */
-  legendAccessibilityLabel?: string;
-  // New Interaction API
-  /**
-   * The interaction mode.
-   * - 'none': Interaction disabled
-   * - 'single': Single touch interaction (default)
-   * - 'multi': Multi-touch interaction
-   * @default 'single'
-   */
-  interaction?: InteractionMode;
-  /**
-   * Controls what aspects of the data can be interacted with.
-   * @default { dataIndex: true, series: false }
-   */
-  interactionScope?: InteractionScope;
-  /**
-   * Controlled active item (for single mode).
-   * - undefined: Uncontrolled mode
-   * - null: Controlled mode with no active item (ignores user gestures)
-   * - ActiveItem: Controlled mode with specific active item
-   */
-  activeItem?: ActiveItem | null;
-  /**
-   * Controlled active items (for multi mode).
-   * - undefined: Uncontrolled mode
-   * - []: Controlled mode with no active items (ignores user gestures)
-   * - ActiveItems: Controlled mode with specific active items
-   */
-  activeItems?: ActiveItems;
-  /**
-   * Callback fired when the active item changes during interaction.
-   * For single mode: receives `ActiveItem | undefined`
-   * For multi mode: receives `ActiveItems`
-   */
-  onInteractionChange?: (state: InteractionState) => void;
-  /**
-   * Accessibility label for the chart.
-   * - When a string: Used as a static label for the chart element
-   * - When a function: Called with the active item to generate dynamic labels during interaction
-   */
-  accessibilityLabel?: string | ((activeItem: ActiveItem) => string);
-  /**
-   * The accessibility mode for the chart.
-   * - 'chunked': Divides chart into N accessible regions (default for line charts)
-   * - 'item': Each data point is an accessible region (default for bar charts)
-   * @default 'chunked'
-   */
-  accessibilityMode?: 'chunked' | 'item';
-  /**
-   * Number of accessible chunks when accessibilityMode is 'chunked'.
-   * @default 10
-   */
-  accessibilityChunkCount?: number;
+export type CartesianChartBaseProps = Omit<BoxBaseProps, 'fontFamily' | 'accessibilityLabel'> &
+  HighlightProps & {
+    /**
+     * Configuration objects that define how to visualize the data.
+     * Each series contains its own data array.
+     */
+    series?: Array<Series>;
+    /**
+     * Whether to animate the chart.
+     * @default true
+     */
+    animate?: boolean;
+    /**
+     * Configuration for x-axis.
+     */
+    xAxis?: Partial<Omit<AxisConfigProps, 'id'>>;
+    /**
+     * Configuration for y-axis(es). Can be a single config or array of configs.
+     */
+    yAxis?: Partial<AxisConfigProps> | Partial<AxisConfigProps>[];
+    /**
+     * Inset around the entire chart (outside the axes).
+     */
+    inset?: number | Partial<ChartInset>;
+    /**
+     * Whether to show the legend or a custom legend element.
+     * - `true` renders the default Legend component
+     * - A React element renders that element as the legend
+     * - `false` or omitted hides the legend
+     */
+    legend?: boolean | React.ReactNode;
+    /**
+     * Position of the legend relative to the chart.
+     * @default 'bottom'
+     */
+    legendPosition?: LegendPosition;
+    /**
+     * Accessibility label for the legend group.
+     * @default 'Legend'
+     */
+    legendAccessibilityLabel?: string;
+    /**
+     * Accessibility label for the chart.
+     * - When a string: Used as a static label for the chart element
+     * - When a function: Called with the highlighted item to generate dynamic labels during interaction
+     */
+    accessibilityLabel?: string | ((item: HighlightedItem) => string);
+    /**
+     * The accessibility mode for the chart.
+     * - 'chunked': Divides chart into N accessible regions (default for line charts)
+     * - 'item': Each data point is an accessible region (default for bar charts)
+     * @default 'chunked'
+     */
+    accessibilityMode?: 'chunked' | 'item';
+    /**
+     * Number of accessible chunks when accessibilityMode is 'chunked'.
+     * @default 10
+     */
+    accessibilityChunkCount?: number;
 
-  // Legacy props for backwards compatibility
-  /**
-   * @deprecated Use `interaction="single"` instead. Will be removed in next major version.
-   */
-  enableScrubbing?: boolean;
-  /**
-   * @deprecated Use `onInteractionChange` instead. Will be removed in next major version.
-   */
-  onScrubberPositionChange?: (index: number | undefined) => void;
-};
+    // Legacy props for backwards compatibility
+    /**
+     * @deprecated Use `enableHighlighting` instead. Will be removed in next major version.
+     */
+    enableScrubbing?: boolean;
+    /**
+     * @deprecated Use `onHighlightChange` instead. Will be removed in next major version.
+     */
+    onScrubberPositionChange?: (index: number | undefined) => void;
+    /**
+     * @deprecated Use `enableHighlighting` instead.
+     */
+    interaction?: InteractionMode;
+    /**
+     * @deprecated Use `highlightScope` instead.
+     */
+    interactionScope?: InteractionScope;
+    /**
+     * @deprecated Use `highlight` instead.
+     */
+    activeItem?: ActiveItem | null;
+    /**
+     * @deprecated Use `highlight` instead.
+     */
+    activeItems?: ActiveItems;
+    /**
+     * @deprecated Use `onHighlightChange` instead.
+     */
+    onInteractionChange?: (state: InteractionState) => void;
+  };
 
 export type CartesianChartProps = CartesianChartBaseProps &
   Omit<BoxProps, 'fontFamily'> & {
@@ -198,18 +187,22 @@ export const CartesianChart = memo(
         xAxis: xAxisConfigProp,
         yAxis: yAxisConfigProp,
         inset,
-        // New interaction props
-        interaction,
-        interactionScope,
-        activeItem,
-        activeItems,
-        onInteractionChange,
+        // New highlighting props
+        enableHighlighting,
+        highlightScope,
+        highlight,
+        onHighlightChange,
         accessibilityLabel,
         accessibilityMode,
         accessibilityChunkCount,
         // Legacy props
         enableScrubbing,
         onScrubberPositionChange,
+        interaction,
+        interactionScope,
+        activeItem,
+        activeItems,
+        onInteractionChange,
         legend,
         legendPosition = 'bottom',
         legendAccessibilityLabel,
@@ -530,12 +523,50 @@ export const CartesianChart = memo(
         return [style, styles?.root];
       }, [style, styles?.root]);
 
-      // Resolve interaction mode (backwards compatibility with enableScrubbing)
-      const resolvedInteraction: InteractionMode = useMemo(() => {
-        if (interaction !== undefined) return interaction;
-        if (enableScrubbing !== undefined) return enableScrubbing ? 'single' : 'none';
-        return 'single'; // Default to single
-      }, [interaction, enableScrubbing]);
+      // Resolve highlighting enabled (backwards compatibility with enableScrubbing and interaction)
+      const isHighlightingEnabled: boolean = useMemo(() => {
+        if (enableHighlighting !== undefined) return enableHighlighting;
+        if (interaction !== undefined) return interaction !== 'none';
+        if (enableScrubbing !== undefined) return enableScrubbing;
+        return true; // Default to enabled
+      }, [enableHighlighting, interaction, enableScrubbing]);
+
+      // Resolve highlight scope (backwards compatibility with interactionScope)
+      const resolvedHighlightScope = useMemo(() => {
+        if (highlightScope !== undefined) return highlightScope;
+        if (interactionScope !== undefined) return interactionScope;
+        return undefined;
+      }, [highlightScope, interactionScope]);
+
+      // Resolve highlight state (backwards compatibility with activeItem/activeItems)
+      const resolvedHighlight = useMemo((): HighlightedItem[] | undefined => {
+        if (highlight !== undefined) return highlight;
+        if (activeItems !== undefined) return activeItems;
+        if (activeItem !== undefined) {
+          return activeItem === null ? [] : [activeItem];
+        }
+        return undefined;
+      }, [highlight, activeItem, activeItems]);
+
+      // Wrap onHighlightChange to also call legacy callbacks
+      const handleHighlightChange = useCallback(
+        (items: HighlightedItem[]) => {
+          onHighlightChange?.(items);
+
+          // Legacy callback support
+          if (onInteractionChange) {
+            // Convert to old InteractionState format
+            const singleItem = items[0];
+            onInteractionChange(singleItem);
+          }
+
+          if (onScrubberPositionChange) {
+            const singleItem = items[0];
+            onScrubberPositionChange(singleItem?.dataIndex ?? undefined);
+          }
+        },
+        [onHighlightChange, onInteractionChange, onScrubberPositionChange],
+      );
       const legendElement = useMemo(() => {
         if (!legend) return;
 
@@ -566,18 +597,15 @@ export const CartesianChart = memo(
 
       return (
         <CartesianChartProvider value={contextValue}>
-          <InteractionProvider
+          <HighlightProvider
             accessibilityChunkCount={accessibilityChunkCount}
             accessibilityLabel={accessibilityLabel}
             accessibilityMode={accessibilityMode}
-            activeItem={activeItem}
-            activeItems={activeItems}
             allowOverflowGestures={allowOverflowGestures}
-            enableScrubbing={enableScrubbing}
-            interaction={resolvedInteraction}
-            interactionScope={interactionScope}
-            onInteractionChange={onInteractionChange}
-            onScrubberPositionChange={onScrubberPositionChange}
+            enableHighlighting={isHighlightingEnabled}
+            highlight={resolvedHighlight}
+            highlightScope={resolvedHighlightScope}
+            onHighlightChange={handleHighlightChange}
           >
             {legend ? (
               <Box
@@ -597,7 +625,7 @@ export const CartesianChart = memo(
                 <ChartCanvas style={styles?.chart}>{children}</ChartCanvas>
               </Box>
             )}
-          </InteractionProvider>
+          </HighlightProvider>
         </CartesianChartProvider>
       );
     },
