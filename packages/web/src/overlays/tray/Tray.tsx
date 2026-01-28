@@ -10,6 +10,11 @@ import React, {
 } from 'react';
 import type { PinningDirection, SharedAccessibilityProps, ThemeVars } from '@coinbase/cds-common';
 import {
+  DISMISSAL_DRAG_THRESHOLD,
+  DISMISSAL_VELOCITY_THRESHOLD,
+  MAX_OVER_DRAG,
+} from '@coinbase/cds-common/animation/drawer';
+import {
   OverlayContentContext,
   type OverlayContentContextValue,
 } from '@coinbase/cds-common/overlays/OverlayContentContext';
@@ -108,10 +113,16 @@ export type TrayBaseProps = {
    * Show a handle bar indicator at the top of the tray.
    * The handle bar is positioned inside the tray content area.
    * Only appears when `pin="bottom"`.
+   *
+   * When enabled, the handle bar provides swipe-to-dismiss functionality (drag down to close)
+   * and is keyboard accessible (Tab to focus, Enter/Space to close).
+   * The close button is hidden by default when the handle bar is shown.
    */
   showHandleBar?: boolean;
   /**
-   * Hide the close icon on the top right
+   * Hide the close icon on the top right.
+   * Defaults to `true` when `showHandleBar` is enabled (since the handle bar provides close functionality).
+   * Set explicitly to `false` to show both the handle bar and close button.
    */
   hideCloseButton?: boolean;
 } & Pick<SharedAccessibilityProps, 'accessibilityLabel'>;
@@ -289,6 +300,21 @@ export const Tray = memo(
         });
     }, [controls, isSideTray, pin, onClose, onCloseComplete]);
 
+    // Swipe-to-close animation (faster, no friction - matching mobile)
+    const handleSwipeClose = useCallback(() => {
+      controls
+        .start({
+          y: '100%',
+          transition: { duration: 0.15, ease: 'easeOut' },
+        })
+        .then(() => {
+          setIsOpen(false);
+          onBlur?.();
+          onClose?.();
+          onCloseComplete?.();
+        });
+    }, [controls, onBlur, onClose, onCloseComplete]);
+
     useImperativeHandle(ref, () => ({ close: handleClose }), [handleClose]);
 
     const handleOverlayClick = useCallback(() => {
@@ -301,6 +327,121 @@ export const Tray = memo(
     const handleTrayClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
       event.stopPropagation();
     }, []);
+
+    // Track drag state for swipe-to-dismiss using native pointer events
+    const dragStateRef = useRef<{
+      isDragging: boolean;
+      startY: number;
+      startTime: number;
+      lastY: number;
+      lastTime: number;
+    } | null>(null);
+
+    const handlePointerDown = useCallback(
+      (event: React.PointerEvent<HTMLDivElement>) => {
+        if (preventDismiss) return;
+
+        // Capture pointer to receive events even if pointer moves outside element
+        event.currentTarget.setPointerCapture(event.pointerId);
+
+        dragStateRef.current = {
+          isDragging: true,
+          startY: event.clientY,
+          startTime: Date.now(),
+          lastY: event.clientY,
+          lastTime: Date.now(),
+        };
+
+        console.log('[Tray] Pointer down at Y:', event.clientY);
+      },
+      [preventDismiss],
+    );
+
+    const handlePointerMove = useCallback(
+      (event: React.PointerEvent<HTMLDivElement>) => {
+        if (preventDismiss || !dragStateRef.current?.isDragging) return;
+
+        const dragY = event.clientY - dragStateRef.current.startY;
+
+        // Update last position for velocity calculation
+        dragStateRef.current.lastY = event.clientY;
+        dragStateRef.current.lastTime = Date.now();
+
+        console.log('[Tray] Pointer move, offset.y:', dragY);
+
+        // Dragging down (positive Y) - allow full movement
+        // Dragging up (negative Y) - apply rubber-band effect capped at MAX_OVER_DRAG
+        if (dragY < 0) {
+          // Rubber-band effect using tanh for smooth resistance
+          const rubberBandY = -MAX_OVER_DRAG * Math.tanh(Math.abs(dragY) / 100);
+          controls.set({ y: rubberBandY });
+        } else {
+          controls.set({ y: dragY });
+        }
+      },
+      [controls, preventDismiss],
+    );
+
+    const handlePointerUp = useCallback(
+      (event: React.PointerEvent<HTMLDivElement>) => {
+        if (preventDismiss || !dragStateRef.current?.isDragging) return;
+
+        // Release pointer capture
+        event.currentTarget.releasePointerCapture(event.pointerId);
+
+        const dragState = dragStateRef.current;
+        const dragY = event.clientY - dragState.startY;
+        const timeDelta = (Date.now() - dragState.lastTime) / 1000; // seconds
+        const velocityY = timeDelta > 0 ? (event.clientY - dragState.lastY) / timeDelta / 1000 : 0; // pixels per ms
+
+        dragStateRef.current = null;
+
+        console.log('[Tray] Pointer up, offset.y:', dragY, 'velocity.y:', velocityY);
+
+        console.log(
+          '[Tray] Thresholds - drag:',
+          DISMISSAL_DRAG_THRESHOLD,
+          'velocity:',
+          DISMISSAL_VELOCITY_THRESHOLD,
+        );
+
+        // Check if drag distance or velocity exceeds threshold for dismissal
+        const shouldDismissVal =
+          dragY >= DISMISSAL_DRAG_THRESHOLD || velocityY >= DISMISSAL_VELOCITY_THRESHOLD;
+
+        console.log('[Tray] Should dismiss:', shouldDismissVal);
+
+        if (shouldDismissVal) {
+          handleSwipeClose();
+        } else {
+          // Snap back to open position
+          controls.start({
+            y: 0,
+            transition: { duration: 0.2, ease: 'easeOut' },
+          });
+        }
+      },
+      [controls, preventDismiss, handleSwipeClose],
+    );
+
+    const handlePointerCancel = useCallback(() => {
+      if (dragStateRef.current?.isDragging) {
+        dragStateRef.current = null;
+        // Snap back to open position
+        controls.start({
+          y: 0,
+          transition: { duration: 0.2, ease: 'easeOut' },
+        });
+      }
+    }, [controls]);
+
+    // Handle keyboard activation on handlebar for accessibility dismiss
+    const handleHandleBarActivate = useCallback(() => {
+      if (!preventDismiss) {
+        onBlur?.();
+        handleClose();
+      }
+    }, [handleClose, preventDismiss, onBlur]);
 
     const initialAnimationValue = useMemo(
       () =>
@@ -410,14 +551,30 @@ export const Tray = memo(
                         style={styles?.header}
                       >
                         {shouldShowHandleBar && (
-                          <HandleBar
-                            className={classNames?.handleBar}
-                            handleClassName={classNames?.handleBarHandle}
-                            handleStyle={handleBarHandleStyle}
-                            style={styles?.handleBar}
-                          />
+                          <div
+                            onPointerCancel={handlePointerCancel}
+                            onPointerDown={handlePointerDown}
+                            onPointerMove={handlePointerMove}
+                            onPointerUp={handlePointerUp}
+                            style={{
+                              width: '100%',
+                              cursor: preventDismiss ? undefined : 'grab',
+                              touchAction: 'none',
+                            }}
+                          >
+                            <HandleBar
+                              accessibilityHint={closeAccessibilityHint}
+                              accessibilityLabel={closeAccessibilityLabel}
+                              className={classNames?.handleBar}
+                              handleClassName={classNames?.handleBarHandle}
+                              handleStyle={handleBarHandleStyle}
+                              onActivate={preventDismiss ? undefined : handleHandleBarActivate}
+                              style={styles?.handleBar}
+                            />
+                          </div>
                         )}
-                        {(title || (!preventDismiss && !hideCloseButton)) && (
+                        {(title ||
+                          (!preventDismiss && !(hideCloseButton ?? shouldShowHandleBar))) && (
                           <HStack
                             alignItems={isSideTray ? 'flex-start' : 'center'}
                             justifyContent={title ? 'space-between' : 'flex-end'}
@@ -435,7 +592,7 @@ export const Tray = memo(
                               ) : (
                                 title
                               ))}
-                            {!preventDismiss && !hideCloseButton && (
+                            {!preventDismiss && !(hideCloseButton ?? shouldShowHandleBar) && (
                               <IconButton
                                 transparent
                                 accessibilityHint={closeAccessibilityHint}

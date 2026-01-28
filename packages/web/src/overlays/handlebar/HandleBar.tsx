@@ -1,9 +1,10 @@
 import React, { memo, useMemo } from 'react';
+import type { SharedAccessibilityProps, ThemeVars } from '@coinbase/cds-common';
 import { handleBarHeight } from '@coinbase/cds-common/tokens/drawer';
-import type { ThemeVars } from '@coinbase/cds-common';
 
 import { useTheme } from '../../hooks/useTheme';
 import { Box } from '../../layout';
+import { Pressable } from '../../system/Pressable';
 
 export type HandleBarProps = {
   /** Background color of the handle bar */
@@ -18,6 +19,21 @@ export type HandleBarProps = {
   handleStyle?: React.CSSProperties;
   /** Test ID for the component */
   testID?: string;
+  /**
+   * Callback fired when the handlebar is activated via keyboard (Enter/Space) or click.
+   * When provided, the handle element becomes a focusable button.
+   */
+  onActivate?: () => void;
+  /**
+   * Accessible label for the handlebar.
+   * Only used when onActivate is provided.
+   */
+  accessibilityLabel?: SharedAccessibilityProps['accessibilityLabel'];
+  /**
+   * Accessible hint/description for the handlebar.
+   * Only used when onActivate is provided.
+   */
+  accessibilityHint?: SharedAccessibilityProps['accessibilityHint'];
 };
 
 export const HandleBar = memo(function HandleBar({
@@ -27,6 +43,9 @@ export const HandleBar = memo(function HandleBar({
   style,
   handleStyle,
   testID = 'handleBar',
+  onActivate,
+  accessibilityLabel,
+  accessibilityHint,
 }: HandleBarProps) {
   const theme = useTheme();
 
@@ -55,6 +74,25 @@ export const HandleBar = memo(function HandleBar({
     [handleBarBackgroundColor, handleStyle],
   );
 
+  // When onActivate is provided, render as a Pressable button for proper focus trap support
+  if (onActivate) {
+    return (
+      <Box className={className} data-testid={testID} style={containerStyle}>
+        <Pressable
+          noScaleOnPress
+          accessibilityHint={accessibilityHint}
+          accessibilityLabel={accessibilityLabel}
+          background="transparent"
+          borderColor="transparent"
+          className={handleClassName}
+          onClick={onActivate}
+          style={handleStyle_}
+        />
+      </Box>
+    );
+  }
+
+  // Non-interactive version (original behavior)
   return (
     <Box className={className} data-testid={testID} style={containerStyle}>
       <Box className={handleClassName} style={handleStyle_} />

@@ -94,6 +94,12 @@ export type DrawerBaseProps = SharedProps &
      * @deprecated Use TrayStickyFooter as a Tray child instead.
      */
     stickyFooter?: DrawerRenderChildren | React.ReactNode;
+    /**
+     * Disable the automatic bottom safe area padding on the drawer.
+     * Use when content handles its own bottom padding (e.g., internal ScrollView).
+     * @default false
+     */
+    disableBottomSafeAreaPadding?: boolean;
   };
 
 export type DrawerProps = DrawerBaseProps & {
@@ -113,6 +119,14 @@ const overlayContentContextValue: OverlayContentContextValue = {
 
 const baseOverflowStyle = { overflow: 'hidden' as const, maxHeight: '100%' as const };
 
+const handleBarAbsoluteStyle = {
+  position: 'absolute' as const,
+  top: 0,
+  left: 0,
+  right: 0,
+  zIndex: 1,
+};
+
 export const Drawer = memo(
   forwardRef<DrawerRefBaseProps, DrawerProps>(function Drawer(
     {
@@ -127,6 +141,7 @@ export const Drawer = memo(
       onBlur,
       verticalDrawerPercentageOfView = defaultVerticalDrawerPercentageOfView,
       handleBarAccessibilityLabel = 'Dismiss',
+      disableBottomSafeAreaPadding = false,
       style,
       styles,
       ...props
@@ -147,7 +162,7 @@ export const Drawer = memo(
     const [opacityAnimation, animateOverlayIn, animateOverlayOut] = useOverlayAnimation(
       drawerAnimationDefaultDuration,
     );
-    const spacingStyle = useDrawerSpacing(pin);
+    const spacingStyle = useDrawerSpacing(pin, { disableBottomSafeAreaPadding });
     const isMounted = useRef(false);
 
     const handleClose = useCallback(() => {
@@ -201,10 +216,7 @@ export const Drawer = memo(
     const showHandleBarOutside = showHandleBar && handleBarVariant === 'outside';
     const showHandleBarInside = showHandleBar && handleBarVariant === 'inside';
 
-    const contentStyle = useMemo(
-      () => [baseOverflowStyle, showHandleBarInside && { paddingHorizontal: theme.space[3] }],
-      [showHandleBarInside, theme.space],
-    );
+    const contentStyle = useMemo(() => [baseOverflowStyle], []);
 
     // leave 15% of the screenwidth as open area for menu drawer
     const horizontalDrawerWidth = useMemo(
@@ -231,7 +243,14 @@ export const Drawer = memo(
       [height, verticalDrawerPercentageOfView, keyboardInset],
     );
 
-    const getPanGestureHandlers = !preventDismissGestures
+    // For 'inside' handlebar variant, only allow swiping on the handlebar area
+    // For 'outside' variant or side drawers, allow swiping anywhere on the drawer
+    const shouldRestrictPanToHandleBar = showHandleBarInside && !preventDismissGestures;
+    const getContainerPanGestureHandlers =
+      !preventDismissGestures && !shouldRestrictPanToHandleBar
+        ? panGestureHandlers.panHandlers
+        : undefined;
+    const getHandleBarPanGestureHandlers = shouldRestrictPanToHandleBar
       ? panGestureHandlers.panHandlers
       : undefined;
 
@@ -257,12 +276,8 @@ export const Drawer = memo(
     );
 
     const drawerStyle = useMemo(
-      () => [
-        spacingStyle,
-        showHandleBarOutside && { overflow: 'visible' as const },
-        styles?.drawer,
-      ],
-      [spacingStyle, showHandleBarOutside, styles?.drawer],
+      () => [showHandleBarOutside && { overflow: 'visible' as const }, styles?.drawer],
+      [showHandleBarOutside, styles?.drawer],
     );
 
     const handleBar = useMemo(
@@ -272,7 +287,6 @@ export const Drawer = memo(
           accessibilityRole="button"
           background={showHandleBarInside ? 'bgInverse' : undefined}
           onAccessibilityPress={handleClose}
-          pointerEvents={showHandleBarInside ? 'none' : 'auto'}
           styles={{
             root: styles?.handleBar,
             handle: [
@@ -315,7 +329,7 @@ export const Drawer = memo(
             testID="drawer-overlay"
           />
           <Box
-            {...getPanGestureHandlers}
+            {...getContainerPanGestureHandlers}
             animated
             // close modal when user performs the "escape" accessibility gesture
             // https://reactnative.dev/docs/accessibility#onaccessibilityescape-ios
@@ -330,10 +344,15 @@ export const Drawer = memo(
               bordered={theme.activeColorScheme === 'dark'}
               elevation={2}
               maxHeight={!isSideDrawer ? verticalDrawerMaxHeight : '100%'}
+              overflow="hidden"
               style={drawerStyle}
             >
-              {showHandleBarInside && handleBar}
-              <View style={contentStyle}>{content}</View>
+              {showHandleBarInside && (
+                <View {...getHandleBarPanGestureHandlers} style={handleBarAbsoluteStyle}>
+                  {handleBar}
+                </View>
+              )}
+              <View style={[contentStyle, spacingStyle]}>{content}</View>
             </Box>
           </Box>
         </OverlayContentContext.Provider>

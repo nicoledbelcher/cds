@@ -5,7 +5,19 @@ import { MAX_OVER_DRAG } from '@coinbase/cds-common/animation/drawer';
 
 import { useSafeBottomPadding } from '../../hooks/useSafeBottomPadding';
 
-export const useDrawerSpacing = (pin: PinningDirection | undefined = 'bottom') => {
+type UseDrawerSpacingOptions = {
+  /**
+   * Disable bottom safe area padding. Use when content handles its own bottom padding.
+   * @default false
+   */
+  disableBottomSafeAreaPadding?: boolean;
+};
+
+export const useDrawerSpacing = (
+  pin: PinningDirection | undefined = 'bottom',
+  options: UseDrawerSpacingOptions = {},
+) => {
+  const { disableBottomSafeAreaPadding = false } = options;
   const { top } = useSafeAreaInsets();
   const safeBottomPadding: number = useSafeBottomPadding();
 
@@ -16,13 +28,17 @@ export const useDrawerSpacing = (pin: PinningDirection | undefined = 'bottom') =
       case 'left':
         return { paddingTop: top, paddingLeft: MAX_OVER_DRAG };
       case 'bottom':
-        return { paddingBottom: safeBottomPadding + MAX_OVER_DRAG };
+        return disableBottomSafeAreaPadding
+          ? { paddingBottom: MAX_OVER_DRAG }
+          : { paddingBottom: safeBottomPadding + MAX_OVER_DRAG };
       case 'right':
         return { paddingTop: top, paddingRight: MAX_OVER_DRAG };
       default:
-        return { paddingBottom: safeBottomPadding + MAX_OVER_DRAG };
+        return disableBottomSafeAreaPadding
+          ? { paddingBottom: MAX_OVER_DRAG }
+          : { paddingBottom: safeBottomPadding + MAX_OVER_DRAG };
     }
-  }, [pin, safeBottomPadding, top]);
+  }, [pin, safeBottomPadding, top, disableBottomSafeAreaPadding]);
 
   return safeAreaStyles;
 };
