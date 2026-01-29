@@ -483,7 +483,7 @@ export const Cell: CellComponent = memo(
         accessibilityHint,
         accessibilityLabel,
         accessibilityLabelledBy,
-        borderRadius,
+        borderProps,
         classNames?.pressable,
         disabled,
         innerSpacingMarginX,
