@@ -122,9 +122,9 @@ export type ScrubberBeaconProps = {
   stroke?: string;
 };
 
-export type ScrubberBeaconComponent = React.FC<
-  ScrubberBeaconProps & { ref?: React.Ref<ScrubberBeaconRef> }
->;
+export type ScrubberBeaconComponent = (
+  props: ScrubberBeaconProps & { ref?: React.Ref<ScrubberBeaconRef> },
+) => React.ReactNode;
 
 export type ScrubberBeaconLabelProps = Pick<Series, 'color'> &
   Pick<
