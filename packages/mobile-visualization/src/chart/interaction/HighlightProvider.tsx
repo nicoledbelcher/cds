@@ -26,34 +26,21 @@ import {
 } from '../utils';
 import { getPointOnSerializableScale } from '../utils/point';
 
-const defaultHighlightScope: HighlightScope = {
-  dataIndex: true,
-  series: false,
-};
-
 export type HighlightProps = {
   /**
    * Whether highlighting is enabled.
-   * @default true
    */
   enableHighlighting?: boolean;
   /**
    * Controls what aspects of the data can be highlighted.
-   * @default { dataIndex: true, series: false }
    */
   highlightScope?: HighlightScope;
   /**
-   * Controlled highlight state.
-   * - undefined: Uncontrolled mode - chart manages its own state
-   * - HighlightedItem[]: Controlled mode with specific highlighted items
-   *
-   * In controlled mode, user interactions still fire onHighlightChange but don't update the UI.
-   * This allows the parent to decide whether to apply the change.
+   * Pass a value to override the internal highlight state.
    */
   highlight?: HighlightedItem[];
   /**
    * Callback fired when highlighting changes during interaction.
-   * Always fires in both controlled and uncontrolled modes.
    */
   onHighlightChange?: (items: HighlightedItem[]) => void;
 };
@@ -92,7 +79,7 @@ export type HighlightProviderProps = HighlightProps & {
 export const HighlightProvider: React.FC<HighlightProviderProps> = ({
   children,
   allowOverflowGestures,
-  enableHighlighting = true,
+  enableHighlighting = false,
   highlightScope: scopeProp,
   highlight: controlledHighlight,
   onHighlightChange,
@@ -109,7 +96,10 @@ export const HighlightProvider: React.FC<HighlightProviderProps> = ({
   const { getXSerializableScale, getXAxis, dataLength } = chartContext;
 
   const scope: HighlightScope = useMemo(
-    () => ({ ...defaultHighlightScope, ...scopeProp }),
+    () => ({
+      dataIndex: scopeProp?.dataIndex ?? false,
+      series: scopeProp?.series ?? false,
+    }),
     [scopeProp],
   );
 

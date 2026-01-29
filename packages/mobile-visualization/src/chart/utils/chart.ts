@@ -2,9 +2,19 @@ import { isSharedValue } from 'react-native-reanimated';
 import type { AnimatedProp } from '@shopify/react-native-skia';
 import { stack as d3Stack, stackOffsetDiverging, stackOrderNone } from 'd3-shape';
 
+import type { HighlightScope } from './context';
 import type { GradientDefinition } from './gradient';
 
 export const defaultStackId = 'DEFAULT_STACK_ID';
+
+/**
+ * Default highlight scope for cartesian charts.
+ * Highlights by data index (x-axis position), not by series.
+ */
+export const defaultCartesianChartHighlightScope: HighlightScope = {
+  dataIndex: true,
+  series: false,
+};
 
 /**
  * Shape variants available for legend items.
@@ -329,7 +339,7 @@ export type ChartInset = {
   right: number;
 };
 
-export const defaultChartInset: ChartInset = {
+export const defaultCartesianChartInset: ChartInset = {
   top: 32,
   left: 16,
   bottom: 16,

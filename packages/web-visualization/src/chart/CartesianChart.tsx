@@ -7,7 +7,7 @@ import { css } from '@linaria/core';
 
 import { type HighlightProps, HighlightProvider } from './interaction/HighlightProvider';
 import { CartesianChartProvider } from './ChartProvider';
-import { Legend, type LegendProps } from './legend';
+import { Legend } from './legend';
 import {
   type AxisConfig,
   type AxisConfigProps,
@@ -15,7 +15,8 @@ import {
   type ChartInset,
   type ChartScaleFunction,
   defaultAxisId,
-  defaultChartInset,
+  defaultCartesianChartHighlightScope,
+  defaultCartesianChartInset,
   getAxisConfig,
   getAxisDomain,
   getAxisRange,
@@ -23,6 +24,7 @@ import {
   getChartInset,
   getStackedSeriesData as calculateStackedSeriesData,
   type HighlightedItem,
+  type HighlightScope,
   type LegendPosition,
   type Series,
   useTotalAxisPadding,
@@ -39,7 +41,7 @@ const focusStylesCss = css`
 `;
 
 export type CartesianChartBaseProps = Omit<BoxBaseProps, 'accessibilityLabel'> &
-  HighlightProps & {
+  Omit<HighlightProps, 'highlightScope'> & {
     /**
      * Configuration objects that define how to visualize the data.
      * Each series contains its own data array.
@@ -85,6 +87,11 @@ export type CartesianChartBaseProps = Omit<BoxBaseProps, 'accessibilityLabel'> &
      * - When a function: Called with the highlighted item to generate dynamic labels during interaction
      */
     accessibilityLabel?: string | ((item: HighlightedItem) => string);
+    /**
+     * Controls what aspects of the data can be highlighted.
+     * @default { dataIndex: true, series: false }
+     */
+    highlightScope?: HighlightScope;
     /**
      * @deprecated Use `enableHighlighting={false}` instead. Will be removed in next major version.
      */
@@ -145,7 +152,7 @@ export const CartesianChart = memo(
         inset,
         // Highlight props
         enableHighlighting,
-        highlightScope,
+        highlightScope = defaultCartesianChartHighlightScope,
         highlight,
         onHighlightChange,
         // Legacy props
@@ -169,7 +176,10 @@ export const CartesianChart = memo(
       const { observe, width: chartWidth, height: chartHeight } = useDimensions();
       const svgRef = useRef<SVGSVGElement | null>(null);
 
-      const calculatedInset = useMemo(() => getChartInset(inset, defaultChartInset), [inset]);
+      const calculatedInset = useMemo(
+        () => getChartInset(inset, defaultCartesianChartInset),
+        [inset],
+      );
 
       // Axis configs store the properties of each axis, such as id, scale type, domain limit, etc.
       // We only support 1 x axis but allow for multiple y axes.

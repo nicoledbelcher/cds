@@ -10,7 +10,7 @@ import {
 import { Line, type LineProps } from '../line/Line';
 import {
   type AxisConfigProps,
-  defaultChartInset,
+  defaultCartesianChartInset,
   defaultStackId,
   getChartInset,
   type Series,
@@ -115,7 +115,10 @@ export const AreaChart = memo(
       },
       ref,
     ) => {
-      const calculatedInset = useMemo(() => getChartInset(inset, defaultChartInset), [inset]);
+      const calculatedInset = useMemo(
+        () => getChartInset(inset, defaultCartesianChartInset),
+        [inset],
+      );
 
       // Convert AreaSeries to Series for Chart context
       const chartSeries = useMemo(() => {

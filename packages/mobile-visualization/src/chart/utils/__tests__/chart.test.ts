@@ -1,7 +1,7 @@
 import {
   type AxisBounds,
   type ChartInset,
-  defaultChartInset,
+  defaultCartesianChartInset,
   defaultStackId,
   getChartDomain,
   getChartInset,
@@ -370,9 +370,9 @@ describe('isValidBounds', () => {
   });
 });
 
-describe('defaultChartInset', () => {
+describe('defaultCartesianChartInset', () => {
   it('should have correct default values', () => {
-    expect(defaultChartInset).toEqual({
+    expect(defaultCartesianChartInset).toEqual({
       top: 32,
       left: 16,
       bottom: 16,

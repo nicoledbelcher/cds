@@ -11,11 +11,6 @@ import {
   type ScrubberContextValue,
 } from '../utils';
 
-const defaultHighlightScope: HighlightScope = {
-  dataIndex: true,
-  series: false,
-};
-
 /**
  * Props for configuring chart highlight behavior.
  * Used by CartesianChart and other chart components.
@@ -23,24 +18,18 @@ const defaultHighlightScope: HighlightScope = {
 export type HighlightProps = {
   /**
    * Whether highlighting is enabled.
-   * @default true
    */
   enableHighlighting?: boolean;
   /**
    * Controls what aspects of the data can be highlighted.
-   * @default { dataIndex: true, series: false }
    */
   highlightScope?: HighlightScope;
   /**
-   * Controlled highlight state.
-   * - `undefined`: Uncontrolled mode (internal state is managed)
-   * - `[]`: Controlled mode with no highlights (gestures still fire onHighlightChange)
-   * - `HighlightedItem[]`: Controlled mode with specific highlighted items
+   * Pass a value to override the internal highlight state.
    */
   highlight?: HighlightedItem[];
   /**
    * Callback fired when the highlight changes during interaction.
-   * Always fires regardless of controlled/uncontrolled mode.
    */
   onHighlightChange?: (items: HighlightedItem[]) => void;
 };
@@ -80,10 +69,13 @@ export const HighlightProvider: React.FC<HighlightProviderProps> = ({
 
   const { getXScale, getXAxis, series } = chartContext;
 
-  const enabled = enableHighlightingProp ?? true;
+  const enabled = enableHighlightingProp ?? false;
 
   const scope: HighlightScope = useMemo(
-    () => ({ ...defaultHighlightScope, ...scopeProp }),
+    () => ({
+      dataIndex: scopeProp?.dataIndex ?? false,
+      series: scopeProp?.series ?? false,
+    }),
     [scopeProp],
   );
 

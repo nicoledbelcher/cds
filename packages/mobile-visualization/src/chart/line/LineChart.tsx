@@ -8,7 +8,12 @@ import {
   type CartesianChartBaseProps,
   type CartesianChartProps,
 } from '../CartesianChart';
-import { type AxisConfigProps, defaultChartInset, getChartInset, type Series } from '../utils';
+import {
+  type AxisConfigProps,
+  defaultCartesianChartInset,
+  getChartInset,
+  type Series,
+} from '../utils';
 
 import { Line, type LineProps } from './Line';
 
@@ -106,7 +111,10 @@ export const LineChart = memo(
       },
       ref,
     ) => {
-      const calculatedInset = useMemo(() => getChartInset(inset, defaultChartInset), [inset]);
+      const calculatedInset = useMemo(
+        () => getChartInset(inset, defaultCartesianChartInset),
+        [inset],
+      );
 
       // Convert LineSeries to Series for Chart context
       const chartSeries = useMemo(() => {

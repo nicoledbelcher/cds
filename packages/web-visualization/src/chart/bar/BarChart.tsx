@@ -6,7 +6,12 @@ import {
   type CartesianChartBaseProps,
   type CartesianChartProps,
 } from '../CartesianChart';
-import { type AxisConfigProps, defaultChartInset, defaultStackId, getChartInset } from '../utils';
+import {
+  type AxisConfigProps,
+  defaultCartesianChartInset,
+  defaultStackId,
+  getChartInset,
+} from '../utils';
 
 import { BarPlot, type BarPlotProps } from './BarPlot';
 import type { BarSeries } from './BarStack';
@@ -94,7 +99,10 @@ export const BarChart = memo(
       },
       ref,
     ) => {
-      const calculatedInset = useMemo(() => getChartInset(inset, defaultChartInset), [inset]);
+      const calculatedInset = useMemo(
+        () => getChartInset(inset, defaultCartesianChartInset),
+        [inset],
+      );
 
       const transformedSeries = useMemo(() => {
         if (!stacked || !series) return series;
