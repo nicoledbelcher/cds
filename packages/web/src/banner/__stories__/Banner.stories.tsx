@@ -36,7 +36,7 @@ const exampleProps: ExampleProps = {
 
 const examplePropsWithMargin: ExampleProps = {
   ...exampleProps,
-  marginX: -2,
+  marginX: { phone: -2, desktop: 0 },
   children: shortMessage,
 };
 

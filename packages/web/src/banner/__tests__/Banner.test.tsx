@@ -79,8 +79,18 @@ describe('Banner', () => {
     expect(wrapper).toHaveStyle({ width: 'calc(100% + var(--space-1) + var(--space-1))' });
   });
 
+  it('prefers explicit negative marginStart/marginEnd over marginX', () => {
+    render(<MockBanner marginEnd={-3} marginStart={-2} marginX={-1} testID={TEST_ID} />);
+
+    const banner = screen.getByTestId(TEST_ID);
+    const wrapper = banner.parentElement;
+
+    expect(wrapper).not.toBeNull();
+    expect(wrapper).toHaveStyle({ width: 'calc(100% + var(--space-2) + var(--space-3))' });
+  });
+
   it('expands wrapper width when negative marginX is provided for showDismiss banners as well', () => {
-    render(<MockBanner marginX={-1} showDismiss testID={TEST_ID} />);
+    render(<MockBanner showDismiss marginX={-1} testID={TEST_ID} />);
 
     const collapsible = screen.getByTestId(`${TEST_ID}-collapsible`);
     const wrapper = collapsible.parentElement;
@@ -103,6 +113,28 @@ describe('Banner', () => {
 
     // Tablet should explicitly revert to 100% (because marginX.tablet = 0 overrides base)
     expect(styleAttr).toContain('--tablet-width: 100%');
+  });
+
+  it('supports responsive marginStart/marginEnd overrides with mixed sides', () => {
+    render(
+      <MockBanner
+        marginEnd={{ base: -2, tablet: -4 }}
+        marginStart={{ base: -1, tablet: 0 }}
+        testID={TEST_ID}
+      />,
+    );
+
+    const banner = screen.getByTestId(TEST_ID);
+    const wrapper = banner.parentElement;
+
+    expect(wrapper).not.toBeNull();
+    const styleAttr = wrapper?.getAttribute('style') ?? '';
+
+    // Base should bleed on both sides.
+    expect(styleAttr).toContain('--width: calc(100% + var(--space-1) + var(--space-2))');
+
+    // Tablet should drop start bleed and expand end bleed.
+    expect(styleAttr).toContain('--tablet-width: calc(100% + 0px + var(--space-4))');
   });
 
   it('can set className', () => {
