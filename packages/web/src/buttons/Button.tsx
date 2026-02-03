@@ -8,7 +8,6 @@ import type {
 } from '@coinbase/cds-common/types';
 import { css } from '@linaria/core';
 
-import { mergeComponentProps } from '../utils/mergeComponentProps';
 import type { Polymorphic } from '../core/polymorphism';
 import { cx } from '../cx';
 import { useTheme } from '../hooks/useTheme';
@@ -16,6 +15,7 @@ import { Icon } from '../icons/Icon';
 import { Spinner } from '../loaders/Spinner';
 import { Pressable, type PressableBaseProps } from '../system/Pressable';
 import { Text } from '../typography/Text';
+import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 const COMPONENT_STATIC_CLASSNAME = 'cds-Button';
 
