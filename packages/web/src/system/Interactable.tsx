@@ -84,6 +84,20 @@ const baseCss = css`
   }
 `;
 
+const gradientCss = css`
+  background: var(${interactableBackground});
+    &:hover {
+    background: var(${interactableHoveredBackground});
+  }
+  &:active,
+  &[aria-pressed='true'] {
+    background: var(${interactablePressedBackground});
+  }
+  &:disabled,
+  &[aria-disabled='true'] {
+    background: var(${interactableDisabledBackground});
+`;
+
 const blockCss = css`
   display: block;
   width: 100%;
@@ -252,6 +266,7 @@ export const Interactable: InteractableComponent = forwardRef<
           transparentWhileInactive && transparentWhileInactiveCss,
           transparentWhilePressed && transparentActiveCss,
           className,
+          props.gradient && gradientCss,
         )}
         data-disabled={disabled}
         disabled={disabled}
