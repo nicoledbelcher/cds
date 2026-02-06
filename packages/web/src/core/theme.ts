@@ -14,6 +14,18 @@ import type { IconButtonBaseProps } from '../buttons/IconButton';
 export type ComponentTheme = {
   Button: Partial<ButtonBaseProps>;
   IconButton: Partial<IconButtonBaseProps>;
+  /**
+   * Controls how component props from theme config are merged with local component props.
+   * @default false
+   *
+   * - When `false` (default): Local props simply override theme config props (standard object spread behavior).
+   * - When `true`: Special merging behavior for styling props:
+   *   - `className`: Concatenated using cx()
+   *   - `classNames`: Object keys merged, each value concatenated with cx()
+   *   - `style`: Shallow merge (local props override theme config)
+   *   - `styles`: Object keys merged, each value shallow merged
+   *   - All other props: Local props override theme config
+   */
   mergeClassNameAndStyle?: boolean;
 };
 export type ComponentsConfig<Components = ComponentTheme> = {
