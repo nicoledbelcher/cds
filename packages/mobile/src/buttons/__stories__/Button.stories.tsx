@@ -1,7 +1,9 @@
 import React from 'react';
 
 import { Example, ExampleScreen } from '../../examples/ExampleScreen';
+import { LinearGradient } from '../../gradients/LinearGradient';
 import { Icon } from '../../icons';
+import { Box } from '../../layout/Box';
 import { HStack } from '../../layout/HStack';
 import { VStack } from '../../layout/VStack';
 import { RemoteImage } from '../../media/RemoteImage';
@@ -54,7 +56,7 @@ const ButtonScreen = () => {
       {buttonStories.map((props, index) => {
         return (
           <Example inline>
-            <Button key={index} {...props}>
+            <Button key={index} width={100} {...props}>
               I am a button
             </Button>
           </Example>
@@ -100,6 +102,105 @@ const ButtonScreen = () => {
           }}
         >
           Hello world
+        </Button>
+      </Example>
+
+      <Example title="Gradient Buttons">
+        <Button
+          GradientComponent={LinearGradient}
+          color="fgInverse"
+          gradient="brand"
+          onPress={() => {}}
+        >
+          Brand Gradient Button
+        </Button>
+
+        <Button
+          GradientComponent={LinearGradient}
+          color="fgInverse"
+          gradient={{ direction: 'to-r', colors: ['bgPositive', 'bgPrimary'] }}
+          onPress={() => {}}
+        >
+          Positive to Primary
+        </Button>
+
+        <Button
+          GradientComponent={LinearGradient}
+          color="fgInverse"
+          gradient={{ direction: 'to-r', colors: ['bgNegative', 'bgWarning'] }}
+          onPress={() => {}}
+        >
+          Negative to Warning
+        </Button>
+
+        <Button
+          GradientComponent={LinearGradient}
+          color="fgInverse"
+          gradient="premium"
+          onPress={() => {}}
+        >
+          Premium Gradient
+        </Button>
+
+        <Button
+          GradientComponent={LinearGradient}
+          color="fgInverse"
+          gradient={{ direction: 45, colors: ['accentBoldBlue', 'accentBoldPurple'] }}
+          onPress={() => {}}
+        >
+          Custom Angle (45°)
+        </Button>
+
+        <Button
+          GradientComponent={LinearGradient}
+          color="fgInverse"
+          gradient={{
+            direction: 'to-r',
+            colors: [
+              { color: 'accentBoldBlue', offset: 0 },
+              { color: 'accentBoldPurple', offset: 0.5 },
+              { color: 'accentBoldPink', offset: 1 },
+            ],
+          }}
+          onPress={() => {}}
+        >
+          Custom Color Stops
+        </Button>
+      </Example>
+
+      <Example title="Gradient Button Block">
+        <Button
+          block
+          GradientComponent={LinearGradient}
+          color="fgInverse"
+          gradient="brand"
+          onPress={() => {}}
+        >
+          Full Width Gradient Button
+        </Button>
+
+        <Button
+          block
+          GradientComponent={LinearGradient}
+          color="fgInverse"
+          gradient={{
+            direction: 'to-r',
+            colors: ['accentBoldBlue', 'accentBoldPurple', 'accentBoldPink'],
+          }}
+          onPress={() => {}}
+        >
+          Multi-Color Gradient
+        </Button>
+
+        <Button
+          block
+          GradientComponent={LinearGradient}
+          color="fgInverse"
+          gradient="positive"
+          onPress={() => {}}
+          startIcon="checkmark"
+        >
+          Gradient with Icon
         </Button>
       </Example>
     </ExampleScreen>

@@ -81,6 +81,10 @@
       "types": "./dts/controls/index.d.ts",
       "default": "./esm/controls/index.js"
     },
+    "./gradients": {
+      "types": "./dts/gradients/index.d.ts",
+      "default": "./esm/gradients/index.js"
+    },
     "./dates": {
       "types": "./dts/dates/index.d.ts",
       "default": "./esm/dates/index.js"

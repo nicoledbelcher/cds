@@ -1,6 +1,8 @@
 import { renderA11y } from '@coinbase/cds-web-utils/jest';
 import { render, screen } from '@testing-library/react';
 
+import { ThemeProvider } from '../../system/ThemeProvider';
+import { defaultTheme } from '../../themes/defaultTheme';
 import { Box, type BoxDefaultElement, type BoxProps } from '../Box';
 
 const DEFAULT_CLASS = 'flex';
@@ -313,6 +315,40 @@ describe('Box', () => {
 
       expect(className).toContain('hidden');
       expect(className).toContain('visible');
+    });
+  });
+
+  describe('gradient', () => {
+    const renderWithTheme = (ui: React.ReactElement) =>
+      render(
+        <ThemeProvider activeColorScheme="light" theme={defaultTheme}>
+          {ui}
+        </ThemeProvider>,
+      );
+
+    it('applies gradient background style with configuration object', () => {
+      renderWithTheme(
+        <Box gradient={{ direction: 'to-r', colors: ['bgPrimary', 'bgPositive'] }}>Child</Box>,
+      );
+
+      const box = screen.getByText('Child');
+      expect(box).toHaveStyle({ background: expect.stringContaining('linear-gradient') });
+    });
+
+    it('applies gradient background style with preset', () => {
+      renderWithTheme(<Box gradient="brand">Child</Box>);
+
+      const box = screen.getByText('Child');
+      expect(box).toHaveStyle({ background: expect.stringContaining('linear-gradient') });
+    });
+
+    it('applies gradient with angle in degrees', () => {
+      renderWithTheme(
+        <Box gradient={{ direction: 45, colors: ['bgPrimary', 'bgPositive'] }}>Child</Box>,
+      );
+
+      const box = screen.getByText('Child');
+      expect(box).toHaveStyle({ background: expect.stringContaining('45deg') });
     });
   });
 });

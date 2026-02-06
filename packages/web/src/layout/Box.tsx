@@ -1,13 +1,16 @@
-import React, { forwardRef, memo, useMemo } from 'react';
+import React, { forwardRef, memo, useContext, useMemo } from 'react';
 import type { PinningDirection } from '@coinbase/cds-common/types/BoxBaseProps';
+import type { Gradient } from '@coinbase/cds-common/types/Gradient';
 import type { SharedAccessibilityProps } from '@coinbase/cds-common/types/SharedAccessibilityProps';
 import type { SharedProps } from '@coinbase/cds-common/types/SharedProps';
 
 import type { Polymorphic } from '../core/polymorphism';
 import { cx } from '../cx';
 import { borderStyle, pinStyle } from '../styles/booleanStyles';
+import { gradientToCSS } from '../styles/gradient';
 import type { fontFamily } from '../styles/responsive/base';
 import { getStyles, type ResponsiveProp, type StyleProps } from '../styles/styleProps';
+import { ThemeContext } from '../system/ThemeProvider';
 
 export const boxDefaultElement = 'div';
 
@@ -39,6 +42,11 @@ export type BoxBaseProps = StyleProps &
     borderedVertical?: boolean;
     /** @danger This is a migration escape hatch. It is not intended to be used normally. */
     dangerouslySetBackground?: string;
+    /**
+     * Apply a gradient background to the box. Accepts a preset name or a gradient configuration object.
+     * This sets the CSS `background` property and will override `dangerouslySetBackground` if both are provided.
+     */
+    gradient?: Gradient;
   };
 
 export type BoxProps<AsComponent extends React.ElementType> = Polymorphic.Props<
@@ -73,6 +81,7 @@ export const Box: BoxComponent = memo(
         borderedHorizontal,
         borderedVertical,
         dangerouslySetBackground,
+        gradient,
         // Begin className style props
         display = 'flex',
         position,
@@ -162,13 +171,15 @@ export const Box: BoxComponent = memo(
       ref: Polymorphic.Ref<AsComponent>,
     ) => {
       const Component = as ?? boxDefaultElement;
+      const theme = useContext(ThemeContext);
 
       const inlineStyle = useMemo(
         () => ({
           backgroundColor: dangerouslySetBackground,
+          ...(gradient && theme && { background: gradientToCSS(gradient, theme) }),
           ...style,
         }),
-        [dangerouslySetBackground, style],
+        [dangerouslySetBackground, gradient, theme, style],
       );
 
       const styles = useMemo(

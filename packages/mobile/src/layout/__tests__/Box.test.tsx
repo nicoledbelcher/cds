@@ -506,4 +506,58 @@ describe('Box', () => {
       });
     });
   });
+
+  describe('gradient', () => {
+    it('renders LinearGradient when gradient and GradientComponent are provided', async () => {
+      render(
+        <Box
+          GradientComponent={LinearGradient}
+          gradient={{ direction: 'to-r', colors: ['bgPrimary', 'bgPositive'] }}
+          testID="parent"
+        >
+          <Text>Child</Text>
+        </Box>,
+      );
+
+      await screen.findByTestId('parent');
+
+      expect(screen.UNSAFE_queryAllByType(LinearGradient)).toHaveLength(1);
+    });
+
+    it('renders LinearGradient with preset', async () => {
+      render(
+        <Box GradientComponent={LinearGradient} gradient="brand" testID="parent">
+          <Text>Child</Text>
+        </Box>,
+      );
+
+      await screen.findByTestId('parent');
+
+      expect(screen.UNSAFE_queryAllByType(LinearGradient)).toHaveLength(1);
+    });
+
+    it('does not render gradient when GradientComponent is not provided', async () => {
+      render(
+        <Box gradient={{ direction: 'to-r', colors: ['bgPrimary', 'bgPositive'] }} testID="parent">
+          <Text>Child</Text>
+        </Box>,
+      );
+
+      await screen.findByTestId('parent');
+
+      expect(screen.UNSAFE_queryAllByType(LinearGradient)).toHaveLength(0);
+    });
+
+    it('renders children correctly with gradient', async () => {
+      render(
+        <Box GradientComponent={LinearGradient} gradient="brand" testID="parent">
+          <Text testID="child">Child Content</Text>
+        </Box>,
+      );
+
+      await screen.findByTestId('parent');
+      expect(screen.getByTestId('child')).toBeTruthy();
+      expect(screen.getByText('Child Content')).toBeTruthy();
+    });
+  });
 });

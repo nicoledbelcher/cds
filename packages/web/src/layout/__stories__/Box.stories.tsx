@@ -283,3 +283,123 @@ export const BooleanStyleProps = () => {
     </Box>
   );
 };
+
+export const GradientPreset = () => (
+  <Box borderRadius={200} gradient="brand" padding={2}>
+    <Text as="p" color="fgInverse" display="block" font="body">
+      Using the &quot;brand&quot; gradient preset
+    </Text>
+  </Box>
+);
+
+export const GradientHorizontal = () => (
+  <Box
+    borderRadius={200}
+    gradient={{ direction: 'to-r', colors: ['bgPrimary', 'bgPositive'] }}
+    padding={2}
+  >
+    <Text as="p" color="fgInverse" display="block" font="body">
+      Horizontal gradient (left to right)
+    </Text>
+  </Box>
+);
+
+export const GradientVertical = () => (
+  <Box
+    borderRadius={200}
+    gradient={{ direction: 'to-b', colors: ['bgNegative', 'bgWarning'] }}
+    padding={2}
+  >
+    <Text as="p" color="fgInverse" display="block" font="body">
+      Vertical gradient (top to bottom)
+    </Text>
+  </Box>
+);
+
+export const GradientDiagonal = () => (
+  <Box
+    borderRadius={200}
+    gradient={{ direction: 'to-br', colors: ['bgPrimary', 'accentBoldPurple'] }}
+    padding={2}
+  >
+    <Text as="p" color="fgInverse" display="block" font="body">
+      Diagonal gradient (top-left to bottom-right)
+    </Text>
+  </Box>
+);
+
+export const GradientCustomAngle = () => (
+  <Box
+    borderRadius={200}
+    gradient={{ direction: 45, colors: ['bgPositive', 'bgPrimary'] }}
+    padding={2}
+  >
+    <Text as="p" color="fgInverse" display="block" font="body">
+      Custom 45° angle gradient
+    </Text>
+  </Box>
+);
+
+export const GradientMultipleColors = () => (
+  <Box
+    borderRadius={200}
+    gradient={{
+      direction: 'to-r',
+      colors: ['bgNegative', 'bgWarning', 'bgPositive', 'bgPrimary'],
+    }}
+    padding={2}
+  >
+    <Text as="p" color="fgInverse" display="block" font="body">
+      Multiple color stops
+    </Text>
+  </Box>
+);
+
+export const GradientWithColorStops = () => (
+  <Box
+    borderRadius={200}
+    gradient={{
+      direction: 'to-r',
+      colors: [
+        { color: 'bgPrimary', offset: 0 },
+        { color: 'bgPositive', offset: 0.7 },
+        { color: 'bgWarning', offset: 1 },
+      ],
+    }}
+    padding={2}
+  >
+    <Text as="p" color="fgInverse" display="block" font="body">
+      Custom color stop positions
+    </Text>
+  </Box>
+);
+
+export const GradientWithOpacity = () => (
+  <Box
+    borderRadius={200}
+    gradient={{
+      direction: 'to-b',
+      colors: [
+        { color: 'bgPrimary', opacity: 1 },
+        { color: 'bgPrimary', opacity: 0.3 },
+      ],
+    }}
+    padding={2}
+  >
+    <Text as="p" color="fgInverse" display="block" font="body">
+      Gradient with opacity fade
+    </Text>
+  </Box>
+);
+
+export const GradientPresets = () => (
+  <VStack gap={1}>
+    {(['primary', 'brand', 'positive', 'negative', 'premium'] as const).map((preset) => (
+      <Box key={preset} borderRadius={200} gradient={preset} padding={2}>
+        <Text as="p" color="fgInverse" display="block" font="body">
+          Preset: {preset}
+        </Text>
+      </Box>
+    ))}
+  </VStack>
+);

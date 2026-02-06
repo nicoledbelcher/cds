@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Example, ExampleScreen } from '../../examples/ExampleScreen';
+import { LinearGradient } from '../../gradients/LinearGradient';
 import { Text } from '../../typography/Text';
 import { Box } from '../Box';
 import { OverflowGradient } from '../OverflowGradient';
@@ -180,6 +181,113 @@ const BoxScreen = () => {
           <Box background="bgOverlay" pin="all">
             <Text font="body">To all corners</Text>
           </Box>
+        </Box>
+      </Example>
+
+      <Example title="Gradients">
+        <Box GradientComponent={LinearGradient} borderRadius={200} gradient="brand" padding={2}>
+          <Text color="fgInverse" font="body">
+            Preset: brand
+          </Text>
+        </Box>
+
+        <Box GradientComponent={LinearGradient} borderRadius={200} gradient="primary" padding={2}>
+          <Text color="fgInverse" font="body">
+            Preset: primary
+          </Text>
+        </Box>
+
+        <Box GradientComponent={LinearGradient} borderRadius={200} gradient="positive" padding={2}>
+          <Text color="fgInverse" font="body">
+            Preset: positive
+          </Text>
+        </Box>
+
+        <Box GradientComponent={LinearGradient} borderRadius={200} gradient="negative" padding={2}>
+          <Text color="fgInverse" font="body">
+            Preset: negative
+          </Text>
+        </Box>
+
+        <Box GradientComponent={LinearGradient} borderRadius={200} gradient="premium" padding={2}>
+          <Text color="fgInverse" font="body">
+            Preset: premium
+          </Text>
+        </Box>
+
+        <Box
+          GradientComponent={LinearGradient}
+          borderRadius={200}
+          gradient={{ direction: 'to-r', colors: ['bgPrimary', 'bgPositive'] }}
+          padding={2}
+        >
+          <Text color="fgInverse" font="body">
+            Horizontal (left to right)
+          </Text>
+        </Box>
+
+        <Box
+          GradientComponent={LinearGradient}
+          borderRadius={200}
+          gradient={{ direction: 'to-b', colors: ['bgNegative', 'bgWarning'] }}
+          padding={2}
+        >
+          <Text color="fgInverse" font="body">
+            Vertical (top to bottom)
+          </Text>
+        </Box>
+
+        <Box
+          GradientComponent={LinearGradient}
+          borderRadius={200}
+          gradient={{ direction: 'to-br', colors: ['bgPrimary', 'accentBoldPurple'] }}
+          padding={2}
+        >
+          <Text color="fgInverse" font="body">
+            Diagonal (top-left to bottom-right)
+          </Text>
+        </Box>
+
+        <Box
+          GradientComponent={LinearGradient}
+          borderRadius={200}
+          gradient={{ direction: 45, colors: ['bgPositive', 'bgPrimary'] }}
+          padding={2}
+        >
+          <Text color="fgInverse" font="body">
+            Custom 45° angle
+          </Text>
+        </Box>
+
+        <Box
+          GradientComponent={LinearGradient}
+          borderRadius={200}
+          gradient={{
+            direction: 'to-r',
+            colors: ['bgNegative', 'bgWarning', 'bgPositive', 'bgPrimary'],
+          }}
+          padding={2}
+        >
+          <Text color="fgInverse" font="body">
+            Multiple color stops
+          </Text>
+        </Box>
+
+        <Box
+          GradientComponent={LinearGradient}
+          borderRadius={200}
+          gradient={{
+            direction: 'to-b',
+            colors: [
+              { color: 'bgPrimary', opacity: 1 },
+              { color: 'bgPrimary', opacity: 0.3 },
+            ],
+          }}
+          padding={2}
+        >
+          <Text color="fgInverse" font="body">
+            Opacity fade
+          </Text>
         </Box>
       </Example>
     </ExampleScreen>

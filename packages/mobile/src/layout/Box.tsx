@@ -1,13 +1,34 @@
 import React, { forwardRef, memo, useMemo } from 'react';
-import { Animated, type StyleProp, View, type ViewProps, type ViewStyle } from 'react-native';
+import {
+  Animated,
+  type StyleProp,
+  StyleSheet,
+  View,
+  type ViewProps,
+  type ViewStyle,
+} from 'react-native';
 import type { PinningDirection } from '@coinbase/cds-common';
 import type { ThemeVars } from '@coinbase/cds-common/core/theme';
 import type { ElevationLevels } from '@coinbase/cds-common/types/ElevationLevels';
+import type { Gradient } from '@coinbase/cds-common/types/Gradient';
 
 import type { Theme } from '../core/theme';
+import { gradientToProps } from '../gradients/utils';
 import { useTheme } from '../hooks/useTheme';
 import { pinStyles } from '../styles/pinStyles';
 import { getStyles, type StyleProps } from '../styles/styleProps';
+
+/**
+ * Props expected by the GradientComponent when injected into Box.
+ * Use this type when providing a custom gradient component.
+ */
+export type GradientComponentProps = {
+  colors: string[];
+  stops?: number[];
+  angle?: number;
+  style?: StyleProp<ViewStyle>;
+  children?: React.ReactNode;
+};
 
 export type BoxBaseProps = StyleProps & {
   children?: React.ReactNode;
@@ -36,6 +57,27 @@ export type BoxBaseProps = StyleProps & {
   dangerouslySetBackground?: string;
   /** Used to locate this element in unit and end-to-end tests. */
   testID?: string;
+  /**
+   * Apply a gradient background to the box. Accepts a preset name or a gradient configuration object.
+   * This renders an absolutely positioned gradient layer and will visually override `dangerouslySetBackground` if both are provided.
+   */
+  gradient?: Gradient;
+  /**
+   * The gradient component to render when `gradient` is provided.
+   * Import `LinearGradient` from `@coinbase/cds-mobile/gradients` and pass it here.
+   * This approach ensures react-native-svg is only bundled when gradients are used.
+   *
+   * @example
+   * ```tsx
+   * import { Box } from '@coinbase/cds-mobile';
+   * import { LinearGradient } from '@coinbase/cds-mobile/gradients';
+   *
+   * <Box gradient={{ direction: 'to-r', colors: ['bgPrimary', 'bgPositive'] }} GradientComponent={LinearGradient}>
+   *   Content
+   * </Box>
+   * ```
+   */
+  GradientComponent?: React.ComponentType<GradientComponentProps>;
 };
 
 export type BoxProps = BoxBaseProps & Omit<ViewProps, 'style'>;
@@ -148,6 +190,8 @@ export const Box = memo(
         borderedHorizontal,
         borderedVertical,
         dangerouslySetBackground,
+        gradient,
+        GradientComponent,
         // Begin style props
         display,
         position,
@@ -223,6 +267,21 @@ export const Box = memo(
       const Component = animated ? Animated.View : View;
 
       const theme = useTheme();
+
+      if (__DEV__ && gradient && !GradientComponent) {
+        console.warn(
+          'Box: `gradient` prop was provided without `GradientComponent`. ' +
+            'Import LinearGradient from "@coinbase/cds-mobile/gradients" and pass it as the GradientComponent prop. ' +
+            'Example: <Box gradient="brand" GradientComponent={LinearGradient} />',
+        );
+      }
+
+      const resolvedGradientProps = useMemo(() => {
+        if (gradient && GradientComponent) {
+          return gradientToProps(gradient, theme);
+        }
+        return null;
+      }, [gradient, GradientComponent, theme]);
 
       const styles = useMemo(
         () => [
@@ -397,6 +456,14 @@ export const Box = memo(
 
       return (
         <Component ref={ref} style={styles} testID={testID} {...props}>
+          {resolvedGradientProps && GradientComponent && (
+            <GradientComponent
+              angle={resolvedGradientProps.angle}
+              colors={resolvedGradientProps.colors}
+              stops={resolvedGradientProps.stops}
+              style={boxGradientStyles.gradient}
+            />
+          )}
           {children}
         </Component>
       );
@@ -405,3 +472,9 @@ export const Box = memo(
 );
 
 Box.displayName = 'Box';
+
+const boxGradientStyles = StyleSheet.create({
+  gradient: {
+    ...StyleSheet.absoluteFillObject,
+  },
+});

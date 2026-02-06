@@ -83,6 +83,8 @@ export const Pressable = memo(
       borderedHorizontal,
       borderedVertical,
       dangerouslySetBackground,
+      gradient,
+      GradientComponent,
       display,
       position,
       overflow,
@@ -237,6 +239,7 @@ export const Pressable = memo(
         {...(props satisfies ValidateProps<typeof props, InteractableBaseProps>)}
       >
         <Interactable
+          GradientComponent={GradientComponent}
           alignContent={alignContent}
           alignItems={alignItems}
           alignSelf={alignSelf}
@@ -280,6 +283,7 @@ export const Pressable = memo(
           fontSize={fontSize}
           fontWeight={fontWeight}
           gap={gap}
+          gradient={gradient}
           height={height}
           justifyContent={justifyContent}
           left={left}
