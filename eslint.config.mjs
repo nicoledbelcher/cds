@@ -46,6 +46,17 @@ const ignores = [
   'libs/docusaurus-plugin-docgen/module-declarations.d.ts',
 ];
 
+// TODO (CDS-1412): Fix these react-hooks rule violations and re-enable them
+const disabledNewReactHooksRules = {
+  'react-hooks/immutability': 'off',
+  'react-hooks/purity': 'off',
+  'react-hooks/refs': 'off',
+  'react-hooks/set-state-in-effect': 'off',
+  'react-hooks/set-state-in-render': 'off',
+  'react-hooks/static-components': 'off',
+  'react-hooks/preserve-manual-memoization': 'off',
+};
+
 // These rules apply to all files
 const sharedRules = {
   'import/default': 'off',
@@ -135,6 +146,7 @@ const sharedRules = {
   ],
   'react/prop-types': 'off',
   'react/react-in-jsx-scope': 'off',
+  ...disabledNewReactHooksRules,
 };
 
 // These rules only apply to TS/TSX files in packages/**, and do not apply to stories or tests
@@ -199,7 +211,7 @@ const sharedExtends = [
   eslintJs.configs.recommended,
   eslintImport.flatConfigs.recommended,
   eslintReact.configs.flat.recommended,
-  eslintReactHooks.configs['recommended-latest'],
+  eslintReactHooks.configs.flat['recommended-latest'],
   eslintReactPerf.configs.flat.recommended,
   eslintJsxA11y.flatConfigs.recommended,
 ];
@@ -311,7 +323,7 @@ export default tseslint.config(
     extends: [internalPlugin.configs.figmaConnectRules],
   },
   {
-    files: ['**/*.test.{ts,tsx}', '**/__tests__/**', '**/setup.js'],
+    files: ['**/*.test.{ts,tsx}', '**/__tests__/**', '**/jest/**/*.js'],
     settings: sharedSettings,
     languageOptions: {
       globals: {

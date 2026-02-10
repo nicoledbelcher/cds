@@ -31,7 +31,9 @@ type TabContainerProps = {
 
 const TabContainer = ({ id, registerRef, ...props }: TabContainerProps) => {
   const refCallback = useCallback(
-    (ref: View | null) => ref && registerRef(id, ref),
+    (ref: View | null) => {
+      if (ref) registerRef(id, ref);
+    },
     [id, registerRef],
   );
   return <View ref={refCallback} {...props} />;
@@ -170,6 +172,7 @@ export const TabsActiveIndicator = ({
 
   if (previousActiveTabRect.current !== activeTabRect) {
     previousActiveTabRect.current = activeTabRect;
+    // TODO: writing to shared value during render causes a reanimated warning which we have to suppress in jest setup
     animatedTabRect.value = isFirstRenderWithWidth
       ? newActiveTabRect
       : withSpring(newActiveTabRect, tabsSpringConfig);

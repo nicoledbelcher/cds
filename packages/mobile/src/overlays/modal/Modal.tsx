@@ -7,8 +7,9 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { Modal as RNModal, Platform, SafeAreaView, StatusBar, StyleSheet } from 'react-native';
+import { Modal as RNModal, Platform, StatusBar, StyleSheet } from 'react-native';
 import type { ModalProps as RNModalProps } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePreviousValue } from '@coinbase/cds-common/hooks/usePreviousValue';
 import { ModalContext, type ModalContextValue } from '@coinbase/cds-common/overlays/ModalContext';
 import {
@@ -28,7 +29,7 @@ export type ModalBaseProps = SharedProps &
   Pick<PositionStyles, 'zIndex'> &
   Omit<RNModalProps, 'children' | 'visible' | 'onRequestClose' | 'animationType'> & {
     /** Component to render as the Modal content */
-    children?: React.ReactNode | React.FC<ModalChildrenRenderProps>;
+    children?: React.ReactNode | ((props: ModalChildrenRenderProps) => React.ReactNode);
     /**
      * Callback fired after the component is closed.
      */

@@ -2,6 +2,7 @@ import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import type { ReactElement, RefObject } from 'react';
 import { FOCUSABLE_ELEMENTS } from '@coinbase/cds-common/tokens/overlays';
 import { debounce } from '@coinbase/cds-common/utils/debounce';
+import { mergeReactElementRef } from '@coinbase/cds-common/utils/mergeRefs';
 
 import { getBrowserGlobals } from '../utils/browser';
 
@@ -132,7 +133,7 @@ export const FocusTrap = memo(function FocusTrap({
 
   // trap focus for accessibility
   const handleKeyboardNavigation = useCallback(
-    (event: KeyboardEvent, element: RefObject<HTMLElement>['current']) => {
+    (event: KeyboardEvent, element: RefObject<HTMLElement | null>['current']) => {
       const document = getBrowserGlobals()?.document;
       const activeElement = document?.activeElement as HTMLElement;
 
@@ -367,5 +368,7 @@ export const FocusTrap = memo(function FocusTrap({
     return <>{children}</>;
   }
 
-  return React.cloneElement(children, { ref: childrenRef });
+  return React.cloneElement(children as React.ReactElement<React.RefAttributes<HTMLElement>>, {
+    ref: mergeReactElementRef<HTMLElement>(children, childrenRef),
+  });
 });

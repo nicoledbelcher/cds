@@ -288,7 +288,7 @@ describe('ListCell', () => {
       </DefaultThemeProvider>,
     );
 
-    expect(screen.getByText('Helper Text')).toBeTruthy();
+    expect(screen.getByText(/Helper Text/, { includeHiddenElements: true })).toBeTruthy();
   });
 
   it('renders empty strings without crashing', () => {
@@ -298,7 +298,7 @@ describe('ListCell', () => {
       </DefaultThemeProvider>,
     );
 
-    expect(screen.container).not.toBeNull();
+    expect(screen.root).not.toBeNull();
   });
 
   it('can set an accessibilityLabel and accessibilityHint when a pressable', () => {

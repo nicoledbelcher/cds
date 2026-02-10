@@ -1,5 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { fireEvent, render, renderHook, screen } from '@testing-library/react-native';
 
 import { Button } from '../../../buttons';
 import { useDimensions } from '../../../hooks/useDimensions';
