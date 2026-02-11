@@ -17,7 +17,9 @@ import type { TextAlignProps } from '@coinbase/cds-common/types/TextBaseProps';
 import { css } from '@linaria/core';
 
 import { cx } from '../cx';
+import { useTheme } from '../hooks/useTheme';
 import { Box } from '../layout/Box';
+import { mergeComponentProps } from '../utils/mergeComponentProps';
 import { HStack } from '../layout/HStack';
 import { Text } from '../typography/Text';
 
@@ -160,7 +162,16 @@ const variantColorMap: Record<InputVariant, ThemeVars.Color> = {
 
 export const TextInput = memo(
   forwardRef(function TextInput(
-    {
+    _props: TextInputProps,
+    ref: React.ForwardedRef<HTMLInputElement>,
+  ) {
+    const { components } = useTheme();
+    const mergedProps = mergeComponentProps(
+      components?.TextInput,
+      _props,
+      components?.mergeClassNameAndStyle,
+    );
+    const {
       label,
       accessibilityLabel,
       helperText = '',
@@ -186,9 +197,7 @@ export const TextInput = memo(
       labelNode,
       inputBackground,
       ...htmlInputElmProps
-    }: TextInputProps,
-    ref: React.ForwardedRef<HTMLInputElement>,
-  ) {
+    } = mergedProps;
     const [focused, setFocused] = useState(false);
     const focusedVariant = useInputVariant(focused, variant);
     const internalRef = useRef<HTMLInputElement>();

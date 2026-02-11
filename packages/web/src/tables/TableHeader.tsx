@@ -3,6 +3,8 @@ import { zIndex } from '@coinbase/cds-common/tokens/zIndex';
 import { css } from '@linaria/core';
 
 import { cx } from '../cx';
+import { useTheme } from '../hooks/useTheme';
+import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 import { TableSection, type TableSectionProps } from './TableSection';
 
@@ -23,7 +25,14 @@ const tableStickyCss = css`
   z-index: ${zIndex.interactable};
 `;
 
-export const TableHeader = memo(({ children, sticky, testID, ...props }: TableHeaderProps) => {
+export const TableHeader = memo((_props: TableHeaderProps) => {
+  const { components } = useTheme();
+  const mergedProps = mergeComponentProps(
+    components?.TableHeader,
+    _props,
+    components?.mergeClassNameAndStyle,
+  );
+  const { children, sticky, testID, ...props } = mergedProps;
   return (
     <TableSection
       as="thead"

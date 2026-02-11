@@ -14,8 +14,10 @@ import { accessibleOpacityDisabled } from '@coinbase/cds-common/tokens/interacta
 import { defaultRect, type Rect } from '@coinbase/cds-common/types/Rect';
 import { m as motion, type MotionProps, type Transition } from 'framer-motion';
 
+import { useTheme } from '../hooks/useTheme';
 import { Box, type BoxDefaultElement, type BoxProps } from '../layout/Box';
 import { HStack, type HStackDefaultElement, type HStackProps } from '../layout/HStack';
+import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 const MotionBox = motion<BoxProps<BoxDefaultElement>>(Box);
 
@@ -83,7 +85,16 @@ type TabsFC = <TabId extends string = string>(
 const TabsComponent = memo(
   forwardRef(
     <TabId extends string>(
-      {
+      _props: TabsProps<TabId>,
+      ref: React.ForwardedRef<HTMLElement>,
+    ) => {
+      const { components } = useTheme();
+      const mergedProps = mergeComponentProps(
+        components?.Tabs,
+        _props,
+        components?.mergeClassNameAndStyle,
+      );
+      const {
         tabs,
         TabComponent,
         TabsActiveIndicatorComponent,
@@ -97,9 +108,7 @@ const TabsComponent = memo(
         width = 'fit-content',
         style,
         ...props
-      }: TabsProps<TabId>,
-      ref: React.ForwardedRef<HTMLElement>,
-    ) => {
+      } = mergedProps;
       const api = useTabs<TabId>({ tabs, activeTab, disabled, onChange });
 
       const [tabsContainerRef, tabsContainerRect] = useMeasure({

@@ -23,10 +23,12 @@ import { m as motion, useAnimation } from 'framer-motion';
 
 import { Button } from '../buttons/Button';
 import { IconButton } from '../buttons/IconButton';
+import { useTheme } from '../hooks/useTheme';
 import { Box, type BoxDefaultElement, type BoxProps } from '../layout/Box';
 import { HStack } from '../layout/HStack';
 import { ColorSurge } from '../motion/ColorSurge';
 import { useMotionProps } from '../motion/useMotionProps';
+import { mergeComponentProps } from '../utils/mergeComponentProps';
 import { Text } from '../typography/Text';
 
 import type { ModalProps } from './modal/Modal';
@@ -71,7 +73,16 @@ export const toastTestId = 'cds-toast';
 export const Toast = memo(
   forwardRef<ToastRefHandle, ToastProps>(
     (
-      {
+      _props: ToastProps,
+      ref,
+    ) => {
+      const { components } = useTheme();
+      const mergedProps = mergeComponentProps(
+        components?.Toast,
+        _props,
+        components?.mergeClassNameAndStyle,
+      );
+      const {
         text,
         action,
         onWillHide,
@@ -83,9 +94,7 @@ export const Toast = memo(
         closeButtonAccessibilityProps = closeButtonAccessibilityDefaults,
         variant,
         ...props
-      },
-      ref,
-    ) => {
+      } = mergedProps;
       const { pauseTimer, resumeTimer } = useContext(ToastContext);
       const animationControls = useAnimation();
 

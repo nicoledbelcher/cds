@@ -9,9 +9,11 @@ import type {
 
 import { Button } from '../buttons';
 import { useA11yLabels } from '../hooks/useA11yLabels';
+import { useTheme } from '../hooks/useTheme';
 import { Pictogram } from '../illustrations';
 import { Box } from '../layout/Box';
 import { Text } from '../typography/Text';
+import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 import { Modal, type ModalBaseProps, type ModalRefBaseProps } from './modal/Modal';
 import { Portal } from './Portal';
@@ -79,7 +81,16 @@ export const alertModalWidth = 318;
 export const Alert = memo(
   forwardRef<ModalRefBaseProps, AlertProps>(
     (
-      {
+      _props: AlertProps,
+      ref,
+    ) => {
+      const { components } = useTheme();
+      const mergedProps = mergeComponentProps(
+        components?.Alert,
+        _props,
+        components?.mergeClassNameAndStyle,
+      );
+      const {
         title,
         body,
         pictogram,
@@ -97,9 +108,7 @@ export const Alert = memo(
         accessibilityLabelledBy,
         accessibilityLabel,
         ...props
-      },
-      ref,
-    ) => {
+      } = mergedProps;
       const { labelledBySource, labelledBy, label } = useA11yLabels({
         accessibilityLabelledBy,
         accessibilityLabel,

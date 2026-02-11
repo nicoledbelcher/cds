@@ -12,6 +12,7 @@ import { m as motion } from 'framer-motion';
 import { useTheme } from '../hooks/useTheme';
 import { Box } from '../layout';
 import { useMotionProps } from '../motion/useMotionProps';
+import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 import { Control, type ControlBaseProps } from './Control';
 
@@ -60,7 +61,16 @@ export type RadioProps<RadioValue extends string> = ControlBaseProps<RadioValue>
 };
 
 const RadioWithRef = forwardRef(function RadioWithRef<RadioValue extends string>(
-  {
+  _props: RadioProps<RadioValue>,
+  ref: React.ForwardedRef<HTMLInputElement>,
+) {
+  const theme = useTheme();
+  const mergedProps = mergeComponentProps(
+    theme.components?.Radio,
+    _props,
+    theme.components?.mergeClassNameAndStyle,
+  );
+  const {
     children,
     controlColor = 'bgPrimary',
     checked = false,
@@ -68,10 +78,7 @@ const RadioWithRef = forwardRef(function RadioWithRef<RadioValue extends string>
     borderColor = checked ? controlColor : 'bgLineHeavy',
     elevation,
     ...props
-  }: RadioProps<RadioValue>,
-  ref: React.ForwardedRef<HTMLInputElement>,
-) {
-  const theme = useTheme();
+  } = mergedProps;
   const iconWidth = theme.controlSize.radioSize;
 
   const innerContainerMotionProps = useMotionProps({

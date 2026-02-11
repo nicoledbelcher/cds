@@ -1,5 +1,7 @@
 import React, { cloneElement, useCallback, useMemo, useRef } from 'react';
 
+import { useTheme } from '../../hooks/useTheme';
+import { mergeComponentProps } from '../../utils/mergeComponentProps';
 import { Popover } from '../popover/Popover';
 
 import { TooltipContent } from './TooltipContent';
@@ -11,25 +13,32 @@ const preventMouseDown = (event: React.MouseEvent) => {
   event.stopPropagation();
 };
 
-export const Tooltip = ({
-  children,
-  content,
-  elevation,
-  placement = 'top',
-  gap = 1,
-  disablePortal,
-  testID,
-  zIndex,
-  tooltipId: tooltipIdDefault,
-  visible,
-  invertColorScheme = true,
-  disableFocusTrap,
-  disableAutoFocus,
-  disableTypeFocus,
-  focusTabIndexElements,
-  respectNegativeTabIndex,
-  autoFocusDelay = 20,
-}: TooltipProps) => {
+export const Tooltip = (_props: TooltipProps) => {
+  const { components } = useTheme();
+  const mergedProps = mergeComponentProps(
+    components?.Tooltip,
+    _props,
+    components?.mergeClassNameAndStyle,
+  );
+  const {
+    children,
+    content,
+    elevation,
+    placement = 'top',
+    gap = 1,
+    disablePortal,
+    testID,
+    zIndex,
+    tooltipId: tooltipIdDefault,
+    visible,
+    invertColorScheme = true,
+    disableFocusTrap,
+    disableAutoFocus,
+    disableTypeFocus,
+    focusTabIndexElements,
+    respectNegativeTabIndex,
+    autoFocusDelay = 20,
+  } = mergedProps;
   const { isOpen, handleOnMouseEnter, handleOnMouseLeave, handleOnFocus, handleOnBlur, tooltipId } =
     useTooltipState(tooltipIdDefault);
   const tooltipContentRef = useRef<HTMLDivElement | null>(null);

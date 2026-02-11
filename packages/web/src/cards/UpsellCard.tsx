@@ -8,9 +8,11 @@ import type {
 } from '@coinbase/cds-common/types';
 
 import { Button, IconButton } from '../buttons';
+import { useTheme } from '../hooks/useTheme';
 import { HStack, VStack } from '../layout';
 import { Pressable, type PressableDefaultElement, type PressableProps } from '../system';
 import { Text } from '../typography/Text';
+import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 export type UpsellCardBaseProps = SharedProps &
   Pick<SharedAccessibilityProps, 'accessibilityLabel'> &
@@ -72,20 +74,27 @@ export type UpsellCardProps = UpsellCardBaseProps;
  * ```
  */
 export const UpsellCard = memo(
-  ({
-    title,
-    description,
-    action,
-    onActionPress,
-    onDismissPress,
-    media,
-    background = 'bgPrimaryWash',
-    dangerouslySetBackground,
-    testID = 'upsell-card',
-    accessibilityLabel,
-    width = upsellCardDefaultWidth,
-    onClick,
-  }: UpsellCardProps) => {
+  (_props: UpsellCardProps) => {
+    const { components } = useTheme();
+    const mergedProps = mergeComponentProps(
+      components?.UpsellCard,
+      _props,
+      components?.mergeClassNameAndStyle,
+    );
+    const {
+      title,
+      description,
+      action,
+      onActionPress,
+      onDismissPress,
+      media,
+      background = 'bgPrimaryWash',
+      dangerouslySetBackground,
+      testID = 'upsell-card',
+      accessibilityLabel,
+      width = upsellCardDefaultWidth,
+      onClick,
+    } = mergedProps;
     const content = (
       <HStack
         alignContent="space-between"

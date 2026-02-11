@@ -6,8 +6,10 @@ import { css } from '@linaria/core';
 
 import { IconButton } from '../buttons/IconButton';
 import { cx } from '../cx';
+import { useTheme } from '../hooks/useTheme';
 import { Pictogram } from '../illustrations/Pictogram';
 import { Box, type BoxDefaultElement, type BoxProps } from '../layout/Box';
+import { mergeComponentProps } from '../utils/mergeComponentProps';
 import { HStack } from '../layout/HStack';
 import { VStack } from '../layout/VStack';
 import { type StyleProps } from '../styles/styleProps';
@@ -152,30 +154,37 @@ export type NudgeCardProps = NudgeCardBaseProps & Omit<BoxProps<BoxDefaultElemen
  * />
  * ```
  */
-export const NudgeCard = ({
-  title,
-  description,
-  pictogram,
-  media,
-  mediaPosition = 'right',
-  action,
-  className,
-  onActionPress,
-  numberOfLines = 3,
-  onDismissPress,
-  width = 327,
-  minWidth = 327,
-  testID = 'nudge-card',
-  accessibilityLabel,
-  maxHeight,
-  maxWidth,
-  background = 'bgAlternate',
-  minHeight,
-  height,
-  aspectRatio,
-  onClick,
-  ...props
-}: NudgeCardProps) => {
+export const NudgeCard = (_props: NudgeCardProps) => {
+  const { components } = useTheme();
+  const mergedProps = mergeComponentProps(
+    components?.NudgeCard,
+    _props,
+    components?.mergeClassNameAndStyle,
+  );
+  const {
+    title,
+    description,
+    pictogram,
+    media,
+    mediaPosition = 'right',
+    action,
+    className,
+    onActionPress,
+    numberOfLines = 3,
+    onDismissPress,
+    width = 327,
+    minWidth = 327,
+    testID = 'nudge-card',
+    accessibilityLabel,
+    maxHeight,
+    maxWidth,
+    background = 'bgAlternate',
+    minHeight,
+    height,
+    aspectRatio,
+    onClick,
+    ...props
+  } = mergedProps;
   const hasMedia = pictogram || media;
   const paddingBottom = action ? 1 : 2;
   const paddingProps = getCardBodyPaddingProps({

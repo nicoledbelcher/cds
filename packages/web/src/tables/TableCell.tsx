@@ -7,7 +7,9 @@ import { css } from '@linaria/core';
 
 import { Cell, type CellBaseProps } from '../cells/Cell';
 import { cx } from '../cx';
+import { useTheme } from '../hooks/useTheme';
 import { Box } from '../layout/Box';
+import { mergeComponentProps } from '../utils/mergeComponentProps';
 import { Text, type TextBaseProps } from '../typography/Text';
 
 import {
@@ -172,31 +174,38 @@ const tableOverflowWidthCss = css`
 `;
 
 export const TableCell = memo(
-  ({
-    alignItems,
-    children,
-    colSpan = 1,
-    scope,
-    color = 'currentColor',
-    direction = 'vertical',
-    end,
-    justifyContent,
-    onClick,
-    start,
-    testID,
-    overflow,
-    // Only available when Children is null
-    title,
-    titleColor,
-    subtitle,
-    subtitleColor = 'fgMuted',
-    width,
-    innerSpacing,
-    outerSpacing,
-    as,
-    className,
-    ...props
-  }: TableCellProps) => {
+  (_props: TableCellProps) => {
+    const { components } = useTheme();
+    const mergedProps = mergeComponentProps(
+      components?.TableCell,
+      _props,
+      components?.mergeClassNameAndStyle,
+    );
+    const {
+      alignItems,
+      children,
+      colSpan = 1,
+      scope,
+      color = 'currentColor',
+      direction = 'vertical',
+      end,
+      justifyContent,
+      onClick,
+      start,
+      testID,
+      overflow,
+      // Only available when Children is null
+      title,
+      titleColor,
+      subtitle,
+      subtitleColor = 'fgMuted',
+      width,
+      innerSpacing,
+      outerSpacing,
+      as,
+      className,
+      ...props
+    } = mergedProps;
     if (isDevelopment() && children && (title || subtitle)) {
       console.error('TableCell: Cannot use `title` or `subtitle` with `children`.');
     }

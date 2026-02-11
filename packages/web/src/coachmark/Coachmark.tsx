@@ -2,6 +2,7 @@ import React, { forwardRef, memo } from 'react';
 import { type DimensionValue, type SharedProps } from '@coinbase/cds-common';
 
 import { IconButton } from '../buttons/IconButton';
+import { useTheme } from '../hooks/useTheme';
 import {
   Box,
   type BoxBaseProps,
@@ -12,6 +13,7 @@ import {
 } from '../layout';
 import { InvertedThemeProvider } from '../system';
 import { Text } from '../typography/Text';
+import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 export type CoachmarkBaseProps = SharedProps &
   BoxBaseProps & {
@@ -55,7 +57,16 @@ export type CoachmarkProps = CoachmarkBaseProps &
 export const Coachmark = memo(
   forwardRef(
     (
-      {
+      _props: CoachmarkProps,
+      ref: React.ForwardedRef<HTMLDivElement>,
+    ) => {
+      const { components } = useTheme();
+      const mergedProps = mergeComponentProps(
+        components?.Coachmark,
+        _props,
+        components?.mergeClassNameAndStyle,
+      );
+      const {
         title,
         content,
         checkbox,
@@ -66,9 +77,7 @@ export const Coachmark = memo(
         closeButtonAccessibilityLabel,
         testID,
         ...props
-      }: CoachmarkProps,
-      ref: React.ForwardedRef<HTMLDivElement>,
-    ) => {
+      } = mergedProps;
       return (
         <InvertedThemeProvider>
           <VStack

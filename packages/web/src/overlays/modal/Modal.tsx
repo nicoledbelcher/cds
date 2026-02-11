@@ -18,10 +18,12 @@ import { m as motion } from 'framer-motion';
 
 import { cx } from '../../cx';
 import { useA11yLabels } from '../../hooks/useA11yLabels';
+import { useTheme } from '../../hooks/useTheme';
 import { Box } from '../../layout';
 import { VStack } from '../../layout/VStack';
 import { useMotionProps } from '../../motion/useMotionProps';
 import { media } from '../../styles/media';
+import { mergeComponentProps } from '../../utils/mergeComponentProps';
 import { FocusTrap } from '../FocusTrap';
 
 import type { ModalWrapperProps } from './ModalWrapper';
@@ -123,7 +125,16 @@ export type ModalRefBaseProps = Pick<ModalBaseProps, 'onRequestClose'>;
 export const Modal = memo(
   forwardRef<ModalRefBaseProps, ModalProps>(
     (
-      {
+      _props: ModalProps,
+      ref,
+    ) => {
+      const { components } = useTheme();
+      const mergedProps = mergeComponentProps(
+        components?.Modal,
+        _props,
+        components?.mergeClassNameAndStyle,
+      );
+      const {
         children,
         visible = false,
         onRequestClose,
@@ -142,9 +153,7 @@ export const Modal = memo(
         hideDividers,
         maxWidth,
         ...props
-      },
-      ref,
-    ) => {
+      } = mergedProps;
       const defaultWidth = dangerouslyDisableResponsiveness ? modalMaxWidth : defaultWidthStyle;
       const defaultMaxWidth = dangerouslyDisableResponsiveness ? undefined : defaultMaxWidthStyle;
       const { labelledBySource, labelledBy, label } = useA11yLabels({

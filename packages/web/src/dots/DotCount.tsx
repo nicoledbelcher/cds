@@ -23,6 +23,7 @@ import { cx } from '../cx';
 import { useTheme } from '../hooks/useTheme';
 import { useMotionProps } from '../motion/useMotionProps';
 import { Text } from '../typography/Text';
+import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 import { getTransform } from './dotStyles';
 
@@ -101,22 +102,29 @@ export type DotCountProps = DotCountBaseProps & {
 };
 
 export const DotCount = memo(
-  ({
-    children,
-    pin,
-    variant = 'negative',
-    count,
-    max,
-    testID,
-    accessibilityLabel,
-    overlap,
-    className,
-    classNames,
-    style,
-    styles,
-    ...props
-  }: DotCountProps) => {
-    const { color } = useTheme();
+  (_props: DotCountProps) => {
+    const theme = useTheme();
+    const mergedProps = mergeComponentProps(
+      theme.components?.DotCount,
+      _props,
+      theme.components?.mergeClassNameAndStyle,
+    );
+    const {
+      children,
+      pin,
+      variant = 'negative',
+      count,
+      max,
+      testID,
+      accessibilityLabel,
+      overlap,
+      className,
+      classNames,
+      style,
+      styles,
+      ...props
+    } = mergedProps;
+    const { color } = theme;
     const pinStyles = getTransform(pin, overlap);
 
     const containerStyles = useMemo(() => {

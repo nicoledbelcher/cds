@@ -7,6 +7,7 @@ import { m as motion } from 'framer-motion';
 import { useTheme } from '../hooks/useTheme';
 import { Box } from '../layout/Box';
 import { convertTransition } from '../motion/utils';
+import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 import { Control, type ControlBaseProps } from './Control';
 
@@ -56,7 +57,16 @@ const thumbMotionVariants = {
 };
 
 const SwitchWithRef = forwardRef<HTMLInputElement, SwitchProps>(function SwitchWithRef(
-  {
+  _props: SwitchProps,
+  ref,
+) {
+  const theme = useTheme();
+  const mergedProps = mergeComponentProps(
+    theme.components?.Switch,
+    _props,
+    theme.components?.mergeClassNameAndStyle,
+  );
+  const {
     children,
     checked,
     disabled,
@@ -68,10 +78,8 @@ const SwitchWithRef = forwardRef<HTMLInputElement, SwitchProps>(function SwitchW
     borderWidth,
     value,
     ...props
-  },
-  ref,
-) {
-  const { activeColorScheme } = useTheme();
+  } = mergedProps;
+  const { activeColorScheme } = theme;
   const defaultControlColor = activeColorScheme === 'dark' ? 'fg' : 'fgInverse';
   const switchNode = (
     <Control

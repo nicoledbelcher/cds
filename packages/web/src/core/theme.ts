@@ -1,8 +1,31 @@
 import type { ColorScheme, ThemeVars } from '@coinbase/cds-common/core/theme';
 import type { Property } from 'csstype';
 
+import type { SelectBaseProps as AlphaSelectBaseProps } from '../alpha/select/types';
 import type { ButtonBaseProps } from '../buttons/Button';
 import type { IconButtonBaseProps } from '../buttons/IconButton';
+import type { NudgeCardBaseProps } from '../cards/NudgeCard';
+import type { UpsellCardBaseProps } from '../cards/UpsellCard';
+import type { ListCellBaseProps } from '../cells/ListCell';
+import type { ChipBaseProps } from '../chips/ChipProps';
+import type { CoachmarkBaseProps } from '../coachmark/Coachmark';
+import type { CheckboxProps } from '../controls/Checkbox';
+import type { InputIconButtonProps } from '../controls/InputIconButton';
+import type { RadioProps } from '../controls/Radio';
+import type { SearchInputBaseProps } from '../controls/SearchInput';
+import type { SwitchProps } from '../controls/Switch';
+import type { TextInputBaseProps } from '../controls/TextInput';
+import type { DatePickerProps } from '../dates/DatePicker';
+import type { DotCountBaseProps } from '../dots/DotCount';
+import type { DropdownProps } from '../dropdown/DropdownProps';
+import type { AlertBaseProps } from '../overlays/Alert';
+import type { ModalBaseProps } from '../overlays/modal/Modal';
+import type { ToastBaseProps } from '../overlays/Toast';
+import type { TooltipBaseProps } from '../overlays/tooltip/TooltipProps';
+import type { TableCellProps } from '../tables/TableCell';
+import type { TableHeaderProps } from '../tables/TableHeader';
+import type { TabsBaseProps } from '../tabs/Tabs';
+import type { TagBaseProps } from '../tag/Tag';
 
 // TODO: Review the component config structure and allowed props. Using Partial<ComponentProps> for the following reasons:
 // 1. Simpler architecture: Avoids nested `defaultProps` structure, keeping config flat and intuitive (e.g., `Button: { variant: 'primary' }` instead of `Button: { defaultProps: { variant: 'primary' } }`).
@@ -12,8 +35,45 @@ import type { IconButtonBaseProps } from '../buttons/IconButton';
 // Material UI component config structure (https://github.com/mui/material-ui/blob/master/packages/mui-system/src/DefaultPropsProvider/DefaultPropsProvider.tsx#L32).
 // React Native Elements component config structure (https://github.com/react-native-elements/react-native-elements/blob/next/packages/themed/src/config/theme.component.ts#L44-L100).
 export type ComponentTheme = {
+  // Buttons
   Button: Partial<ButtonBaseProps>;
   IconButton: Partial<IconButtonBaseProps>;
+  // Controls
+  TextInput: Partial<TextInputBaseProps>;
+  InputIconButton: Partial<InputIconButtonProps>;
+  SearchInput: Partial<SearchInputBaseProps>;
+  Checkbox: Partial<CheckboxProps<string>>;
+  Radio: Partial<RadioProps<string>>;
+  Switch: Partial<SwitchProps>;
+  // Chips
+  Chip: Partial<ChipBaseProps>;
+  // Select (alpha)
+  Select: Partial<AlphaSelectBaseProps>;
+  // Dropdown
+  Dropdown: Partial<DropdownProps>;
+  // Overlays
+  Modal: Partial<ModalBaseProps>;
+  Alert: Partial<AlertBaseProps>;
+  Toast: Partial<ToastBaseProps>;
+  Tooltip: Partial<TooltipBaseProps>;
+  // Cells
+  ListCell: Partial<ListCellBaseProps>;
+  // Dots
+  DotCount: Partial<DotCountBaseProps>;
+  // Tag
+  Tag: Partial<TagBaseProps>;
+  // Tabs
+  Tabs: Partial<TabsBaseProps>;
+  // Dates
+  DatePicker: Partial<DatePickerProps>;
+  // Cards
+  NudgeCard: Partial<NudgeCardBaseProps>;
+  UpsellCard: Partial<UpsellCardBaseProps>;
+  // Tables
+  TableCell: Partial<TableCellProps>;
+  TableHeader: Partial<TableHeaderProps>;
+  // Coachmark
+  Coachmark: Partial<CoachmarkBaseProps>;
   /**
    * Controls how component props from theme config are merged with local component props.
    * @default false

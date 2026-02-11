@@ -13,6 +13,7 @@ import { useTheme } from '../hooks/useTheme';
 import { Icon } from '../icons/Icon';
 import { Box } from '../layout';
 import { useMotionProps } from '../motion/useMotionProps';
+import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 import { Control, type ControlBaseProps } from './Control';
 
@@ -52,7 +53,16 @@ export type CheckboxProps<CheckboxValue extends string> = ControlBaseProps<Check
 };
 
 const CheckboxWithRef = forwardRef(function CheckboxWithRef<CheckboxValue extends string>(
-  {
+  _props: CheckboxProps<CheckboxValue>,
+  ref: React.ForwardedRef<HTMLInputElement>,
+) {
+  const theme = useTheme();
+  const mergedProps = mergeComponentProps(
+    theme.components?.Checkbox,
+    _props,
+    theme.components?.mergeClassNameAndStyle,
+  );
+  const {
     children,
     checked,
     indeterminate,
@@ -63,11 +73,8 @@ const CheckboxWithRef = forwardRef(function CheckboxWithRef<CheckboxValue extend
     borderWidth = 100,
     elevation,
     ...props
-  }: CheckboxProps<CheckboxValue>,
-  ref: React.ForwardedRef<HTMLInputElement>,
-) {
+  } = mergedProps;
   const filled = checked || indeterminate;
-  const theme = useTheme();
   const checkboxSize = theme.controlSize.checkboxSize;
   const iconPadding = checkboxSize / 5;
   const iconSize = checkboxSize - iconPadding;

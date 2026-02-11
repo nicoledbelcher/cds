@@ -17,6 +17,7 @@ import type {
 import { useTheme } from '../hooks/useTheme';
 import { Box, type BoxDefaultElement, type BoxProps } from '../layout/Box';
 import { Text } from '../typography/Text';
+import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 export const tagStaticClassName = 'cds-tag';
 
@@ -52,7 +53,16 @@ export type TagProps = TagBaseProps &
 
 export const Tag = memo(
   forwardRef(function Tag(
-    {
+    _props: TagProps,
+    forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  ) {
+    const theme = useTheme();
+    const mergedProps = mergeComponentProps(
+      theme.components?.Tag,
+      _props,
+      theme.components?.mergeClassNameAndStyle,
+    );
+    const {
       children,
       intent = 'informational',
       emphasis = intent === 'informational' ? 'low' : 'high',
@@ -64,10 +74,7 @@ export const Tag = memo(
       justifyContent = 'center',
       testID = tagStaticClassName,
       ...props
-    }: TagProps,
-    forwardedRef: React.ForwardedRef<HTMLDivElement>,
-  ) {
-    const theme = useTheme();
+    } = mergedProps;
     const { background, foreground } = tagEmphasisColorMap[emphasis][colorScheme];
     const boxStyles = useMemo(
       () => ({

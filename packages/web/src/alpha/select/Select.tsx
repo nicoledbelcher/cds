@@ -4,9 +4,11 @@ import { autoUpdate, flip, useFloating, type UseFloatingReturn } from '@floating
 import { cx } from '../../cx';
 import { useClickOutside } from '../../hooks/useClickOutside';
 import { useHasMounted } from '../../hooks/useHasMounted';
+import { useTheme } from '../../hooks/useTheme';
 import { Box } from '../../layout/Box';
 import { Portal } from '../../overlays/Portal';
 import { modalContainerId } from '../../overlays/PortalProvider';
+import { mergeComponentProps } from '../../utils/mergeComponentProps';
 
 import { DefaultSelectAllOption } from './DefaultSelectAllOption';
 import { DefaultSelectControl } from './DefaultSelectControl';
@@ -60,7 +62,16 @@ type SelectComponent = <
 const SelectBase = memo(
   forwardRef(
     <Type extends SelectType = 'single', SelectOptionValue extends string = string>(
-      {
+      _props: SelectProps<Type, SelectOptionValue>,
+      ref: React.Ref<SelectRef>,
+    ) => {
+      const { components } = useTheme();
+      const mergedProps = mergeComponentProps(
+        components?.Select,
+        _props as Record<string, unknown>,
+        components?.mergeClassNameAndStyle,
+      ) as SelectProps<Type, SelectOptionValue>;
+      const {
         value,
         type = 'single' as Type,
         options,
@@ -104,9 +115,7 @@ const SelectBase = memo(
         className,
         classNames,
         testID,
-      }: SelectProps<Type, SelectOptionValue>,
-      ref: React.Ref<SelectRef>,
-    ) => {
+      } = mergedProps;
       const hasMounted = useHasMounted();
       const [openInternal, setOpenInternal] = useState(defaultOpen ?? false);
       const open = openProp ?? openInternal;

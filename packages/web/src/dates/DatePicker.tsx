@@ -11,8 +11,10 @@ import { zIndex } from '@coinbase/cds-common/tokens/zIndex';
 import { type AnimationProps, m as motion } from 'framer-motion';
 
 import { InputIconButton } from '../controls/InputIconButton';
+import { useTheme } from '../hooks/useTheme';
 import { Box, VStack } from '../layout';
 import { getMotionProps } from '../motion/useMotionProps';
+import { mergeComponentProps } from '../utils/mergeComponentProps';
 import { Popover } from '../overlays/popover/Popover';
 import {
   type PopoverContentPositionConfig,
@@ -117,7 +119,16 @@ const calendarPopoverPosition: PopoverContentPositionConfig = {
 export const DatePicker = memo(
   forwardRef<HTMLDivElement, DatePickerProps>(
     (
-      {
+      _props: DatePickerProps,
+      ref,
+    ) => {
+      const { components } = useTheme();
+      const mergedProps = mergeComponentProps(
+        components?.DatePicker,
+        _props,
+        components?.mergeClassNameAndStyle,
+      );
+      const {
         date,
         onChangeDate,
         error,
@@ -155,9 +166,7 @@ export const DatePicker = memo(
         onCancel,
         onChange,
         ...props
-      },
-      ref,
-    ) => {
+      } = mergedProps;
       const [showCalendar, setShowCalendar] = useState<boolean>(defaultOpen);
       const calendarRef = useRef<HTMLDivElement | null>(null);
 

@@ -4,11 +4,13 @@ import { chipMaxWidth } from '@coinbase/cds-common/tokens/chip';
 import { css } from '@linaria/core';
 
 import { cx } from '../cx';
+import { useTheme } from '../hooks/useTheme';
 import type { HStackProps } from '../layout';
 import { Box, HStack } from '../layout';
 import type { PressableProps } from '../system';
 import { InvertedThemeProvider, Pressable } from '../system';
 import { Text } from '../typography/Text';
+import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 import type { ChipProps } from './ChipProps';
 export type { ChipProps };
@@ -24,7 +26,16 @@ const transitionCss = css`
  */
 export const Chip = memo(
   forwardRef(function Chip(
-    {
+    _props: ChipProps,
+    ref: React.ForwardedRef<HTMLButtonElement | HTMLDivElement>,
+  ) {
+    const { components } = useTheme();
+    const mergedProps = mergeComponentProps(
+      components?.Chip,
+      _props,
+      components?.mergeClassNameAndStyle,
+    );
+    const {
       as,
       alignItems = 'center',
       width = 'fit-content',
@@ -58,9 +69,7 @@ export const Chip = memo(
       color = 'fg',
       onClick,
       ...props
-    }: ChipProps,
-    ref: React.ForwardedRef<HTMLButtonElement | HTMLDivElement>,
-  ) {
+    } = mergedProps;
     const WrapperComponent = (invertColorScheme ?? inverted) ? InvertedThemeProvider : Fragment;
 
     const containerProps = {
