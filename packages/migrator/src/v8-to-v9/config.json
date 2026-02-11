@@ -1,0 +1,65 @@
+{
+  "version": "v8-to-v9",
+  "description": "Migration from CDS v8 to v9",
+  "categories": {
+    "components": {
+      "description": "Component API changes",
+      "variables": {
+        "Button": {
+          "description": "Button component prop changes",
+          "package": "@coinbase/cds-web",
+          "transforms": [
+            {
+              "name": "button-variant-to-appearance",
+              "description": "Rename 'variant' prop to 'appearance'",
+              "file": "transforms/button-variant-to-appearance.ts"
+            }
+          ]
+        },
+        "Input": {
+          "description": "Input component prop changes",
+          "package": "@coinbase/cds-web",
+          "transforms": [
+            {
+              "name": "input-size-values",
+              "description": "Update size prop values (sm/md/lg to small/medium/large)",
+              "file": "transforms/input-size-values.ts"
+            }
+          ]
+        }
+      }
+    },
+    "hooks": {
+      "description": "Hook API changes",
+      "variables": {
+        "useTheme": {
+          "description": "useTheme hook signature changes",
+          "package": "@coinbase/cds-common",
+          "transforms": [
+            {
+              "name": "use-theme-return-type",
+              "description": "Update destructured return values from useTheme",
+              "file": "transforms/use-theme-return-type.ts"
+            }
+          ]
+        }
+      }
+    },
+    "utilities": {
+      "description": "Utility function changes",
+      "variables": {
+        "formatCurrency": {
+          "description": "formatCurrency function signature changes",
+          "package": "@coinbase/cds-utils",
+          "transforms": [
+            {
+              "name": "format-currency-options",
+              "description": "Update formatCurrency options parameter",
+              "file": "transforms/format-currency-options.ts"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
