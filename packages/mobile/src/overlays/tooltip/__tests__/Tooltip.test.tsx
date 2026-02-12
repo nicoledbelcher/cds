@@ -1,4 +1,4 @@
-import { fireEvent, render, renderHook, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, renderHook, screen } from '@testing-library/react-native';
 
 import { Button } from '../../../buttons';
 import { useDimensions } from '../../../hooks/useDimensions';
@@ -98,5 +98,32 @@ describe('Tooltip', () => {
 
     expect(await screen.findByText(contentText)).toBeTruthy();
     expect(onOpenTooltip).toHaveBeenCalled();
+  });
+
+  it('respects openDelay before showing tooltip content', async () => {
+    jest.useFakeTimers();
+    render(
+      <MockTooltip accessibilityHint="delay-hint" accessibilityLabel="delay-label" openDelay={300}>
+        <Button>{subjectText}</Button>
+      </MockTooltip>,
+    );
+
+    fireEvent.press(screen.getByAccessibilityHint('delay-hint'));
+
+    expect(screen.queryByText(contentText)).toBeNull();
+
+    act(() => {
+      jest.advanceTimersByTime(200);
+    });
+
+    expect(screen.queryByText(contentText)).toBeNull();
+
+    act(() => {
+      jest.advanceTimersByTime(100);
+    });
+
+    expect(await screen.findByText(contentText)).toBeTruthy();
+
+    jest.useRealTimers();
   });
 });
