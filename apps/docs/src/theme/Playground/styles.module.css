@@ -39,3 +39,35 @@
 .sandpackEditor .cm-scroller {
   scrollbar-width: thin;
 }
+
+/* Collapsed code preview with gradient fade */
+.collapsedPreview {
+  position: relative;
+  max-height: 80px;
+  overflow: hidden;
+  padding: 0 var(--space-2);
+}
+
+.collapsedPreview::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(to bottom, transparent, var(--color-bg));
+  pointer-events: none;
+}
+
+.collapsedPreviewCode {
+  margin: 0;
+  padding: var(--space-1) 0;
+  white-space: pre;
+  font-family: var(--fontFamilyMono-label2);
+  font-size: var(--fontSize-label2);
+  font-weight: var(--fontWeight-label2);
+  color: var(--color-fgMuted);
+  background: transparent;
+  border: none;
+  overflow: hidden;
+}

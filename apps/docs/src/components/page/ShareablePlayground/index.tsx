@@ -20,7 +20,8 @@ import * as typescriptPlugin from 'prettier/plugins/typescript.js';
 import { format } from 'prettier/standalone';
 
 import { usePlaygroundTheme } from '../../../theme/Layout/Provider/UnifiedThemeContext';
-import { CodeSandboxExportButton } from '../../../theme/Playground/CodeSandboxExport';
+import { useOpenInCodeSandbox } from '../../../theme/Playground/CodeSandboxExport';
+import { ToolbarIconButton } from '../../../theme/Playground';
 import { SandpackBridge } from '../../../theme/Playground/SandpackBridge';
 
 import styles from './styles.module.css';
@@ -88,6 +89,7 @@ const ShareablePlaygroundInner = memo(function ShareablePlaygroundInner({
   const toast = useToast();
   const { sandpack } = useSandpack();
   const codeRef = useRef(defaultInitialCode);
+  const handleOpenInCodeSandbox = useOpenInCodeSandbox(false);
 
   // Sync code changes to URL
   const handleUrlUpdate = useMemo(
@@ -189,7 +191,11 @@ const ShareablePlaygroundInner = memo(function ShareablePlaygroundInner({
             </Text>
           </HStack>
         </Pressable>
-        <CodeSandboxExportButton isMultiFile={false} />
+        <ToolbarIconButton
+          accessibilityLabel="Open in CodeSandbox"
+          name="pencil"
+          onClick={handleOpenInCodeSandbox}
+        />
       </HStack>
     </>
   );

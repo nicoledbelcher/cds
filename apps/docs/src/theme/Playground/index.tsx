@@ -1,14 +1,14 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { SandpackCodeEditor, SandpackProvider, useSandpack } from '@codesandbox/sandpack-react';
 import { LiveError, LivePreview } from 'react-live';
+import { SandpackCodeEditor, SandpackProvider, useSandpack } from '@codesandbox/sandpack-react';
 import { useTabsContext } from '@coinbase/cds-common/tabs/TabsContext';
 import type { TabValue } from '@coinbase/cds-common/tabs/useTabs';
-import { Collapsible } from '@coinbase/cds-web/collapsible/Collapsible';
+import { IconButton, type IconButtonProps } from '@coinbase/cds-web/buttons/IconButton';
 import { Icon } from '@coinbase/cds-web/icons/Icon';
-import { IconButton } from '@coinbase/cds-web/buttons/IconButton';
+import { Box } from '@coinbase/cds-web/layout';
 import { HStack } from '@coinbase/cds-web/layout/HStack';
 import { VStack } from '@coinbase/cds-web/layout/VStack';
-import { Box } from '@coinbase/cds-web/layout';
+import { Tooltip } from '@coinbase/cds-web/overlays';
 import { useToast } from '@coinbase/cds-web/overlays/useToast';
 import { Pressable } from '@coinbase/cds-web/system';
 import { ThemeProvider } from '@coinbase/cds-web/system/ThemeProvider';
@@ -21,12 +21,12 @@ import * as estreePlugin from 'prettier/plugins/estree.js';
 import * as typescriptPlugin from 'prettier/plugins/typescript.js';
 import { format } from 'prettier/standalone';
 
-import { usePlaygroundTheme } from '../Layout/Provider/UnifiedThemeContext';
 import { generateImports } from '../importMap';
+import { usePlaygroundTheme } from '../Layout/Provider/UnifiedThemeContext';
 
-import { CodeSandboxExportButton } from './CodeSandboxExport';
-import { SandpackBridge } from './SandpackBridge';
+import { useOpenInCodeSandbox } from './CodeSandboxExport';
 import { extractPreviewSnippet, hasPreviewMarkers } from './previewSnippet';
+import { SandpackBridge } from './SandpackBridge';
 import styles from './styles.module.css';
 
 // --- Utilities ---
@@ -94,7 +94,44 @@ const previewContent = () => (
   </>
 );
 
-// --- Sub-components that live inside SandpackProvider context ---
+/** Get a short snippet of code for the collapsed preview. */
+const getCollapsedSnippet = (code: string): string => {
+  if (hasPreviewMarkers(code)) {
+    const snippet = extractPreviewSnippet(code);
+    if (snippet) return snippet;
+  }
+  // Fall back to first ~5 lines
+  return code.split('\n').slice(0, 5).join('\n');
+};
+
+// --- Shared sub-components ---
+
+type ToolbarIconButtonProps = IconButtonProps<'button'> & {
+  tooltip?: string;
+};
+
+export const ToolbarIconButton = memo(({ tooltip, ...props }: ToolbarIconButtonProps) => {
+  if (tooltip) {
+    return (
+      <Tooltip content={tooltip}>
+        <ToolbarIconButton {...props} />
+      </Tooltip>
+    );
+  }
+  return (
+    <IconButton
+      compact
+      transparent
+      height="auto"
+      padding={1}
+      variant="foregroundMuted"
+      width="auto"
+      {...props}
+    />
+  );
+});
+
+// --- Sub-components inside SandpackProvider context ---
 
 // File tab component following the pattern from HookTabsContainer
 const FileTabComponent = ({ id, label }: TabValue) => {
@@ -159,28 +196,29 @@ const FileTabBar = memo(function FileTabBar() {
   );
 });
 
-type PlaygroundControlsProps = {
+// --- PlaygroundHeader: unified header between preview and code ---
+
+type PlaygroundHeaderProps = {
   collapsed: boolean;
   headingText: string;
   onToggleCollapsed: () => void;
   isMultiFile: boolean;
 };
 
-/** Controls bar: file tabs (left), show/hide toggle (center), icon buttons (right). */
-const PlaygroundControls = memo(function PlaygroundControls({
+const PlaygroundHeader = memo(function PlaygroundHeader({
   collapsed,
   headingText,
   onToggleCollapsed,
   isMultiFile,
-}: PlaygroundControlsProps) {
+}: PlaygroundHeaderProps) {
   const toast = useToast();
   const { sandpack } = useSandpack();
+  const handleOpenInCodeSandbox = useOpenInCodeSandbox(isMultiFile);
 
   const handleCopyToClipboard = useCallback(() => {
     const activeFile = sandpack.activeFile;
     const code = sandpack.files[activeFile]?.code ?? '';
 
-    // When collapsed and code has preview markers, copy the preview snippet with imports
     if (collapsed && hasPreviewMarkers(code)) {
       const snippet = extractPreviewSnippet(code);
       if (snippet) {
@@ -194,7 +232,6 @@ const PlaygroundControls = memo(function PlaygroundControls({
       }
     }
 
-    // Otherwise copy the full code
     navigator.clipboard
       .writeText(code)
       .then(() => toast.show('Copied to clipboard'))
@@ -207,53 +244,99 @@ const PlaygroundControls = memo(function PlaygroundControls({
   }, [sandpack, toast]);
 
   return (
-    <VStack gap={0.5} paddingTop={0.5}>
-      {/* File tabs (multi-file only) */}
-      {isMultiFile && <FileTabBar />}
+    <HStack
+      borderedBottom
+      borderedTop
+      alignItems="center"
+      justifyContent="space-between"
+      paddingX={1}
+      paddingY={0.5}
+    >
+      {/* Left: file tabs (multi-file) or "Live Code" label (single-file) */}
+      <HStack alignItems="center" minWidth={0}>
+        {isMultiFile ? (
+          <FileTabBar />
+        ) : (
+          <Text alignItems="center" color="fgMuted" display="flex" font="label1" userSelect="none">
+            <Icon active color="fgMuted" name="pencil" paddingEnd={0.5} size="xs" />
+            Live Code
+          </Text>
+        )}
+      </HStack>
 
-      <HStack alignItems="center" justifyContent="space-between">
-        {/* Show/Hide code toggle */}
+      {/* Center: collapse/expand toggle (only when expanded) */}
+      {!collapsed && (
         <Pressable
           noScaleOnPress
-          accessibilityLabel={`${collapsed ? 'Show' : 'Hide'} code${
-            headingText ? ` for ${headingText} example` : ''
-          }`}
+          accessibilityLabel={`Hide code${headingText ? ` for ${headingText} example` : ''}`}
           onClick={onToggleCollapsed}
         >
           <HStack alignItems="center">
-            <Icon name={collapsed ? 'caretDown' : 'caretUp'} paddingEnd={0.5} size="xs" />
-            <Text color="fgPrimary" font="label1">
-              {collapsed ? 'Show code' : 'Hide code'}
+            <Icon name="caretUp" paddingEnd={0.5} size="xs" />
+            <Text color="fgMuted" font="label1">
+              Hide code
             </Text>
           </HStack>
         </Pressable>
+      )}
 
-        {/* Icon buttons */}
-        <HStack alignItems="center" gap={0.5}>
-          <IconButton
-            compact
-            transparent
-            accessibilityLabel={`Copy code${headingText ? ` for ${headingText} example` : ''}`}
-            name="copy"
-            variant="foregroundMuted"
-            onClick={handleCopyToClipboard}
-          />
-          <IconButton
-            compact
-            transparent
-            accessibilityLabel={`Reset code${headingText ? ` for ${headingText} example` : ''}`}
-            name="refresh"
-            variant="foregroundMuted"
-            onClick={handleReset}
-          />
-          <CodeSandboxExportButton headingText={headingText} isMultiFile={isMultiFile} />
-        </HStack>
+      {/* Right: icon buttons */}
+      <HStack alignItems="center" gap={0.5} justifyContent="flex-end">
+        <ToolbarIconButton name="copy" onClick={handleCopyToClipboard} tooltip="Copy code" />
+        <ToolbarIconButton name="refresh" onClick={handleReset} tooltip="Reset code" />
+        <ToolbarIconButton
+          name="pencil"
+          onClick={handleOpenInCodeSandbox}
+          tooltip="Open in CodeSandbox"
+        />
       </HStack>
+    </HStack>
+  );
+});
+
+// --- CollapsedCodePreview: faded snippet with "Show code" button ---
+
+type CollapsedCodePreviewProps = {
+  headingText: string;
+  onExpand: () => void;
+};
+
+const CollapsedCodePreview = memo(function CollapsedCodePreview({
+  headingText,
+  onExpand,
+}: CollapsedCodePreviewProps) {
+  const { sandpack } = useSandpack();
+  const code = sandpack.files[sandpack.activeFile]?.code ?? '';
+  const snippet = useMemo(() => getCollapsedSnippet(code), [code]);
+
+  return (
+    <VStack>
+      {/* Faded code snippet */}
+      <div className={styles.collapsedPreview}>
+        <pre className={styles.collapsedPreviewCode}>{snippet}</pre>
+      </div>
+
+      {/* "Show code" button at the bottom */}
+      <Box borderedTop paddingY={0.5}>
+        <Pressable
+          noScaleOnPress
+          accessibilityLabel={`Show code${headingText ? ` for ${headingText} example` : ''}`}
+          onClick={onExpand}
+        >
+          <HStack alignItems="center" justifyContent="center">
+            <Icon name="caretDown" paddingEnd={0.5} size="xs" />
+            <Text color="fgPrimary" font="label1">
+              Show code
+            </Text>
+          </HStack>
+        </Pressable>
+      </Box>
     </VStack>
   );
 });
 
-/** Handles Cmd/Ctrl+S to format code with Prettier. */
+// --- PrettierHandler ---
+
 const PrettierHandler = memo(function PrettierHandler() {
   const { sandpack } = useSandpack();
 
@@ -275,16 +358,6 @@ const PrettierHandler = memo(function PrettierHandler() {
   return null;
 });
 
-const PlaygroundEditorHeader = memo(function PlaygroundEditorHeader() {
-  return (
-    <Box borderedBottom paddingBottom={0.5} paddingTop={0.75} paddingX={1} width="100%">
-      <Text alignItems="center" color="fgMuted" display="flex" font="label1" userSelect="none">
-        <Icon active color="fgMuted" name="pencil" paddingEnd={0.5} size="xs" /> Live Code
-      </Text>
-    </Box>
-  );
-});
-
 // --- Main Playground ---
 
 type PlaygroundProps = {
@@ -294,11 +367,8 @@ type PlaygroundProps = {
   hidePreview?: boolean;
   editorStartsExpanded?: boolean;
   metastring?: string;
-  /** Multi-file support: object of { filename: code } */
   files?: Record<string, string>;
-  /** Multi-file support via remark plugin: JSON-serialized files object */
   filesJson?: string;
-  /** For multi-file: which file tab is active by default */
   activeFile?: string;
   scope?: Record<string, unknown>;
   noInline?: boolean;
@@ -319,7 +389,6 @@ const Playground = memo(function Playground({
   noInline: noInlineProp,
   ...props
 }: PlaygroundProps): JSX.Element {
-  // Resolve files: direct prop, JSON string from remark plugin, or single-file code
   const resolvedFiles: Record<string, string> | undefined = useMemo(() => {
     if (filesProp) return filesProp;
     if (filesJson) {
@@ -343,7 +412,6 @@ const Playground = memo(function Playground({
 
   const noInline = noInlineProp || metastring?.includes('noInline');
 
-  // Build Sandpack files object
   const sandpackFiles = useMemo(() => {
     if (resolvedFiles) {
       const result: Record<string, string> = {};
@@ -378,48 +446,49 @@ const Playground = memo(function Playground({
         >
           <PrettierHandler />
 
-          {/* Bridge: reads Sandpack code, provides LiveProvider context */}
-          <SandpackBridge isMultiFile={isMultiFile} noInline={noInline} scope={scope}>
-            {/* Preview (inside LiveProvider via bridge) */}
-            {!hidePreview && (
-              <VStack
-                background="bg"
-                borderRadius={400}
-                color="fg"
-                font="body"
-                maxWidth="100%"
-                overflow="hidden"
-                padding={3}
-                position="relative"
-                zIndex={0}
-              >
-                <BrowserOnly fallback={<div>Loading...</div>}>{previewContent}</BrowserOnly>
-              </VStack>
-            )}
-          </SandpackBridge>
+          {/* Single unified card */}
+          <VStack
+            background="bg"
+            borderRadius={400}
+            color="fg"
+            font="body"
+            maxWidth="100%"
+            overflow="hidden"
+          >
+            {/* Preview */}
+            <SandpackBridge isMultiFile={isMultiFile} noInline={noInline} scope={scope}>
+              {!hidePreview && (
+                <VStack padding={3}>
+                  <BrowserOnly fallback={<div>Loading...</div>}>{previewContent}</BrowserOnly>
+                </VStack>
+              )}
+            </SandpackBridge>
 
-          {/* Editor (collapsible) */}
-          <Collapsible collapsed={collapsed} paddingBottom={0.5} paddingTop={1}>
-            <VStack background="bg" borderRadius={400} overflow="hidden" width="100%">
-              <PlaygroundEditorHeader />
+            {/* Header bar (always visible) */}
+            {!hideControls && (
+              <PlaygroundHeader
+                collapsed={collapsed}
+                headingText={headingText}
+                isMultiFile={isMultiFile}
+                onToggleCollapsed={toggleCollapsed}
+              />
+            )}
+
+            {/* Expanded: full editor */}
+            {!collapsed && (
               <SandpackCodeEditor
                 className={styles.sandpackEditor}
                 showLineNumbers={false}
                 showTabs={false}
                 wrapContent={false}
               />
-            </VStack>
-          </Collapsible>
+            )}
 
-          {/* Controls */}
-          {!hideControls && (
-            <PlaygroundControls
-              collapsed={collapsed}
-              headingText={headingText}
-              isMultiFile={isMultiFile}
-              onToggleCollapsed={toggleCollapsed}
-            />
-          )}
+            {/* Collapsed: faded snippet + "Show code" */}
+            {collapsed && (
+              <CollapsedCodePreview headingText={headingText} onExpand={toggleCollapsed} />
+            )}
+          </VStack>
         </SandpackProvider>
       </ThemeProvider>
     </VStack>

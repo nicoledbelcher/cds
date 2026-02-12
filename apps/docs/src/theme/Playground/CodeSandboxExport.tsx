@@ -1,11 +1,12 @@
-import React, { memo, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useSandpack } from '@codesandbox/sandpack-react';
-import { IconButton } from '@coinbase/cds-web/buttons/IconButton';
 import LZString from 'lz-string';
 
 import { generateImports } from '../importMap';
 
 /**
+ * Helper for opening the current playground code in a CodeSandbox Devbox.
+ *
  * Uses the CodeSandbox Define API to create a sandbox, then opens it as a
  * Devbox (VM-based sandbox with real Node.js, which supports package.json
  * exports/subpath imports like '@coinbase/cds-web/system/ThemeProvider').
@@ -40,7 +41,6 @@ const buildSandboxFiles = (
   const files: Record<string, { content: string }> = {};
 
   if (isMultiFile) {
-    // Multi-file: files already have real imports
     for (const filePath of visibleFiles) {
       const code = sandpackFiles[filePath]?.code ?? '';
       const cleanPath = filePath.startsWith('/') ? filePath.slice(1) : filePath;
@@ -64,7 +64,6 @@ root.render(
 `,
     };
   } else {
-    // Single-file jsx live block: generate imports, wrap if needed
     const activeFile =
       Object.keys(sandpackFiles).find((f) => f.includes('App')) ?? Object.keys(sandpackFiles)[0];
     const rawCode = sandpackFiles[activeFile]?.code ?? '';
@@ -95,10 +94,7 @@ root.render(
       {
         name: 'cds-example',
         private: true,
-        scripts: {
-          dev: 'vite',
-          build: 'vite build',
-        },
+        scripts: { dev: 'vite', build: 'vite build' },
         dependencies: {
           react: '^18.0.0',
           'react-dom': '^18.0.0',
@@ -157,7 +153,6 @@ export default defineConfig({
 </html>`,
   };
 
-  // CodeSandbox Devbox tasks config: auto-run install + dev server
   files['.codesandbox/tasks.json'] = {
     content: JSON.stringify(
       {
@@ -179,9 +174,6 @@ export default defineConfig({
   return files;
 };
 
-/**
- * Compress sandbox parameters using the same LZ-string format CodeSandbox expects.
- */
 const getCompressedParameters = (files: Record<string, { content: string }>): string => {
   return LZString.compressToBase64(JSON.stringify({ files }))
     .replace(/\+/g, '-')
@@ -189,22 +181,17 @@ const getCompressedParameters = (files: Record<string, { content: string }>): st
     .replace(/=+$/, '');
 };
 
-type CodeSandboxExportButtonProps = {
-  headingText?: string;
-  isMultiFile: boolean;
-};
-
-export const CodeSandboxExportButton = memo(function CodeSandboxExportButton({
-  headingText,
-  isMultiFile,
-}: CodeSandboxExportButtonProps) {
+/**
+ * Hook that returns an onClick handler for opening the current playground
+ * code in a CodeSandbox Devbox. Must be called inside a SandpackProvider.
+ */
+export const useOpenInCodeSandbox = (isMultiFile: boolean): (() => void) => {
   const { sandpack } = useSandpack();
 
-  const handleOpen = useCallback(() => {
+  return useCallback(() => {
     const files = buildSandboxFiles(sandpack.files, sandpack.visibleFiles, isMultiFile);
     const parameters = getCompressedParameters(files);
 
-    // Use the Define API with json=1 to get a sandbox_id, then open as Devbox
     fetch(`${CODESANDBOX_DEFINE_URL}?json=1`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -213,7 +200,6 @@ export const CodeSandboxExportButton = memo(function CodeSandboxExportButton({
       .then((res) => res.json())
       .then((data: { sandbox_id?: string }) => {
         if (data.sandbox_id) {
-          // Open as Devbox (VM-based) which supports subpath imports
           window.open(
             `https://codesandbox.io/p/devbox/${data.sandbox_id}`,
             '_blank',
@@ -222,7 +208,7 @@ export const CodeSandboxExportButton = memo(function CodeSandboxExportButton({
         }
       })
       .catch(() => {
-        // Fallback: POST form redirect to regular sandbox
+        // Fallback: POST form redirect
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = CODESANDBOX_DEFINE_URL;
@@ -237,15 +223,4 @@ export const CodeSandboxExportButton = memo(function CodeSandboxExportButton({
         document.body.removeChild(form);
       });
   }, [sandpack, isMultiFile]);
-
-  return (
-    <IconButton
-      compact
-      transparent
-      accessibilityLabel={`Open in CodeSandbox${headingText ? ` for ${headingText} example` : ''}`}
-      name="pencil"
-      variant="foregroundMuted"
-      onClick={handleOpen}
-    />
-  );
-});
+};
