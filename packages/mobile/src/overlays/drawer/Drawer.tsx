@@ -108,6 +108,12 @@ export type DrawerBaseProps = SharedProps &
      * @deprecated Use TrayStickyFooter as a Tray child instead.
      */
     stickyFooter?: DrawerRenderChildren | React.ReactNode;
+    /**
+     * When true, the drawer opens and closes with an opacity fade instead of
+     * a slide animation. Swipe-to-dismiss gestures remain enabled and use
+     * the slide transform so the drawer follows the user's finger naturally.
+     */
+    reduceMotion?: boolean;
   };
 
 export type DrawerProps = DrawerBaseProps & {
@@ -149,6 +155,7 @@ export const Drawer = memo(
       handleBarAccessibilityLabel = 'Dismiss',
       accessibilityLabel,
       accessibilityLabelledBy,
+      reduceMotion,
       style,
       styles,
       accessibilityRole = 'alert',
@@ -165,9 +172,10 @@ export const Drawer = memo(
       drawerAnimation,
       animateDrawerOut,
       animateDrawerIn,
+      animateSnapBack,
       drawerAnimationStyles,
       animateSwipeToClose,
-    } = useDrawerAnimation(pin, verticalDrawerPercentageOfView);
+    } = useDrawerAnimation(pin, verticalDrawerPercentageOfView, reduceMotion);
     const [opacityAnimation, animateOverlayIn, animateOverlayOut] = useOverlayAnimation(
       drawerAnimationDefaultDuration,
     );
@@ -212,7 +220,7 @@ export const Drawer = memo(
     const panGestureHandlers = useDrawerPanResponder({
       pin,
       drawerAnimation,
-      animateDrawerIn,
+      animateSnapBack,
       disableCapturePanGestureToDismiss,
       onBlur,
       handleSwipeToClose,
