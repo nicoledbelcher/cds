@@ -10,9 +10,9 @@ import mobileVisualizationPackageJson from '../../packages/mobile-visualization/
 import webPackageJson from '../../packages/web/package.json';
 import webVisualizationPackageJson from '../../packages/web-visualization/package.json';
 
-import docgenConfig from './docgen.config';
-import remarkPlaygroundExamples from './src/remark/remarkPlaygroundExamples';
 import playgroundExamplesWatcherPlugin from './src/plugins/playgroundExamplesWatcherPlugin';
+import remarkPlaygroundExamples from './src/remark/remarkPlaygroundExamples';
+import docgenConfig from './docgen.config';
 
 if (
   !(

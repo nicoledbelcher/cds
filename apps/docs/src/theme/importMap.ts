@@ -35,10 +35,16 @@ export const importMap: Record<string, ImportEntry> = {
 
   // CDS Common - Data
   accounts: { source: '@coinbase/cds-common/internal/data/accounts' },
+  assets: { source: '@coinbase/cds-common/internal/data/assets' },
+  ethBackground: { source: '@coinbase/cds-common/internal/data/assets' },
+  candles: { source: '@coinbase/cds-common/internal/data/candles' },
   loremIpsum: { source: '@coinbase/cds-common/internal/data/loremIpsum' },
   prices: { source: '@coinbase/cds-common/internal/data/prices' },
   product: { source: '@coinbase/cds-common/internal/data/product' },
   users: { source: '@coinbase/cds-common/internal/data/users' },
+
+  // CDS Common - Visualization Data
+  sparklineInteractiveData: { source: '@coinbase/cds-common/internal/visualizations/SparklineInteractiveData' },
 
   // CDS Common - Overlays
   OverlayContentContext: { source: '@coinbase/cds-common/overlays/OverlayContentContext' },
@@ -233,6 +239,62 @@ export const importMap: Record<string, ImportEntry> = {
 
   // Themes
   defaultTheme: { source: '@coinbase/cds-web/themes/defaultTheme' },
+
+  // CDS Web Visualization - Chart
+  CartesianChart: { source: '@coinbase/cds-web-visualization/chart' },
+  ChartProvider: { source: '@coinbase/cds-web-visualization/chart' },
+  LineChart: { source: '@coinbase/cds-web-visualization/chart' },
+  AreaChart: { source: '@coinbase/cds-web-visualization/chart' },
+  BarChart: { source: '@coinbase/cds-web-visualization/chart' },
+  Line: { source: '@coinbase/cds-web-visualization/chart' },
+  DottedLine: { source: '@coinbase/cds-web-visualization/chart' },
+  SolidLine: { source: '@coinbase/cds-web-visualization/chart' },
+  Area: { source: '@coinbase/cds-web-visualization/chart' },
+  DottedArea: { source: '@coinbase/cds-web-visualization/chart' },
+  GradientArea: { source: '@coinbase/cds-web-visualization/chart' },
+  SolidArea: { source: '@coinbase/cds-web-visualization/chart' },
+  Bar: { source: '@coinbase/cds-web-visualization/chart' },
+  BarPlot: { source: '@coinbase/cds-web-visualization/chart' },
+  BarStack: { source: '@coinbase/cds-web-visualization/chart' },
+  BarStackGroup: { source: '@coinbase/cds-web-visualization/chart' },
+  Scrubber: { source: '@coinbase/cds-web-visualization/chart' },
+  DefaultScrubberBeacon: { source: '@coinbase/cds-web-visualization/chart' },
+  DefaultScrubberBeaconLabel: { source: '@coinbase/cds-web-visualization/chart' },
+  DefaultScrubberLabel: { source: '@coinbase/cds-web-visualization/chart' },
+  XAxis: { source: '@coinbase/cds-web-visualization/chart' },
+  YAxis: { source: '@coinbase/cds-web-visualization/chart' },
+  Axis: { source: '@coinbase/cds-web-visualization/chart' },
+  DefaultAxisTickLabel: { source: '@coinbase/cds-web-visualization/chart' },
+  Legend: { source: '@coinbase/cds-web-visualization/chart' },
+  DefaultLegendEntry: { source: '@coinbase/cds-web-visualization/chart' },
+  DefaultLegendShape: { source: '@coinbase/cds-web-visualization/chart' },
+  Point: { source: '@coinbase/cds-web-visualization/chart' },
+  DefaultPointLabel: { source: '@coinbase/cds-web-visualization/chart' },
+  ReferenceLine: { source: '@coinbase/cds-web-visualization/chart' },
+  DefaultReferenceLineLabel: { source: '@coinbase/cds-web-visualization/chart' },
+  Gradient: { source: '@coinbase/cds-web-visualization/chart' },
+  PeriodSelector: { source: '@coinbase/cds-web-visualization/chart' },
+  PeriodSelectorActiveIndicator: { source: '@coinbase/cds-web-visualization/chart' },
+  LiveTabLabel: { source: '@coinbase/cds-web-visualization/chart' },
+  ChartText: { source: '@coinbase/cds-web-visualization/chart' },
+  ChartTextGroup: { source: '@coinbase/cds-web-visualization/chart' },
+  Path: { source: '@coinbase/cds-web-visualization/chart' },
+
+  // CDS Web Visualization - Sparkline
+  Sparkline: { source: '@coinbase/cds-web-visualization/sparkline' },
+  SparklineArea: { source: '@coinbase/cds-web-visualization/sparkline' },
+  SparklineGradient: { source: '@coinbase/cds-web-visualization/sparkline' },
+  SparklineInteractive: { source: '@coinbase/cds-web-visualization/sparkline' },
+  SparklineInteractiveContent: { source: '@coinbase/cds-web-visualization/sparkline' },
+  SparklineInteractiveHeader: { source: '@coinbase/cds-web-visualization/sparkline' },
+  SparklineInteractivePeriodSelector: { source: '@coinbase/cds-web-visualization/sparkline' },
+  SparklineInteractivePaths: { source: '@coinbase/cds-web-visualization/sparkline' },
+  SparklineInteractiveTimeseriesPaths: { source: '@coinbase/cds-web-visualization/sparkline' },
+  SparklineInteractiveHoverPrice: { source: '@coinbase/cds-web-visualization/sparkline' },
+  SparklineInteractiveHoverDate: { source: '@coinbase/cds-web-visualization/sparkline' },
+  SparklineInteractiveMarkerDates: { source: '@coinbase/cds-web-visualization/sparkline' },
+  SparklineInteractiveLineVertical: { source: '@coinbase/cds-web-visualization/sparkline' },
+  SparklineInteractiveAnimatedPath: { source: '@coinbase/cds-web-visualization/sparkline' },
 };
 
 /**

@@ -21,7 +21,7 @@ import { format } from 'prettier/standalone';
 
 import { usePlaygroundTheme } from '../../../theme/Layout/Provider/UnifiedThemeContext';
 import { ToolbarIconButton } from '../../../theme/Playground';
-import { useOpenInCodeSandbox } from '../../../theme/Playground/CodeSandboxExport';
+import { useOpenInCodeSandbox } from '../../../theme/Playground/CodePlaygroundExport';
 import { SandpackBridge } from '../../../theme/Playground/SandpackBridge';
 import { sandpackGithubLight, sandpackNightOwl } from '../../../theme/Playground/sandpackTheme';
 
@@ -166,8 +166,8 @@ const ShareablePlaygroundInner = memo(function ShareablePlaygroundInner({
         <VStack background="bg" borderRadius={400} overflow="hidden" width="100%">
           <PlaygroundEditorHeader />
           <SandpackCodeEditor
-            className={styles.sandpackEditor}
             showLineNumbers
+            className={styles.sandpackEditor}
             showTabs={false}
             wrapContent={false}
           />
@@ -193,7 +193,7 @@ const ShareablePlaygroundInner = memo(function ShareablePlaygroundInner({
           </HStack>
         </Pressable>
         <ToolbarIconButton
-          accessibilityLabel="Open in CodeSandbox"
+          accessibilityLabel="Open in StackBlitz"
           name="pencil"
           onClick={handleOpenInCodeSandbox}
         />

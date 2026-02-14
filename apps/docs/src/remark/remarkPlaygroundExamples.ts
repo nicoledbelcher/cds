@@ -5,10 +5,9 @@
  *
  * The Playground component parses this JSON string back into an object at runtime.
  */
+import type { Root } from 'mdast';
 import fs from 'node:fs';
 import path from 'node:path';
-
-import type { Root } from 'mdast';
 import type { Plugin } from 'unified';
 import { visit } from 'unist-util-visit';
 
