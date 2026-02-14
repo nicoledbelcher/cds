@@ -29,7 +29,7 @@ import {
   getCodeDisplayInfo,
   spliceSnippetIntoCode,
 } from './codeDisplayMode';
-import { useOpenInCodeSandbox } from './CodeSandboxExport';
+import { useOpenInCodeSandbox } from './CodePlaygroundExport';
 import { SandpackBridge } from './SandpackBridge';
 import { sandpackGithubLight, sandpackNightOwl } from './sandpackTheme';
 import styles from './styles.module.css';
@@ -180,7 +180,8 @@ const FileTabBar = memo(function FileTabBar() {
       activeBackground="bgPrimary"
       activeTab={activeTab}
       gap={2}
-      marginBottom={-0.5}
+      height={30}
+      marginBottom={-1.5}
       onChange={handleChange}
       tabs={tabs}
     />
@@ -260,9 +261,9 @@ const PlaygroundHeader = memo(function PlaygroundHeader({
 
   return (
     <HStack
-      borderedBottom={showBottomBorder}
       borderedTop
       alignItems="center"
+      borderedBottom={showBottomBorder}
       justifyContent="space-between"
       paddingX={1.5}
       paddingY={0.5}
@@ -304,7 +305,7 @@ const PlaygroundHeader = memo(function PlaygroundHeader({
           <ToolbarIconButton
             name="pencil"
             onClick={handleOpenInCodeSandbox}
-            tooltip="Open in CodeSandbox"
+            tooltip="Open in StackBlitz"
           />
         </HStack>
       </HStack>
