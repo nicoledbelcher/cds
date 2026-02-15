@@ -836,6 +836,11 @@ export const routes = [
       require('@coinbase/cds-mobile/overlays/__stories__/TrayPromotional.stories').default,
   },
   {
+    key: 'TrayRedesign',
+    getComponent: () =>
+      require('@coinbase/cds-mobile/overlays/__stories__/TrayRedesign.stories').default,
+  },
+  {
     key: 'TrayScrollable',
     getComponent: () =>
       require('@coinbase/cds-mobile/overlays/__stories__/TrayScrollable.stories').default,

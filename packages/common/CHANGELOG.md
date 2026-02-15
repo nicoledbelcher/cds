@@ -8,6 +8,42 @@ All notable changes to this project will be documented in this file.
 
 <!-- template-start -->
 
+## 8.46.1 ((2/12/2026, 01:01 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.46.0 ((2/12/2026, 11:34 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.45.0 ((2/12/2026, 07:33 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.44.2 ((2/10/2026, 08:38 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.44.1 ((2/10/2026, 12:05 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.44.0 (2/9/2026 PST)
+
+#### 🚀 Updates
+
+- Add new tray design. [[#349](https://github.com/coinbase/cds/pull/349)]
+
+## 8.43.2 (2/9/2026 PST)
+
+#### 🐞 Fixes
+
+- Allow contenteditable elements to be focusable in Modals. [[#371](https://github.com/coinbase/cds/pull/371)]
+
+## 8.43.1 ((2/6/2026, 02:15 PM PST))
+
+This is an artificial version bump with no new change.
+
 ## 8.43.0 (2/6/2026 PST)
 
 #### 🚀 Updates
