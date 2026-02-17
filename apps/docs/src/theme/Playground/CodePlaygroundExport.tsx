@@ -93,7 +93,10 @@ root.render(
     const activeFile =
       Object.keys(sandpackFiles).find((f) => f.includes('App')) ?? Object.keys(sandpackFiles)[0];
     const rawCode = sandpackFiles[activeFile]?.code ?? '';
-    const imports = generateImports(rawCode);
+    // Only generate imports for legacy jsx-live blocks that don't have real imports.
+    // File-based examples already have their own import statements.
+    const hasExistingImports = /^\s*import\s/m.test(rawCode);
+    const imports = hasExistingImports ? '' : generateImports(rawCode);
     const wrappedCode = ensureDefaultExport(rawCode);
     files['src/App.tsx'] = `${imports ? imports + '\n\n' : ''}${wrappedCode}`;
     files['src/index.tsx'] = `import '@coinbase/cds-icons/fonts/web/icon-font.css';
@@ -195,12 +198,29 @@ export default defineConfig({
 /**
  * Hook that returns an onClick handler for opening the current playground
  * code in StackBlitz. Must be called inside a SandpackProvider.
+ *
+ * @param isMultiFile - Whether the playground has multiple files.
+ * @param originalFiles - The original unmodified files (before snippet mode
+ *   may have replaced file content in Sandpack). If provided, these are used
+ *   for the export so the full code is always sent to StackBlitz.
  */
-export const useOpenInCodeSandbox = (isMultiFile: boolean): (() => void) => {
+export const useOpenInCodeSandbox = (
+  isMultiFile: boolean,
+  originalFiles?: Record<string, string>,
+): (() => void) => {
   const { sandpack } = useSandpack();
 
   return useCallback(() => {
-    const files = buildProjectFiles(sandpack.files, sandpack.visibleFiles, isMultiFile);
+    // Use original files when available so snippet-mode replacements
+    // don't end up in the exported project.
+    const filesToExport: Record<string, { code: string }> = originalFiles
+      ? Object.fromEntries(Object.entries(originalFiles).map(([k, v]) => [k, { code: v }]))
+      : sandpack.files;
+    const visibleFilesToExport = originalFiles
+      ? Object.keys(originalFiles).map((k) => (k.startsWith('/') ? k : `/${k}`))
+      : sandpack.visibleFiles;
+
+    const files = buildProjectFiles(filesToExport, visibleFilesToExport, isMultiFile);
 
     StackBlitzSDK.openProject(
       {
@@ -214,5 +234,5 @@ export const useOpenInCodeSandbox = (isMultiFile: boolean): (() => void) => {
         openFile: isMultiFile ? 'src/Example.tsx' : 'src/App.tsx',
       },
     );
-  }, [sandpack, isMultiFile]);
+  }, [sandpack, isMultiFile, originalFiles]);
 };

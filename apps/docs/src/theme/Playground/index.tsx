@@ -227,6 +227,8 @@ type PlaygroundHeaderProps = {
   isMultiFile: boolean;
   /** Whether the snippet is clipped (i.e. not showing the full code). When false, no toggle needed. */
   isClipped: boolean;
+  /** Original unmodified files for export (before snippet-mode replacements). */
+  originalFiles?: Record<string, string>;
 };
 
 const PlaygroundHeader = memo(function PlaygroundHeader({
@@ -237,10 +239,11 @@ const PlaygroundHeader = memo(function PlaygroundHeader({
   onRerender,
   isMultiFile,
   isClipped,
+  originalFiles,
 }: PlaygroundHeaderProps) {
   const toast = useToast();
   const { sandpack } = useSandpack();
-  const handleOpenInCodeSandbox = useOpenInCodeSandbox(isMultiFile);
+  const handleOpenInCodeSandbox = useOpenInCodeSandbox(isMultiFile, originalFiles);
 
   const handleCopyToClipboard = useCallback(() => {
     const code = sandpack.files[sandpack.activeFile]?.code ?? '';
@@ -380,6 +383,8 @@ type CodeSectionProps = {
    * Pass undefined when the editor has the real code (bridge reads from Sandpack directly).
    */
   onFullCodeChange: (code: string | undefined) => void;
+  /** Original unmodified files for export (before snippet-mode replacements). */
+  originalFiles?: Record<string, string>;
 };
 
 const CodeSection = memo(function CodeSection({
@@ -389,6 +394,7 @@ const CodeSection = memo(function CodeSection({
   editorStartsExpanded,
   onRerender,
   onFullCodeChange,
+  originalFiles,
 }: CodeSectionProps) {
   const { sandpack } = useSandpack();
   const [expanded, setExpanded] = useState(editorStartsExpanded ?? false);
@@ -428,9 +434,14 @@ const CodeSection = memo(function CodeSection({
     onFullCodeChange(undefined); // bridge reads directly from Sandpack now
   }, [sandpack, onFullCodeChange]);
 
-  // Compute display info from the FULL code (always)
+  // Compute display info from the FULL code (always).
+  // Multi-file examples skip snippet mode — replacing the active file's content
+  // with a snippet would break execution since the bridge reads from Sandpack directly.
   const fullCode = getFullCode();
-  const displayInfo = useMemo(() => getCodeDisplayInfo(fullCode), [fullCode]);
+  const displayInfo = useMemo(
+    () => (isMultiFile ? { mode: 'full' as const, collapsedHeightPx: null, scrollOffsetPx: null } : getCodeDisplayInfo(fullCode)),
+    [fullCode, isMultiFile],
+  );
   const isSnippetMode = displayInfo.mode === 'snippet' && displayInfo.collapsedHeightPx != null;
 
   // When expanded, keep fullCodeMap in sync with edits (for later collapse)
@@ -499,6 +510,7 @@ const CodeSection = memo(function CodeSection({
           isMultiFile={isMultiFile}
           onRerender={onRerender}
           onToggle={handleToggle}
+          originalFiles={originalFiles}
         />
       )}
 
@@ -655,6 +667,7 @@ const Playground = memo(function Playground({
               isMultiFile={isMultiFile}
               onFullCodeChange={handleFullCodeChange}
               onRerender={handleRerender}
+              originalFiles={sandpackFiles}
             />
           </VStack>
         </SandpackProvider>
