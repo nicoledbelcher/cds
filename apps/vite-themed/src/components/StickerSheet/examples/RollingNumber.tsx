@@ -1,6 +1,6 @@
-import { Icon } from "@coinbase/cds-web/icons/Icon";
-import { RollingNumber } from "@coinbase/cds-web/numbers/RollingNumber";
-import { useCallback, useState, useEffect, memo } from "react";
+import { Icon } from '@coinbase/cds-web/icons/Icon';
+import { RollingNumber } from '@coinbase/cds-web/numbers/RollingNumber';
+import { useCallback, useState, useEffect, memo } from 'react';
 
 export const RollingNumberExample = memo(() => {
   const [{ price, difference }, setPriceState] = useState({
@@ -15,7 +15,7 @@ export const RollingNumberExample = memo(() => {
         const price = Math.round(next * 100) / 100;
         return { price, difference: price - p.price };
       }),
-    []
+    [],
   );
 
   useEffect(() => {
@@ -26,18 +26,16 @@ export const RollingNumberExample = memo(() => {
     return () => clearInterval(interval);
   }, []);
 
-  const trendColor = difference >= 0 ? "fgPositive" : "fgNegative";
+  const trendColor = difference >= 0 ? 'fgPositive' : 'fgNegative';
 
   return (
     <RollingNumber
-      accessibilityLabelPrefix={
-        difference > 0 ? "up " : difference < 0 ? "down " : ""
-      }
+      accessibilityLabelPrefix={difference > 0 ? 'up ' : difference < 0 ? 'down ' : ''}
       color={trendColor}
       font="body"
       format={{
-        style: "currency",
-        currency: "USD",
+        style: 'currency',
+        currency: 'USD',
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }}
@@ -50,7 +48,7 @@ export const RollingNumberExample = memo(() => {
       }
       styles={{
         prefix: {
-          paddingRight: "var(--space-1)",
+          paddingRight: 'var(--space-1)',
         },
       }}
       suffix={`(${((Math.abs(difference) / price) * 100).toFixed(2)}%)`}

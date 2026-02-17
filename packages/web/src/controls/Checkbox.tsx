@@ -9,11 +9,11 @@ import {
 import { css } from '@linaria/core';
 import { m as motion } from 'framer-motion';
 
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import { useTheme } from '../hooks/useTheme';
 import { Icon } from '../icons/Icon';
 import { Box } from '../layout';
 import { useMotionProps } from '../motion/useMotionProps';
-import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 import { Control, type ControlBaseProps } from './Control';
 
@@ -56,12 +56,8 @@ const CheckboxWithRef = forwardRef(function CheckboxWithRef<CheckboxValue extend
   _props: CheckboxProps<CheckboxValue>,
   ref: React.ForwardedRef<HTMLInputElement>,
 ) {
+  const mergedProps = useComponentConfig('Checkbox', _props);
   const theme = useTheme();
-  const mergedProps = mergeComponentProps(
-    theme.components?.Checkbox,
-    _props,
-    theme.components?.mergeClassNameAndStyle,
-  );
   const {
     children,
     checked,

@@ -4,10 +4,10 @@ import { switchTransitionConfig } from '@coinbase/cds-common/motion/switch';
 import { css } from '@linaria/core';
 import { m as motion } from 'framer-motion';
 
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import { useTheme } from '../hooks/useTheme';
 import { Box } from '../layout/Box';
 import { convertTransition } from '../motion/utils';
-import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 import { Control, type ControlBaseProps } from './Control';
 
@@ -60,12 +60,8 @@ const SwitchWithRef = forwardRef<HTMLInputElement, SwitchProps>(function SwitchW
   _props: SwitchProps,
   ref,
 ) {
+  const mergedProps = useComponentConfig('Switch', _props);
   const theme = useTheme();
-  const mergedProps = mergeComponentProps(
-    theme.components?.Switch,
-    _props,
-    theme.components?.mergeClassNameAndStyle,
-  );
   const {
     children,
     checked,

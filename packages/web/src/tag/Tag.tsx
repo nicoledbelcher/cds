@@ -14,10 +14,10 @@ import type {
   TagIntent,
 } from '@coinbase/cds-common/types';
 
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import { useTheme } from '../hooks/useTheme';
 import { Box, type BoxDefaultElement, type BoxProps } from '../layout/Box';
 import { Text } from '../typography/Text';
-import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 export const tagStaticClassName = 'cds-tag';
 
@@ -52,16 +52,9 @@ export type TagProps = TagBaseProps &
   Omit<BoxProps<BoxDefaultElement>, 'color' | 'background' | 'children' | 'maxWidth'>;
 
 export const Tag = memo(
-  forwardRef(function Tag(
-    _props: TagProps,
-    forwardedRef: React.ForwardedRef<HTMLDivElement>,
-  ) {
+  forwardRef(function Tag(_props: TagProps, forwardedRef: React.ForwardedRef<HTMLDivElement>) {
+    const mergedProps = useComponentConfig('Tag', _props);
     const theme = useTheme();
-    const mergedProps = mergeComponentProps(
-      theme.components?.Tag,
-      _props,
-      theme.components?.mergeClassNameAndStyle,
-    );
     const {
       children,
       intent = 'informational',

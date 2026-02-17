@@ -5,10 +5,10 @@ import { interactableHeight } from '@coinbase/cds-common/tokens/interactableHeig
 import type { IconButtonVariant, IconName, SharedProps } from '@coinbase/cds-common/types';
 import { getButtonSpacingProps } from '@coinbase/cds-common/utils/getButtonSpacingProps';
 
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import { useTheme } from '../hooks/useTheme';
 import { Icon } from '../icons/Icon';
 import { Pressable, type PressableBaseProps } from '../system/Pressable';
-import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 import type { ButtonBaseProps } from './Button';
 
@@ -30,11 +30,7 @@ export type IconButtonProps = IconButtonBaseProps;
 
 export const IconButton = memo(function IconButton(_props: IconButtonProps) {
   const theme = useTheme();
-  const mergedProps = mergeComponentProps(
-    theme?.components?.IconButton,
-    _props,
-    theme?.components?.mergeStyleProps,
-  );
+  const mergedProps = useComponentConfig('IconButton', _props);
   const {
     name,
     active,

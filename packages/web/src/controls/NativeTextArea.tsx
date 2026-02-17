@@ -3,10 +3,9 @@ import type { SharedProps } from '@coinbase/cds-common/types/SharedProps';
 import { css } from '@linaria/core';
 
 import { cx } from '../cx';
-import { useTheme } from '../hooks/useTheme';
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import type { BoxProps } from '../layout/Box';
 import { Box } from '../layout/Box';
-import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 import type { TextInputBaseProps } from './TextInput';
 
@@ -63,12 +62,7 @@ export const NativeTextArea = memo(
     _props: NativeTextAreaProp,
     ref: React.ForwardedRef<HTMLTextAreaElement>,
   ) {
-    const { components } = useTheme();
-    const mergedProps = mergeComponentProps(
-      components?.NativeTextArea,
-      _props,
-      components?.mergeClassNameAndStyle,
-    );
+    const mergedProps = useComponentConfig('NativeTextArea', _props);
     const {
       font = 'body',
       testID,

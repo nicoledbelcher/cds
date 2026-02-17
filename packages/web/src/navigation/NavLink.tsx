@@ -2,9 +2,8 @@ import React, { memo } from 'react';
 import { css } from '@linaria/core';
 
 import { cx } from '../cx';
-import { useTheme } from '../hooks/useTheme';
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import { Link, type LinkDefaultElement, type LinkProps } from '../typography/Link';
-import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 export type NavLinkProps = {
   /** Boolean to indicate if the Link represents the current route. */
@@ -40,12 +39,7 @@ const navLinkCss = css`
 `;
 
 export const NavLink = memo((_props: NavLinkProps) => {
-  const { components } = useTheme();
-  const mergedProps = mergeComponentProps(
-    components?.NavLink,
-    _props,
-    components?.mergeClassNameAndStyle,
-  );
+  const mergedProps = useComponentConfig('NavLink', _props);
   const { active, className: customClassName, ...props } = mergedProps;
 
   return (

@@ -6,10 +6,9 @@ import { css } from '@linaria/core';
 
 import { IconButton } from '../buttons/IconButton';
 import { cx } from '../cx';
-import { useTheme } from '../hooks/useTheme';
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import { Pictogram } from '../illustrations/Pictogram';
 import { Box, type BoxDefaultElement, type BoxProps } from '../layout/Box';
-import { mergeComponentProps } from '../utils/mergeComponentProps';
 import { HStack } from '../layout/HStack';
 import { VStack } from '../layout/VStack';
 import { type StyleProps } from '../styles/styleProps';
@@ -155,12 +154,7 @@ export type NudgeCardProps = NudgeCardBaseProps & Omit<BoxProps<BoxDefaultElemen
  * ```
  */
 export const NudgeCard = (_props: NudgeCardProps) => {
-  const { components } = useTheme();
-  const mergedProps = mergeComponentProps(
-    components?.NudgeCard,
-    _props,
-    components?.mergeClassNameAndStyle,
-  );
+  const mergedProps = useComponentConfig('NudgeCard', _props);
   const {
     title,
     description,

@@ -15,12 +15,12 @@ import type {
 } from '@coinbase/cds-common/types';
 import { getButtonSpacingProps } from '@coinbase/cds-common/utils/getButtonSpacingProps';
 
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import { useTheme } from '../hooks/useTheme';
 import { Icon } from '../icons/Icon';
 import { HStack } from '../layout/HStack';
 import { Pressable, type PressableBaseProps } from '../system/Pressable';
 import { Text } from '../typography/Text';
-import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 export const styles = StyleSheet.create({
   inline: {
@@ -92,11 +92,7 @@ export type ButtonProps = ButtonBaseProps;
 export const Button = memo(
   forwardRef(function Button(_props: ButtonProps, ref: React.ForwardedRef<View>) {
     const theme = useTheme();
-    const mergedProps = mergeComponentProps(
-      theme?.components?.Button,
-      _props,
-      theme?.components?.mergeStyleProps,
-    );
+    const mergedProps = useComponentConfig('Button', _props);
     const {
       variant = 'primary',
       loading,

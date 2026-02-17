@@ -10,12 +10,11 @@ import useMeasure from 'react-use-measure';
 
 import { SelectProvider } from '../controls/selectContext';
 import { useBreakpoints } from '../hooks/useBreakpoints';
-import { useTheme } from '../hooks/useTheme';
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import { FocusTrap } from '../overlays/FocusTrap';
 import { ModalWrapper } from '../overlays/modal/ModalWrapper';
 import { Popover } from '../overlays/popover/Popover';
 import { type PopoverContentPositionConfig } from '../overlays/popover/PopoverProps';
-import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 import { DropdownContent } from './DropdownContent';
 import type { DropdownInternalProps, DropdownProps, DropdownRef } from './DropdownProps';
@@ -218,64 +217,54 @@ const PopoverDropdown = memo(
 );
 
 export const Dropdown = memo(
-  forwardRef<DropdownRef, DropdownProps>(
-    (
-      _props: DropdownProps,
-      ref,
-    ) => {
-      const { components } = useTheme();
-      const mergedProps = mergeComponentProps(
-        components?.Dropdown,
-        _props,
-        components?.mergeClassNameAndStyle,
-      );
-      const {
-        children,
-        maxHeight = DROPDOWN_MAX_HEIGHT,
-        enableMobileModal,
-        onOpenMenu,
-        onCloseMenu,
-        restoreFocusOnUnmount = true,
-        ...props
-      } = mergedProps;
-      const { isPhone } = useBreakpoints();
-      const [visible, setVisible] = useState(false);
+  forwardRef<DropdownRef, DropdownProps>((_props: DropdownProps, ref) => {
+    const mergedProps = useComponentConfig('Dropdown', _props);
+    const {
+      children,
+      maxHeight = DROPDOWN_MAX_HEIGHT,
+      enableMobileModal,
+      onOpenMenu,
+      onCloseMenu,
+      restoreFocusOnUnmount = true,
+      ...props
+    } = mergedProps;
+    const { isPhone } = useBreakpoints();
+    const [visible, setVisible] = useState(false);
 
-      const handleOpenMenu = useCallback(() => {
-        setVisible(true);
-        onOpenMenu?.();
-      }, [onOpenMenu]);
+    const handleOpenMenu = useCallback(() => {
+      setVisible(true);
+      onOpenMenu?.();
+    }, [onOpenMenu]);
 
-      const handleCloseMenu = useCallback(() => {
-        setVisible(false);
-        onCloseMenu?.();
-      }, [onCloseMenu]);
+    const handleCloseMenu = useCallback(() => {
+      setVisible(false);
+      onCloseMenu?.();
+    }, [onCloseMenu]);
 
-      return isPhone && enableMobileModal ? (
-        <ModalDropdown
-          ref={ref}
-          maxHeight={maxHeight}
-          onCloseMenu={handleCloseMenu}
-          onOpenMenu={handleOpenMenu}
-          restoreFocusOnUnmount={restoreFocusOnUnmount}
-          visible={visible}
-          {...props}
-        >
-          {children}
-        </ModalDropdown>
-      ) : (
-        <PopoverDropdown
-          ref={ref}
-          maxHeight={maxHeight}
-          onCloseMenu={handleCloseMenu}
-          onOpenMenu={handleOpenMenu}
-          restoreFocusOnUnmount={restoreFocusOnUnmount}
-          visible={visible}
-          {...props}
-        >
-          {children}
-        </PopoverDropdown>
-      );
-    },
-  ),
+    return isPhone && enableMobileModal ? (
+      <ModalDropdown
+        ref={ref}
+        maxHeight={maxHeight}
+        onCloseMenu={handleCloseMenu}
+        onOpenMenu={handleOpenMenu}
+        restoreFocusOnUnmount={restoreFocusOnUnmount}
+        visible={visible}
+        {...props}
+      >
+        {children}
+      </ModalDropdown>
+    ) : (
+      <PopoverDropdown
+        ref={ref}
+        maxHeight={maxHeight}
+        onCloseMenu={handleCloseMenu}
+        onOpenMenu={handleOpenMenu}
+        restoreFocusOnUnmount={restoreFocusOnUnmount}
+        visible={visible}
+        {...props}
+      >
+        {children}
+      </PopoverDropdown>
+    );
+  }),
 );

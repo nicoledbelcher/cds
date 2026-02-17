@@ -34,76 +34,59 @@ import type { TableHeaderProps } from '../tables/TableHeader';
 import type { TabsBaseProps } from '../tabs/Tabs';
 import type { TagBaseProps } from '../tag/Tag';
 
-// TODO: Review the component config structure and allowed props. Using Partial<ComponentProps> for the following reasons:
-// 1. Simpler architecture: Avoids nested `defaultProps` structure, keeping config flat and intuitive (e.g., `Button: { variant: 'primary' }` instead of `Button: { defaultProps: { variant: 'primary' } }`).
-// 2. Type flexibility: Not all components expose className, classNames, style, and styles props. Partial<ComponentProps> accommodates varying component APIs.
-// 3. Industry alignment: Most component libraries use `any` or `Partial<ComponentProps>` for component configuration (see Mantine, Material-UI, React Native Elements below).
-// Mantine component config structure (https://github.com/mantinedev/mantine/blob/master/packages/@mantine/core/src/core/MantineProvider/theme.types.ts#L145).
-// Material UI component config structure (https://github.com/mui/material-ui/blob/master/packages/mui-system/src/DefaultPropsProvider/DefaultPropsProvider.tsx#L32).
-// React Native Elements component config structure (https://github.com/react-native-elements/react-native-elements/blob/next/packages/themed/src/config/theme.component.ts#L44-L100).
+/** A config resolver is either a static partial props object or a function that receives the component's props and returns partial props. */
+export type ConfigResolver<P> = Partial<P> | ((props: P) => Partial<P>);
+
 export type ComponentTheme = {
   // Buttons
-  Button: Partial<ButtonBaseProps>;
-  IconButton: Partial<IconButtonBaseProps>;
-  AvatarButton: Partial<AvatarButtonBaseProps>;
+  Button: ConfigResolver<ButtonBaseProps>;
+  IconButton: ConfigResolver<IconButtonBaseProps>;
+  AvatarButton: ConfigResolver<AvatarButtonBaseProps>;
   // Controls
-  TextInput: Partial<TextInputBaseProps>;
-  InputIconButton: Partial<InputIconButtonProps>;
-  SearchInput: Partial<SearchInputBaseProps>;
-  Checkbox: Partial<CheckboxProps<string>>;
-  CheckboxCell: Partial<CheckboxCellBaseProps<string>>;
-  Radio: Partial<RadioProps<string>>;
-  RadioCell: Partial<RadioCellBaseProps<string>>;
-  Switch: Partial<SwitchProps>;
-  NativeTextArea: Partial<NativeTextAreaBaseProp>;
+  TextInput: ConfigResolver<TextInputBaseProps>;
+  InputIconButton: ConfigResolver<InputIconButtonProps>;
+  SearchInput: ConfigResolver<SearchInputBaseProps>;
+  Checkbox: ConfigResolver<CheckboxProps<string>>;
+  CheckboxCell: ConfigResolver<CheckboxCellBaseProps<string>>;
+  Radio: ConfigResolver<RadioProps<string>>;
+  RadioCell: ConfigResolver<RadioCellBaseProps<string>>;
+  Switch: ConfigResolver<SwitchProps>;
+  NativeTextArea: ConfigResolver<NativeTextAreaBaseProp>;
   // Chips
-  Chip: Partial<ChipBaseProps>;
-  TabbedChips: Partial<TabbedChipsBaseProps>;
+  Chip: ConfigResolver<ChipBaseProps>;
+  TabbedChips: ConfigResolver<TabbedChipsBaseProps>;
   // Select (alpha)
-  Select: Partial<AlphaSelectBaseProps>;
+  Select: ConfigResolver<AlphaSelectBaseProps>;
   // Dropdown
-  Dropdown: Partial<DropdownProps>;
+  Dropdown: ConfigResolver<DropdownProps>;
   // Overlays
-  Modal: Partial<ModalBaseProps>;
-  Alert: Partial<AlertBaseProps>;
-  Toast: Partial<ToastBaseProps>;
-  Tooltip: Partial<TooltipBaseProps>;
-  TooltipContent: Partial<TooltipContentBaseProps>;
+  Modal: ConfigResolver<ModalBaseProps>;
+  Alert: ConfigResolver<AlertBaseProps>;
+  Toast: ConfigResolver<ToastBaseProps>;
+  Tooltip: ConfigResolver<TooltipBaseProps>;
+  TooltipContent: ConfigResolver<TooltipContentBaseProps>;
   // Cells
-  ListCell: Partial<ListCellBaseProps>;
+  ListCell: ConfigResolver<ListCellBaseProps>;
   // Media
-  Avatar: Partial<AvatarBaseProps>;
+  Avatar: ConfigResolver<AvatarBaseProps>;
   // Navigation
-  NavLink: Partial<NavLinkProps>;
+  NavLink: ConfigResolver<NavLinkProps>;
   // Dots
-  DotCount: Partial<DotCountBaseProps>;
+  DotCount: ConfigResolver<DotCountBaseProps>;
   // Tag
-  Tag: Partial<TagBaseProps>;
+  Tag: ConfigResolver<TagBaseProps>;
   // Tabs
-  Tabs: Partial<TabsBaseProps>;
+  Tabs: ConfigResolver<TabsBaseProps>;
   // Dates
-  DatePicker: Partial<DatePickerProps>;
+  DatePicker: ConfigResolver<DatePickerProps>;
   // Cards
-  NudgeCard: Partial<NudgeCardBaseProps>;
-  UpsellCard: Partial<UpsellCardBaseProps>;
+  NudgeCard: ConfigResolver<NudgeCardBaseProps>;
+  UpsellCard: ConfigResolver<UpsellCardBaseProps>;
   // Tables
-  TableCell: Partial<TableCellProps>;
-  TableHeader: Partial<TableHeaderProps>;
+  TableCell: ConfigResolver<TableCellProps>;
+  TableHeader: ConfigResolver<TableHeaderProps>;
   // Coachmark
-  Coachmark: Partial<CoachmarkBaseProps>;
-  /**
-   * Controls how component props from theme config are merged with local component props.
-   * @default false
-   *
-   * - When `false` (default): Local props simply override theme config props (standard object spread behavior).
-   * - When `true`: Special merging behavior for styling props:
-   *   - `className`: Concatenated using cx()
-   *   - `classNames`: Object keys merged, each value concatenated with cx()
-   *   - `style`: Shallow merge (local props override theme config)
-   *   - `styles`: Object keys merged, each value shallow merged
-   *   - All other props: Local props override theme config
-   */
-  mergeClassNameAndStyle?: boolean;
+  Coachmark: ConfigResolver<CoachmarkBaseProps>;
 };
 export type ComponentsConfig<Components = ComponentTheme> = {
   [Key in keyof Components]?: Components[Key];
@@ -149,13 +132,6 @@ export type ThemeConfig = {
 };
 
 export type Theme = ThemeConfig & {
-  /**
-   * Optional component configs at theme level.
-   * Allows configuring default props for specific components throughout the theme.
-   * These are merged with props passed directly to components, with local props taking precedence.
-   * Supports nested ThemeProvider inheritance with shallow merge.
-   */
-  components?: ComponentsConfig;
   /** The currently active color scheme for the parent ThemeProvider, either "light" or "dark". */
   activeColorScheme: ColorScheme;
   /** The light or dark spectrum color values, as appropriate based on the activeColorScheme. */
@@ -164,8 +140,8 @@ export type Theme = ThemeConfig & {
   color: { [key in ThemeVars.Color]: Property.Color };
 };
 
-/** The core theme data used to create CSS variables, excluding the components config. */
-export type ThemeCore = Omit<Theme, 'components'>;
+/** Alias for Theme, previously excluded `components`. Kept for backward compatibility. */
+export type ThemeCore = Theme;
 
 /** Maps our StyleVars to their CSS variable prefixes. For example, the names of CSS vars generated from `iconSize` vars will be prefixed with `--iconSize-`. */
 export const styleVarPrefixes = {
@@ -188,10 +164,7 @@ export const styleVarPrefixes = {
   textTransform: 'textTransform',
   shadow: 'shadow',
   controlSize: 'controlSize',
-} as const satisfies Record<
-  Exclude<keyof Theme, 'id' | 'activeColorScheme' | 'components'>,
-  string
->;
+} as const satisfies Record<Exclude<keyof Theme, 'id' | 'activeColorScheme'>, string>;
 
 /** Used to generate intellisense via ThemeCSSVars below. */
 type ThemeObjectCssVars = {

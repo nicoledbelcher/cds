@@ -1,8 +1,8 @@
-import { memo, useState } from "react";
-import { SearchInput } from "@coinbase/cds-web/controls/SearchInput";
+import { memo, useState } from 'react';
+import { SearchInput } from '@coinbase/cds-web/controls/SearchInput';
 
 export const SearchExample = memo(() => {
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState('');
   return (
     <>
       <SearchInput
@@ -11,11 +11,7 @@ export const SearchExample = memo(() => {
         onChangeText={setSearchValue}
         placeholder="Search..."
       />
-      <SearchInput
-        value={searchValue}
-        onChangeText={setSearchValue}
-        placeholder="Search..."
-      />
+      <SearchInput value={searchValue} onChangeText={setSearchValue} placeholder="Search..." />
     </>
   );
 });

@@ -3,8 +3,7 @@ import { zIndex } from '@coinbase/cds-common/tokens/zIndex';
 import { css } from '@linaria/core';
 
 import { cx } from '../cx';
-import { useTheme } from '../hooks/useTheme';
-import { mergeComponentProps } from '../utils/mergeComponentProps';
+import { useComponentConfig } from '../hooks/useComponentConfig';
 
 import { TableSection, type TableSectionProps } from './TableSection';
 
@@ -26,12 +25,7 @@ const tableStickyCss = css`
 `;
 
 export const TableHeader = memo((_props: TableHeaderProps) => {
-  const { components } = useTheme();
-  const mergedProps = mergeComponentProps(
-    components?.TableHeader,
-    _props,
-    components?.mergeClassNameAndStyle,
-  );
+  const mergedProps = useComponentConfig('TableHeader', _props);
   const { children, sticky, testID, ...props } = mergedProps;
   return (
     <TableSection

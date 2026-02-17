@@ -4,9 +4,8 @@ import type { IconName } from '@coinbase/cds-common/types';
 import { css } from '@linaria/core';
 
 import { cx } from '../cx';
-import { useTheme } from '../hooks/useTheme';
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import { Box } from '../layout/Box';
-import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 import { InputIcon } from './InputIcon';
 import { InputIconButton } from './InputIconButton';
@@ -101,12 +100,7 @@ export const SearchInput = memo(
     _props: SearchInputProps,
     ref: React.ForwardedRef<HTMLInputElement>,
   ) {
-    const { components } = useTheme();
-    const mergedProps = mergeComponentProps(
-      components?.SearchInput,
-      _props,
-      components?.mergeClassNameAndStyle,
-    );
+    const mergedProps = useComponentConfig('SearchInput', _props);
     const {
       onChange,
       onClear,

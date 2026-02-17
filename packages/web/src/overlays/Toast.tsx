@@ -23,13 +23,12 @@ import { m as motion, useAnimation } from 'framer-motion';
 
 import { Button } from '../buttons/Button';
 import { IconButton } from '../buttons/IconButton';
-import { useTheme } from '../hooks/useTheme';
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import { Box, type BoxDefaultElement, type BoxProps } from '../layout/Box';
 import { HStack } from '../layout/HStack';
 import { ColorSurge } from '../motion/ColorSurge';
 import { useMotionProps } from '../motion/useMotionProps';
 import { Text } from '../typography/Text';
-import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 import type { ModalProps } from './modal/Modal';
 import { Portal } from './Portal';
@@ -72,12 +71,7 @@ export const toastTestId = 'cds-toast';
 
 export const Toast = memo(
   forwardRef<ToastRefHandle, ToastProps>((_props: ToastProps, ref) => {
-    const { components } = useTheme();
-    const mergedProps = mergeComponentProps(
-      components?.Toast,
-      _props,
-      components?.mergeClassNameAndStyle,
-    );
+    const mergedProps = useComponentConfig('Toast', _props);
     const {
       text,
       action,

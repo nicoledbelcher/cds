@@ -1,12 +1,3 @@
-/* allowing us to do .cds-Button-label would be helpful */
-.advanced-theme .cds-Button[data-compact='true'] span {
-  line-height: var(--lineHeight-label1);
-  font-weight: var(--fontWeight-label1);
-  font-size: var(--fontSize-label1);
-  font-family: var(--fontFamily-label1);
-  text-transform: var(--textTransform-label1);
-}
-
 .advanced-theme .cds-TextInput label {
   color: var(--color-fgMuted);
   font-weight: 400;

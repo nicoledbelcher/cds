@@ -4,13 +4,12 @@ import { chipMaxWidth } from '@coinbase/cds-common/tokens/chip';
 import { css } from '@linaria/core';
 
 import { cx } from '../cx';
-import { useTheme } from '../hooks/useTheme';
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import type { HStackProps } from '../layout';
 import { Box, HStack } from '../layout';
 import type { PressableProps } from '../system';
 import { InvertedThemeProvider, Pressable } from '../system';
 import { Text } from '../typography/Text';
-import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 import type { ChipProps } from './ChipProps';
 export type { ChipProps };
@@ -29,12 +28,7 @@ export const Chip = memo(
     _props: ChipProps,
     ref: React.ForwardedRef<HTMLButtonElement | HTMLDivElement>,
   ) {
-    const { components } = useTheme();
-    const mergedProps = mergeComponentProps(
-      components?.Chip,
-      _props,
-      components?.mergeClassNameAndStyle,
-    );
+    const mergedProps = useComponentConfig('Chip', _props);
     const {
       as,
       alignItems = 'center',

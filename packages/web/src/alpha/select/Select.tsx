@@ -4,11 +4,10 @@ import { autoUpdate, flip, useFloating, type UseFloatingReturn } from '@floating
 import { cx } from '../../cx';
 import { useClickOutside } from '../../hooks/useClickOutside';
 import { useHasMounted } from '../../hooks/useHasMounted';
-import { useTheme } from '../../hooks/useTheme';
+import { useComponentConfig } from '../../hooks/useComponentConfig';
 import { Box } from '../../layout/Box';
 import { Portal } from '../../overlays/Portal';
 import { modalContainerId } from '../../overlays/PortalProvider';
-import { mergeComponentProps } from '../../utils/mergeComponentProps';
 
 import { DefaultSelectAllOption } from './DefaultSelectAllOption';
 import { DefaultSelectControl } from './DefaultSelectControl';
@@ -65,12 +64,10 @@ const SelectBase = memo(
       _props: SelectProps<Type, SelectOptionValue>,
       ref: React.Ref<SelectRef>,
     ) => {
-      const { components } = useTheme();
-      const mergedProps = mergeComponentProps(
-        components?.Select,
-        _props as Record<string, unknown>,
-        components?.mergeClassNameAndStyle,
-      ) as SelectProps<Type, SelectOptionValue>;
+      const mergedProps = useComponentConfig('Select', _props) as SelectProps<
+        Type,
+        SelectOptionValue
+      >;
       const {
         value,
         type = 'single' as Type,

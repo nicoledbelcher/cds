@@ -1,5 +1,5 @@
-import { useState, memo } from "react";
-import { Pagination } from "@coinbase/cds-web/pagination/Pagination";
+import { useState, memo } from 'react';
+import { Pagination } from '@coinbase/cds-web/pagination/Pagination';
 
 export const PaginationExample = memo(() => {
   const [activePage, setActivePage] = useState(1);

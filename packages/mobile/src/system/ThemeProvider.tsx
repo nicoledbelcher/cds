@@ -1,35 +1,19 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import type { ColorScheme } from '@coinbase/cds-common/core/theme';
 
-import type { ComponentsConfig, Theme, ThemeConfig } from '../core/theme';
+import type { Theme, ThemeConfig } from '../core/theme';
 
 export type ThemeContextValue = Theme;
 
 export const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
-// export type ThemeProviderProps = SystemProviderProps &
-//   ThemeManagerProps &
-//   FramerMotionProviderProps;
-
 export type ThemeProviderProps = {
   theme: ThemeConfig;
   activeColorScheme: ColorScheme;
   children?: React.ReactNode;
-  components?: ComponentsConfig;
 };
 
-export const ThemeProvider = ({
-  theme,
-  activeColorScheme,
-  children,
-  components,
-}: ThemeProviderProps) => {
-  const parentTheme = useContext(ThemeContext);
-  const resolvedComponents = useMemo(
-    () => ({ ...parentTheme?.components, ...components }),
-    [parentTheme?.components, components],
-  );
-
+export const ThemeProvider = ({ theme, activeColorScheme, children }: ThemeProviderProps) => {
   const themeApi = useMemo(() => {
     const activeSpectrumKey = activeColorScheme === 'dark' ? 'darkSpectrum' : 'lightSpectrum';
     const activeColorKey = activeColorScheme === 'dark' ? 'darkColor' : 'lightColor';
@@ -64,15 +48,7 @@ export const ThemeProvider = ({
     };
   }, [theme, activeColorScheme]);
 
-  const themeContextValue = useMemo(
-    () => ({
-      ...themeApi,
-      components: resolvedComponents,
-    }),
-    [themeApi, resolvedComponents],
-  );
-
-  return <ThemeContext.Provider value={themeContextValue}>{children}</ThemeContext.Provider>;
+  return <ThemeContext.Provider value={themeApi}>{children}</ThemeContext.Provider>;
 };
 
 export type InvertedThemeProviderProps = {
@@ -83,13 +59,12 @@ export type InvertedThemeProviderProps = {
 export const InvertedThemeProvider = ({ children }: InvertedThemeProviderProps) => {
   const context = useContext(ThemeContext);
   if (!context) throw Error('InvertedThemeProvider must be used within a ThemeProvider');
-  const { components, ...theme } = context;
   const inverseColorScheme = context.activeColorScheme === 'dark' ? 'light' : 'dark';
   const inverseColorKey = context.activeColorScheme === 'dark' ? 'lightColor' : 'darkColor';
   const newColorScheme = context[inverseColorKey] ? inverseColorScheme : context.activeColorScheme;
 
   return (
-    <ThemeProvider activeColorScheme={newColorScheme} components={components} theme={theme}>
+    <ThemeProvider activeColorScheme={newColorScheme} theme={context}>
       {children}
     </ThemeProvider>
   );

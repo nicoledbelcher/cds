@@ -8,7 +8,7 @@ import type { ChipProps } from '../../chips/ChipProps';
 import { MediaChip } from '../../chips/MediaChip';
 import { cx } from '../../cx';
 import { useHorizontalScrollToTarget } from '../../hooks/useHorizontalScrollToTarget';
-import { useTheme } from '../../hooks/useTheme';
+import { useComponentConfig } from '../../hooks/useComponentConfig';
 import { HStack, type HStackDefaultElement, type HStackProps } from '../../layout';
 import {
   Paddle,
@@ -17,7 +17,6 @@ import {
   type TabsBaseProps,
   type TabsProps,
 } from '../../tabs';
-import { mergeComponentProps } from '../../utils/mergeComponentProps';
 
 const containerCss = css`
   isolation: isolate;
@@ -149,12 +148,7 @@ const TabbedChipsComponent = memo(
     _props: TabbedChipsProps<TabId>,
     ref: React.ForwardedRef<HTMLElement | null>,
   ) {
-    const { components } = useTheme();
-    const mergedProps = mergeComponentProps(
-      components?.TabbedChips,
-      _props,
-      components?.mergeClassNameAndStyle,
-    );
+    const mergedProps = useComponentConfig('TabbedChips', _props);
     const {
       tabs,
       activeTab,

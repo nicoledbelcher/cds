@@ -3,13 +3,13 @@ description: USE THIS when adding theme-level component prop merging to a CDS we
 alwaysApply: false
 ---
 
-# Theme-Level Component Props Merging
+# Theme-Level Component Props via ComponentConfigProvider
 
 ## Overview
 
-CDS supports configuring default props for components at the theme level via `ThemeProvider`'s `components` config. This allows themes to override component defaults (e.g., height, borderRadius, padding) without requiring every consumer to pass them explicitly.
+CDS supports configuring default props for components at the theme level via `ComponentConfigProvider`. This allows themes to override component defaults (e.g., height, borderRadius, padding) without requiring every consumer to pass them explicitly. Config values can be static objects or functions that receive the component's props for dynamic resolution.
 
-This rule describes how to add this capability to a component.
+The system uses **zustand** for granular reactivity — changing one component's config does not cause other components to re-render.
 
 ## The Pattern
 
@@ -21,28 +21,23 @@ In `packages/web/src/core/theme.ts`, add the component's `*BaseProps` type to th
 import type { MyComponentBaseProps } from '../path/MyComponent';
 
 export type ComponentTheme = {
-  Button: Partial<ButtonBaseProps>;
-  IconButton: Partial<IconButtonBaseProps>;
-  MyComponent: Partial<MyComponentBaseProps>; // <-- add here
-  mergeClassNameAndStyle?: boolean;
+  Button: ConfigResolver<ButtonBaseProps>;
+  IconButton: ConfigResolver<IconButtonBaseProps>;
+  MyComponent: ConfigResolver<MyComponentBaseProps>; // <-- add here
 };
 ```
 
-### 2. Merge theme props inside the component
+`ConfigResolver<P>` accepts either `Partial<P>` (static) or `(props: P) => Partial<P>` (functional).
 
-In the component file, import `useTheme` and `mergeComponentProps`, then merge theme-level defaults with local props **before** destructuring:
+### 2. Merge config props inside the component
+
+In the component file, import `useComponentConfig`, then merge config defaults with local props **before** destructuring:
 
 ```ts
-import { useTheme } from '../hooks/useTheme';
-import { mergeComponentProps } from '../utils/mergeComponentProps';
+import { useComponentConfig } from '../hooks/useComponentConfig';
 
 // Inside the component render function:
-const { components } = useTheme();
-const mergedProps = mergeComponentProps(
-  components?.MyComponent,      // theme-level defaults (target)
-  _props,                       // local props passed by consumer (source)
-  components?.mergeClassNameAndStyle,
-);
+const mergedProps = useComponentConfig('MyComponent', _props);
 const {
   variant = 'primary',
   compact,
@@ -54,15 +49,15 @@ const {
 
 ### Key Rules
 
-- **Source wins**: Local props (passed directly to the component) always override theme-level defaults. The merge is `{ ...themeDefaults, ...localProps }`.
+- **Source wins**: Local props (passed directly to the component) always override config defaults. The merge is `{ ...configDefaults, ...localProps }`.
 - **Destructure from `mergedProps`**: All prop destructuring with defaults must happen on `mergedProps`, not `_props`.
-- **`mergeClassNameAndStyle`**: When `true`, `className`/`classNames`/`style`/`styles` are merged instead of overridden. When `false` (default), source simply overrides target for all props.
+- **`mergeClassNameAndStyle`**: Set on `ComponentConfigProvider` (not per-component). When `true`, `className`/`classNames`/`style`/`styles` are merged instead of overridden. When `false` (default), source simply overrides target for all props.
 - **Use `_props` naming**: Prefix the raw props parameter with `_` to signal it should not be used directly after merging (e.g., `_props`).
-- **Partial types only**: The `ComponentTheme` entry uses `Partial<BaseProps>` so consumers don't need to provide every prop.
+- **One line**: The entire merge is a single `useComponentConfig()` call — no manual `mergeComponentProps` needed.
 
 ### 3. Reference implementation
 
-See `packages/web/src/buttons/Button.tsx` (lines 182-225) as the canonical example:
+See `packages/web/src/buttons/Button.tsx`:
 
 ```ts
 export const Button = memo(
@@ -70,12 +65,7 @@ export const Button = memo(
     _props: ButtonProps<AsComponent>,
     ref?: Polymorphic.Ref<AsComponent>,
   ) => {
-    const { components } = useTheme();
-    const mergedProps = mergeComponentProps(
-      components?.Button,
-      _props,
-      components?.mergeClassNameAndStyle,
-    );
+    const mergedProps = useComponentConfig('Button', _props);
     const {
       variant = 'primary',
       compact,
@@ -89,7 +79,33 @@ export const Button = memo(
 );
 ```
 
-### 4. Alpha components
+### 4. Consumer usage
+
+```tsx
+import { ComponentConfigProvider } from '@coinbase/cds-web/system';
+
+// Static config
+<ComponentConfigProvider value={{ Button: { variant: 'secondary', compact: true } }}>
+  <App />
+</ComponentConfigProvider>
+
+// Functional config (dynamic based on props)
+<ComponentConfigProvider value={{
+  Button: (props) => ({
+    paddingX: props.compact ? 2 : 4,
+    borderRadius: props.compact ? 700 : 900,
+  }),
+}}>
+  <App />
+</ComponentConfigProvider>
+
+// With className/style merging
+<ComponentConfigProvider mergeClassNameAndStyle value={config}>
+  <App />
+</ComponentConfigProvider>
+```
+
+### 5. Alpha components
 
 If a component has an alpha version (e.g., `alpha/select`), apply the pattern **only to the alpha version**, not the legacy one.
 
@@ -97,7 +113,8 @@ Alpha components live in `packages/web/src/alpha/`.
 
 ## Utility Reference
 
-- `mergeComponentProps` — `packages/web/src/utils/mergeComponentProps.ts`
-- `mergeComponentsConfig` — `packages/web/src/utils/mergeComponentsConfig.ts` (merges nested ThemeProvider component configs)
-- `ComponentTheme` / `ComponentsConfig` — `packages/web/src/core/theme.ts`
-- `useTheme` — `packages/web/src/hooks/useTheme.ts`
+- `useComponentConfig` — `packages/web/src/hooks/useComponentConfig.ts`
+- `mergeComponentProps` — `packages/web/src/utils/mergeComponentProps.ts` (used internally by the hook)
+- `ComponentConfigProvider` — `packages/web/src/system/ComponentConfigProvider.tsx`
+- `ComponentTheme` / `ComponentsConfig` / `ConfigResolver` — `packages/web/src/core/theme.ts`
+- `useTheme` — `packages/web/src/hooks/useTheme.ts` (for theme tokens, NOT component config)

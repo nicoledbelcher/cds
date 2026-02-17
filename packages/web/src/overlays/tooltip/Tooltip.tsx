@@ -1,7 +1,6 @@
 import React, { cloneElement, useCallback, useMemo, useRef } from 'react';
 
-import { useTheme } from '../../hooks/useTheme';
-import { mergeComponentProps } from '../../utils/mergeComponentProps';
+import { useComponentConfig } from '../../hooks/useComponentConfig';
 import { Popover } from '../popover/Popover';
 
 import { TooltipContent } from './TooltipContent';
@@ -14,12 +13,7 @@ const preventMouseDown = (event: React.MouseEvent) => {
 };
 
 export const Tooltip = (_props: TooltipProps) => {
-  const { components } = useTheme();
-  const mergedProps = mergeComponentProps(
-    components?.Tooltip,
-    _props,
-    components?.mergeClassNameAndStyle,
-  );
+  const mergedProps = useComponentConfig('Tooltip', _props);
   const {
     children,
     content,

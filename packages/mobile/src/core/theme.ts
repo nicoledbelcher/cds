@@ -11,20 +11,12 @@ type Shadow = {
   shadowRadius?: ViewStyle['shadowRadius'];
 };
 
+/** A config resolver is either a static partial props object or a function that receives the component's props and returns partial props. */
+export type ConfigResolver<P> = Partial<P> | ((props: P) => Partial<P>);
+
 export type ComponentTheme = {
-  Button: Partial<ButtonBaseProps>;
-  IconButton: Partial<IconButtonBaseProps>;
-  /**
-   * Controls how component props from theme config are merged with local component props.
-   * @default false
-   *
-   * - When `false` (default): Local props simply override theme config props (standard object spread behavior).
-   * - When `true`: Special merging behavior for styling props:
-   *   - `style`: Shallow merge (local props override theme config)
-   *   - `styles`: Object keys merged, each value shallow merged
-   *   - All other props: Local props override theme config
-   */
-  mergeStyleProps?: boolean;
+  Button: ConfigResolver<ButtonBaseProps>;
+  IconButton: ConfigResolver<IconButtonBaseProps>;
 };
 export type ComponentsConfig<Components = ComponentTheme> = {
   [Key in keyof Components]?: Components[Key];
@@ -70,13 +62,6 @@ export type ThemeConfig = {
 };
 
 export type Theme = ThemeConfig & {
-  /**
-   * Optional component configs at theme level.
-   * Allows configuring default props for specific components throughout the theme.
-   * These are merged with props passed directly to components, with local props taking precedence.
-   * Supports nested ThemeProvider inheritance with shallow merge.
-   */
-  components?: ComponentsConfig;
   /** The currently active color scheme for the parent ThemeProvider, either "light" or "dark". */
   activeColorScheme: ColorScheme;
   /** The light or dark spectrum color values, as appropriate based on the activeColorScheme. */

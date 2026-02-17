@@ -9,10 +9,10 @@ import {
 import { css } from '@linaria/core';
 import { m as motion } from 'framer-motion';
 
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import { useTheme } from '../hooks/useTheme';
 import { Box } from '../layout';
 import { useMotionProps } from '../motion/useMotionProps';
-import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 import { Control, type ControlBaseProps } from './Control';
 
@@ -64,12 +64,8 @@ const RadioWithRef = forwardRef(function RadioWithRef<RadioValue extends string>
   _props: RadioProps<RadioValue>,
   ref: React.ForwardedRef<HTMLInputElement>,
 ) {
+  const mergedProps = useComponentConfig('Radio', _props);
   const theme = useTheme();
-  const mergedProps = mergeComponentProps(
-    theme.components?.Radio,
-    _props,
-    theme.components?.mergeClassNameAndStyle,
-  );
   const {
     children,
     controlColor = 'bgPrimary',

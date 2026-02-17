@@ -10,12 +10,11 @@ import { css } from '@linaria/core';
 
 import type { Polymorphic } from '../core/polymorphism';
 import { cx } from '../cx';
-import { useTheme } from '../hooks/useTheme';
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import { Icon } from '../icons/Icon';
 import { Spinner } from '../loaders/Spinner';
 import { Pressable, type PressableBaseProps } from '../system/Pressable';
 import { Text } from '../typography/Text';
-import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 const COMPONENT_STATIC_CLASSNAME = 'cds-Button';
 
@@ -175,12 +174,7 @@ export const Button: ButtonComponent = memo(
       _props: ButtonProps<AsComponent>,
       ref?: Polymorphic.Ref<AsComponent>,
     ) => {
-      const theme = useTheme();
-      const mergedProps = mergeComponentProps(
-        theme?.components?.Button,
-        _props,
-        theme?.components?.mergeClassNameAndStyle,
-      );
+      const mergedProps = useComponentConfig('Button', _props);
       const {
         as,
         variant = 'primary',

@@ -1,28 +1,40 @@
 import type { ComponentsConfig } from '@coinbase/cds-web/core/theme';
 
 export const advancedComponents: ComponentsConfig = {
-  // Buttons
-  Button: {
+  Button: (props) => ({
     borderRadius: 200,
-    // paddingY: 0, Padding y is not 0
-  },
-  IconButton: {
-    borderRadius: 200,
-  },
+    ...(props.compact
+      ? {
+          paddingX: 2,
+          paddingY: props.loading ? 1 : 1.5,
+          font: props.loading ? 'headline' : 'label1',
+        }
+      : {
+          paddingX: 4,
+          paddingY: 2,
+          font: 'headline',
+        }),
+  }),
 
-  // Controls
+  IconButton: (props) => ({
+    borderRadius: 200,
+    borderWidth: 0,
+    padding: props.compact ? 1.5 : 2,
+  }),
+
   TextInput: {
     inputBackground: 'bgAlternate',
     bordered: false,
   },
+
   Switch: {
     background: 'bgTertiary',
   },
 
-  // Overlays
   Tooltip: {
     invertColorScheme: false,
   },
+
   TooltipContent: {
     background: 'bgSecondary',
   },

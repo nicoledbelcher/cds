@@ -5,11 +5,11 @@ import { css } from '@linaria/core';
 
 import type { Polymorphic } from '../core/polymorphism';
 import { cx } from '../cx';
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import { useTheme } from '../hooks/useTheme';
 import { Icon } from '../icons/Icon';
 import { Spinner } from '../loaders/Spinner';
 import { Pressable, type PressableBaseProps } from '../system/Pressable';
-import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 import { type ButtonBaseProps, spinnerHeight } from './Button';
 
@@ -71,12 +71,8 @@ export const IconButton: IconButtonComponent = memo(
       _props: IconButtonProps<AsComponent>,
       ref?: Polymorphic.Ref<AsComponent>,
     ) => {
+      const mergedProps = useComponentConfig('IconButton', _props);
       const theme = useTheme();
-      const mergedProps = mergeComponentProps(
-        theme?.components?.IconButton,
-        _props,
-        theme?.components?.mergeClassNameAndStyle,
-      );
       const {
         as,
         variant = 'secondary',

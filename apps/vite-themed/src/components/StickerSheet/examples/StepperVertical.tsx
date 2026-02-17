@@ -1,37 +1,37 @@
-import { useStepper } from "@coinbase/cds-common/stepper/useStepper";
-import { IconButton } from "@coinbase/cds-web/buttons/IconButton";
-import { ListCell } from "@coinbase/cds-web/cells/ListCell";
-import { HStack } from "@coinbase/cds-web/layout/HStack";
-import { VStack } from "@coinbase/cds-web/layout/VStack";
-import { Stepper, type StepperValue } from "@coinbase/cds-web/stepper/Stepper";
-import { useState, memo } from "react";
+import { useStepper } from '@coinbase/cds-common/stepper/useStepper';
+import { IconButton } from '@coinbase/cds-web/buttons/IconButton';
+import { ListCell } from '@coinbase/cds-web/cells/ListCell';
+import { HStack } from '@coinbase/cds-web/layout/HStack';
+import { VStack } from '@coinbase/cds-web/layout/VStack';
+import { Stepper, type StepperValue } from '@coinbase/cds-web/stepper/Stepper';
+import { useState, memo } from 'react';
 
 const steps = [
   {
-    id: "book-flight" as const,
-    label: "Book Flight",
+    id: 'book-flight' as const,
+    label: 'Book Flight',
     metadata: {
-      name: "Delta Airlines",
-      date: "2025-06-13",
-      time: "1:15pm Departure",
+      name: 'Delta Airlines',
+      date: '2025-06-13',
+      time: '1:15pm Departure',
     },
   },
   {
-    id: "book-hotel" as const,
-    label: "Book Hotel",
+    id: 'book-hotel' as const,
+    label: 'Book Hotel',
     metadata: {
-      name: "Marriott Downtown",
-      date: "2025-06-13",
-      time: "3:00pm Check-in",
+      name: 'Marriott Downtown',
+      date: '2025-06-13',
+      time: '3:00pm Check-in',
     },
   },
   {
-    id: "rental-car" as const,
-    label: "Reserve Rental Car",
+    id: 'rental-car' as const,
+    label: 'Reserve Rental Car',
     metadata: {
-      name: "Enterprise",
-      date: "2025-06-14",
-      time: "8:00am Pickup",
+      name: 'Enterprise',
+      date: '2025-06-14',
+      time: '8:00am Pickup',
     },
   },
 ] satisfies StepperValue<{
@@ -95,20 +95,8 @@ export const StepperVerticalCustomExample = memo(() => {
         StepperLabelComponent={CustomBookingLabel}
       />
       <HStack style={{ gap: 8 }} alignSelf="center">
-        <IconButton
-          active
-          variant="primary"
-          name="arrowLeft"
-          compact
-          onClick={handlePrevious}
-        />
-        <IconButton
-          active
-          variant="primary"
-          name="arrowRight"
-          compact
-          onClick={handleNext}
-        />
+        <IconButton active variant="primary" name="arrowLeft" compact onClick={handlePrevious} />
+        <IconButton active variant="primary" name="arrowRight" compact onClick={handleNext} />
         {/* {complete && <Button onClick={handleReset}>Reset</Button>} */}
       </HStack>
     </VStack>

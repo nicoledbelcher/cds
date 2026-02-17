@@ -6,9 +6,8 @@ import {
   type IconButtonDefaultElement,
   type IconButtonProps,
 } from '../buttons/IconButton';
-import { useTheme } from '../hooks/useTheme';
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import { Box } from '../layout/Box';
-import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 import { TextInputFocusVariantContext } from './context';
 
@@ -34,18 +33,8 @@ export const InputIconButton = memo(
     _props: InputIconButtonProps,
     ref: React.ForwardedRef<HTMLButtonElement>,
   ) {
-    const { components } = useTheme();
-    const mergedProps = mergeComponentProps(
-      components?.InputIconButton,
-      _props,
-      components?.mergeClassNameAndStyle,
-    );
-    const {
-      disableInheritFocusStyle = false,
-      testID,
-      variant = 'primary',
-      ...props
-    } = mergedProps;
+    const mergedProps = useComponentConfig('InputIconButton', _props);
+    const { disableInheritFocusStyle = false, testID, variant = 'primary', ...props } = mergedProps;
     const contextVariant = useContext(TextInputFocusVariantContext);
     const transformedVariant = contextVariant ? variantTransformMap[contextVariant] : variant;
 

@@ -1,5 +1,5 @@
-import { useMemo, useState, memo } from "react";
-import { LineChart, Scrubber } from "@coinbase/cds-web-visualization";
+import { useMemo, useState, memo } from 'react';
+import { LineChart, Scrubber } from '@coinbase/cds-web-visualization';
 
 export const LineChartBasicExample = memo(() => {
   const [scrubIndex, setScrubIndex] = useState<number | undefined>(undefined);
@@ -9,9 +9,7 @@ export const LineChartBasicExample = memo(() => {
 
   const accessibilityLabel = useMemo(() => {
     if (scrubIndex === undefined) return undefined;
-    return `X: ${xData[scrubIndex]}, Y: ${yData[scrubIndex]} at point ${
-      scrubIndex + 1
-    }`;
+    return `X: ${xData[scrubIndex]}, Y: ${yData[scrubIndex]} at point ${scrubIndex + 1}`;
   }, [scrubIndex, xData, yData]);
 
   return (
@@ -20,7 +18,7 @@ export const LineChartBasicExample = memo(() => {
       onScrubberPositionChange={setScrubIndex}
       series={[
         {
-          id: "line",
+          id: 'line',
           data: yData,
         },
       ]}
@@ -38,7 +36,7 @@ export const LineChartBasicExample = memo(() => {
       showYAxis
       yAxis={{
         domain: { min: 0 },
-        position: "left",
+        position: 'left',
         showLine: true,
         showTickMarks: true,
         showGrid: true,

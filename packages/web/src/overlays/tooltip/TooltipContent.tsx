@@ -13,11 +13,10 @@ import { zIndex as zIndexTokens } from '@coinbase/cds-common/tokens/zIndex';
 import { css } from '@linaria/core';
 import { m as motion } from 'framer-motion';
 
-import { useTheme } from '../../hooks/useTheme';
+import { useComponentConfig } from '../../hooks/useComponentConfig';
 import { Box } from '../../layout/Box';
 import { useMotionProps } from '../../motion/useMotionProps';
 import { Text } from '../../typography/Text';
-import { mergeComponentProps } from '../../utils/mergeComponentProps';
 
 import type { PopperTooltipProps } from './TooltipProps';
 
@@ -36,72 +35,62 @@ const textCss = css`
 `;
 
 export const TooltipContent = memo(
-  forwardRef(
-    (
-      _props: PopperTooltipProps,
-      ref: React.ForwardedRef<HTMLDivElement>,
-    ) => {
-      const { components } = useTheme();
-      const mergedProps = mergeComponentProps(
-        components?.TooltipContent,
-        _props,
-        components?.mergeClassNameAndStyle,
-      );
-      const {
-        content,
-        elevation,
-        gap,
-        testID,
-        zIndex,
-        tooltipId,
-        placement = 'top',
-        background = 'bg',
-        borderRadius = 200,
-        maxWidth = tooltipMaxWidth,
-        paddingX = tooltipPaddingX,
-        paddingY = tooltipPaddingY,
-      } = mergedProps;
+  forwardRef((_props: PopperTooltipProps, ref: React.ForwardedRef<HTMLDivElement>) => {
+    const mergedProps = useComponentConfig('TooltipContent', _props);
+    const {
+      content,
+      elevation,
+      gap,
+      testID,
+      zIndex,
+      tooltipId,
+      placement = 'top',
+      background = 'bg',
+      borderRadius = 200,
+      maxWidth = tooltipMaxWidth,
+      paddingX = tooltipPaddingX,
+      paddingY = tooltipPaddingY,
+    } = mergedProps;
 
-      const outerStyle = useMemo(
-        () => ({
-          padding: `var(--space-${gap})`,
-          zIndex: zIndex ?? zIndexTokens.tooltip,
-        }),
-        [gap, zIndex],
-      );
+    const outerStyle = useMemo(
+      () => ({
+        padding: `var(--space-${gap})`,
+        zIndex: zIndex ?? zIndexTokens.tooltip,
+      }),
+      [gap, zIndex],
+    );
 
-      const motionProps = useMotionProps({
-        style: outerStyle,
-        enterConfigs: [animateInOpacityConfig, getTranslateConfigByPlacement({ placement })],
-        exitConfigs: [
-          animateOutOpacityConfig,
-          getTranslateConfigByPlacement({ placement, isExiting: true }),
-        ],
-        exit: 'exit',
-      });
+    const motionProps = useMotionProps({
+      style: outerStyle,
+      enterConfigs: [animateInOpacityConfig, getTranslateConfigByPlacement({ placement })],
+      exitConfigs: [
+        animateOutOpacityConfig,
+        getTranslateConfigByPlacement({ placement, isExiting: true }),
+      ],
+      exit: 'exit',
+    });
 
-      return (
-        <motion.div {...motionProps} data-testid={`${testID}-motion`}>
-          <Box
-            ref={ref}
-            background={background}
-            borderRadius={borderRadius}
-            data-testid={testID}
-            elevation={elevation}
-            maxWidth={maxWidth}
-            paddingX={paddingX}
-            paddingY={paddingY}
-          >
-            {typeof content === 'string' ? (
-              <Text className={textCss} color="fg" font="label2" id={tooltipId}>
-                {content}
-              </Text>
-            ) : (
-              <div id={tooltipId}>{content}</div>
-            )}
-          </Box>
-        </motion.div>
-      );
-    },
-  ),
+    return (
+      <motion.div {...motionProps} data-testid={`${testID}-motion`}>
+        <Box
+          ref={ref}
+          background={background}
+          borderRadius={borderRadius}
+          data-testid={testID}
+          elevation={elevation}
+          maxWidth={maxWidth}
+          paddingX={paddingX}
+          paddingY={paddingY}
+        >
+          {typeof content === 'string' ? (
+            <Text className={textCss} color="fg" font="label2" id={tooltipId}>
+              {content}
+            </Text>
+          ) : (
+            <div id={tooltipId}>{content}</div>
+          )}
+        </Box>
+      </motion.div>
+    );
+  }),
 );

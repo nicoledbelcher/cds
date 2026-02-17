@@ -4,11 +4,10 @@ import { css } from '@linaria/core';
 
 import type { Polymorphic } from '../core/polymorphism';
 import { cx } from '../cx';
-import { useTheme } from '../hooks/useTheme';
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import { Box } from '../layout/Box';
 import { VStack } from '../layout/VStack';
 import { Text } from '../typography/Text';
-import { mergeComponentProps } from '../utils/mergeComponentProps';
 
 import { Cell, type CellBaseProps, type CellSpacing } from './Cell';
 import { CellAccessory, type CellAccessoryType } from './CellAccessory';
@@ -202,12 +201,7 @@ export const ListCell: ListCellComponent = memo(
       _props: ListCellProps<AsComponent>,
       ref?: Polymorphic.Ref<AsComponent>,
     ) => {
-      const { components } = useTheme();
-      const mergedProps = mergeComponentProps(
-        components?.ListCell,
-        _props,
-        components?.mergeClassNameAndStyle,
-      );
+      const mergedProps = useComponentConfig('ListCell', _props);
       const {
         as,
         accessory,
