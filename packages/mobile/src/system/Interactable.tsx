@@ -1,10 +1,10 @@
 import { memo, useMemo } from 'react';
 import { type Animated, type StyleProp, View, type ViewProps, type ViewStyle } from 'react-native';
 import type { ElevationLevels, ThemeVars } from '@coinbase/cds-common';
-import type { Gradient } from '@coinbase/cds-common/types/Gradient';
 
 import { useTheme } from '../hooks/useTheme';
 import { Box, type BoxBaseProps } from '../layout/Box';
+import { GradientBox, type LinearGradientProps } from '../layout/GradientBox';
 import { getInteractableStyles } from '../styles/getInteractableStyles';
 
 /**
@@ -33,11 +33,11 @@ export type InteractableBlendStyles = {
   pressedBorderColor?: string;
   disabledBorderColor?: string;
   /** Gradient background. */
-  backgroundGradient?: Gradient;
+  backgroundGradient?: LinearGradientProps;
   /** Gradient to use when the element is pressed. */
-  pressedBackgroundGradient?: Gradient;
+  pressedBackgroundGradient?: LinearGradientProps;
   /** Gradient to use when the element is disabled. */
-  disabledBackgroundGradient?: Gradient;
+  disabledBackgroundGradient?: LinearGradientProps;
 };
 
 export type InteractableBaseProps = Omit<BoxBaseProps, 'animated'> & {
@@ -77,6 +77,7 @@ export type InteractableBaseProps = Omit<BoxBaseProps, 'animated'> & {
     pressed?: StyleProp<ViewStyle>;
     disabled?: StyleProp<ViewStyle>;
   };
+  gradientProps?: LinearGradientProps;
 };
 
 export type InteractableProps = InteractableBaseProps & Omit<ViewProps, 'style'>;
@@ -95,7 +96,7 @@ export const Interactable = memo(function Interactable({
   blendStyles,
   transparentWhileInactive,
   transparentWhilePressed,
-  gradient,
+  gradientProps,
   ...props
 }: InteractableProps) {
   const theme = useTheme();
@@ -129,25 +130,23 @@ export const Interactable = memo(function Interactable({
 
   // Resolve active gradient based on interaction state
   // Priority: disabled > pressed > blendStyles.backgroundGradient > gradient prop
-  const activeGradient = useMemo(() => {
-    const baseGradient = blendStyles?.backgroundGradient ?? gradient;
-
-    // No gradient configured
-    if (!baseGradient) return undefined;
+  const activeGradientProps = useMemo(() => {
+    const baseGradientProps = blendStyles?.backgroundGradient ?? gradientProps;
 
     // Disabled state takes highest priority
-    if (disabled) {
-      return blendStyles?.disabledBackgroundGradient ?? baseGradient;
+    if (disabled && blendStyles?.disabledBackgroundGradient) {
+      return blendStyles.disabledBackgroundGradient;
     }
 
     // Pressed state takes priority over base
-    if (pressed) {
-      return blendStyles?.pressedBackgroundGradient ?? baseGradient;
+    if (pressed && blendStyles?.pressedBackgroundGradient) {
+      return blendStyles.pressedBackgroundGradient;
     }
 
-    return baseGradient;
+    // Fall back to base gradient
+    return baseGradientProps;
   }, [
-    gradient,
+    gradientProps,
     disabled,
     pressed,
     blendStyles?.backgroundGradient,
@@ -175,16 +174,32 @@ export const Interactable = memo(function Interactable({
     [contentStyle, contentStyles.disabled, contentStyles.pressed, disabled, pressed],
   );
 
+  const content = <View style={mergedContentStyles}>{children}</View>;
+
+  if (activeGradientProps) {
+    return (
+      <GradientBox
+        animated
+        borderColor={borderColor}
+        borderWidth={borderWidth}
+        style={mergedWrapperStyles}
+        {...activeGradientProps}
+        {...props}
+      >
+        {content}
+      </GradientBox>
+    );
+  }
+
   return (
     <Box
       animated
       borderColor={borderColor}
       borderWidth={borderWidth}
-      gradient={activeGradient}
       style={mergedWrapperStyles}
       {...props}
     >
-      <View style={mergedContentStyles}>{children}</View>
+      {content}
     </Box>
   );
 });

@@ -1,5 +1,6 @@
 export * from './Box';
 export * from './Divider';
+export * from './GradientBox';
 export * from './Fallback';
 export * from './Group';
 export * from './HStack';

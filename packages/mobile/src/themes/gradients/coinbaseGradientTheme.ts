@@ -1,25 +1,25 @@
 import type { ThemeConfig } from '../../core/theme';
-import { defaultTheme } from '../defaultTheme';
+import { coinbaseTheme } from '../coinbaseTheme';
 
-export const defaultGradientThemeId = 'cds-default-gradient';
+export const coinbaseGradientThemeId = 'cds-coinbase-gradient';
 
-const { lightColor, darkColor } = defaultTheme;
+const { lightColor, darkColor } = coinbaseTheme;
 
 /**
- * Default gradient presets for light mode.
- * Uses color tokens from the default theme.
+ * Coinbase gradient presets for light mode.
+ * Uses color tokens from the Coinbase theme.
  */
-export const defaultLightGradient = {
+export const coinbaseLightGradient = {
   primary: {
-    colors: [lightColor.bgPrimary, lightColor.bgPrimaryWash],
+    colors: [lightColor.bgPrimary, lightColor.bgPrimary],
     angle: 180,
   },
   positive: {
-    colors: [lightColor.bgPositive, lightColor.bgPositiveWash],
+    colors: [lightColor.bgPositive, lightColor.bgPositive],
     angle: 180,
   },
   negative: {
-    colors: [lightColor.bgNegative, lightColor.bgNegativeWash],
+    colors: [lightColor.bgNegative, lightColor.bgNegative],
     angle: 180,
   },
   brand: {
@@ -34,16 +34,16 @@ export const defaultLightGradient = {
 } as const satisfies ThemeConfig['lightGradient'];
 
 /**
- * Default gradient presets for dark mode.
- * Uses color tokens from the default theme.
+ * Coinbase gradient presets for dark mode.
+ * Uses color tokens from the Coinbase theme.
  */
-export const defaultDarkGradient = {
+export const coinbaseDarkGradient = {
   primary: {
     colors: [darkColor.bgPrimary, darkColor.bgPrimary],
     angle: 180,
   },
   positive: {
-    colors: [darkColor.bgPositive, darkColor.transparent],
+    colors: [darkColor.bgPositive, darkColor.bgPositive],
     angle: 180,
   },
   negative: {
@@ -62,21 +62,21 @@ export const defaultDarkGradient = {
 } as const satisfies ThemeConfig['darkGradient'];
 
 /**
- * Default theme with gradient presets enabled.
+ * Coinbase theme with gradient presets enabled.
  * A complete theme configuration ready to use with ThemeProvider.
  *
  * @example
  * ```tsx
- * import { defaultGradientTheme } from '@coinbase/cds-mobile/themes/gradients';
+ * import { coinbaseGradientTheme } from '@coinbase/cds-mobile/themes/gradients';
  *
- * <ThemeProvider theme={defaultGradientTheme} activeColorScheme="light">
+ * <ThemeProvider theme={coinbaseGradientTheme} activeColorScheme="light">
  *   <App />
  * </ThemeProvider>
  * ```
  */
-export const defaultGradientTheme = {
-  ...defaultTheme,
-  id: defaultGradientThemeId,
-  lightGradient: defaultLightGradient,
-  darkGradient: defaultDarkGradient,
+export const coinbaseGradientTheme = {
+  ...coinbaseTheme,
+  id: coinbaseGradientThemeId,
+  lightGradient: coinbaseLightGradient,
+  darkGradient: coinbaseDarkGradient,
 } as const satisfies ThemeConfig;

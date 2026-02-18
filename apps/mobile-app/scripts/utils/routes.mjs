@@ -271,6 +271,11 @@ export const routes = [
     getComponent: () => require('@coinbase/cds-mobile/system/__stories__/Frontier.stories').default,
   },
   {
+    key: 'GradientBox',
+    getComponent: () =>
+      require('@coinbase/cds-mobile/layout/__stories__/GradientBox.stories').default,
+  },
+  {
     key: 'Group',
     getComponent: () => require('@coinbase/cds-mobile/layout/__stories__/Group.stories').default,
   },

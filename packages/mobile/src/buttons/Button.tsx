@@ -91,8 +91,8 @@ export type ButtonProps = ButtonBaseProps;
 export const Button = memo(
   forwardRef(function Button(
     {
-      gradient,
-      variant = gradient ? 'gradient' : 'primary',
+      gradientProps,
+      variant = gradientProps ? 'gradient' : 'primary',
       loading,
       transparent,
       block,
@@ -118,7 +118,8 @@ export const Button = memo(
       wrapperStyles,
       feedback = compact ? 'light' : 'normal',
       borderColor,
-      borderWidth = gradient ? 0 : 100,
+      // TO DO: This is a hack to fix the anti-aliasing issue with gradients.
+      borderWidth = variant === 'gradient' ? 0 : 100,
       borderRadius = compact ? 700 : 900,
       accessibilityLabel,
       accessibilityHint,
@@ -192,6 +193,7 @@ export const Button = memo(
         borderRadius={borderRadius}
         borderWidth={borderWidth}
         feedback={feedback}
+        gradientProps={gradientProps}
         loading={loading}
         marginEnd={marginEnd}
         marginStart={marginStart}
@@ -199,7 +201,6 @@ export const Button = memo(
         style={pressableStyle}
         transparentWhileInactive={transparent}
         wrapperStyles={wrapperStyles}
-        gradient={gradient}
         {...props}
       >
         <HStack

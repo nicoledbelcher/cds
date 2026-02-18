@@ -65,6 +65,10 @@ type LinearGradientProps = {
 
 const defaultStops = [0, 1];
 
+/**
+ * @deprecated Use `GradientBox` from `@coinbase/cds-mobile` instead.
+ * GradientBox provides the same gradient functionality with better Box integration and style props support.
+ */
 export function LinearGradient({
   children,
   start,

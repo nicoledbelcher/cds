@@ -1,11 +1,10 @@
 export {
-  defaultLightGradient,
-  defaultDarkGradient,
-  defaultGradientTheme,
-} from './defaultGradientTheme';
-
-export {
-  coinbaseLightGradient,
   coinbaseDarkGradient,
   coinbaseGradientTheme,
-} from './coinbaseGradientPresets';
+  coinbaseLightGradient,
+} from './coinbaseGradientTheme';
+export {
+  defaultDarkGradient,
+  defaultGradientTheme,
+  defaultLightGradient,
+} from './defaultGradientTheme';
