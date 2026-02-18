@@ -46,6 +46,107 @@ function decasteljau(points: Point[], t: number): SplitResult {
   return { left, right: right.reverse() };
 }
 
+const COLLINEAR_TOLERANCE = 1e-9;
+
+function isCollinear(points: Point[]): boolean {
+  if (points.length <= 2) {
+    return true;
+  }
+
+  const [startX, startY] = points[0];
+  const [endX, endY] = points[points.length - 1];
+  const dx = endX - startX;
+  const dy = endY - startY;
+
+  for (let i = 1; i < points.length - 1; i++) {
+    const [pointX, pointY] = points[i];
+    const cross = (pointX - startX) * dy - (pointY - startY) * dx;
+    if (Math.abs(cross) > COLLINEAR_TOLERANCE) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function nextPowerOfTwo(value: number): number {
+  let power = 1;
+  while (power < value) {
+    power *= 2;
+  }
+  return power;
+}
+
+function buildAdaptiveDyadicSplitTs(segmentCount: number): number[] {
+  if (segmentCount <= 1) {
+    return [];
+  }
+
+  const denominator = nextPowerOfTwo(segmentCount);
+  if (denominator === segmentCount) {
+    return Array.from({ length: segmentCount - 1 }, (_value, index) => (index + 1) / segmentCount);
+  }
+
+  const oneStepCount = 2 * segmentCount - denominator;
+  if (oneStepCount <= 0) {
+    return Array.from({ length: segmentCount - 1 }, (_value, index) => (index + 1) / segmentCount);
+  }
+
+  const remainingOneSteps = oneStepCount - 1;
+  const leftOneSteps = Math.ceil(remainingOneSteps / 2);
+  const rightOneSteps = Math.floor(remainingOneSteps / 2);
+  const middleTwoSteps = Math.max(0, segmentCount - 1 - leftOneSteps - rightOneSteps);
+  const increments = [
+    1,
+    ...Array(leftOneSteps).fill(1),
+    ...Array(middleTwoSteps).fill(2),
+    ...Array(rightOneSteps).fill(1),
+  ];
+
+  const splitTs: number[] = [];
+  let cumulativeIndex = 0;
+  for (let i = 0; i < increments.length - 1; i++) {
+    cumulativeIndex += increments[i];
+    splitTs.push(cumulativeIndex / denominator);
+  }
+
+  return splitTs;
+}
+
+function segmentBetweenTs(points: Point[], startT: number, endT: number): Point[] {
+  if (startT <= 0) {
+    if (endT >= 1) {
+      return points;
+    }
+    return decasteljau(points, endT).left;
+  }
+
+  if (endT >= 1) {
+    return decasteljau(points, startT).right;
+  }
+
+  const splitToEnd = decasteljau(points, endT);
+  const relativeStart = startT / endT;
+  return decasteljau(splitToEnd.left, relativeStart).right;
+}
+
+function splitCurveAsPointsAtTs(points: Point[], splitTs: number[]): Point[][] {
+  if (splitTs.length === 0) {
+    return [points];
+  }
+
+  const segments: Point[][] = [];
+  let previousT = 0;
+
+  for (const splitT of splitTs) {
+    segments.push(segmentBetweenTs(points, previousT, splitT));
+    previousT = splitT;
+  }
+
+  segments.push(segmentBetweenTs(points, previousT, 1));
+  return segments;
+}
+
 /**
  * Convert segments represented as points back into a command object.
  *
@@ -87,6 +188,15 @@ function pointsToCommand(points: Point[]): PathCommand {
  * @return Array of segments
  */
 function splitCurveAsPoints(points: Point[], segmentCount: number = 2): Point[][] {
+  if (segmentCount <= 1) {
+    return [points];
+  }
+
+  if (points.length === 4 && isCollinear(points)) {
+    const splitTs = buildAdaptiveDyadicSplitTs(segmentCount);
+    return splitCurveAsPointsAtTs(points, splitTs);
+  }
+
   const segments: Point[][] = [];
   let remainingCurve: Point[] = points;
   const tIncrement = 1 / segmentCount;
@@ -100,6 +210,77 @@ function splitCurveAsPoints(points: Point[], segmentCount: number = 2): Point[][
 
   segments.push(remainingCurve);
 
+  return segments;
+}
+
+function evaluateCurvePoint(points: Point[], t: number): Point {
+  let workingPoints = points.slice();
+
+  while (workingPoints.length > 1) {
+    const next: Point[] = [];
+
+    for (let i = 0; i < workingPoints.length - 1; i++) {
+      next.push([
+        (1 - t) * workingPoints[i][0] + t * workingPoints[i + 1][0],
+        (1 - t) * workingPoints[i][1] + t * workingPoints[i + 1][1],
+      ]);
+    }
+
+    workingPoints = next;
+  }
+
+  return workingPoints[0];
+}
+
+function findRelativeTForTargetX(points: Point[], targetX: number): number {
+  const startX = points[0][0];
+  const endX = points[points.length - 1][0];
+  const minX = Math.min(startX, endX);
+  const maxX = Math.max(startX, endX);
+  const clampedTargetX = Math.max(minX, Math.min(maxX, targetX));
+  const isIncreasing = endX >= startX;
+  let lower = 0;
+  let upper = 1;
+
+  for (let i = 0; i < 30; i++) {
+    const mid = (lower + upper) / 2;
+    const x = evaluateCurvePoint(points, mid)[0];
+
+    if (Math.abs(x - clampedTargetX) <= 1e-6) {
+      lower = mid;
+      upper = mid;
+      break;
+    }
+
+    const shouldMoveRight = isIncreasing ? x < clampedTargetX : x > clampedTargetX;
+    if (shouldMoveRight) {
+      lower = mid;
+    } else {
+      upper = mid;
+    }
+  }
+
+  const t = (lower + upper) / 2;
+  return Math.max(1e-6, Math.min(1 - 1e-6, t));
+}
+
+function splitCurveAsPointsToTargetXs(points: Point[], targetXs: number[]): Point[][] {
+  if (targetXs.length <= 1) {
+    return [points];
+  }
+
+  const segments: Point[][] = [];
+  let remainingCurve: Point[] = points;
+
+  for (let i = 0; i < targetXs.length - 1; i++) {
+    const targetX = targetXs[i];
+    const splitT = findRelativeTForTargetX(remainingCurve, targetX);
+    const split = decasteljau(remainingCurve, splitT);
+    segments.push(split.left);
+    remainingCurve = split.right;
+  }
+
+  segments.push(remainingCurve);
   return segments;
 }
 
@@ -127,4 +308,47 @@ export function splitCurve(
   points.push([commandEnd.x!, commandEnd.y!]);
 
   return splitCurveAsPoints(points, segmentCount).map(pointsToCommand);
+}
+
+export function splitCurveAtT(
+  commandStart: PathCommand,
+  commandEnd: PathCommand,
+  t: number,
+): { left: PathCommand; right: PathCommand } {
+  const points: Point[] = [[commandStart.x!, commandStart.y!]];
+  if (commandEnd.x1 != null) {
+    points.push([commandEnd.x1, commandEnd.y1!]);
+  }
+  if (commandEnd.x2 != null) {
+    points.push([commandEnd.x2, commandEnd.y2!]);
+  }
+  points.push([commandEnd.x!, commandEnd.y!]);
+
+  const clampedT = Math.max(0, Math.min(1, t));
+  const split = decasteljau(points, clampedT);
+  return {
+    left: pointsToCommand(split.left),
+    right: pointsToCommand(split.right),
+  };
+}
+
+export function splitCurveToTargetXs(
+  commandStart: PathCommand,
+  commandEnd: PathCommand,
+  targetXs: number[],
+): PathCommand[] {
+  if (targetXs.length === 0) {
+    return [];
+  }
+
+  const points: Point[] = [[commandStart.x!, commandStart.y!]];
+  if (commandEnd.x1 != null) {
+    points.push([commandEnd.x1, commandEnd.y1!]);
+  }
+  if (commandEnd.x2 != null) {
+    points.push([commandEnd.x2, commandEnd.y2!]);
+  }
+  points.push([commandEnd.x!, commandEnd.y!]);
+
+  return splitCurveAsPointsToTargetXs(points, targetXs).map(pointsToCommand);
 }

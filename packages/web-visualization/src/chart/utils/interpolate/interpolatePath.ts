@@ -1,4 +1,4 @@
-import { splitCurve } from './split';
+import { splitCurve, splitCurveAtT, splitCurveToTargetXs } from './split';
 import type { CommandType, ExcludeSegmentFn, InterpolateOptions, PathCommand } from './types';
 
 const commandTokenRegex = /[MLCSTQAHVZmlcstqahv]|-?[\d.e+-]+/g;
@@ -34,9 +34,317 @@ function arrayOfLength<T>(length: number, value?: T): T[] {
 
 const DECIMAL_PLACES = 3;
 const ROUND_FACTOR = 10 ** DECIMAL_PLACES;
+const match_tolerance = 1e-2;
+const SINGLE_MATCH_STRUCTURAL_TYPES = new Set(['M', 'Z', 'L', 'H', 'V']);
 
 function roundValue(value: number): number {
   return Math.round(value * ROUND_FACTOR) / ROUND_FACTOR;
+}
+
+type MatchPair = {
+  aIndex: number;
+  bIndex: number;
+};
+
+function isNumericValue(value: unknown): value is number {
+  return typeof value === 'number' && !Number.isNaN(value);
+}
+
+function approximatelyEqual(a: number, b: number, tolerance: number = match_tolerance): boolean {
+  return Math.abs(a - b) <= tolerance;
+}
+
+function getSegmentStart(commands: PathCommand[], index: number): PathCommand | undefined {
+  return index > 0 ? commands[index - 1] : undefined;
+}
+
+function commandsMatchAsAnchors(
+  aCommands: PathCommand[],
+  bCommands: PathCommand[],
+  aIndex: number,
+  bIndex: number,
+): boolean {
+  const aCommand = aCommands[aIndex];
+  const bCommand = bCommands[bIndex];
+  const aType = aCommand.type.toUpperCase();
+  const bType = bCommand.type.toUpperCase();
+
+  if (aType !== bType) {
+    return false;
+  }
+
+  if (aType === 'M') {
+    return isNumericValue(aCommand.x) && isNumericValue(bCommand.x)
+      ? approximatelyEqual(aCommand.x, bCommand.x)
+      : false;
+  }
+
+  if (aType === 'L') {
+    if (!isNumericValue(aCommand.x) || !isNumericValue(bCommand.x)) {
+      return false;
+    }
+
+    const aStart = getSegmentStart(aCommands, aIndex);
+    const bStart = getSegmentStart(bCommands, bIndex);
+    if (!aStart || !bStart || !isNumericValue(aStart.x) || !isNumericValue(bStart.x)) {
+      return false;
+    }
+
+    return approximatelyEqual(aStart.x, bStart.x) && approximatelyEqual(aCommand.x, bCommand.x);
+  }
+
+  if (aType === 'Z') {
+    return true;
+  }
+
+  const aStart = getSegmentStart(aCommands, aIndex);
+  const bStart = getSegmentStart(bCommands, bIndex);
+  if (
+    !aStart ||
+    !bStart ||
+    !isNumericValue(aStart.x) ||
+    !isNumericValue(bStart.x) ||
+    !isNumericValue(aCommand.x) ||
+    !isNumericValue(bCommand.x)
+  ) {
+    return false;
+  }
+
+  if (!approximatelyEqual(aStart.x, bStart.x) || !approximatelyEqual(aCommand.x, bCommand.x)) {
+    return false;
+  }
+
+  const yKeys = typeMap[aCommand.type].filter((key) => key.toLowerCase().startsWith('y'));
+  return yKeys.every((key) => {
+    const aValue = aCommand[key];
+    const bValue = bCommand[key];
+    return isNumericValue(aValue) && isNumericValue(bValue)
+      ? approximatelyEqual(aValue, bValue)
+      : aValue === bValue;
+  });
+}
+
+function findMatchingCommandPairs(aCommands: PathCommand[], bCommands: PathCommand[]): MatchPair[] {
+  const aLength = aCommands.length;
+  const bLength = bCommands.length;
+
+  if (aLength === 0 || bLength === 0) {
+    return [];
+  }
+
+  const lcs = Array.from({ length: aLength + 1 }, () => arrayOfLength<number>(bLength + 1, 0));
+
+  for (let aIndex = 1; aIndex <= aLength; aIndex++) {
+    for (let bIndex = 1; bIndex <= bLength; bIndex++) {
+      if (commandsMatchAsAnchors(aCommands, bCommands, aIndex - 1, bIndex - 1)) {
+        lcs[aIndex][bIndex] = lcs[aIndex - 1][bIndex - 1] + 1;
+      } else {
+        lcs[aIndex][bIndex] = Math.max(lcs[aIndex - 1][bIndex], lcs[aIndex][bIndex - 1]);
+      }
+    }
+  }
+
+  const matches: MatchPair[] = [];
+  let aIndex = aLength;
+  let bIndex = bLength;
+
+  while (aIndex > 0 && bIndex > 0) {
+    if (
+      commandsMatchAsAnchors(aCommands, bCommands, aIndex - 1, bIndex - 1) &&
+      lcs[aIndex][bIndex] === lcs[aIndex - 1][bIndex - 1] + 1
+    ) {
+      matches.push({ aIndex: aIndex - 1, bIndex: bIndex - 1 });
+      aIndex -= 1;
+      bIndex -= 1;
+    } else if (lcs[aIndex - 1][bIndex] >= lcs[aIndex][bIndex - 1]) {
+      aIndex -= 1;
+    } else {
+      bIndex -= 1;
+    }
+  }
+
+  matches.reverse();
+  return matches;
+}
+
+function filterStableMatchRuns(
+  matches: MatchPair[],
+  aCommands: PathCommand[],
+  bCommands: PathCommand[],
+): MatchPair[] {
+  if (matches.length === 0) {
+    return matches;
+  }
+
+  const filtered: MatchPair[] = [];
+  let runStart = 0;
+
+  while (runStart < matches.length) {
+    let runEnd = runStart;
+    while (
+      runEnd + 1 < matches.length &&
+      matches[runEnd + 1].aIndex === matches[runEnd].aIndex + 1 &&
+      matches[runEnd + 1].bIndex === matches[runEnd].bIndex + 1
+    ) {
+      runEnd += 1;
+    }
+
+    const runLength = runEnd - runStart + 1;
+    const matchTypeA = aCommands[matches[runStart].aIndex].type.toUpperCase();
+    const matchTypeB = bCommands[matches[runStart].bIndex].type.toUpperCase();
+
+    if (
+      runLength > 1 ||
+      SINGLE_MATCH_STRUCTURAL_TYPES.has(matchTypeA) ||
+      SINGLE_MATCH_STRUCTURAL_TYPES.has(matchTypeB)
+    ) {
+      filtered.push(...matches.slice(runStart, runEnd + 1));
+    }
+
+    runStart = runEnd + 1;
+  }
+
+  return filtered;
+}
+
+function lineSegmentToCubicCommand(
+  segmentStart: PathCommand,
+  segmentEnd: PathCommand,
+): PathCommand | null {
+  if (
+    !isNumericValue(segmentStart.x) ||
+    !isNumericValue(segmentStart.y) ||
+    !isNumericValue(segmentEnd.x) ||
+    !isNumericValue(segmentEnd.y)
+  ) {
+    return null;
+  }
+
+  const deltaX = segmentEnd.x - segmentStart.x;
+  const deltaY = segmentEnd.y - segmentStart.y;
+
+  return {
+    type: 'C',
+    x1: segmentStart.x + deltaX / 3,
+    y1: segmentStart.y + deltaY / 3,
+    x2: segmentStart.x + (2 * deltaX) / 3,
+    y2: segmentStart.y + (2 * deltaY) / 3,
+    x: segmentEnd.x,
+    y: segmentEnd.y,
+  };
+}
+
+const DENSE_VERTICAL_BRIDGE_X_THRESHOLD = 8;
+
+function promoteSharedLineBridgesToCurves(
+  aCommands: PathCommand[],
+  bCommands: PathCommand[],
+): void {
+  if (aCommands.length !== bCommands.length || aCommands.length < 3) {
+    return;
+  }
+
+  for (let i = 1; i < aCommands.length - 1; i++) {
+    const aCurrent = aCommands[i];
+    const bCurrent = bCommands[i];
+    if (aCurrent.type.toUpperCase() !== 'L' || bCurrent.type.toUpperCase() !== 'L') {
+      continue;
+    }
+
+    const aPrev = aCommands[i - 1];
+    const aNext = aCommands[i + 1];
+    const bPrev = bCommands[i - 1];
+    const bNext = bCommands[i + 1];
+    if (
+      !isNumericValue(aPrev.x) ||
+      !isNumericValue(aCurrent.x) ||
+      !isNumericValue(aNext.x) ||
+      !isNumericValue(bPrev.x) ||
+      !isNumericValue(bCurrent.x) ||
+      !isNumericValue(bNext.x)
+    ) {
+      continue;
+    }
+
+    const aIsVerticalLine = approximatelyEqual(aPrev.x, aCurrent.x);
+    const bIsVerticalLine = approximatelyEqual(bPrev.x, bCurrent.x);
+    if (!aIsVerticalLine || !bIsVerticalLine) {
+      continue;
+    }
+
+    const aNextStep = Math.abs(aNext.x - aCurrent.x);
+    const bNextStep = Math.abs(bNext.x - bCurrent.x);
+    const hasDenseBridgeContinuation =
+      aNextStep <= DENSE_VERTICAL_BRIDGE_X_THRESHOLD &&
+      bNextStep <= DENSE_VERTICAL_BRIDGE_X_THRESHOLD;
+    if (!hasDenseBridgeContinuation) {
+      continue;
+    }
+
+    const aAsCurve = lineSegmentToCubicCommand(aPrev, aCurrent);
+    const bAsCurve = lineSegmentToCubicCommand(bPrev, bCurrent);
+    if (!aAsCurve || !bAsCurve) {
+      continue;
+    }
+
+    aCommands[i] = aAsCurve;
+    bCommands[i] = bAsCurve;
+  }
+}
+
+function promoteDenseClosingBridgesToCurves(
+  aCommands: PathCommand[],
+  bCommands: PathCommand[],
+  isClosedPath: boolean,
+): void {
+  if (!isClosedPath || aCommands.length !== bCommands.length || aCommands.length < 3) {
+    return;
+  }
+
+  const aMove = aCommands[0];
+  const bMove = bCommands[0];
+  const aEnd = aCommands[aCommands.length - 1];
+  const bEnd = bCommands[bCommands.length - 1];
+  const aFirstSegment = aCommands[1];
+  const bFirstSegment = bCommands[1];
+  if (
+    !isNumericValue(aMove.x) ||
+    !isNumericValue(aMove.y) ||
+    !isNumericValue(bMove.x) ||
+    !isNumericValue(bMove.y) ||
+    !isNumericValue(aEnd.x) ||
+    !isNumericValue(aEnd.y) ||
+    !isNumericValue(bEnd.x) ||
+    !isNumericValue(bEnd.y) ||
+    !isNumericValue(aFirstSegment.x) ||
+    !isNumericValue(bFirstSegment.x)
+  ) {
+    return;
+  }
+
+  const aHasVerticalClose = approximatelyEqual(aEnd.x, aMove.x);
+  const bHasVerticalClose = approximatelyEqual(bEnd.x, bMove.x);
+  if (!aHasVerticalClose || !bHasVerticalClose) {
+    return;
+  }
+
+  const aStartStep = Math.abs(aFirstSegment.x - aMove.x);
+  const bStartStep = Math.abs(bFirstSegment.x - bMove.x);
+  const hasDenseStartContinuation =
+    aStartStep <= DENSE_VERTICAL_BRIDGE_X_THRESHOLD &&
+    bStartStep <= DENSE_VERTICAL_BRIDGE_X_THRESHOLD;
+  if (!hasDenseStartContinuation) {
+    return;
+  }
+
+  const aClosingCurve = lineSegmentToCubicCommand(aEnd, aMove);
+  const bClosingCurve = lineSegmentToCubicCommand(bEnd, bMove);
+  if (!aClosingCurve || !bClosingCurve) {
+    return;
+  }
+
+  aCommands.push(aClosingCurve);
+  bCommands.push(bClosingCurve);
 }
 
 /**
@@ -111,11 +419,50 @@ function splitSegment(
   commandStart: PathCommand,
   commandEnd: PathCommand,
   segmentCount: number,
+  targetCommands?: PathCommand[],
 ): PathCommand[] {
+  if (segmentCount <= 0) {
+    return [];
+  }
+
   let segments: PathCommand[] = [];
 
   if (commandEnd.type === 'L' || commandEnd.type === 'Q' || commandEnd.type === 'C') {
-    segments = segments.concat(splitCurve(commandStart, commandEnd, segmentCount));
+    const targetXs = targetCommands?.map((command) =>
+      isNumericValue(command.x) ? command.x : Number.NaN,
+    );
+    const hasValidTargetXs =
+      targetXs != null &&
+      targetXs.length === segmentCount &&
+      targetXs.every((xValue) => Number.isFinite(xValue)) &&
+      isNumericValue(commandStart.x) &&
+      isNumericValue(commandEnd.x) &&
+      !approximatelyEqual(commandStart.x, commandEnd.x) &&
+      targetXs.every((xValue) => {
+        const minX = Math.min(commandStart.x!, commandEnd.x!) - match_tolerance;
+        const maxX = Math.max(commandStart.x!, commandEnd.x!) + match_tolerance;
+        return xValue >= minX && xValue <= maxX;
+      }) &&
+      targetXs.every((xValue, index) => {
+        if (index === 0) {
+          return true;
+        }
+
+        const previous = targetXs[index - 1];
+        if (commandEnd.x! > commandStart.x!) {
+          return xValue >= previous - match_tolerance;
+        }
+
+        return xValue <= previous + match_tolerance;
+      });
+
+    if (hasValidTargetXs) {
+      segments = segments.concat(
+        splitCurveToTargetXs(commandStart, commandEnd, targetXs as number[]),
+      );
+    } else {
+      segments = segments.concat(splitCurve(commandStart, commandEnd, segmentCount));
+    }
   } else {
     const copyCommand = Object.assign({}, commandStart);
 
@@ -130,6 +477,142 @@ function splitSegment(
   return segments;
 }
 
+function getPathXDirection(commands: PathCommand[]): -1 | 0 | 1 {
+  let direction: -1 | 0 | 1 = 0;
+
+  for (let i = 1; i < commands.length; i++) {
+    const previousX = commands[i - 1].x;
+    const currentX = commands[i].x;
+    if (!isNumericValue(previousX) || !isNumericValue(currentX)) {
+      return 0;
+    }
+
+    const deltaX = currentX - previousX;
+    if (Math.abs(deltaX) <= match_tolerance) {
+      continue;
+    }
+
+    const stepDirection: -1 | 1 = deltaX > 0 ? 1 : -1;
+    if (direction === 0) {
+      direction = stepDirection;
+    } else if (direction !== stepDirection) {
+      return 0;
+    }
+  }
+
+  return direction;
+}
+
+function mapReferenceSegmentsByXRange(
+  commandsToExtend: PathCommand[],
+  referenceCommands: PathCommand[],
+): number[] | null {
+  const numSegmentsToExtend = commandsToExtend.length - 1;
+  const numReferenceSegments = referenceCommands.length - 1;
+  if (numSegmentsToExtend <= 0 || numReferenceSegments <= 0) {
+    return null;
+  }
+
+  if (!commandsToExtend.every((command) => isNumericValue(command.x))) {
+    return null;
+  }
+  if (!referenceCommands.every((command) => isNumericValue(command.x))) {
+    return null;
+  }
+
+  const extendDirection = getPathXDirection(commandsToExtend);
+  const referenceDirection = getPathXDirection(referenceCommands);
+  if (extendDirection === 0 || referenceDirection === 0 || extendDirection !== referenceDirection) {
+    return null;
+  }
+
+  const segmentIndices: number[] = [];
+  let searchStart = 0;
+
+  for (let i = 0; i < numReferenceSegments; i++) {
+    const targetX = referenceCommands[i + 1].x!;
+    let matchedIndex = -1;
+
+    for (let segmentIndex = searchStart; segmentIndex < numSegmentsToExtend; segmentIndex++) {
+      const segmentStartX = commandsToExtend[segmentIndex].x!;
+      const segmentEndX = commandsToExtend[segmentIndex + 1].x!;
+      const minX = Math.min(segmentStartX, segmentEndX) - match_tolerance;
+      const maxX = Math.max(segmentStartX, segmentEndX) + match_tolerance;
+
+      if (targetX >= minX && targetX <= maxX) {
+        matchedIndex = segmentIndex;
+        break;
+      }
+    }
+
+    if (matchedIndex < 0) {
+      return null;
+    }
+
+    segmentIndices.push(matchedIndex);
+    searchStart = matchedIndex;
+  }
+
+  return segmentIndices;
+}
+
+function distributeReferenceSegmentsByMagnitude(
+  commandsToExtend: PathCommand[],
+  referenceCommands: PathCommand[],
+): number[] | null {
+  const numSegmentsToExtend = commandsToExtend.length - 1;
+  const numReferenceSegments = referenceCommands.length - 1;
+  if (numSegmentsToExtend <= 0 || numReferenceSegments < numSegmentsToExtend) {
+    return null;
+  }
+
+  const segmentMagnitudes = arrayOfLength<number>(numSegmentsToExtend).map((_value, index) => {
+    const segmentStart = commandsToExtend[index];
+    const segmentEnd = commandsToExtend[index + 1];
+
+    if (isNumericValue(segmentStart.y) && isNumericValue(segmentEnd.y)) {
+      return Math.abs(segmentEnd.y - segmentStart.y);
+    }
+    if (isNumericValue(segmentStart.x) && isNumericValue(segmentEnd.x)) {
+      return Math.abs(segmentEnd.x - segmentStart.x);
+    }
+    return 0;
+  });
+
+  if (segmentMagnitudes.every((value) => value <= match_tolerance)) {
+    return null;
+  }
+
+  const countsPerSegment = arrayOfLength<number>(numSegmentsToExtend, 1);
+  let remainingSegments = numReferenceSegments - numSegmentsToExtend;
+  const orderedSegmentIndices = arrayOfLength<number>(numSegmentsToExtend).map(
+    (_value, index) => index,
+  );
+  orderedSegmentIndices.sort((leftIndex, rightIndex) => {
+    const magnitudeDelta = segmentMagnitudes[rightIndex] - segmentMagnitudes[leftIndex];
+    if (Math.abs(magnitudeDelta) > match_tolerance) {
+      return magnitudeDelta;
+    }
+    return leftIndex - rightIndex;
+  });
+
+  let orderIndex = 0;
+  while (remainingSegments > 0) {
+    countsPerSegment[orderedSegmentIndices[orderIndex]] += 1;
+    remainingSegments -= 1;
+    orderIndex = (orderIndex + 1) % orderedSegmentIndices.length;
+  }
+
+  const segmentIndices: number[] = [];
+  countsPerSegment.forEach((count, segmentIndex) => {
+    for (let i = 0; i < count; i++) {
+      segmentIndices.push(segmentIndex);
+    }
+  });
+
+  return segmentIndices.length === numReferenceSegments ? segmentIndices : null;
+}
+
 /**
  * Extends an array of commandsToExtend to the length of the referenceCommands by
  * splitting segments until the number of commands match.
@@ -142,12 +625,24 @@ function extend(
   const numSegmentsToExtend = commandsToExtend.length - 1;
   const numReferenceSegments = referenceCommands.length - 1;
   const segmentRatio = numSegmentsToExtend / numReferenceSegments;
+  const targetCommandsPerSegment: PathCommand[][] = [];
+  const segmentIndicesByMagnitude = distributeReferenceSegmentsByMagnitude(
+    commandsToExtend,
+    referenceCommands,
+  );
+  const xRangeSegmentIndices =
+    segmentIndicesByMagnitude == null
+      ? mapReferenceSegmentsByXRange(commandsToExtend, referenceCommands)
+      : null;
+  const fixedSegmentIndices = segmentIndicesByMagnitude ?? xRangeSegmentIndices;
 
   const countPointsPerSegment = arrayOfLength<undefined>(numReferenceSegments).reduce(
     (accum: number[], _d: undefined, i: number) => {
-      let insertIndex = Math.floor(segmentRatio * i);
+      let insertIndex =
+        fixedSegmentIndices == null ? Math.floor(segmentRatio * i) : fixedSegmentIndices[i];
 
       if (
+        fixedSegmentIndices == null &&
         excludeSegment &&
         insertIndex < commandsToExtend.length - 1 &&
         excludeSegment(commandsToExtend[insertIndex], commandsToExtend[insertIndex + 1])
@@ -170,6 +665,10 @@ function extend(
       }
 
       accum[insertIndex] = (accum[insertIndex] || 0) + 1;
+      if (!targetCommandsPerSegment[insertIndex]) {
+        targetCommandsPerSegment[insertIndex] = [];
+      }
+      targetCommandsPerSegment[insertIndex].push(referenceCommands[i + 1]);
 
       return accum;
     },
@@ -179,9 +678,27 @@ function extend(
   const extended = countPointsPerSegment.reduce(
     (ext: PathCommand[], segmentCount: number, i: number) => {
       if (i === commandsToExtend.length - 1) {
-        const lastCommandCopies = arrayOfLength<PathCommand>(
-          segmentCount,
-          Object.assign({}, commandsToExtend[commandsToExtend.length - 1]),
+        const lastCommandTemplate = Object.assign(
+          {},
+          commandsToExtend[commandsToExtend.length - 1],
+        );
+        if (isNumericValue(lastCommandTemplate.x) && isNumericValue(lastCommandTemplate.y)) {
+          if (lastCommandTemplate.x1 !== undefined) {
+            lastCommandTemplate.x1 = lastCommandTemplate.x;
+          }
+          if (lastCommandTemplate.y1 !== undefined) {
+            lastCommandTemplate.y1 = lastCommandTemplate.y;
+          }
+          if (lastCommandTemplate.x2 !== undefined) {
+            lastCommandTemplate.x2 = lastCommandTemplate.x;
+          }
+          if (lastCommandTemplate.y2 !== undefined) {
+            lastCommandTemplate.y2 = lastCommandTemplate.y;
+          }
+        }
+
+        const lastCommandCopies = arrayOfLength<undefined>(segmentCount).map(
+          () => ({ ...lastCommandTemplate }) as PathCommand,
         );
 
         if (lastCommandCopies[0].type === 'M') {
@@ -192,7 +709,14 @@ function extend(
         return ext.concat(lastCommandCopies);
       }
 
-      return ext.concat(splitSegment(commandsToExtend[i], commandsToExtend[i + 1], segmentCount));
+      return ext.concat(
+        splitSegment(
+          commandsToExtend[i],
+          commandsToExtend[i + 1],
+          segmentCount,
+          commandsToExtend.length > 2 ? targetCommandsPerSegment[i] : undefined,
+        ),
+      );
     },
     [] as PathCommand[],
   );
@@ -200,6 +724,226 @@ function extend(
   extended.unshift(commandsToExtend[0]);
 
   return extended;
+}
+
+function alignCommandSlice(
+  aCommandsInput: PathCommand[],
+  bCommandsInput: PathCommand[],
+  excludeSegment?: ExcludeSegmentFn,
+): { aCommands: PathCommand[]; bCommands: PathCommand[] } {
+  let aCommands = aCommandsInput.slice();
+  let bCommands = bCommandsInput.slice();
+
+  if (!aCommands.length && !bCommands.length) {
+    return { aCommands, bCommands };
+  }
+
+  if (!aCommands.length) {
+    aCommands.push(bCommands[0]);
+  } else if (!bCommands.length) {
+    bCommands.push(aCommands[0]);
+  }
+
+  if (aCommands.length !== bCommands.length) {
+    if (bCommands.length > aCommands.length) {
+      aCommands = extend(aCommands, bCommands, excludeSegment);
+    } else {
+      bCommands = extend(bCommands, aCommands, excludeSegment);
+    }
+  }
+
+  return { aCommands, bCommands };
+}
+
+function alignCommandsByMatches(
+  aCommandsInput: PathCommand[],
+  bCommandsInput: PathCommand[],
+  excludeSegment?: ExcludeSegmentFn,
+): { aCommands: PathCommand[]; bCommands: PathCommand[] } {
+  if (!aCommandsInput.length || !bCommandsInput.length) {
+    return alignCommandSlice(aCommandsInput, bCommandsInput, excludeSegment);
+  }
+
+  let matches = filterStableMatchRuns(
+    findMatchingCommandPairs(aCommandsInput, bCommandsInput),
+    aCommandsInput,
+    bCommandsInput,
+  );
+  if (matches.length === 0 || matches[0].aIndex !== 0 || matches[0].bIndex !== 0) {
+    matches = [{ aIndex: 0, bIndex: 0 }, ...matches];
+  }
+
+  const aAligned: PathCommand[] = [];
+  const bAligned: PathCommand[] = [];
+
+  for (let i = 0; i < matches.length; i++) {
+    const currentMatch = matches[i];
+    const nextMatch = matches[i + 1];
+    const aSlice = aCommandsInput.slice(
+      currentMatch.aIndex,
+      nextMatch ? nextMatch.aIndex : aCommandsInput.length,
+    );
+    const bSlice = bCommandsInput.slice(
+      currentMatch.bIndex,
+      nextMatch ? nextMatch.bIndex : bCommandsInput.length,
+    );
+
+    if (aSlice.length === 0 && bSlice.length === 0) {
+      continue;
+    }
+
+    const alignedSlice = alignCommandSlice(aSlice, bSlice, excludeSegment);
+    aAligned.push(...alignedSlice.aCommands);
+    bAligned.push(...alignedSlice.bCommands);
+  }
+
+  if (aAligned.length === 0 && bAligned.length === 0) {
+    return alignCommandSlice(aCommandsInput, bCommandsInput, excludeSegment);
+  }
+
+  return { aCommands: aAligned, bCommands: bAligned };
+}
+
+type SlideWindowAlignment = {
+  xShift: number;
+  matchedCurvePrefixCommandCount: number;
+};
+
+function interpolateCommandValues(
+  aCommand: PathCommand,
+  bCommand: PathCommand,
+  t: number,
+): PathCommand {
+  const interpolated: PathCommand = { ...aCommand };
+
+  for (const arg of typeMap[interpolated.type]) {
+    interpolated[arg] = (1 - t) * (aCommand[arg] as number) + t * (bCommand[arg] as number);
+
+    if (arg === 'largeArcFlag' || arg === 'sweepFlag') {
+      interpolated[arg] = Math.round(interpolated[arg] as number);
+    }
+  }
+
+  return interpolated;
+}
+
+function shiftCommandX(command: PathCommand, xOffset: number): PathCommand {
+  const shifted: PathCommand = { ...command };
+
+  if (isNumericValue(shifted.x)) {
+    shifted.x += xOffset;
+  }
+  if (isNumericValue(shifted.x1)) {
+    shifted.x1 += xOffset;
+  }
+  if (isNumericValue(shifted.x2)) {
+    shifted.x2 += xOffset;
+  }
+
+  return shifted;
+}
+
+function detectSlideWindowAlignment(
+  aCommands: PathCommand[],
+  bCommands: PathCommand[],
+): SlideWindowAlignment | null {
+  if (aCommands.length < 3 || aCommands.length !== bCommands.length) {
+    return null;
+  }
+
+  if (aCommands[0].type !== 'M' || bCommands[0].type !== 'M') {
+    return null;
+  }
+
+  let matchedCurvePrefixCommandCount = 1;
+  while (
+    matchedCurvePrefixCommandCount < aCommands.length &&
+    aCommands[matchedCurvePrefixCommandCount].type === 'C' &&
+    bCommands[matchedCurvePrefixCommandCount].type === 'C'
+  ) {
+    matchedCurvePrefixCommandCount += 1;
+  }
+
+  const segmentCount = matchedCurvePrefixCommandCount - 1;
+  if (segmentCount < 2) {
+    return null;
+  }
+
+  if (
+    matchedCurvePrefixCommandCount < aCommands.length &&
+    aCommands[matchedCurvePrefixCommandCount].type !==
+      bCommands[matchedCurvePrefixCommandCount].type
+  ) {
+    return null;
+  }
+
+  let xShift: number | null = null;
+  for (let i = 1; i < segmentCount; i++) {
+    const aNext = aCommands[i + 1];
+    const bCurrent = bCommands[i];
+
+    if (
+      !isNumericValue(aNext.x) ||
+      !isNumericValue(bCurrent.x) ||
+      !isNumericValue(aNext.x1) ||
+      !isNumericValue(bCurrent.x1) ||
+      !isNumericValue(aNext.x2) ||
+      !isNumericValue(bCurrent.x2) ||
+      !isNumericValue(aNext.y) ||
+      !isNumericValue(bCurrent.y) ||
+      !isNumericValue(aNext.y1) ||
+      !isNumericValue(bCurrent.y1) ||
+      !isNumericValue(aNext.y2) ||
+      !isNumericValue(bCurrent.y2)
+    ) {
+      return null;
+    }
+
+    const endpointShift = aNext.x - bCurrent.x;
+    if (xShift == null) {
+      xShift = endpointShift;
+    }
+
+    if (
+      !approximatelyEqual(endpointShift, xShift, match_tolerance) ||
+      !approximatelyEqual(aNext.x1 - bCurrent.x1, xShift, match_tolerance) ||
+      !approximatelyEqual(aNext.x2 - bCurrent.x2, xShift, match_tolerance) ||
+      !approximatelyEqual(aNext.y1, bCurrent.y1, match_tolerance) ||
+      !approximatelyEqual(aNext.y2, bCurrent.y2, match_tolerance) ||
+      !approximatelyEqual(aNext.y, bCurrent.y, match_tolerance)
+    ) {
+      return null;
+    }
+  }
+
+  if (!isNumericValue(xShift) || Math.abs(xShift) <= match_tolerance) {
+    return null;
+  }
+
+  return { xShift, matchedCurvePrefixCommandCount };
+}
+
+function interpolateSlideWindowCommands(
+  aCommands: PathCommand[],
+  bCommands: PathCommand[],
+  t: number,
+  alignment: SlideWindowAlignment,
+): PathCommand[] {
+  const segmentCount = aCommands.length - 1;
+  const moveTo = interpolateCommandValues(aCommands[0], bCommands[0], t);
+
+  const firstSplit = splitCurveAtT(aCommands[0], aCommands[1], t);
+  const firstEdge = shiftCommandX(firstSplit.right, -alignment.xShift * t);
+
+  const middleSegments: PathCommand[] = [];
+  for (let i = 1; i < segmentCount; i++) {
+    middleSegments.push(interpolateCommandValues(aCommands[i + 1], bCommands[i], t));
+  }
+
+  const lastSplit = splitCurveAtT(bCommands[segmentCount - 1], bCommands[segmentCount], t);
+  const lastEdge = shiftCommandX(lastSplit.left, alignment.xShift * (1 - t));
+
+  return [moveTo, firstEdge, ...middleSegments, lastEdge];
 }
 
 /**
@@ -319,15 +1063,58 @@ export function interpolatePathCommands(
     bCommands.push(aCommands[0]);
   }
 
-  const numPointsToExtend = Math.abs(bCommands.length - aCommands.length);
+  const slideAlignment = detectSlideWindowAlignment(aCommands, bCommands);
+  if (slideAlignment) {
+    const slideWindowACommands = aCommands.slice(0, slideAlignment.matchedCurvePrefixCommandCount);
+    const slideWindowBCommands = bCommands.slice(0, slideAlignment.matchedCurvePrefixCommandCount);
 
-  if (numPointsToExtend !== 0) {
+    return function slideWindowInterpolator(t: number): PathCommand[] {
+      if (t === 1 && snapEndsToInput) {
+        return bCommandsInput == null ? [] : bCommandsInput;
+      }
+
+      if (t === 0) {
+        if (addZ) {
+          return [...aCommands, { type: 'Z' } as PathCommand];
+        }
+
+        return aCommands;
+      }
+
+      const interpolated = interpolateSlideWindowCommands(
+        slideWindowACommands,
+        slideWindowBCommands,
+        t,
+        slideAlignment,
+      );
+      for (let i = slideAlignment.matchedCurvePrefixCommandCount; i < aCommands.length; i++) {
+        const aCommand = aCommands[i];
+        const bCommand = bCommands[i];
+        const aInterpolatedCommand =
+          aCommand.type === bCommand.type ? aCommand : convertToSameType(aCommand, bCommand);
+        interpolated.push(interpolateCommandValues(aInterpolatedCommand, bCommand, t));
+      }
+
+      if (addZ) {
+        return [...interpolated, { type: 'Z' } as PathCommand];
+      }
+
+      return interpolated;
+    };
+  }
+
+  ({ aCommands, bCommands } = alignCommandsByMatches(aCommands, bCommands, excludeSegment));
+
+  if (aCommands.length !== bCommands.length) {
     if (bCommands.length > aCommands.length) {
       aCommands = extend(aCommands, bCommands, excludeSegment);
-    } else if (bCommands.length < aCommands.length) {
+    } else {
       bCommands = extend(bCommands, aCommands, excludeSegment);
     }
   }
+
+  promoteSharedLineBridgesToCurves(aCommands, bCommands);
+  promoteDenseClosingBridgesToCurves(aCommands, bCommands, addZ);
 
   aCommands = aCommands.map((aCommand, i) => convertToSameType(aCommand, bCommands[i]));
 

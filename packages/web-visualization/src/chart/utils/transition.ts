@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import { interpolatePath } from 'd3-interpolate-path';
 import {
   animate,
   type AnimationPlaybackControls,
@@ -9,6 +8,8 @@ import {
   useTransform,
   type ValueAnimationTransition,
 } from 'framer-motion';
+
+import { interpolatePath } from './interpolate/interpolatePath';
 
 /**
  * Default transition configuration used across all chart components.

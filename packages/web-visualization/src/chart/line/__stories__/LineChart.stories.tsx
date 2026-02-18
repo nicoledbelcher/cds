@@ -1757,7 +1757,7 @@ export const Transitions = () => {
   const minStepOffset = 2500;
   const maxStepOffset = 10000;
   const domainLimit = 20000;
-  const updateInterval = 500;
+  const updateInterval = 1000;
 
   const myTransitionConfig = { type: 'spring', stiffness: 700, damping: 20 };
   const negativeColor = 'rgb(var(--gray15))';
