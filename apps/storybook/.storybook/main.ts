@@ -42,6 +42,7 @@ const config: StorybookConfig = {
     // '@chromatic-com/storybook',
     '@storybook/addon-storysource',
     '@storybook-community/storybook-dark-mode',
+    '@storybook/addon-a11y',
   ],
   stories: [
     path.resolve(MONOREPO_ROOT, 'packages/web/**/*.stories.@(tsx|mdx)'),

@@ -2517,6 +2517,7 @@ __metadata:
     "@percy/storybook": "npm:^9.0.0"
     "@shopify/storybook-a11y-test": "npm:^1.2.1"
     "@storybook-community/storybook-dark-mode": "npm:^6.0.0"
+    "@storybook/addon-a11y": "npm:^9.1.19"
     "@storybook/addon-storysource": "npm:^8.6.14"
     "@storybook/jest": "npm:^0.2.3"
     "@storybook/react-vite": "npm:^9.1.2"
@@ -8545,6 +8546,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@storybook/addon-a11y@npm:^9.1.19":
+  version: 9.1.19
+  resolution: "@storybook/addon-a11y@npm:9.1.19"
+  dependencies:
+    "@storybook/global": "npm:^5.0.0"
+    axe-core: "npm:^4.2.0"
+  peerDependencies:
+    storybook: ^9.1.19
+  checksum: 10c0/1fe27b2fef160a765c54ab2742b7a60c218977a3521e29c7826c42e2670fcd23294ab99758f2f5f750bfa66bd6e6d8dd67d5d32b91869d25ea9089b6a313fc11
+  languageName: node
+  linkType: hard
+
 "@storybook/addon-storysource@npm:^8.6.14":
   version: 8.6.14
   resolution: "@storybook/addon-storysource@npm:8.6.14"
@@ -13718,6 +13731,13 @@ __metadata:
   version: 4.10.3
   resolution: "axe-core@npm:4.10.3"
   checksum: 10c0/1b1c24f435b2ffe89d76eca0001cbfff42dbf012ad9bd37398b70b11f0d614281a38a28bc3069e8972e3c90ec929a8937994bd24b0ebcbaab87b8d1e241ab0c7
+  languageName: node
+  linkType: hard
+
+"axe-core@npm:^4.2.0":
+  version: 4.11.1
+  resolution: "axe-core@npm:4.11.1"
+  checksum: 10c0/1e6997454b61c7c9a4d740f395952835dcf87f2c04fd81577217d68634d197d602c224f9e8f17b22815db4c117a2519980cfc8911fc0027c54a6d8ebca47c6a7
   languageName: node
   linkType: hard
 
