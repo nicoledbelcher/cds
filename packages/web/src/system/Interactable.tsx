@@ -277,42 +277,36 @@ export const Interactable: InteractableComponent = forwardRef<
       [theme, background, blendStyles, borderColor, style],
     );
 
-    const sharedProps = {
-      ref,
-      'aria-busy': loading,
-      'aria-disabled': loading || disabled || undefined,
-      'aria-pressed': pressed,
-      as: Component,
-      borderWidth,
-      className: cx(
-        COMPONENT_STATIC_CLASSNAME,
-        baseCss,
-        block && blockCss,
-        transparentWhileInactive && transparentWhileInactiveCss,
-        transparentWhilePressed && transparentActiveCss,
-        blendStyles?.backgroundGradient && backgroundGradientCss,
-        blendStyles?.hoveredBackgroundGradient && hoveredBackgroundGradientCss,
-        blendStyles?.pressedBackgroundGradient && pressedBackgroundGradientCss,
-        blendStyles?.disabledBackgroundGradient && disabledBackgroundGradientCss,
-        className,
-      ),
-      'data-disabled': disabled,
-      disabled,
-      style: interactableStyle,
-      ...props,
-    };
+    const Wrapper = gradient || dangerouslySetGradient ? GradientBox : Box;
 
-    if (gradient || dangerouslySetGradient) {
-      return (
-        <GradientBox
-          {...sharedProps}
-          dangerouslySetGradient={dangerouslySetGradient}
-          gradient={gradient}
-        />
-      );
-    }
-
-    return <Box {...sharedProps} />;
+    return (
+      <Wrapper
+        ref={ref}
+        aria-busy={loading}
+        aria-disabled={loading || disabled || undefined}
+        aria-pressed={pressed}
+        as={Component}
+        borderWidth={borderWidth}
+        className={cx(
+          COMPONENT_STATIC_CLASSNAME,
+          baseCss,
+          block && blockCss,
+          transparentWhileInactive && transparentWhileInactiveCss,
+          transparentWhilePressed && transparentActiveCss,
+          blendStyles?.backgroundGradient && backgroundGradientCss,
+          blendStyles?.hoveredBackgroundGradient && hoveredBackgroundGradientCss,
+          blendStyles?.pressedBackgroundGradient && pressedBackgroundGradientCss,
+          blendStyles?.disabledBackgroundGradient && disabledBackgroundGradientCss,
+          className,
+        )}
+        dangerouslySetGradient={dangerouslySetGradient}
+        data-disabled={disabled}
+        disabled={disabled}
+        gradient={gradient}
+        style={interactableStyle}
+        {...props}
+      />
+    );
   },
 );
 

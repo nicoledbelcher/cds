@@ -55,7 +55,6 @@ export type Theme = ThemeConfig & {
   gradient?: Partial<Record<ThemeVars.Gradient, Property.BackgroundImage>>;
 };
 
-// TO DO: consider if we should include the lightGradient and darkGradient in the styleVarPrefixes
 /** Maps our StyleVars to their CSS variable prefixes. For example, the names of CSS vars generated from `iconSize` vars will be prefixed with `--iconSize-`. */
 export const styleVarPrefixes = {
   lightSpectrum: 'light',
