@@ -11,6 +11,12 @@ const accessibilityLabel = 'Horizontal arrows';
 const variants = [
   {
     component: (props?: Partial<IconButtonBaseProps>) => (
+      <IconButton compact={false} name={iconName} variant="primary" {...props} />
+    ),
+    title: 'Non-compact',
+  },
+  {
+    component: (props?: Partial<IconButtonBaseProps>) => (
       <IconButton name={iconName} variant="primary" {...props} />
     ),
     title: 'Primary',
@@ -32,6 +38,18 @@ const variants = [
       <IconButton transparent name={iconName} variant="secondary" {...props} />
     ),
     title: 'Secondary transparent',
+  },
+  {
+    component: (props?: Partial<IconButtonBaseProps>) => (
+      <IconButton flush="start" name={iconName} variant="primary" {...props} />
+    ),
+    title: 'Primary flush start',
+  },
+  {
+    component: (props?: Partial<IconButtonBaseProps>) => (
+      <IconButton flush="end" name={iconName} variant="primary" {...props} />
+    ),
+    title: 'Primary flush end',
   },
 ];
 
