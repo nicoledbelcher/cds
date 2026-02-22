@@ -190,6 +190,11 @@ export const Button: ButtonComponent = memo(
         flush,
         noScaleOnPress,
         numberOfLines,
+        font = 'headline',
+        fontFamily,
+        fontSize,
+        fontWeight,
+        lineHeight,
         background,
         color,
         className,
@@ -293,7 +298,11 @@ export const Button: ButtonComponent = memo(
             <Text
               color="currentColor"
               display="inline"
-              font="headline"
+              font={font}
+              fontFamily={fontFamily}
+              fontSize={fontSize}
+              fontWeight={fontWeight}
+              lineHeight={lineHeight}
               numberOfLines={numberOfLines}
             >
               <span className={cx(loading && hiddenCss)}>{children}</span>

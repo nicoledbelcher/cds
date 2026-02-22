@@ -107,6 +107,11 @@ export const Button = memo(
       flush,
       noScaleOnPress,
       numberOfLines = 1,
+      font = 'headline',
+      fontFamily,
+      fontSize,
+      fontWeight,
+      lineHeight,
       background,
       color,
       style,
@@ -159,7 +164,11 @@ export const Button = memo(
           <Text
             align="center"
             color={colorValue}
-            font="headline"
+            font={font}
+            fontFamily={fontFamily}
+            fontSize={fontSize}
+            fontWeight={fontWeight}
+            lineHeight={lineHeight}
             numberOfLines={numberOfLines}
             selectable={false}
             style={styles.text}
@@ -168,7 +177,7 @@ export const Button = memo(
             {children}
           </Text>
         ),
-      [children, colorValue, numberOfLines],
+      [children, colorValue, font, fontFamily, fontSize, fontWeight, lineHeight, numberOfLines],
     );
 
     return (
