@@ -29,6 +29,20 @@
       "commit": "def5678"
     },
     {
+      "pr": 429,
+      "title": "test branch deployment",
+      "branch": "adrien/preview-cds-test-1",
+      "author": "adrienzheng-cb",
+      "baseUrl": "/cds/pr-429/",
+      "previews": {
+        "docs": "/cds/pr-429/docs/",
+        "storybook": null
+      },
+      "createdAt": "2026-02-24T22:36:34.755Z",
+      "updatedAt": "2026-02-24T22:36:34.755Z",
+      "commit": "b66a3d519129f2ea8cba741c25e36df3ae90352a"
+    },
+    {
       "pr": 426,
       "title": "feat: auto deploy branches to github page",
       "branch": "adrien/preview-cds",
@@ -71,5 +85,5 @@
       "commit": "abc1234"
     }
   ],
-  "lastUpdated": "2026-02-24T22:07:37.375Z"
+  "lastUpdated": "2026-02-24T22:36:34.757Z"
 }
