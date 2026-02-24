@@ -1,6 +1,20 @@
 {
   "previews": [
     {
+      "pr": 432,
+      "title": "test branch deployment",
+      "branch": "adrien/preview-cds-test-2",
+      "author": "adrienzheng-cb",
+      "baseUrl": "/cds/pr-432/",
+      "previews": {
+        "docs": "/cds/pr-432/docs/",
+        "storybook": null
+      },
+      "createdAt": "2026-02-24T22:50:27.469Z",
+      "updatedAt": "2026-02-24T22:50:27.469Z",
+      "commit": "4c9b91aab9ca0cf898d7fbc2fbb972fc092a3e82"
+    },
+    {
       "pr": 429,
       "title": "test branch deployment",
       "branch": "adrien/preview-cds-test-1",
@@ -29,5 +43,5 @@
       "commit": "884e8189b87597d79293d682472e717630d1e059"
     }
   ],
-  "lastUpdated": "2026-02-24T22:37:15.558Z"
+  "lastUpdated": "2026-02-24T22:50:27.472Z"
 }
