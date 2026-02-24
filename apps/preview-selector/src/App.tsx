@@ -10,6 +10,8 @@ import { SelectChip } from '@coinbase/cds-web/alpha/select-chip';
 import { formatRelativeTime } from './utils';
 import { MediaQueryProvider } from '@coinbase/cds-web/system';
 import { Icon } from '@coinbase/cds-web/icons/Icon';
+import { Tag } from '@coinbase/cds-web/tag';
+import { Tooltip } from '@coinbase/cds-web/overlays/tooltip/Tooltip';
 
 function App() {
   const [manifest, setManifest] = useState<Manifest | null>(null);
@@ -74,52 +76,50 @@ function App() {
   return (
     <MediaQueryProvider>
       <ThemeProvider theme={defaultTheme} activeColorScheme="light">
-        <VStack width="100%"  padding={{ base: 6, phone: 4 }} gap={6}>
-            <VStack gap={6} width="100%" maxWidth={800} style={{ margin: '0 auto'}}>
-              <Header />
+        <VStack width="100%" padding={{ base: 6, phone: 4 }} gap={6}>
+          <VStack gap={6} width="100%" maxWidth={800} style={{ margin: '0 auto' }}>
+            <Header />
 
-              {loading && <LoadingState />}
-              {error && <ErrorState />}
-              {!loading && !error && (!manifest || manifest.previews.length === 0) && (
-                <EmptyState />
-              )}
+            {loading && <LoadingState />}
+            {error && <ErrorState />}
+            {!loading && !error && (!manifest || manifest.previews.length === 0) && <EmptyState />}
 
-              {!loading && !error && manifest && manifest.previews.length > 0 && (
-                <VStack gap={4} width="100%">
-                  <VStack gap={2}>
-                    <SearchInput
-                      placeholder="Search by PR number, title, branch, or author..."
-                      value={searchQuery}
-                      onChangeText={setSearchQuery}
-                      aria-label="Search previews"
-                    />
-                      <SelectChip
-                        value={sortOption}
-                        onChange={(value) => setSortOption(value as SortOption)}
-                        label="Sort by"
-                        options={[
-                          { label: 'Recently Updated', value: 'updated-desc' },
-                          { label: 'Oldest Updated', value: 'updated-asc' },
-                          { label: 'PR Number (High to Low)', value: 'pr-desc' },
-                          { label: 'PR Number (Low to High)', value: 'pr-asc' },
-                        ]}
-                      />
-                  </VStack>
-
-                  {filteredAndSortedPreviews.length === 0 ? (
-                    <EmptySearchState />
-                  ) : (
-                    <VStack gap={4} width="100%">
-                      {filteredAndSortedPreviews.map((preview) => (
-                        <PreviewCard key={preview.pr} preview={preview} />
-                      ))}
-                    </VStack>
-                  )}
+            {!loading && !error && manifest && manifest.previews.length > 0 && (
+              <VStack gap={4} width="100%">
+                <VStack gap={2}>
+                  <SearchInput
+                    placeholder="Search by PR number, title, branch, or author..."
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    aria-label="Search previews"
+                  />
+                  <SelectChip
+                    value={sortOption}
+                    onChange={(value) => setSortOption(value as SortOption)}
+                    label="Sort by"
+                    options={[
+                      { label: 'Recently Updated', value: 'updated-desc' },
+                      { label: 'Oldest Updated', value: 'updated-asc' },
+                      { label: 'PR Number (High to Low)', value: 'pr-desc' },
+                      { label: 'PR Number (Low to High)', value: 'pr-asc' },
+                    ]}
+                  />
                 </VStack>
-              )}
 
-              {manifest && <Footer lastUpdated={manifest.lastUpdated} />}
-            </VStack>
+                {filteredAndSortedPreviews.length === 0 ? (
+                  <EmptySearchState />
+                ) : (
+                  <VStack gap={2} width="100%">
+                    {filteredAndSortedPreviews.map((preview) => (
+                      <PreviewCard key={preview.pr} preview={preview} />
+                    ))}
+                  </VStack>
+                )}
+              </VStack>
+            )}
+
+            {manifest && <Footer lastUpdated={manifest.lastUpdated} />}
+          </VStack>
         </VStack>
       </ThemeProvider>
     </MediaQueryProvider>
@@ -129,10 +129,7 @@ function App() {
 function Header() {
   return (
     <VStack gap={2} alignItems="center">
-      <Text
-        as="h1"
-        font={{ base: 'display3', phone: 'title1' }}
-      >
+      <Text as="h1" font={{ base: 'display3', phone: 'title1' }}>
         🚀 CDS PR Previews
       </Text>
       <Text color="fgMuted" font="body" textAlign="center">
@@ -179,58 +176,95 @@ function EmptySearchState() {
 }
 
 function PreviewCard({ preview }: { preview: Preview }) {
-
   return (
-    <VStack bordered borderRadius={400} padding={2} gap={2}>
-      <Text as="h3" font="title3">
-        PR #{preview.pr}: {preview.title}
-      </Text>
-
+    <VStack bordered borderRadius={400} padding={2} gap={1}>
+      <HStack gap={1} alignItems="baseline">
+        <Tag intent="informational" colorScheme="blue">
+          <Link
+            href={`https://github.com/coinbase/cds/pull/${preview.pr}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            PR #{preview.pr}
+          </Link>
+        </Tag>
+        <Text font="headline">{preview.title}</Text>
+      </HStack>
       <HStack gap={4} flexWrap="wrap">
-        <HStack gap={1} alignItems="center">
-          <Icon name="fork" size="s" color="fgMuted" />
-          <Text color="fgMuted" font="label2">
-            {preview.branch}
-          </Text>
-        </HStack>
         <HStack gap={1} alignItems="center">
           <Icon name="account" size="s" color="fgMuted" />
           <Text color="fgMuted" font="label2">
             {preview.author}
           </Text>
         </HStack>
-        <HStack gap={1} alignItems="center">
+        <HStack gap={1} alignItems="center" className="meta-link">
+          <Icon name="fork" size="s" color="fgMuted" />
+          <Tooltip content="Click to view branch on GitHub">
+            <Link
+              color="fgMuted"
+              font="label2"
+              href={`https://github.com/coinbase/cds/tree/${preview.branch}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {preview.branch}
+            </Link>
+          </Tooltip>
+        </HStack>
+
+        <HStack gap={1} alignItems="center" className="meta-link">
           <Icon name="chainLink" size="s" color="fgMuted" />
-          <Text color="fgMuted" font="label2" mono>
-            {preview.commit.substring(0, 7)}
-          </Text>
+          <Tooltip content="Click to view commit on GitHub">
+            <Link
+              href={`https://github.com/coinbase/cds/commit/${preview.commit}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              color="fgMuted"
+              font="label2"
+              mono
+            >
+              {preview.commit.substring(0, 7)}
+            </Link>
+          </Tooltip>
         </HStack>
       </HStack>
-
-        <HStack justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={3}>
-          <HStack gap={2} flexWrap="wrap">
-            {preview.previews.docs && (
-              <Button startIcon="document" variant="secondary" as="a" href={preview.previews.docs} target="_blank" compact>
-                Docs
-              </Button>
-            )}
-            {preview.previews.storybook && (
-              <Button
-                variant="secondary"
-                as="a"
-                href={preview.previews.storybook}
-                target="_blank"
-                compact
-                startIcon="book"
-              >
-                Storybook
-              </Button>
-            )}
-          </HStack>
-          <Text color="fgMuted" font="label2" title={new Date(preview.updatedAt).toLocaleString()}>
-            Updated {formatRelativeTime(new Date(preview.updatedAt))}
-          </Text>
+      <HStack
+        justifyContent="space-between"
+        alignItems="baseline"
+        flexWrap="wrap"
+        gap={3}
+        paddingTop={2}
+      >
+        <HStack gap={2} flexWrap="wrap">
+          {preview.previews.docs && (
+            <Button
+              startIcon="document"
+              variant="secondary"
+              as="a"
+              href={preview.previews.docs}
+              target="_blank"
+              compact
+            >
+              Docs
+            </Button>
+          )}
+          {preview.previews.storybook && (
+            <Button
+              variant="secondary"
+              as="a"
+              href={preview.previews.storybook}
+              target="_blank"
+              compact
+              startIcon="book"
+            >
+              Storybook
+            </Button>
+          )}
         </HStack>
+        <Text color="fgMuted" font="label2" title={new Date(preview.updatedAt).toLocaleString()}>
+          Updated {formatRelativeTime(new Date(preview.updatedAt))}
+        </Text>
+      </HStack>
     </VStack>
   );
 }

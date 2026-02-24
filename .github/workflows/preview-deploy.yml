@@ -111,8 +111,22 @@ jobs:
         if: steps.pr-metadata.outputs.deploy_storybook == 'true'
         run: yarn nx run storybook:build
 
-      # Build selector page (BEFORE checking out gh-pages)
+      # Check if selector has changes
+      - name: Check selector changes
+        id: check-selector
+        run: |
+          # Check if any files in apps/preview-selector/ changed
+          if git diff --name-only ${{ github.event.pull_request.base.sha || 'origin/master' }} HEAD | grep -q '^apps/preview-selector/'; then
+            echo "selector_changed=true" >> $GITHUB_OUTPUT
+            echo "✅ Selector has changes, will rebuild"
+          else
+            echo "selector_changed=false" >> $GITHUB_OUTPUT
+            echo "⏭️  Selector unchanged, will skip rebuild"
+          fi
+
+      # Build selector page (only if it has changes)
       - name: Build selector page
+        if: steps.check-selector.outputs.selector_changed == 'true'
         run: yarn nx run preview-selector:build
 
       # Checkout gh-pages branch to separate directory
@@ -145,12 +159,18 @@ jobs:
             echo "✅ Storybook copied"
           fi
 
-          cp -r apps/preview-selector/dist/* gh-pages-checkout/
+          # Copy selector if it was rebuilt
+          if [ "${{ steps.check-selector.outputs.selector_changed }}" = "true" ]; then
+            echo "Updating selector..."
+            cp -r apps/preview-selector/dist/* gh-pages-checkout/
+            echo "✅ Selector updated"
+          else
+            echo "⏭️  Selector unchanged, keeping existing version"
+          fi
 
           if [ ! -f "gh-pages-checkout/manifest.json" ]; then
             echo '{"previews":[],"lastUpdated":"'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'"}' > gh-pages-checkout/manifest.json
           fi
-          echo "✅ Selector deployed"
 
       # Update manifest
       - name: Update manifest
@@ -198,10 +218,10 @@ jobs:
             const prNumber = ${{ steps.pr-metadata.outputs.pr_number }};
             const deployDocs = '${{ steps.pr-metadata.outputs.deploy_docs }}' === 'true';
             const deployStorybook = '${{ steps.pr-metadata.outputs.deploy_storybook }}' === 'true';
-            
+
             const docsUrl = `https://coinbase.github.io/cds/pr-${prNumber}/docs/`;
             const storybookUrl = `https://coinbase.github.io/cds/pr-${prNumber}/storybook/`;
-            
+
             let previewLinks = '';
             if (deployDocs) {
               previewLinks += `\n📄 **Documentation:** [View Docs →](${docsUrl})`;
@@ -209,22 +229,22 @@ jobs:
             if (deployStorybook) {
               previewLinks += `\n📚 **Storybook:** [View Storybook →](${storybookUrl})`;
             }
-            
+
             if (!deployDocs && !deployStorybook) {
               console.log('No previews deployed, skipping comment');
               return;
             }
-            
+
             const comment = `## 🚀 Preview${deployDocs && deployStorybook ? 's' : ''} Deployed
-            
+
             Your preview${deployDocs && deployStorybook ? 's are' : ' is'} ready!
             ${previewLinks}
-            
+
             ---
-            
+
             📝 Updated: \`${new Date().toISOString()}\`
             🔨 Commit: \`${{ steps.pr-metadata.outputs.pr_commit }}\`
-            
+
             > Preview${deployDocs && deployStorybook ? 's' : ''} will be automatically removed when the PR is closed.
             > To change what's deployed, edit the checkboxes in the PR description.`;
 
