@@ -1,0 +1,92 @@
+name: Manual Preview Cleanup
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to clean up'
+        required: true
+        type: number
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    name: Manual Cleanup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+        with:
+          egress-policy: audit
+
+      # Checkout main branch to get scripts
+      - name: Checkout main branch
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          ref: master
+
+      # Checkout gh-pages branch
+      - name: Checkout gh-pages
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          ref: gh-pages
+          path: gh-pages-checkout
+
+      # Remove PR directory
+      - name: Remove preview directory
+        run: |
+          PR_DIR="gh-pages-checkout/pr-${{ github.event.inputs.pr_number }}"
+
+          if [ -d "$PR_DIR" ]; then
+            echo "Removing preview directory: $PR_DIR"
+            rm -rf "$PR_DIR"
+            echo "✅ Directory removed"
+          else
+            echo "⚠️  Directory does not exist: $PR_DIR"
+          fi
+
+      # Update manifest
+      - name: Update manifest
+        run: |
+          cd gh-pages-checkout
+
+          if [ ! -f "manifest.json" ]; then
+            echo "⚠️  manifest.json does not exist, nothing to update"
+            exit 0
+          fi
+
+          # Copy script from main branch
+          cp ../.github/scripts/remove-from-manifest.mjs .
+
+          node remove-from-manifest.mjs "${{ github.event.inputs.pr_number }}"
+
+          rm remove-from-manifest.mjs
+
+      # Commit and push to gh-pages
+      - name: Commit changes
+        run: |
+          cd gh-pages-checkout
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add .
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Manual cleanup: Remove preview for PR #${{ github.event.inputs.pr_number }}"
+            git push origin gh-pages
+            echo "✅ Changes pushed to gh-pages"
+          fi
+
+      # Summary
+      - name: Summary
+        run: |
+          echo "## Cleanup Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Cleaned up preview for PR #${{ github.event.inputs.pr_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Removed:** \`/cds/pr-${{ github.event.inputs.pr_number }}/\`" >> $GITHUB_STEP_SUMMARY

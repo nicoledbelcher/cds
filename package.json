@@ -65,7 +65,12 @@
     "audit-figma-integration": "node scripts/auditFigmaIntegration/index.mjs",
     "code-connect:publish": "yarn code-connect:publish:web && yarn code-connect:publish:mobile",
     "code-connect:publish:web": "figma connect publish --config figma.config.web.json --exit-on-unreadable-files --batch-size 50",
-    "code-connect:publish:mobile": "figma connect publish --config figma.config.mobile.json --exit-on-unreadable-files --batch-size 50"
+    "code-connect:publish:mobile": "figma connect publish --config figma.config.mobile.json --exit-on-unreadable-files --batch-size 50",
+    "preview:build-test": "BASE_URL=/pr-test-123/ yarn nx run docs:build",
+    "preview:serve-test": "mkdir -p /tmp/preview-test/pr-test-123 && cp -r apps/docs/dist/* /tmp/preview-test/pr-test-123/ && cd /tmp/preview-test && python3 -m http.server 8000",
+    "preview:selector:dev": "yarn nx run preview-selector:dev",
+    "preview:selector:build": "yarn nx run preview-selector:build",
+    "preview:selector:test": "yarn nx run preview-selector:test-local"
   },
   "resolutions": {
     "@testing-library/user-event@^14.0.4": "patch:@testing-library/user-event@npm:14.0.4#.yarn/patches/@testing-library-user-event-npm-14.0.4-109d618170",

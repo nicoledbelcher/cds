@@ -1,0 +1,259 @@
+name: Deploy PR Preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to deploy'
+        required: true
+        type: number
+      deploy_docs:
+        description: 'Deploy documentation preview'
+        required: false
+        default: false
+        type: boolean
+      deploy_storybook:
+        description: 'Deploy Storybook preview'
+        required: false
+        default: false
+        type: boolean
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [master]
+
+concurrency:
+  group: preview-deploy-${{ github.event.pull_request.number || github.event.inputs.pr_number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  CI: true
+  NODE_ENV: production
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+
+jobs:
+  deploy:
+    name: Deploy Previews
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+        with:
+          egress-policy: audit
+
+      # Checkout the PR branch
+      - name: Checkout PR
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || format('refs/pull/{0}/head', github.event.inputs.pr_number) }}
+
+      # Setup Node and dependencies
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      # Get PR metadata and deploy options (from PR body when pull_request, from inputs when manual)
+      - name: Get PR metadata and deploy options
+        id: pr-metadata
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            PR_NUMBER="${{ github.event.pull_request.number }}"
+            echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+            echo "pr_title=${{ github.event.pull_request.title }}" >> $GITHUB_OUTPUT
+            echo "pr_branch=${{ github.event.pull_request.head.ref }}" >> $GITHUB_OUTPUT
+            echo "pr_author=${{ github.event.pull_request.user.login }}" >> $GITHUB_OUTPUT
+            echo "pr_commit=${{ github.event.pull_request.head.sha }}" >> $GITHUB_OUTPUT
+            PR_BODY=$(gh pr view $PR_NUMBER --json body -q '.body' 2>/dev/null || echo "")
+            if echo "$PR_BODY" | grep -i "Deploy documentation preview" | grep -q "\[x\]"; then
+              echo "deploy_docs=true" >> $GITHUB_OUTPUT
+            else
+              echo "deploy_docs=false" >> $GITHUB_OUTPUT
+            fi
+            if echo "$PR_BODY" | grep -i "Deploy Storybook preview" | grep -q "\[x\]"; then
+              echo "deploy_storybook=true" >> $GITHUB_OUTPUT
+            else
+              echo "deploy_storybook=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            PR_NUMBER="${{ github.event.inputs.pr_number }}"
+            echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+            PR_TITLE=$(gh pr view $PR_NUMBER --json title -q '.title')
+            PR_BRANCH=$(gh pr view $PR_NUMBER --json headRefName -q '.headRefName')
+            PR_AUTHOR=$(gh pr view $PR_NUMBER --json author -q '.author.login')
+            PR_COMMIT=$(gh pr view $PR_NUMBER --json headRefOid -q '.headRefOid')
+            echo "pr_title=$PR_TITLE" >> $GITHUB_OUTPUT
+            echo "pr_branch=$PR_BRANCH" >> $GITHUB_OUTPUT
+            echo "pr_author=$PR_AUTHOR" >> $GITHUB_OUTPUT
+            echo "pr_commit=$PR_COMMIT" >> $GITHUB_OUTPUT
+            echo "deploy_docs=${{ github.event.inputs.deploy_docs }}" >> $GITHUB_OUTPUT
+            echo "deploy_storybook=${{ github.event.inputs.deploy_storybook }}" >> $GITHUB_OUTPUT
+          fi
+
+      # Require at least one preview selected
+      - name: Check deploy options
+        run: |
+          if [ "${{ steps.pr-metadata.outputs.deploy_docs }}" != "true" ] && [ "${{ steps.pr-metadata.outputs.deploy_storybook }}" != "true" ]; then
+            echo "::error::Check at least one preview box in the PR description (Preview deployment) to deploy, or run the workflow manually."
+            exit 1
+          fi
+
+      # Build docs with custom baseUrl
+      - name: Build Docs
+        if: steps.pr-metadata.outputs.deploy_docs == 'true'
+        run: BASE_URL=/cds/pr-${{ steps.pr-metadata.outputs.pr_number }}/docs/ yarn nx run docs:build
+
+      # Build Storybook
+      - name: Build Storybook
+        if: steps.pr-metadata.outputs.deploy_storybook == 'true'
+        run: yarn nx run storybook:build
+
+      # Build selector page (BEFORE checking out gh-pages)
+      - name: Build selector page
+        run: yarn nx run preview-selector:build
+
+      # Checkout gh-pages branch to separate directory
+      - name: Checkout gh-pages
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          ref: gh-pages
+          path: gh-pages-checkout
+
+      # Pull latest so concurrent deploys don't overwrite each other's manifest entries
+      - name: Pull latest gh-pages
+        working-directory: gh-pages-checkout
+        run: git pull origin gh-pages
+
+      # Copy builds and selector to gh-pages
+      - name: Copy builds and selector to gh-pages
+        env:
+          DEPLOY_DOCS: ${{ steps.pr-metadata.outputs.deploy_docs }}
+          DEPLOY_STORYBOOK: ${{ steps.pr-metadata.outputs.deploy_storybook }}
+        run: |
+          PR_DIR="gh-pages-checkout/pr-${{ steps.pr-metadata.outputs.pr_number }}"
+          mkdir -p "$PR_DIR/docs" "$PR_DIR/storybook"
+
+          if [ "$DEPLOY_DOCS" = "true" ]; then
+            cp -r apps/docs/dist/* "$PR_DIR/docs/"
+            echo "✅ Docs copied"
+          fi
+          if [ "$DEPLOY_STORYBOOK" = "true" ]; then
+            cp -r apps/storybook/dist/* "$PR_DIR/storybook/"
+            echo "✅ Storybook copied"
+          fi
+
+          cp -r apps/preview-selector/dist/* gh-pages-checkout/
+
+          if [ ! -f "gh-pages-checkout/manifest.json" ]; then
+            echo '{"previews":[],"lastUpdated":"'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'"}' > gh-pages-checkout/manifest.json
+          fi
+          echo "✅ Selector deployed"
+
+      # Update manifest
+      - name: Update manifest
+        working-directory: gh-pages-checkout
+        run: |
+          node ../.github/scripts/update-manifest.mjs \
+            "${{ steps.pr-metadata.outputs.pr_number }}" \
+            "${{ steps.pr-metadata.outputs.pr_title }}" \
+            "${{ steps.pr-metadata.outputs.pr_branch }}" \
+            "${{ steps.pr-metadata.outputs.pr_author }}" \
+            "${{ steps.pr-metadata.outputs.pr_commit }}" \
+            "true" \
+            "true"
+
+      # Commit and push to gh-pages (retry on race with concurrent deploy)
+      - name: Deploy to gh-pages
+        working-directory: gh-pages-checkout
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add .
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Deploy preview for PR #${{ steps.pr-metadata.outputs.pr_number }}"
+            for i in 1 2 3; do
+              if git push origin gh-pages; then
+                echo "✅ Deployed to gh-pages"
+                exit 0
+              fi
+              echo "Push failed (concurrent update?), pulling and retrying ($i/3)..."
+              git pull origin gh-pages --rebase
+            done
+            echo "❌ Failed to push after retries"
+            exit 1
+          fi
+
+      # Comment on PR with preview link
+      - name: Comment on PR
+        if: success()
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const prNumber = ${{ steps.pr-metadata.outputs.pr_number }};
+            const deployDocs = '${{ steps.pr-metadata.outputs.deploy_docs }}' === 'true';
+            const deployStorybook = '${{ steps.pr-metadata.outputs.deploy_storybook }}' === 'true';
+            
+            const docsUrl = `https://coinbase.github.io/cds/pr-${prNumber}/docs/`;
+            const storybookUrl = `https://coinbase.github.io/cds/pr-${prNumber}/storybook/`;
+            
+            let previewLinks = '';
+            if (deployDocs) {
+              previewLinks += `\n📄 **Documentation:** [View Docs →](${docsUrl})`;
+            }
+            if (deployStorybook) {
+              previewLinks += `\n📚 **Storybook:** [View Storybook →](${storybookUrl})`;
+            }
+            
+            if (!deployDocs && !deployStorybook) {
+              console.log('No previews deployed, skipping comment');
+              return;
+            }
+            
+            const comment = `## 🚀 Preview${deployDocs && deployStorybook ? 's' : ''} Deployed
+            
+            Your preview${deployDocs && deployStorybook ? 's are' : ' is'} ready!
+            ${previewLinks}
+            
+            ---
+            
+            📝 Updated: \`${new Date().toISOString()}\`
+            🔨 Commit: \`${{ steps.pr-metadata.outputs.pr_commit }}\`
+            
+            > Preview${deployDocs && deployStorybook ? 's' : ''} will be automatically removed when the PR is closed.
+            > To change what's deployed, edit the checkboxes in the PR description.`;
+
+            // Check if we already commented
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('🚀 Preview Deployed')
+            );
+
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment,
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: comment,
+              });
+            }
