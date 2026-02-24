@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://cds.coinbase.com/cds/pr-426/docs/blog</id>
     <title>Coinbase Design System Blog</title>
-    <updated>2026-02-24T15:26:36.000Z</updated>
+    <updated>2026-02-24T20:14:34.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://cds.coinbase.com/cds/pr-426/docs/blog"/>
     <subtitle>Coinbase Design System Blog</subtitle>
@@ -11,7 +11,7 @@
         <title type="html"><![CDATA[Introducing CDS]]></title>
         <id>https://cds.coinbase.com/cds/pr-426/docs/blog/introducing-cds</id>
         <link href="https://cds.coinbase.com/cds/pr-426/docs/blog/introducing-cds"/>
-        <updated>2026-02-24T15:26:36.000Z</updated>
+        <updated>2026-02-24T20:14:34.000Z</updated>
         <summary type="html"><![CDATA[We're thrilled to announce the public release of Coinbase Design System!]]></summary>
         <content type="html"><![CDATA[<article class="flex-ff5rfy6"><strong>We're thrilled to announce the public release of Coinbase Design System!</strong></article>
 ]]></content>
