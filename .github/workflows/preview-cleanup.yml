@@ -9,7 +9,6 @@ on:
         type: number
   pull_request:
     types: [closed]
-    branches: master
 
 permissions:
   contents: write

@@ -12,6 +12,7 @@ import { MediaQueryProvider } from '@coinbase/cds-web/system';
 import { Icon } from '@coinbase/cds-web/icons/Icon';
 import { Tag } from '@coinbase/cds-web/tag';
 import { Tooltip } from '@coinbase/cds-web/overlays/tooltip/Tooltip';
+import { mockManifest } from './mockData';
 
 function App() {
   const [manifest, setManifest] = useState<Manifest | null>(null);
@@ -21,22 +22,30 @@ function App() {
   const [sortOption, setSortOption] = useState<SortOption>('updated-desc');
 
   useEffect(() => {
-    fetch('/cds/manifest.json')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+    const fetchManifest = async () => {
+      try {
+        const response = await fetch('/cds/manifest.json');
+
+        if (response.ok) {
+          const data = await response.json();
+          setManifest(data);
+          setLoading(false);
+          return;
         }
-        return response.json();
-      })
-      .then((data: Manifest) => {
-        setManifest(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error('Failed to load previews:', err);
-        setError(true);
-        setLoading(false);
-      });
+      } catch (err) {
+        // Fall back to mock data only in development
+        if (import.meta.env.DEV) {
+          setManifest(mockManifest);
+          setLoading(false);
+        } else {
+          // In production, show error if manifest not found
+          setError(true);
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchManifest();
   }, []);
 
   const filteredAndSortedPreviews = useMemo(() => {
