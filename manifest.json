@@ -1,0 +1,15 @@
+{
+  "previews": [
+    {
+      "pr": 426,
+      "title": "feat: auto deploy branches to github page",
+      "branch": "adrien/preview-cds",
+      "author": "adrienzheng-cb",
+      "url": "/cds/pr-426/",
+      "createdAt": "2026-02-24T05:03:20.424Z",
+      "updatedAt": "2026-02-24T05:03:20.424Z",
+      "commit": "bb669f24a7872c0d6eac87c130733c6be54f0973"
+    }
+  ],
+  "lastUpdated": "2026-02-24T05:03:20.426Z"
+}
