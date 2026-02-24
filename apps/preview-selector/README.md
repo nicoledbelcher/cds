@@ -28,9 +28,14 @@ yarn nx run preview-selector:test-local
 
 ## Mock Data for Development
 
-The `public/manifest.json` file contains mock PR data for local development.
+The `public/manifest_mock.json` file contains mock PR data for local development.
 
-**Edit this file to test different scenarios:**
+The selector automatically uses:
+
+- **Production:** `/cds/manifest.json` (real PR data from workflow)
+- **Development:** `/cds/manifest_mock.json` (fallback when real manifest not found)
+
+**Edit `public/manifest_mock.json` to test different scenarios:**
 
 ```json
 {
@@ -56,7 +61,9 @@ The `public/manifest.json` file contains mock PR data for local development.
 }
 ```
 
-The dev server automatically serves `public/manifest.json` at `/cds/manifest.json`.
+The dev server automatically serves `public/manifest_mock.json` at `/cds/manifest_mock.json`.
+
+The selector tries to fetch `/cds/manifest.json` first (production), and falls back to `/cds/manifest_mock.json` (development) if not found.
 
 ## Tech Stack
 
@@ -111,7 +118,7 @@ In production, the manifest is automatically maintained by GitHub Actions workfl
 
 ### Testing Different Scenarios
 
-Edit `public/manifest.json` to test:
+Edit `public/manifest_mock.json` to test:
 
 **Scenario 1: PR with both previews**
 
@@ -173,7 +180,7 @@ Tests XSS prevention and rendering.
 
 The dev server watches for changes:
 
-- Edit `public/manifest.json` → Page auto-refreshes with new data
+- Edit `public/manifest_mock.json` → Page auto-refreshes with new data
 - Edit `src/App.tsx` → Hot module replacement
 - Edit `src/App.css` → Instant style updates
 

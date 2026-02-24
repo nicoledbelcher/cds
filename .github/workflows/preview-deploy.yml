@@ -19,7 +19,6 @@ on:
         type: boolean
   pull_request:
     types: [opened, synchronize, reopened]
-    branches: [master]
 
 concurrency:
   group: preview-deploy-${{ github.event.pull_request.number || github.event.inputs.pr_number }}
@@ -168,6 +167,7 @@ jobs:
             echo "⏭️  Selector unchanged, keeping existing version"
           fi
 
+          # Create empty manifest if it doesn't exist (will be populated by update-manifest.mjs)
           if [ ! -f "gh-pages-checkout/manifest.json" ]; then
             echo '{"previews":[],"lastUpdated":"'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'"}' > gh-pages-checkout/manifest.json
           fi
@@ -182,8 +182,8 @@ jobs:
             "${{ steps.pr-metadata.outputs.pr_branch }}" \
             "${{ steps.pr-metadata.outputs.pr_author }}" \
             "${{ steps.pr-metadata.outputs.pr_commit }}" \
-            "true" \
-            "true"
+            "${{ steps.pr-metadata.outputs.deploy_docs }}" \
+            "${{ steps.pr-metadata.outputs.deploy_storybook }}"
 
       # Commit and push to gh-pages (retry on race with concurrent deploy)
       - name: Deploy to gh-pages
