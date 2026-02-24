@@ -5,11 +5,15 @@
       "title": "feat: auto deploy branches to github page",
       "branch": "adrien/preview-cds",
       "author": "adrienzheng-cb",
-      "url": "/cds/pr-426/",
+      "baseUrl": "/cds/pr-426/",
+      "previews": {
+        "docs": "/cds/pr-426/docs/",
+        "storybook": "/cds/pr-426/storybook/"
+      },
       "createdAt": "2026-02-24T05:03:20.424Z",
-      "updatedAt": "2026-02-24T05:03:20.424Z",
-      "commit": "bb669f24a7872c0d6eac87c130733c6be54f0973"
+      "updatedAt": "2026-02-24T15:33:12.311Z",
+      "commit": "2936f6b4b3c7a82a61c2075c408723ebcb275ad6"
     }
   ],
-  "lastUpdated": "2026-02-24T05:03:20.426Z"
+  "lastUpdated": "2026-02-24T15:33:12.314Z"
 }
