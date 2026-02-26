@@ -4,7 +4,8 @@
 
 import fs from 'fs';
 import path from 'path';
-import type { MigrationConfig, Transform, MigrationSelection } from '../types.js';
+
+import type { MigrationConfig, MigrationSelection, Transform } from '../types.js';
 
 /**
  * Load migration configuration from config.json

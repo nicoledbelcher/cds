@@ -6,11 +6,12 @@
 
 import fs from 'fs';
 import path from 'path';
+
 import type { Transform } from '../types.js';
 
 const HISTORY_FILE_NAME = '.cds-migration-history.json';
 
-export interface MigrationHistoryEntry {
+export type MigrationHistoryEntry = {
   /**
    * Transform identifier (e.g., "components.Button.button-variant-to-appearance")
    */
@@ -20,16 +21,16 @@ export interface MigrationHistoryEntry {
    */
   timestamp: string;
   /**
-   * Version migration (e.g., "v8-to-v9")
+   * Preset name (e.g., "v8-to-v9")
    */
-  version: string;
+  preset: string;
   /**
    * Whether it was a dry run
    */
   dryRun: boolean;
-}
+};
 
-export interface MigrationHistory {
+export type MigrationHistory = {
   /**
    * Target path that was migrated
    */
@@ -42,7 +43,7 @@ export interface MigrationHistory {
    * Last update timestamp
    */
   lastUpdated: string;
-}
+};
 
 /**
  * Get the history file path for a target directory
@@ -93,7 +94,7 @@ export function saveMigrationHistory(targetPath: string, history: MigrationHisto
 export function recordTransformRun(
   targetPath: string,
   transformId: string,
-  version: string,
+  preset: string,
   dryRun: boolean,
 ): void {
   let history = loadMigrationHistory(targetPath);
@@ -110,7 +111,7 @@ export function recordTransformRun(
   history.entries.push({
     transformId,
     timestamp: new Date().toISOString(),
-    version,
+    preset,
     dryRun,
   });
 
@@ -163,23 +164,23 @@ export function buildHistorySummary(targetPath: string): string {
     return 'No migration history found for this path.';
   }
 
-  // Group entries by version
-  const byVersion: Record<string, MigrationHistoryEntry[]> = {};
+  // Group entries by preset
+  const byPreset: Record<string, MigrationHistoryEntry[]> = {};
   for (const entry of history.entries) {
     if (!entry.dryRun) {
       // Only show non-dry-run entries
-      if (!byVersion[entry.version]) {
-        byVersion[entry.version] = [];
+      if (!byPreset[entry.preset]) {
+        byPreset[entry.preset] = [];
       }
-      byVersion[entry.version].push(entry);
+      byPreset[entry.preset].push(entry);
     }
   }
 
   let summary = '\n📜 Migration History\n';
   summary += '==================\n\n';
 
-  for (const [version, entries] of Object.entries(byVersion)) {
-    summary += `${version}:\n`;
+  for (const [preset, entries] of Object.entries(byPreset)) {
+    summary += `${preset}:\n`;
     for (const entry of entries) {
       const date = new Date(entry.timestamp).toLocaleDateString();
       summary += `  • ${entry.transformId} (${date})\n`;

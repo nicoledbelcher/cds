@@ -1,160 +1,166 @@
 # CLI Reference
 
-Complete guide for using the CDS Migrator in both interactive and non-interactive modes.
+Complete reference for using the CDS Migrator in both interactive and non-interactive modes.
+
+## Installation
+
+```bash
+# Install as dev dependency (recommended)
+yarn add -D @coinbase/cds-migrator
+
+# Or use npx without installing
+npx @coinbase/cds-migrator
+```
 
 ## Quick Reference
 
 ### Interactive Mode
 
 ```bash
+# Using npx (no installation needed)
 npx @coinbase/cds-migrator
-# Follow prompts to select what to migrate
+
+# Or if installed locally
+yarn cds-migrate
 ```
 
-### Non-Interactive Mode (CLI Flags)
+### Convenience Commands (after installation)
+
+Quick commands for common operations:
+
+```bash
+# Migrate everything (shortcut)
+yarn cds-migrate:all -p v8-to-v9 --path ./src --dry-run
+
+# Clear history (shortcut)
+yarn cds-migrate:clear-history --path ./src
+```
+
+### Full CLI Flags
 
 ```bash
 # Migrate everything
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --all
+
+# Dry-run (preview changes)
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --all --dry-run
 
 # Migrate specific category
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --category components
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --category components
 
 # Migrate specific items
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --item components.Button
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --item components.Button
+
+# Migrate specific transform
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --transform components.Button.button-variant-to-appearance
 
 # Clear history
-npx @coinbase/cds-migrator --clear-history -p ./src
+npx @coinbase/cds-migrator --clear-history --path ./src
+```
+
+### Optional: Add Scripts to package.json
+
+For convenience, add these to your project's package.json:
+
+```json
+{
+  "scripts": {
+    "migrate": "cds-migrate",
+    "migrate:dry": "cds-migrate -p v8-to-v9 --path ./src --all --dry-run",
+    "migrate:apply": "cds-migrate -p v8-to-v9 --path ./src --all"
+  }
+}
+```
+
+Then run:
+
+```bash
+yarn migrate        # Interactive
+yarn migrate:dry    # Preview changes
+yarn migrate:apply  # Apply changes
 ```
 
 ---
 
 ## Part 1: Interactive Mode
 
-### Selection Hierarchy
-
-The migrator offers four levels of selection granularity:
-
-```
-1. Everything          → Migrate all categories, items, and transforms
-   ↓
-2. By Category        → Select one or more categories (or all)
-   ↓
-3. By Item            → Select specific components/hooks/utilities (or all)
-   ↓
-4. By Transform       → Select individual transforms (or all)
-```
-
 ### Selection Flow
 
-```
-? Which version migration? → v8 to v9
-? Enter path → ./src
-[Shows history if exists]
-? What would you like to migrate?
-  ❯ Everything (all changes)
-    By category (components, hooks, etc.)
-    By item (specific component/hook/utility)
-    By specific transform
-```
-
-### 1. Everything
-
-Fastest path - migrate all changes at once.
-
-**When to use:**
-
-- First-time migration
-- Small codebase
-- Want everything done quickly
+The migrator uses a **hierarchical selection** where you choose categories first, then transforms within each category:
 
 ```
-? What would you like to migrate?
-  ❯ Everything (all changes)
+Step 1: Which preset?
+   → v8-to-v9
 
-✓ Runs all transforms immediately
+Step 2: Enter path
+   → ./src
+
+Step 3: [Shows history if exists]
+
+Step 4: Which categories?
+   ├─ 🔘 All categories → DONE (runs everything)
+   └─ Select specific → Continue to Step 5
+
+Step 5: For EACH selected category, which transforms?
+   ├─ 🔘 All transforms in [category] → Runs all in that category
+   └─ Select specific → Runs only those selected
+
+Step 6: Dry-run mode?
+
+Step 7: Execute
 ```
 
-### 2. By Category
+### Example Flows
 
-Select categories of changes with "All" option.
-
-**When to use:**
-
-- Focus on one type (components, hooks, utilities)
-- Phased migration strategy
+**Flow 1: Migrate Everything**
 
 ```
-? Select categories to migrate:
-  ◯ 🔘 All categories          ← Migrates everything
-  ◯ components - Component API changes
-  ◯ hooks - Hook API changes
-  ◯ utilities - Utility function changes
+? Which categories? → 🔘 All categories
+✓ Done! Runs all 4 transforms
 ```
 
-### 3. By Item
-
-Select specific components/hooks/utilities with "All" option.
-
-**When to use:**
-
-- Test one component at a time
-- Different PRs for different components
+**Flow 2: All Components**
 
 ```
-? Select items to migrate:
-  ◯ 🔘 All items               ← Migrates everything
-  ◯ components.Button - Button changes (@coinbase/cds-web)
-  ◯ components.Input - Input changes (@coinbase/cds-web)
-  ◯ hooks.useTheme - useTheme changes (@coinbase/cds-common)
+? Which categories? → components
+? Transforms in components? → 🔘 All transforms in components
+✓ Runs all component transforms (Button + Input)
 ```
 
-### 4. By Transform
-
-Select individual transforms with "All" option.
-
-**When to use:**
-
-- Maximum control
-- Debugging issues
-- Review each change carefully
+**Flow 3: Just One Transform**
 
 ```
-? Select transforms to run:
-  ◯ 🔘 All transforms          ← Migrates everything
-  ◯ components.Button.button-variant-to-appearance - Rename 'variant' prop
-  ◯ components.Input.input-size-values - Update size values
-  ◯ hooks.useTheme.use-theme-return-type - Update return type
+? Which categories? → components
+? Transforms in components? → Button.button-variant-to-appearance
+✓ Runs only that one transform
 ```
 
-### Multiple Paths to "Migrate Everything"
-
-All of these produce the same result:
-
-| Path                             | When to Use                      |
-| -------------------------------- | -------------------------------- |
-| Everything (all changes)         | Fastest - just go!               |
-| By category → 🔘 All categories  | Want to see categories first     |
-| By item → 🔘 All items           | Want to see all items first      |
-| By transform → 🔘 All transforms | Want to review each change first |
-
-**Choose based on how much you want to explore before committing!**
-
-### Decision Tree
+**Flow 4: Multiple Categories, All Transforms**
 
 ```
-Do you want to migrate everything?
-│
-├─ YES, fast → "Everything (all changes)"
-├─ YES, see categories first → "By category" → "🔘 All categories"
-├─ YES, see items first → "By item" → "🔘 All items"
-├─ YES, review changes first → "By transform" → "🔘 All transforms"
-│
-└─ NO, be selective
-   ├─ By category → Select specific ones
-   ├─ By item → Select specific ones
-   └─ By transform → Select specific ones
+? Which categories? → components, hooks
+? Transforms in components? → 🔘 All transforms in components
+? Transforms in hooks? → 🔘 All transforms in hooks
+✓ Runs all transforms in both categories (3 transforms)
 ```
+
+**Flow 5: Cherry-Pick from Multiple Categories**
+
+```
+? Which categories? → components, hooks
+? Transforms in components? → Button.button-variant-to-appearance
+? Transforms in hooks? → useTheme.use-theme-return-type
+✓ Runs 2 specific transforms
+```
+
+### What Gets Run
+
+| Selection                                     | Result                             |
+| --------------------------------------------- | ---------------------------------- |
+| 🔘 All categories                             | All transforms from all categories |
+| categories: [components] + 🔘 All transforms  | All transforms in components       |
+| categories: [components] + specific           | Only selected component transforms |
+| categories: [components, hooks] + all in each | All transforms in both categories  |
 
 ---
 
@@ -166,57 +172,76 @@ Use CLI flags to run without prompts - perfect for CI/CD and automation.
 
 For non-interactive mode, you must provide:
 
-- `-m, --migration <version>` - Migration version (e.g., v8-to-v9)
-- `-p, --path <path>` - Target path (default: ./src)
+- `-p, --preset <name>` - Migration preset (e.g., v8-to-v9)
+- `--path <path>` - Target path (default: ./src)
 - One selection: `--all`, `--category`, `--item`, or `--transform`
 
 ### Selection Flags
 
+Each selection level runs progressively more transforms:
+
+| Flag          | What It Runs            | Example                                      |
+| ------------- | ----------------------- | -------------------------------------------- |
+| `--all`       | Everything              | All categories → all items → all transforms  |
+| `--category`  | All items in category   | All transforms for selected category's items |
+| `--item`      | All transforms for item | All transforms for the selected item         |
+| `--transform` | Specific transform only | Just that one transform                      |
+
 #### `--all`
 
-Migrate everything.
+Migrate everything (all categories, items, and transforms).
 
 ```bash
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --all
 ```
 
 #### `--category <categories...>`
 
 Migrate specific categories (can specify multiple).
 
+**This runs ALL items and transforms in the selected categories.**
+
 ```bash
-# Single category
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --category components
+# Single category (runs all items and transforms in components)
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --category components
 
 # Multiple categories
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --category components hooks
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --category components hooks
 ```
+
+**Example:** `--category components` will run all transforms for Button, Input, and any other components.
 
 #### `--item <items...>`
 
-Migrate specific items (format: `category.item`).
+Migrate specific items using dot notation: `category.item`
+
+**This runs ALL transforms for the selected items.**
 
 ```bash
-# Single item
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --item components.Button
+# Single item (runs all transforms for Button)
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --item components.Button
 
 # Multiple items
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --item components.Button components.Input hooks.useTheme
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --item components.Button components.Input hooks.useTheme
 ```
+
+**Why dot notation?** Items can have the same name in different categories, so `category.item` ensures we select the right one.
 
 #### `--transform <transforms...>`
 
-Migrate specific transforms (format: `category.item.transform-name`).
+Migrate specific transforms using full dot notation: `category.item.transform-name`
 
 ```bash
-# Single transform
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --transform components.Button.button-variant-to-appearance
+# Single transform (most granular control)
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --transform components.Button.button-variant-to-appearance
 
 # Multiple transforms
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src \
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src \
   --transform components.Button.button-variant-to-appearance \
   --transform components.Input.input-size-values
 ```
+
+**Why full path?** Transform names might be reused across items, so `category.item.transform` is the unique identifier.
 
 ### Mode Flags
 
@@ -226,10 +251,10 @@ Preview changes without modifying files.
 
 ```bash
 # Dry-run (safe to test)
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all --dry-run
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --all --dry-run
 
 # Apply changes (no flag)
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --all
 ```
 
 #### `--skip-confirmation`
@@ -238,7 +263,7 @@ Skip confirmation prompts (useful for automation).
 
 ```bash
 # For CI/CD
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all --skip-confirmation
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --all --skip-confirmation
 ```
 
 **⚠️ Use with caution** - bypasses all safety prompts!
@@ -251,13 +276,13 @@ Clear migration history for a path.
 
 ```bash
 # With confirmation
-npx @coinbase/cds-migrator --clear-history -p ./src
+npx @coinbase/cds-migrator --clear-history --path ./src
 
 # Skip confirmation
-npx @coinbase/cds-migrator --clear-history -p ./src --skip-confirmation
+npx @coinbase/cds-migrator --clear-history --path ./src --skip-confirmation
 ```
 
-**Note:** Only requires `--path`, no migration version needed.
+**Note:** Only requires `--path`, no preset needed.
 
 #### `-h, --help`
 
@@ -277,19 +302,19 @@ npx @coinbase/cds-migrator --version
 
 ### Flags Summary Table
 
-| Flag                  | Short | Description         | Example                                        |
-| --------------------- | ----- | ------------------- | ---------------------------------------------- |
-| `--migration`         | `-m`  | Migration version   | `-m v8-to-v9`                                  |
-| `--path`              | `-p`  | Target path         | `-p ./src`                                     |
-| `--dry-run`           | `-d`  | Preview mode        | `-d`                                           |
-| `--skip-confirmation` |       | Skip prompts        | `--skip-confirmation`                          |
-| `--clear-history`     |       | Clear history       | `--clear-history`                              |
-| `--all`               |       | Migrate everything  | `--all`                                        |
-| `--category`          |       | Specific categories | `--category components`                        |
-| `--item`              |       | Specific items      | `--item components.Button`                     |
-| `--transform`         |       | Specific transforms | `--transform components.Button.button-variant` |
-| `--help`              | `-h`  | Show help           | `-h`                                           |
-| `--version`           | `-V`  | Show version        | `-V`                                           |
+| Flag                  | Short | Description         | Example                                 |
+| --------------------- | ----- | ------------------- | --------------------------------------- |
+| `--preset`            | `-p`  | Migration preset    | `-p v8-to-v9`                           |
+| `--path`              |       | Target path         | `--path ./src`                          |
+| `--dry-run`           | `-d`  | Preview mode        | `-d`                                    |
+| `--skip-confirmation` |       | Skip prompts        | `--skip-confirmation`                   |
+| `--clear-history`     |       | Clear history       | `--clear-history`                       |
+| `--all`               |       | Migrate everything  | `--all`                                 |
+| `--category`          |       | Specific categories | `--category components`                 |
+| `--item`              |       | Specific items      | `--item components.Button`              |
+| `--transform`         |       | Specific transforms | `--transform components.Button.variant` |
+| `--help`              | `-h`  | Show help           | `-h`                                    |
+| `--version`           | `-V`  | Show version        | `-V`                                    |
 
 ---
 
@@ -302,7 +327,7 @@ npx @coinbase/cds-migrator --version
 npx @coinbase/cds-migrator
 
 # Quick dry-run
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all --dry-run
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --all --dry-run
 ```
 
 ### CI/CD Pipeline
@@ -312,11 +337,11 @@ npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all --dry-run
 # migrate.sh
 
 # Preview first
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all --dry-run --skip-confirmation
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --all --dry-run --skip-confirmation
 
 # Apply if preview succeeded
 if [ $? -eq 0 ]; then
-  npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all --skip-confirmation
+  npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --all --skip-confirmation
 fi
 ```
 
@@ -340,7 +365,7 @@ jobs:
       - name: Run migration
         run: |
           npx @coinbase/cds-migrator \
-            --migration v8-to-v9 \
+            --preset v8-to-v9 \
             --path ./src \
             --all \
             --skip-confirmation
@@ -356,28 +381,39 @@ jobs:
 
 ```bash
 # Day 1: Components
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --category components
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --category components
 
 # Day 2: Hooks
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --category hooks
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --category hooks
 
 # Day 3: Everything else
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --all
 ```
 
 History tracking ensures no duplicates across runs.
 
 ### Package.json Scripts
 
+Add migration scripts to your project for convenience:
+
 ```json
 {
   "scripts": {
-    "migrate:dry": "cds-migrate -m v8-to-v9 -p ./src --all --dry-run",
-    "migrate:apply": "cds-migrate -m v8-to-v9 -p ./src --all --skip-confirmation",
-    "migrate:components": "cds-migrate -m v8-to-v9 -p ./src --category components",
-    "migrate:reset": "cds-migrate --clear-history -p ./src --skip-confirmation"
+    "migrate": "cds-migrate",
+    "migrate:dry": "cds-migrate -p v8-to-v9 --path ./src --all --dry-run",
+    "migrate:apply": "cds-migrate -p v8-to-v9 --path ./src --all --skip-confirmation",
+    "migrate:components": "cds-migrate -p v8-to-v9 --path ./src --category components"
   }
 }
+```
+
+Then use them:
+
+```bash
+yarn migrate          # Interactive mode
+yarn migrate:dry      # Preview all changes
+yarn migrate:apply    # Apply all changes
+yarn migrate:components  # Migrate only components
 ```
 
 ---
@@ -408,7 +444,7 @@ npx @coinbase/cds-migrator
 - Repeated operations
 
 ```bash
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all --skip-confirmation
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --all --skip-confirmation
 ```
 
 ### Switching Between Modes
@@ -418,15 +454,15 @@ The tool automatically detects which mode based on provided flags:
 **Triggers Interactive:**
 
 ```bash
-npx @coinbase/cds-migrator                    # No flags
-npx @coinbase/cds-migrator -m v8-to-v9       # Missing selection
-npx @coinbase/cds-migrator -p ./src --all    # Missing version
+npx @coinbase/cds-migrator                         # No flags
+npx @coinbase/cds-migrator -p v8-to-v9            # Missing selection
+npx @coinbase/cds-migrator --path ./src --all     # Missing preset
 ```
 
 **Triggers Non-Interactive:**
 
 ```bash
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all  # All required flags
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --all  # All required flags
 ```
 
 ---
@@ -437,23 +473,26 @@ npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all  # All required flags
 
 ```bash
 # Step 1: Preview everything
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all --dry-run
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --all --dry-run
 
 # Step 2: Review migration.log
 cat migration.log
 
 # Step 3: Apply changes
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --all
 ```
 
 ### Selective Migration
 
 ```bash
-# Just Button component
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --item components.Button
+# Just components category
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --category components
 
-# Just one transform
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src \
+# Just Button item (all its transforms)
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --item components.Button
+
+# Just one specific transform
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src \
   --transform components.Button.button-variant-to-appearance
 ```
 
@@ -461,11 +500,11 @@ npx @coinbase/cds-migrator -m v8-to-v9 -p ./src \
 
 ```bash
 # Test on sample directory
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./test-samples --all
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./test-samples --all
 
 # Clear and re-test
-npx @coinbase/cds-migrator --clear-history -p ./test-samples --skip-confirmation
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./test-samples --all
+npx @coinbase/cds-migrator --clear-history --path ./test-samples --skip-confirmation
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./test-samples --all
 ```
 
 ### Automated Daily Migration
@@ -480,8 +519,8 @@ LOG_DIR="./migration-logs"
 mkdir -p "$LOG_DIR"
 
 npx @coinbase/cds-migrator \
-  -m v8-to-v9 \
-  -p ./src \
+  -p v8-to-v9 \
+  --path ./src \
   --all \
   --skip-confirmation \
   && mv migration.log "$LOG_DIR/migration-$DATE.log"
@@ -497,10 +536,10 @@ You need to specify what to migrate:
 
 ```bash
 # ❌ Missing selection
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src
 
 # ✅ With selection
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --all
 ```
 
 ### "Warning: Some transforms have already been run"
@@ -513,12 +552,12 @@ Options:
 
 ```bash
 # Skip duplicate warning
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all --skip-confirmation
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --all --skip-confirmation
 ```
 
-### Invalid Migration Version
+### Invalid Preset
 
-Check available versions:
+Check available presets:
 
 ```bash
 npx @coinbase/cds-migrator --help
@@ -538,7 +577,7 @@ Currently available: `v8-to-v9`
 **Example:**
 
 ```bash
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all --skip-confirmation
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --all --skip-confirmation
 if [ $? -eq 0 ]; then
   echo "✅ Migration succeeded"
 else

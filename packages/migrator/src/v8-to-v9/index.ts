@@ -4,12 +4,12 @@
  * This module defines all transforms needed to migrate from CDS v8 to v9
  */
 
-export interface Transform {
+export type Transform = {
   name: string;
   description: string;
   file: string;
   extensions?: string;
-}
+};
 
 export const transforms: Transform[] = [
   // Add transforms here as they are created

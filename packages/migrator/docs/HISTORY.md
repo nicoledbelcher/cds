@@ -307,14 +307,14 @@ If a migration failed partway through:
 
 ```bash
 # Migration failed
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all
+npx @coinbase/cds-migrator -p v8-to-v9 -p ./src --all
 # Error occurred, some transforms completed but others didn't
 
 # Clear history to start fresh
 npx @coinbase/cds-migrator --clear-history -p ./src
 
 # Run migration again
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all
+npx @coinbase/cds-migrator -p v8-to-v9 -p ./src --all
 ```
 
 #### Testing Migrations
@@ -323,13 +323,13 @@ During development or testing:
 
 ```bash
 # Test a migration
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./test-dir --all
+npx @coinbase/cds-migrator -p v8-to-v9 -p ./test-dir --all
 
 # Clear to test again
 npx @coinbase/cds-migrator --clear-history -p ./test-dir --skip-confirmation
 
 # Re-run with changes
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./test-dir --all
+npx @coinbase/cds-migrator -p v8-to-v9 -p ./test-dir --all
 ```
 
 #### Corrupted History File
@@ -341,7 +341,7 @@ If the history file is corrupted or invalid:
 npx @coinbase/cds-migrator --clear-history -p ./src --skip-confirmation
 
 # Start fresh
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all
+npx @coinbase/cds-migrator -p v8-to-v9 -p ./src --all
 ```
 
 #### Reset After Rollback

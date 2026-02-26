@@ -2,7 +2,7 @@
  * Types for CDS migration tools
  */
 
-export interface MigrationOptions {
+export type MigrationOptions = {
   /**
    * Paths to files or directories to migrate
    */
@@ -11,9 +11,9 @@ export interface MigrationOptions {
    * Whether to perform a dry run without modifying files
    */
   dryRun?: boolean;
-}
+};
 
-export interface Transform {
+export type Transform = {
   /**
    * Name of the transform
    */
@@ -31,9 +31,9 @@ export interface Transform {
    * @default "tsx,ts,jsx,js"
    */
   extensions?: string;
-}
+};
 
-export interface MigrationModule {
+export type MigrationModule = {
   /**
    * List of transforms to run for this migration
    */
@@ -42,12 +42,12 @@ export interface MigrationModule {
    * Description of the migration and breaking changes
    */
   description: string;
-}
+};
 
 /**
  * Configuration for a migration variable (component, hook, utility, etc.)
  */
-export interface MigrationVariable {
+export type MigrationVariable = {
   /**
    * Human-readable description of the changes
    */
@@ -60,12 +60,12 @@ export interface MigrationVariable {
    * List of transforms to apply for this variable
    */
   transforms: Transform[];
-}
+};
 
 /**
  * Configuration for a migration category
  */
-export interface MigrationCategory {
+export type MigrationCategory = {
   /**
    * Human-readable description of the category
    */
@@ -74,16 +74,16 @@ export interface MigrationCategory {
    * Variables (components, hooks, utilities, etc.) in this category
    */
   variables: Record<string, MigrationVariable>;
-}
+};
 
 /**
  * Main migration configuration structure
  */
-export interface MigrationConfig {
+export type MigrationConfig = {
   /**
-   * Version identifier (e.g., "v8-to-v9")
+   * Preset identifier (e.g., "v8-to-v9")
    */
-  version: string;
+  preset: string;
   /**
    * Overall description of the migration
    */
@@ -92,12 +92,12 @@ export interface MigrationConfig {
    * Categories of changes organized by type
    */
   categories: Record<string, MigrationCategory>;
-}
+};
 
 /**
  * Selection for what to migrate
  */
-export interface MigrationSelection {
+export type MigrationSelection = {
   /**
    * If true, migrate everything
    */
@@ -115,4 +115,4 @@ export interface MigrationSelection {
    * Specific transforms to migrate (format: "category.item.transform")
    */
   transforms?: string[];
-}
+};

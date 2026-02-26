@@ -4,7 +4,7 @@ How to structure and configure migrations using the three-level hierarchy.
 
 ## Overview
 
-Each major version migration (e.g., v8-to-v9) has a `config.json` file that defines:
+Each major preset (e.g., v8-to-v9) has a `config.json` file that defines:
 
 1. **Categories** - High-level groupings (components, hooks, utilities)
 2. **Variables** - Specific exports (Button, useTheme, formatCurrency)
