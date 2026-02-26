@@ -16,12 +16,13 @@ npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --all --dry-run
 
 ## Features
 
-- 🎯 **Granular Selection** - Migrate everything or choose specific components/hooks/utilities
+- 🎯 **Hierarchical Selection** - Choose category, then drill down to specific transforms
 - 📝 **History Tracking** - Automatically prevents duplicate migrations
 - 🔍 **Dry-Run Mode** - Preview all changes before applying
 - 📊 **Comprehensive Logging** - Track successes, warnings, and manual TODOs
 - 💬 **TODO Comments** - Automatically marks code that needs manual review
-- 🌳 **Configuration-Based** - Three-level structure (categories → variables → transforms)
+- 🌳 **Configuration-Based** - Three-level structure (categories → items → transforms)
+- 🚀 **Convenience Commands** - `cds-migrate`, `cds-migrate:all`, `cds-migrate:clear-history`
 
 ## Available Presets
 
@@ -30,6 +31,24 @@ npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --all --dry-run
 | **v8-to-v9** | Component API updates, hook changes, utility updates | ✅ Available |
 
 **Note:** Presets aren't just for version migrations - you can create presets for any collection of code transforms (deprecations, refactors, style updates, etc.).
+
+## How It Works
+
+The migrator uses a **simple 3-step selection**:
+
+1. **Choose a preset** (e.g., v8-to-v9)
+2. **Choose a category** (or "All categories" to migrate everything)
+3. **Choose a transform** in that category (or "All transforms" to run all)
+
+This hierarchical approach makes it easy to focus on one area at a time without being overwhelmed by choices.
+
+## Convenience Commands
+
+After installation, you get three commands:
+
+- `cds-migrate` - Full interactive CLI
+- `cds-migrate:all -p <preset>` - Quick migrate everything
+- `cds-migrate:clear-history` - Quick clear history
 
 ## Documentation
 
@@ -86,24 +105,36 @@ Read these if you're adding new migrations or transforms:
 
 ? Enter the path to your codebase: ./src
 
-? What would you like to migrate?
-  ❯ Everything (all changes)
-    By category (components, hooks, etc.)
-    By item (specific component/hook/utility)
-    By specific transform
+? Which category of transforms do you want to run?
+  ❯ 🔘 All categories
+    components - Component API changes
+    hooks - Hook API changes
+    utilities - Utility function changes
 
 Migration Plan:
 ================
 📦 components: Component API changes
   └─ Button (@coinbase/cds-web)
      • Rename 'variant' prop to 'appearance'
+  └─ Input (@coinbase/cds-web)
+     • Update size prop values
 
-Total transforms: 1
+📦 hooks: Hook API changes
+  └─ useTheme (@coinbase/cds-common)
+     • Update destructured return values
+
+📦 utilities: Utility function changes
+  └─ formatCurrency (@coinbase/cds-utils)
+     • Update formatCurrency options parameter
+
+Total transforms: 4
 
 ? Run in dry-run mode? Yes
 
   → Running transform: components.Button.button-variant-to-appearance
   ✓ Transform completed
+
+  [... 3 more transforms ...]
 
 ✅ Migration completed successfully!
 📝 Migration log written to: migration.log
@@ -150,7 +181,7 @@ cd packages/migrator
 node esm/cli.js
 ```
 
-### Adding New Migrations
+### Adding New Presets
 
 See [docs/CONFIGURATION.md](./docs/CONFIGURATION.md) for complete instructions.
 
@@ -158,8 +189,8 @@ Quick steps:
 
 1. Create `src/v9-to-v10/` directory
 2. Add `config.json` with three-level structure
-3. Create transforms in `transforms/` directory
-4. Update `SUPPORTED_MIGRATIONS` in `src/cli.ts`
+3. Create transforms in `transforms/` directory (as `.ts` files)
+4. Update `AVAILABLE_PRESETS` in `src/cli.ts`
 
 ## Contributing
 
