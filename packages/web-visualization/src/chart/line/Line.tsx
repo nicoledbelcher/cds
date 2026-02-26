@@ -330,7 +330,7 @@ export const Line = memo<LineProps>(
               if (points === true) {
                 return (
                   <Point
-                    key={`${seriesId}-${index}`}
+                    key={`${seriesId}-${xValue}`}
                     onClick={onPointClick}
                     transition={transition}
                     {...defaults}
@@ -347,7 +347,7 @@ export const Line = memo<LineProps>(
 
               return (
                 <Point
-                  key={`${seriesId}-${index}`}
+                  key={`${seriesId}-${xValue}`}
                   onClick={pointConfig.onClick ?? onPointClick}
                   transition={transition}
                   {...defaults}

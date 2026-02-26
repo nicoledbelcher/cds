@@ -1810,6 +1810,7 @@ export const Transitions = () => {
   });
 
   function CustomTransitionsChart() {
+    const [startDataIndex, setStartDataIndex] = useState(0);
     const [data, setData] = useState(generateInitialData);
 
     useEffect(() => {
@@ -1820,6 +1821,7 @@ export const Transitions = () => {
 
           return [...currentData.slice(1), newValue];
         });
+        setStartDataIndex((i) => i + 1);
       }, updateInterval);
 
       return () => clearInterval(intervalId);
@@ -1863,6 +1865,7 @@ export const Transitions = () => {
             gradient: lineGradient,
           },
         ]}
+        xAxis={{ data: data.map((_, i) => startDataIndex + i) }}
         yAxis={{ domain: { min: -domainLimit, max: domainLimit } }}
       >
         <YAxis showGrid requestedTickCount={2} tickLabelFormatter={tickLabelFormatter} />
@@ -1872,9 +1875,19 @@ export const Transitions = () => {
           seriesId="prices"
           strokeWidth={3}
           transition={myTransitionConfig}
+          points={({ fill, stroke = 'var(--color-bg)', radius = 3, strokeWidth = 2, ...props }) => {
+            return {
+              fill: stroke,
+              stroke: fill,
+              radius: radius + strokeWidth,
+              strokeWidth,
+              ...props,
+            };
+          }}
         />
         <Scrubber
           hideOverlay
+          beaconStroke="transparent"
           beaconTransitions={{ update: myTransitionConfig }}
           label={valueAtIndexFormatter}
         />
