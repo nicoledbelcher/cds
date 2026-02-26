@@ -507,20 +507,24 @@ function CustomizableAssetPriceExample() {
           </HStack>
         )}
         {showSettings && (
-          <Tray title="Chart Settings" onCloseComplete={() => setShowSettings(false)}>
-            {({ handleClose }) => (
-              <VStack gap={2} paddingX={3} paddingBottom={3}>
-                <HStack justifyContent="space-between" alignItems="center">
-                  <Text font="label1">Show Y-Axis</Text>
-                  <Switch checked={showYAxis} onChange={toggleShowYAxis} />
-                </HStack>
-
-                <HStack justifyContent="space-between" alignItems="center">
-                  <Text font="label1">Show X-Axis</Text>
-                  <Switch checked={showXAxis} onChange={toggleShowXAxis} />
-                </HStack>
-              </VStack>
-            )}
+          <Tray
+            pin={breakpoints.isPhone ? 'bottom' : 'right'}
+            showHandleBar={breakpoints.isPhone}
+            title="Chart Settings"
+            onCloseComplete={() => setShowSettings(false)}
+          >
+            <ListCell
+              spacingVariant="condensed"
+              title="Show Y-Axis"
+              end={<Switch checked={showYAxis} onChange={toggleShowYAxis} />}
+              innerSpacing={{ marginX: -4, paddingX: 4, paddingY: 1 }}
+            />
+            <ListCell
+              spacingVariant="condensed"
+              title="Show X-Axis"
+              end={<Switch checked={showXAxis} onChange={toggleShowXAxis} />}
+              innerSpacing={{ marginX: -4, paddingX: 4, paddingY: 1 }}
+            />
           </Tray>
         )}
       </VStack>
