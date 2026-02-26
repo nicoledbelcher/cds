@@ -1,5 +1,5 @@
 {
-  "version": "v8-to-v9",
+  "preset": "v8-to-v9",
   "description": "Migration from CDS v8 to v9",
   "categories": {
     "components": {
@@ -12,7 +12,7 @@
             {
               "name": "button-variant-to-appearance",
               "description": "Rename 'variant' prop to 'appearance'",
-              "file": "transforms/button-variant-to-appearance.ts"
+              "file": "transforms/example-transform"
             }
           ]
         },
@@ -23,7 +23,7 @@
             {
               "name": "input-size-values",
               "description": "Update size prop values (sm/md/lg to small/medium/large)",
-              "file": "transforms/input-size-values.ts"
+              "file": "transforms/example-transform"
             }
           ]
         }
@@ -39,7 +39,7 @@
             {
               "name": "use-theme-return-type",
               "description": "Update destructured return values from useTheme",
-              "file": "transforms/use-theme-return-type.ts"
+              "file": "transforms/example-transform"
             }
           ]
         }
@@ -55,7 +55,7 @@
             {
               "name": "format-currency-options",
               "description": "Update formatCurrency options parameter",
-              "file": "transforms/format-currency-options.ts"
+              "file": "transforms/example-transform"
             }
           ]
         }

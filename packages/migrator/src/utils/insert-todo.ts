@@ -3,9 +3,10 @@
  */
 
 import type { API, Collection } from 'jscodeshift';
+
 import { TODO_PREFIX } from './constants.js';
 
-export interface InsertTodoOptions {
+export type InsertTodoOptions = {
   /**
    * The message to include in the TODO comment
    */
@@ -18,7 +19,7 @@ export interface InsertTodoOptions {
    * Whether to insert before or after the node
    */
   position?: 'before' | 'after';
-}
+};
 
 /**
  * Insert a TODO comment near a JSX element

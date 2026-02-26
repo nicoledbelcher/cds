@@ -4,6 +4,7 @@
 
 import fs from 'fs';
 import path from 'path';
+
 import { LOG_FILE_NAME } from './constants.js';
 
 export const LogLevel = {
@@ -16,14 +17,14 @@ export const LogLevel = {
 
 export type LogLevel = (typeof LogLevel)[keyof typeof LogLevel];
 
-export interface LogEntry {
+export type LogEntry = {
   timestamp: string;
   level: LogLevel;
   file?: string;
   line?: number;
   message: string;
   details?: string;
-}
+};
 
 /**
  * Migration logger for tracking changes and issues

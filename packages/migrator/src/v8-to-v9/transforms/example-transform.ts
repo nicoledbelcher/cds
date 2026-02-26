@@ -6,8 +6,10 @@
  */
 
 import type { API, FileInfo, Options } from 'jscodeshift';
+
 import { addTodoToAttribute, getLogger, hasMigrationTodo } from '../../utils/index.js';
 
+// eslint-disable-next-line no-restricted-exports -- jscodeshift requires default export
 export default function transformer(file: FileInfo, api: API, options: Options) {
   const j = api.jscodeshift;
   const root = j(file.source);

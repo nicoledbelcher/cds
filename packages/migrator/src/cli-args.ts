@@ -3,10 +3,11 @@
  */
 
 import { Command } from 'commander';
+
 import type { MigrationSelection } from './types.js';
 
-export interface CliArgs {
-  version?: string;
+export type CliArgs = {
+  preset?: string;
   path?: string;
   dryRun?: boolean;
   skipConfirmation?: boolean;
@@ -15,7 +16,7 @@ export interface CliArgs {
   category?: string[];
   item?: string[];
   transform?: string[];
-}
+};
 
 export function parseCliArgs(): CliArgs {
   const program = new Command();
@@ -24,8 +25,8 @@ export function parseCliArgs(): CliArgs {
     .name('cds-migrate')
     .description('CDS code migration tool')
     .version('1.0.0')
-    .option('-m, --migration <version>', 'Migration version (e.g., v8-to-v9)')
-    .option('-p, --path <path>', 'Target path to migrate', './src')
+    .option('-p, --preset <name>', 'Migration preset (e.g., v8-to-v9)')
+    .option('--path <path>', 'Target path to migrate', './src')
     .option('-d, --dry-run', 'Run in dry-run mode (preview changes)', false)
     .option('--skip-confirmation', 'Skip confirmation prompts', false)
     .option('--clear-history', 'Clear migration history for the specified path', false)
@@ -39,7 +40,7 @@ export function parseCliArgs(): CliArgs {
   const options = program.opts();
 
   return {
-    version: options.migration,
+    preset: options.preset,
     path: options.path,
     dryRun: options.dryRun,
     skipConfirmation: options.skipConfirmation,
@@ -72,11 +73,7 @@ export function buildSelectionFromArgs(args: CliArgs): MigrationSelection | null
 }
 
 export function hasRequiredArgs(args: CliArgs): boolean {
-  // Version and path are required for non-interactive mode
+  // Preset and path are required for non-interactive mode
   // Plus at least one selection method
-  return !!(
-    args.version &&
-    args.path &&
-    (args.all || args.category || args.item || args.transform)
-  );
+  return !!(args.preset && args.path && (args.all || args.category || args.item || args.transform));
 }

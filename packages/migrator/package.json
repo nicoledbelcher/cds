@@ -11,7 +11,9 @@
   "main": "./esm/index.js",
   "types": "./dts/index.d.ts",
   "bin": {
-    "cds-migrate": "./esm/cli.js"
+    "cds-migrate": "./esm/cli.js",
+    "cds-migrate:all": "./esm/bin/migrate-all.js",
+    "cds-migrate:clear-history": "./esm/bin/clear-history.js"
   },
   "exports": {
     "./package.json": "./package.json",

@@ -2216,7 +2216,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@coinbase/cds-migrator@workspace:packages/migrator":
+"@coinbase/cds-migrator@workspace:^, @coinbase/cds-migrator@workspace:packages/migrator":
   version: 0.0.0-use.local
   resolution: "@coinbase/cds-migrator@workspace:packages/migrator"
   dependencies:
@@ -2232,6 +2232,8 @@ __metadata:
     jscodeshift: "npm:^0.15.1"
   bin:
     cds-migrate: ./esm/cli.js
+    "cds-migrate:all": ./esm/bin/migrate-all.js
+    "cds-migrate:clear-history": ./esm/bin/clear-history.js
   languageName: unknown
   linkType: soft
 
@@ -32226,6 +32228,7 @@ __metadata:
     "@coinbase/cds-common": "workspace:^"
     "@coinbase/cds-icons": "workspace:^"
     "@coinbase/cds-illustrations": "workspace:^"
+    "@coinbase/cds-migrator": "workspace:^"
     "@coinbase/cds-web": "workspace:^"
     "@coinbase/cds-web-visualization": "workspace:^"
     "@types/react": "npm:19.1.2"

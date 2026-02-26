@@ -26,7 +26,7 @@ npx @coinbase/cds-migrator
 **Choose migration version:**
 
 ```
-? Which major version migration do you need?
+? Which migration preset do you need?
   ❯ v8 to v9 - Migrate from CDS v8 to v9
 ```
 

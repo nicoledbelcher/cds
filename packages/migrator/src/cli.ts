@@ -8,27 +8,28 @@
  */
 
 import inquirer from 'inquirer';
-import { runMigration } from './runner.js';
-import {
-  loadMigrationConfig,
-  buildMigrationSummary,
-  getSelectedTransforms,
-} from './utils/config-loader.js';
-import {
-  loadMigrationHistory,
-  getAlreadyRunTransforms,
-  buildHistorySummary,
-  clearMigrationHistory,
-} from './utils/migration-history.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+
+import {
+  buildMigrationSummary,
+  getSelectedTransforms,
+  loadMigrationConfig,
+} from './utils/config-loader.js';
+import {
+  buildHistorySummary,
+  clearMigrationHistory,
+  getAlreadyRunTransforms,
+  loadMigrationHistory,
+} from './utils/migration-history.js';
+import { buildSelectionFromArgs, type CliArgs, hasRequiredArgs, parseCliArgs } from './cli-args.js';
+import { runMigration } from './runner.js';
 import type { MigrationSelection } from './types.js';
-import { parseCliArgs, buildSelectionFromArgs, hasRequiredArgs, type CliArgs } from './cli-args.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const SUPPORTED_MIGRATIONS = [
+const AVAILABLE_PRESETS = [
   {
     name: 'v8 to v9',
     value: 'v8-to-v9',
@@ -36,161 +37,84 @@ const SUPPORTED_MIGRATIONS = [
   },
 ] as const;
 
-async function selectMigrationScope(migrationDir: string): Promise<MigrationSelection> {
-  const config = loadMigrationConfig(migrationDir);
+async function selectMigrationScope(presetDir: string): Promise<MigrationSelection> {
+  const config = loadMigrationConfig(presetDir);
 
-  const { scope } = await inquirer.prompt([
+  // Step 1: Select category
+  const categoryChoices = [
+    {
+      name: '🔘 All categories',
+      value: '__ALL__',
+    },
+    ...Object.entries(config.categories).map(([name, cat]) => ({
+      name: `${name} - ${cat.description}`,
+      value: name,
+    })),
+  ];
+
+  const { selectedCategory } = await inquirer.prompt([
     {
       type: 'list',
-      name: 'scope',
-      message: 'What would you like to migrate?',
-      choices: [
-        { name: 'Everything (all changes)', value: 'all' },
-        { name: 'By category (components, hooks, etc.)', value: 'category' },
-        { name: 'By item (specific component/hook/utility)', value: 'item' },
-        { name: 'By specific transform', value: 'transform' },
-      ],
+      name: 'selectedCategory',
+      message: 'Which category of transforms do you want to run?',
+      choices: categoryChoices,
     },
   ]);
 
-  if (scope === 'all') {
+  // If "All categories" is selected, migrate everything
+  if (selectedCategory === '__ALL__') {
     return { all: true };
   }
 
-  if (scope === 'category') {
-    const categoryChoices = [
-      {
-        name: '🔘 All categories',
-        value: '__ALL__',
-        checked: false,
-      },
-      ...Object.entries(config.categories).map(([name, cat]) => ({
-        name: `${name} - ${cat.description}`,
-        value: name,
-        checked: false,
-      })),
-    ];
-
-    const { categories } = (await inquirer.prompt([
-      {
-        type: 'checkbox',
-        name: 'categories',
-        message: 'Select categories to migrate:',
-        choices: categoryChoices,
-        validate: (input: string[]) => {
-          if (input.length === 0) {
-            return 'Please select at least one category';
-          }
-          return true;
-        },
-      },
-    ] as any)) as { categories: string[] };
-
-    // If "All" is selected, return all categories
-    if (categories.includes('__ALL__')) {
-      return { all: true };
-    }
-
-    return { categories };
+  // Step 2: Select transform in the selected category
+  const category = config.categories[selectedCategory];
+  if (!category) {
+    return { all: true };
   }
 
-  if (scope === 'item') {
-    // Build list of all items across categories
-    const itemChoices: Array<{ name: string; value: string; checked?: boolean }> = [
-      {
-        name: '🔘 All items',
-        value: '__ALL__',
-        checked: false,
-      },
-    ];
+  // Build list of all transforms in this category
+  const transformChoices = [
+    {
+      name: `🔘 All transforms in ${selectedCategory}`,
+      value: '__ALL__',
+    },
+  ];
 
-    for (const [categoryName, category] of Object.entries(config.categories)) {
-      for (const [itemName, item] of Object.entries(category.variables)) {
-        itemChoices.push({
-          name: `${categoryName}.${itemName} - ${item.description} (${item.package})`,
-          value: `${categoryName}.${itemName}`,
-        });
-      }
+  for (const [itemName, item] of Object.entries(category.variables)) {
+    for (const transform of item.transforms) {
+      transformChoices.push({
+        name: `${itemName}.${transform.name} - ${transform.description}`,
+        value: `${selectedCategory}.${itemName}.${transform.name}`,
+      });
     }
-
-    const { items } = (await inquirer.prompt([
-      {
-        type: 'checkbox',
-        name: 'items',
-        message: 'Select items to migrate:',
-        choices: itemChoices,
-        validate: (input: string[]) => {
-          if (input.length === 0) {
-            return 'Please select at least one item';
-          }
-          return true;
-        },
-      },
-    ] as any)) as { items: string[] };
-
-    // If "All" is selected, return all items
-    if (items.includes('__ALL__')) {
-      return { all: true };
-    }
-
-    return { items };
   }
 
-  if (scope === 'transform') {
-    // Build list of all transforms
-    const transformChoices: Array<{ name: string; value: string; checked?: boolean }> = [
-      {
-        name: '🔘 All transforms',
-        value: '__ALL__',
-        checked: false,
-      },
-    ];
+  const { selectedTransform } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'selectedTransform',
+      message: `Which transform in "${selectedCategory}" category?`,
+      choices: transformChoices,
+    },
+  ]);
 
-    for (const [categoryName, category] of Object.entries(config.categories)) {
-      for (const [variableName, variable] of Object.entries(category.variables)) {
-        for (const transform of variable.transforms) {
-          transformChoices.push({
-            name: `${categoryName}.${variableName}.${transform.name} - ${transform.description}`,
-            value: `${categoryName}.${variableName}.${transform.name}`,
-          });
-        }
-      }
-    }
-
-    const { transforms } = (await inquirer.prompt([
-      {
-        type: 'checkbox',
-        name: 'transforms',
-        message: 'Select transforms to run:',
-        choices: transformChoices,
-        validate: (input: string[]) => {
-          if (input.length === 0) {
-            return 'Please select at least one transform';
-          }
-          return true;
-        },
-      },
-    ] as any)) as { transforms: string[] };
-
-    // If "All" is selected, return all transforms
-    if (transforms.includes('__ALL__')) {
-      return { all: true };
-    }
-
-    return { transforms };
+  // If "All transforms" selected, run all in this category
+  if (selectedTransform === '__ALL__') {
+    return { categories: [selectedCategory] };
   }
 
-  return { all: true };
+  // Return the specific transform
+  return { transforms: [selectedTransform] };
 }
 
 async function runInteractiveMode() {
-  // Step 1: Select migration version
+  // Step 1: Select migration preset
   const answers = await inquirer.prompt([
     {
       type: 'list',
-      name: 'migration',
-      message: 'Which major version migration do you need?',
-      choices: SUPPORTED_MIGRATIONS.map((m) => ({
+      name: 'preset',
+      message: 'Which migration preset do you need?',
+      choices: AVAILABLE_PRESETS.map((m) => ({
         name: `${m.name} - ${m.description}`,
         value: m.value,
       })),
@@ -223,11 +147,11 @@ async function runInteractiveMode() {
   }
 
   // Step 4: Load config and let user select scope
-  const migrationDir = path.join(__dirname, answers.migration);
-  const selection = await selectMigrationScope(migrationDir);
+  const presetDir = path.join(__dirname, answers.preset);
+  const selection = await selectMigrationScope(presetDir);
 
   // Step 5: Show what will be migrated
-  const config = loadMigrationConfig(migrationDir);
+  const config = loadMigrationConfig(presetDir);
   const summary = buildMigrationSummary(config, selection);
   console.log(summary);
 
@@ -241,11 +165,12 @@ async function runInteractiveMode() {
     },
   ]);
 
-  // Check for migration history and warn about duplicate runs
+  // Check for migration history and warn about duplicate runs (skip if dry-run)
   const selectedTransforms = getSelectedTransforms(config, selection);
   const transformIds = selectedTransforms.map((t) => `${t.category}.${t.variable}.${t.name}`);
   const alreadyRun = getAlreadyRunTransforms(targetPath, transformIds);
 
+  // Only warn about duplicates if NOT in dry-run mode
   if (alreadyRun.length > 0 && !modeAnswer.dryRun) {
     console.log('\n⚠️  Warning: Some transforms have already been run on this path:\n');
     for (const transformId of alreadyRun) {
@@ -301,7 +226,7 @@ async function runInteractiveMode() {
   }
 
   console.log('\n📋 Migration Summary:');
-  console.log(`  Version: ${answers.migration}`);
+  console.log(`  Preset: ${answers.preset}`);
   console.log(`  Path: ${targetPath}`);
   console.log(`  Mode: ${modeAnswer.dryRun ? 'Dry Run' : 'Apply Changes'}\n`);
 
@@ -322,7 +247,7 @@ async function runInteractiveMode() {
   }
 
   return {
-    migration: answers.migration,
+    preset: answers.preset,
     path: targetPath,
     dryRun: modeAnswer.dryRun,
     selection,
@@ -330,7 +255,7 @@ async function runInteractiveMode() {
 }
 
 async function runNonInteractiveMode(args: CliArgs) {
-  const migration = args.version!;
+  const preset = args.preset!;
   const targetPath = args.path!;
   const dryRun = args.dryRun || false;
   const selection = buildSelectionFromArgs(args);
@@ -340,17 +265,17 @@ async function runNonInteractiveMode(args: CliArgs) {
     process.exit(1);
   }
 
-  // Validate migration version
-  const isValidMigration = SUPPORTED_MIGRATIONS.some((m) => m.value === migration);
-  if (!isValidMigration) {
-    console.error(`Error: Invalid migration version '${migration}'`);
-    console.error(`Available versions: ${SUPPORTED_MIGRATIONS.map((m) => m.value).join(', ')}`);
+  // Validate preset
+  const isValidPreset = AVAILABLE_PRESETS.some((p) => p.value === preset);
+  if (!isValidPreset) {
+    console.error(`Error: Invalid preset '${preset}'`);
+    console.error(`Available presets: ${AVAILABLE_PRESETS.map((p) => p.value).join(', ')}`);
     process.exit(1);
   }
 
   // Load config
-  const migrationDir = path.join(__dirname, migration);
-  const config = loadMigrationConfig(migrationDir);
+  const presetDir = path.join(__dirname, preset);
+  const config = loadMigrationConfig(presetDir);
 
   // Show migration plan
   const summary = buildMigrationSummary(config, selection);
@@ -371,13 +296,13 @@ async function runNonInteractiveMode(args: CliArgs) {
   }
 
   console.log('\n📋 Migration Summary:');
-  console.log(`  Version: ${migration}`);
+  console.log(`  Preset: ${preset}`);
   console.log(`  Path: ${targetPath}`);
   console.log(`  Mode: ${dryRun ? 'Dry Run' : 'Apply Changes'}`);
   console.log(`  Transforms: ${selectedTransforms.length}\n`);
 
   return {
-    migration,
+    preset: preset,
     path: targetPath,
     dryRun,
     selection,

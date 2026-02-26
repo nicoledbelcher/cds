@@ -9,7 +9,7 @@ Code migration tools for the Coinbase Design System.
 npx @coinbase/cds-migrator
 
 # Non-interactive mode
-npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all --dry-run
+npx @coinbase/cds-migrator -p v8-to-v9 --path ./src --all --dry-run
 ```
 
 **→ See [Quick Start Guide](./docs/QUICK_START.md) for complete walkthrough.**
@@ -23,11 +23,13 @@ npx @coinbase/cds-migrator -m v8-to-v9 -p ./src --all --dry-run
 - 💬 **TODO Comments** - Automatically marks code that needs manual review
 - 🌳 **Configuration-Based** - Three-level structure (categories → variables → transforms)
 
-## Supported Migrations
+## Available Presets
 
-| Version     | Description                                          | Status       |
-| ----------- | ---------------------------------------------------- | ------------ |
-| **v8 → v9** | Component API updates, hook changes, utility updates | ✅ Available |
+| Preset       | Description                                          | Status       |
+| ------------ | ---------------------------------------------------- | ------------ |
+| **v8-to-v9** | Component API updates, hook changes, utility updates | ✅ Available |
+
+**Note:** Presets aren't just for version migrations - you can create presets for any collection of code transforms (deprecations, refactors, style updates, etc.).
 
 ## Documentation
 
@@ -79,7 +81,7 @@ Read these if you're adding new migrations or transforms:
 ```
 🚀 CDS Migrator
 
-? Which major version migration do you need?
+? Which migration preset do you need?
   ❯ v8 to v9 - Migrate from CDS v8 to v9
 
 ? Enter the path to your codebase: ./src
