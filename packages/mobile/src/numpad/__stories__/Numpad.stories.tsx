@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
-import { View } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Animated, ScrollView, View } from 'react-native';
 
 import { Banner } from '../../banner/Banner';
 import { Button, ButtonGroup } from '../../buttons';
@@ -9,6 +9,7 @@ import { useSafeBottomPadding } from '../../hooks/useSafeBottomPadding';
 import { useTheme } from '../../hooks/useTheme';
 import { Box, HStack, VStack } from '../../layout';
 import { Modal, ModalBody, ModalHeader } from '../../overlays';
+import { Pressable } from '../../system/Pressable';
 import { Text } from '../../typography/Text';
 import type { NumpadValue } from '../Numpad';
 import { DELETE, Numpad, SEPARATOR } from '../Numpad';
@@ -208,15 +209,155 @@ const NumpadExample2 = () => {
   );
 };
 
+/**
+ * Stress test to reproduce Android Fabric crash with rapid button presses.
+ * This example adds load to the screen:
+ * - Background state updates (counter incrementing)
+ * - Multiple animated components
+ * - Additional Pressable buttons
+ * - ScrollView with content
+ */
+const NumpadStressTest = () => {
+  const theme = useTheme();
+  const [value, setValue] = useState('');
+  const [pressCount, setPressCount] = useState(0);
+  const [backgroundCounter, setBackgroundCounter] = useState(0);
+
+  // Background state updates to add load
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setBackgroundCounter((prev) => prev + 1);
+    }, 100); // Update every 100ms
+    return () => clearInterval(interval);
+  }, []);
+
+  // Animated values for additional load
+  const pulseAnim = useMemo(() => new Animated.Value(1), []);
+
+  useEffect(() => {
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    pulse.start();
+    return () => pulse.stop();
+  }, [pulseAnim]);
+
+  const onPress = useCallback((input: NumpadValue) => {
+    setPressCount((prev) => prev + 1);
+    if (input === DELETE) {
+      setValue((prev) => prev.slice(0, -1));
+    } else if (input !== SEPARATOR) {
+      setValue((prev) => prev + input);
+    }
+  }, []);
+
+  const onLongPress = useCallback((input: NumpadValue) => {
+    if (input === DELETE) {
+      setValue('');
+    }
+  }, []);
+
+  return (
+    <VStack background="bg" flexGrow={1}>
+      {/* Header with animated element and background counter */}
+      <Box background="bgElevation1" padding={2}>
+        <HStack alignItems="center" justifyContent="space-between">
+          <VStack>
+            <Text font="headline">Stress Test</Text>
+            <Text color="fgMuted" font="caption">
+              Press buttons rapidly to test
+            </Text>
+          </VStack>
+          <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+            <Box background="bgPrimary" borderRadius={100} padding={2}>
+              <Text color="fgInverse" font="label1">
+                {pressCount}
+              </Text>
+            </Box>
+          </Animated.View>
+        </HStack>
+        <Text color="fgMuted" font="legal">
+          Background updates: {backgroundCounter}
+        </Text>
+      </Box>
+
+      {/* Additional Pressable buttons to add more Animated.View instances */}
+      <ScrollView style={{ maxHeight: 120 }}>
+        <HStack flexWrap="wrap" gap={1} padding={2}>
+          {Array.from({ length: 20 }).map((_, i) => (
+            <Pressable
+              key={i}
+              background="bgElevation1"
+              borderRadius={200}
+              onPress={() => setPressCount((prev) => prev + 1)}
+              padding={2}
+            >
+              <Text font="caption">Btn {i + 1}</Text>
+            </Pressable>
+          ))}
+        </HStack>
+      </ScrollView>
+
+      {/* Value display */}
+      <Box alignItems="center" padding={4}>
+        <Text font="title1">{value || '0'}</Text>
+      </Box>
+
+      {/* Numpad */}
+      <Box flexGrow={1}>
+        <Numpad feedback="light" onLongPress={onLongPress} onPress={onPress} separator="." />
+      </Box>
+
+      {/* Footer with more animated elements */}
+      <Box background="bgElevation1" padding={2}>
+        <HStack gap={2} justifyContent="space-around">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Animated.View
+              key={i}
+              style={{
+                opacity: pulseAnim.interpolate({
+                  inputRange: [1, 1.1],
+                  outputRange: [0.5, 1],
+                }),
+              }}
+            >
+              <Box background="bgLine" borderRadius={100} height={40} width={40} />
+            </Animated.View>
+          ))}
+        </HStack>
+      </Box>
+    </VStack>
+  );
+};
+
 const NumpadScreen = () => {
   return (
     <ExampleScreen>
-      <Example title="Numpad Examples">
+      <Example title="Numpad Stress Test (Android Fabric)">
+        <Text color="fgMuted" font="caption" padding={2}>
+          Rapidly press numpad buttons to test for crashes on Android with New Architecture
+        </Text>
+        <Box height={600}>
+          <NumpadStressTest />
+        </Box>
+      </Example>
+      {/* <Example title="Numpad Examples">
         <VStack gap={2} padding={2}>
           <NumpadExample1 />
           <NumpadExample2 />
         </VStack>
-      </Example>
+      </Example> */}
     </ExampleScreen>
   );
 };
