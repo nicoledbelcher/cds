@@ -1,4 +1,4 @@
-import { memo, useId, useMemo } from 'react';
+import { memo, useId, useMemo, useState } from 'react';
 import type { SVGProps } from 'react';
 import type { Rect, SharedProps } from '@coinbase/cds-common/types';
 import { m as motion, type Transition } from 'framer-motion';
@@ -69,6 +69,7 @@ const AnimatedPath = memo<Omit<PathProps, 'animate'>>(({ d = '', transition, ...
 
 export const Path = memo<PathProps>(
   ({ animate: animateProp, clipRect, clipOffset = 0, d = '', transition, ...pathProps }) => {
+    const [hasEntered, setHasEntered] = useState(false);
     const clipPathId = useId();
     const context = useCartesianChartContext();
     const rect = clipRect !== undefined ? clipRect : context.drawingArea;
@@ -86,11 +87,11 @@ export const Path = memo<PathProps>(
           width: rect.width + totalOffset,
           transition: {
             type: 'timing',
-            duration: pathEnterTransitionDuration,
+            duration: hasEntered ? 0 : pathEnterTransitionDuration,
           },
         },
       };
-    }, [rect, totalOffset]);
+    }, [hasEntered, rect, totalOffset]);
 
     const clipPath = useMemo(
       () => (rect !== null ? `url(#${clipPathId})` : undefined),
@@ -114,6 +115,7 @@ export const Path = memo<PathProps>(
                   animate="visible"
                   height={rect.height + totalOffset}
                   initial="hidden"
+                  onAnimationComplete={() => setHasEntered(true)}
                   variants={clipPathAnimation}
                   x={rect.x - clipOffset}
                   y={rect.y - clipOffset}
