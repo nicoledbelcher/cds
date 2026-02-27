@@ -1,10 +1,11 @@
 import { forwardRef, memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
-import { assets } from '@coinbase/cds-common/internal/data/assets';
+import { assets, ethBackground } from '@coinbase/cds-common/internal/data/assets';
 import { candles as btcCandles } from '@coinbase/cds-common/internal/data/candles';
 import { prices } from '@coinbase/cds-common/internal/data/prices';
 import { sparklineInteractiveData } from '@coinbase/cds-common/internal/visualizations/SparklineInteractiveData';
 import { useTabsContext } from '@coinbase/cds-common/tabs/TabsContext';
 import type { TabValue } from '@coinbase/cds-common/tabs/useTabs';
+import { DataCard } from '@coinbase/cds-web/alpha/data-card/DataCard';
 import { ListCell } from '@coinbase/cds-web/cells';
 import { useBreakpoints } from '@coinbase/cds-web/hooks/useBreakpoints';
 import { Box, HStack, VStack } from '@coinbase/cds-web/layout';
@@ -21,9 +22,7 @@ import { Text } from '@coinbase/cds-web/typography';
 import { m } from 'framer-motion';
 
 import {
-  type AxisBounds,
   DefaultScrubberBeacon,
-  DefaultScrubberLabel,
   defaultTransition,
   PeriodSelector,
   PeriodSelectorActiveIndicator,
@@ -31,7 +30,6 @@ import {
   projectPoint,
   Scrubber,
   type ScrubberBeaconProps,
-  type ScrubberLabelProps,
   type ScrubberRef,
   useCartesianChartContext,
   useScrubberContext,
@@ -701,41 +699,6 @@ function StylingScrubber() {
       }}
     >
       <Scrubber idlePulse LineComponent={SolidLine} seriesIds={['pageViews']} />
-    </LineChart>
-  );
-}
-
-function HideBeaconLabels() {
-  const pageViews = [2400, 1398, 9800, 3908, 4800, 3800, 4300];
-  const uniqueVisitors = [4000, 3000, 2000, 2780, 1890, 2390, 3490];
-
-  return (
-    <LineChart
-      enableScrubbing
-      legend
-      showArea
-      height={{ base: 200, tablet: 225, desktop: 250 }}
-      inset={{ top: 60 }}
-      series={[
-        {
-          id: 'pageViews',
-          data: pageViews,
-          color: 'var(--color-accentBoldGreen)',
-          label: 'Page Views',
-        },
-        {
-          id: 'uniqueVisitors',
-          data: uniqueVisitors,
-          color: 'var(--color-accentBoldPurple)',
-          label: 'Unique Visitors',
-        },
-      ]}
-    >
-      <Scrubber
-        hideBeaconLabels
-        labelElevated
-        label={(dataIndex: number) => `Day ${dataIndex + 1}`}
-      />
     </LineChart>
   );
 }
@@ -1585,110 +1548,6 @@ function MonotoneAssetPrice() {
   );
 }
 
-function CustomLabelComponent() {
-  const CustomLabelComponent = memo((props: ScrubberLabelProps) => {
-    const { drawingArea } = useCartesianChartContext();
-
-    if (!drawingArea) return;
-
-    return (
-      <DefaultScrubberLabel
-        {...props}
-        elevated
-        background="var(--color-bgPrimary)"
-        color="var(--color-bgPrimaryWash)"
-        dy={32}
-        fontWeight="label1"
-        y={drawingArea.y + drawingArea.height}
-      />
-    );
-  });
-  return (
-    <LineChart
-      enableScrubbing
-      showArea
-      height={{ base: 150, tablet: 200, desktop: 250 }}
-      inset={{ top: 16, bottom: 64 }}
-      series={[
-        {
-          id: 'prices',
-          data: sampleData,
-        },
-      ]}
-    >
-      <Scrubber
-        LabelComponent={CustomLabelComponent}
-        label={(dataIndex: number) => `Day ${dataIndex + 1}`}
-      />
-    </LineChart>
-  );
-}
-
-function CustomBeaconStroke() {
-  const backgroundColor = 'rgb(var(--red40))';
-  const foregroundColor = 'rgb(var(--gray0))';
-
-  return (
-    <Box borderRadius={300} padding={2} style={{ background: backgroundColor }}>
-      <LineChart
-        enableScrubbing
-        showArea
-        height={{ base: 150, tablet: 200, desktop: 250 }}
-        series={[
-          {
-            id: 'prices',
-            data: sampleData,
-            color: foregroundColor,
-          },
-        ]}
-      >
-        <Scrubber
-          hideOverlay
-          idlePulse
-          beaconStroke={backgroundColor}
-          lineStroke={foregroundColor}
-        />
-      </LineChart>
-    </Box>
-  );
-}
-
-function CustomBeaconSize() {
-  const InvertedBeacon = useMemo(
-    () => (props: ScrubberBeaconProps) => (
-      <DefaultScrubberBeacon
-        {...props}
-        color="var(--color-bg)"
-        radius={5}
-        stroke="var(--color-fg)"
-        strokeWidth={3}
-      />
-    ),
-    [],
-  );
-
-  return (
-    <LineChart
-      enableScrubbing
-      showArea
-      showYAxis
-      height={{ base: 150, tablet: 200, desktop: 250 }}
-      series={[
-        {
-          id: 'prices',
-          data: sampleData,
-          color: 'var(--color-fg)',
-        },
-      ]}
-      yAxis={{
-        showGrid: true,
-      }}
-    >
-      <Scrubber BeaconComponent={InvertedBeacon} />
-    </LineChart>
-  );
-}
-
 export const All = () => {
   return (
     <VStack gap={2}>
@@ -1884,152 +1743,127 @@ export const All = () => {
       <Example title="Forecast Asset Price">
         <ForecastAssetPrice />
       </Example>
-      <Example title="Custom Label Component">
-        <CustomLabelComponent />
-      </Example>
-      <Example title="Hide Beacon Labels">
-        <HideBeaconLabels />
-      </Example>
-      <Example title="Custom Beacon Stroke">
-        <CustomBeaconStroke />
-      </Example>
-      <Example title="Custom Beacon Size">
-        <CustomBeaconSize />
+      <Example title="In DataCard">
+        <DataCardWithLineChart />
       </Example>
     </VStack>
   );
 };
 
-export const Transitions = () => {
-  const dataCount = 20;
-  const maxDataOffset = 15000;
-  const minStepOffset = 2500;
-  const maxStepOffset = 10000;
-  const domainLimit = 20000;
-  const updateInterval = 500;
+function DataCardWithLineChart() {
+  const exampleThumbnail = (
+    <RemoteImage
+      accessibilityLabel="Ethereum"
+      shape="circle"
+      size="l"
+      source={ethBackground}
+      testID="thumbnail"
+    />
+  );
 
-  const myTransitionConfig = { type: 'spring', stiffness: 700, damping: 20 };
-  const negativeColor = 'rgb(var(--gray15))';
-  const positiveColor = 'var(--color-fgPositive)';
+  const getLineChartSeries = () => [
+    {
+      id: 'price',
+      data: prices.slice(0, 30).map((price: string) => parseFloat(price)),
+      color: 'var(--color-accentBoldBlue)',
+    },
+  ];
 
-  function generateNextValue(previousValue: number) {
-    const range = maxStepOffset - minStepOffset;
-    const offset = Math.random() * range + minStepOffset;
+  const lineChartSeries = useMemo(() => getLineChartSeries(), []);
+  const lineChartSeries2 = useMemo(() => getLineChartSeries(), []);
+  const ref = useRef<HTMLAnchorElement>(null);
 
-    let direction;
-    if (previousValue >= maxDataOffset) {
-      direction = -1;
-    } else if (previousValue <= -maxDataOffset) {
-      direction = 1;
-    } else {
-      direction = Math.random() < 0.5 ? -1 : 1;
-    }
-
-    let newValue = previousValue + offset * direction;
-    newValue = Math.max(-maxDataOffset, Math.min(maxDataOffset, newValue));
-    return newValue;
-  }
-
-  function generateInitialData() {
-    const data = [];
-
-    let previousValue = Math.random() * 2 * maxDataOffset - maxDataOffset;
-    data.push(previousValue);
-
-    for (let i = 1; i < dataCount; i++) {
-      const newValue = generateNextValue(previousValue);
-      data.push(newValue);
-      previousValue = newValue;
-    }
-
-    return data;
-  }
-
-  const MyGradient = memo((props: DottedAreaProps) => {
-    const areaGradient = {
-      stops: ({ min, max }: AxisBounds) => [
-        { offset: min, color: negativeColor, opacity: 1 },
-        { offset: 0, color: negativeColor, opacity: 0 },
-        { offset: 0, color: positiveColor, opacity: 0 },
-        { offset: max, color: positiveColor, opacity: 1 },
-      ],
-    };
-
-    return <DottedArea {...props} gradient={areaGradient} />;
-  });
-
-  function CustomTransitionsChart() {
-    const [data, setData] = useState(generateInitialData);
-
-    useEffect(() => {
-      const intervalId = setInterval(() => {
-        setData((currentData) => {
-          const lastValue = currentData[currentData.length - 1] ?? 0;
-          const newValue = generateNextValue(lastValue);
-
-          return [...currentData.slice(1), newValue];
-        });
-      }, updateInterval);
-
-      return () => clearInterval(intervalId);
-    }, []);
-
-    const tickLabelFormatter = useCallback(
-      (value: number) =>
-        new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD',
-          maximumFractionDigits: 0,
-        }).format(value),
-      [],
-    );
-
-    const valueAtIndexFormatter = useCallback(
-      (dataIndex: number) =>
-        new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD',
-        }).format(data[dataIndex]),
-      [data],
-    );
-
-    const lineGradient = {
-      stops: [
-        { offset: 0, color: negativeColor },
-        { offset: 0, color: positiveColor },
-      ],
-    };
-
-    return (
-      <CartesianChart
-        enableScrubbing
-        height={{ base: 200, tablet: 250, desktop: 300 }}
-        inset={{ top: 32, bottom: 32, left: 16, right: 16 }}
-        series={[
-          {
-            id: 'prices',
-            data: data,
-            gradient: lineGradient,
-          },
-        ]}
-        yAxis={{ domain: { min: -domainLimit, max: domainLimit } }}
+  return (
+    <VStack gap={2}>
+      <DataCard
+        layout="vertical"
+        subtitle="Price trend"
+        thumbnail={exampleThumbnail}
+        title="Line Chart Card"
       >
-        <YAxis showGrid requestedTickCount={2} tickLabelFormatter={tickLabelFormatter} />
-        <Line
+        <LineChart
           showArea
-          AreaComponent={MyGradient}
-          seriesId="prices"
-          strokeWidth={3}
-          transition={myTransitionConfig}
+          accessibilityLabel="Ethereum price chart"
+          areaType="dotted"
+          height={120}
+          inset={0}
+          series={lineChartSeries}
         />
-        <Scrubber
-          hideOverlay
-          beaconTransitions={{ update: myTransitionConfig }}
-          label={valueAtIndexFormatter}
+      </DataCard>
+      <DataCard
+        layout="vertical"
+        subtitle="Price trend"
+        thumbnail={exampleThumbnail}
+        title="Line Chart with Tag"
+        titleAccessory={
+          <Text dangerouslySetColor="rgb(var(--green70))" font="label1">
+            ↗ 25.25%
+          </Text>
+        }
+      >
+        <LineChart
+          showArea
+          accessibilityLabel="Ethereum price chart"
+          areaType="dotted"
+          height={100}
+          inset={0}
+          series={lineChartSeries}
         />
-      </CartesianChart>
-    );
-  }
+      </DataCard>
+      <DataCard
+        ref={ref}
+        renderAsPressable
+        as="a"
+        href="https://www.coinbase.com"
+        layout="vertical"
+        subtitle="Clickable line chart card"
+        target="_blank"
+        thumbnail={exampleThumbnail}
+        title="Actionable Line Chart"
+        titleAccessory={
+          <Text dangerouslySetColor="rgb(var(--green70))" font="label1">
+            ↗ 25.25%
+          </Text>
+        }
+      >
+        <LineChart
+          showArea
+          accessibilityLabel="Ethereum price chart"
+          areaType="dotted"
+          height={120}
+          inset={0}
+          series={lineChartSeries}
+        />
+      </DataCard>
 
-  return <CustomTransitionsChart />;
-};
+      <DataCard
+        layout="vertical"
+        subtitle="Price trend"
+        thumbnail={
+          <RemoteImage
+            accessibilityLabel="Bitcoin"
+            shape="circle"
+            size="l"
+            source={assets.btc.imageUrl}
+            testID="thumbnail"
+          />
+        }
+        title="Card with Line Chart"
+        titleAccessory={
+          <Text dangerouslySetColor="rgb(var(--green70))" font="label1">
+            ↗ 25.25%
+          </Text>
+        }
+      >
+        <LineChart
+          showArea
+          accessibilityLabel="Price chart"
+          areaType="dotted"
+          height={100}
+          inset={0}
+          series={lineChartSeries2}
+        />
+      </DataCard>
+    </VStack>
+  );
+}

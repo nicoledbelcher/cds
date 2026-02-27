@@ -8,13 +8,13 @@ import {
   type ReferenceLineBaseProps,
   type ReferenceLineLabelComponentProps,
 } from '../line';
-import type { ChartTextProps } from '../text';
+import type { ChartTextChildren, ChartTextProps } from '../text';
 import {
-  accessoryFadeTransitionDelay,
-  accessoryFadeTransitionDuration,
   type ChartInset,
   type ChartScaleFunction,
+  defaultAccessoryEnterTransition,
   getPointOnScale,
+  getTransition,
   type Series,
   useScrubberContext,
 } from '../utils';
@@ -41,7 +41,7 @@ export type ScrubberBeaconRef = {
   pulse: () => void;
 };
 
-export type ScrubberBeaconProps = SharedProps & {
+export type ScrubberBeaconBaseProps = {
   /**
    * Id of the series.
    */
@@ -75,27 +75,6 @@ export type ScrubberBeaconProps = SharedProps & {
    */
   animate?: boolean;
   /**
-   * Transition configuration for beacon animations.
-   */
-  transitions?: {
-    /**
-     * Transition used for beacon position updates.
-     * @default defaultTransition
-     */
-    update?: Transition;
-    /**
-     * Transition used for the pulse animation.
-     * @default { duration: 1.6, ease: 'easeInOut' }
-     */
-    pulse?: Transition;
-    /**
-     * Delay, in seconds between pulse transitions
-     * when `idlePulse` is enabled.
-     * @default 0.4
-     */
-    pulseRepeatDelay?: number;
-  };
-  /**
    * Opacity of the beacon.
    * @default 1
    */
@@ -105,15 +84,45 @@ export type ScrubberBeaconProps = SharedProps & {
    * @default 'var(--color-bg)'
    */
   stroke?: string;
-  /**
-   * Custom className for styling.
-   */
-  className?: string;
-  /**
-   * Custom inline styles.
-   */
-  style?: React.CSSProperties;
 };
+
+export type ScrubberBeaconProps = SharedProps &
+  ScrubberBeaconBaseProps & {
+    /**
+     * Transition configuration for beacon animations.
+     */
+    transitions?: {
+      /**
+       * Transition for the initial enter/reveal animation.
+       * Set to `null` to disable.
+       */
+      enter?: Transition | null;
+      /**
+       * Transition for subsequent data update animations.
+       * Set to `null` to disable.
+       */
+      update?: Transition | null;
+      /**
+       * Transition used for the pulse animation.
+       * @default transition { duration: 1.6, ease: 'easeInOut' }
+       */
+      pulse?: Transition;
+      /**
+       * Delay, in seconds between pulse transitions
+       * when `idlePulse` is enabled.
+       * @default 0.4
+       */
+      pulseRepeatDelay?: number;
+    };
+    /**
+     * Custom className for styling.
+     */
+    className?: string;
+    /**
+     * Custom inline styles.
+     */
+    style?: React.CSSProperties;
+  };
 
 export type ScrubberBeaconComponent = React.FC<
   ScrubberBeaconProps & { ref?: React.Ref<ScrubberBeaconRef> }
@@ -127,11 +136,16 @@ export type ScrubberBeaconLabelProps = Pick<Series, 'color'> &
     /**
      * Label for the series.
      */
-    label: string;
+    label: ChartTextChildren;
     /**
      * Id of the series.
      */
     seriesId: Series['id'];
+    /**
+     * Transition configuration for position animations.
+     * When provided, the label component should animate its y position using this transition.
+     */
+    transition?: Transition;
   };
 export type ScrubberBeaconLabelComponent = React.FC<ScrubberBeaconLabelProps>;
 
@@ -178,6 +192,12 @@ export type ScrubberBaseProps = SharedProps &
      */
     beaconLabelHorizontalOffset?: ScrubberBeaconLabelGroupBaseProps['labelHorizontalOffset'];
     /**
+     * Preferred side for beacon labels.
+     * @note labels will switch to the opposite side if there's not enough space on the preferred side.
+     * @default 'right'
+     */
+    beaconLabelPreferredSide?: ScrubberBeaconLabelGroupBaseProps['labelPreferredSide'];
+    /**
      * Label text displayed above the scrubber line.
      * Can be a static string or a function that receives the current dataIndex.
      */
@@ -190,7 +210,7 @@ export type ScrubberBaseProps = SharedProps &
     labelFont?: ChartTextProps['font'];
     /**
      * Bounds inset for the scrubber line label to prevent cutoff at chart edges.
-     * @default { top: 4, bottom: 20, left: 12, right: 12 } when labelElevated is true, otherwise none
+     * @default inset { top: 4, bottom: 20, left: 12, right: 12 } when labelElevated is true, otherwise none
      */
     labelBoundsInset?: number | ChartInset;
     /**
@@ -202,10 +222,6 @@ export type ScrubberBaseProps = SharedProps &
      */
     lineStroke?: ReferenceLineBaseProps['stroke'];
     /**
-     * Transition configuration for the scrubber beacon.
-     */
-    beaconTransitions?: ScrubberBeaconProps['transitions'];
-    /**
      * Stroke color of the scrubber beacon circle.
      * @default 'var(--color-bg)'
      */
@@ -214,26 +230,40 @@ export type ScrubberBaseProps = SharedProps &
 
 export type ScrubberProps = ScrubberBaseProps & {
   /**
+   * Transition configuration for the scrubber.
+   * Controls enter, update, and pulse animations for beacons and beacon labels.
+   */
+  transitions?: ScrubberBeaconProps['transitions'];
+  /**
+   * Transition configuration for the scrubber beacon.
+   * @deprecated Use `transitions` instead.
+   */
+  beaconTransitions?: ScrubberBeaconProps['transitions'];
+  /**
    * Accessibility label for the scrubber. Can be a static string or a function that receives the current dataIndex.
    * If not provided, label will be used if it resolves to a string.
    */
   accessibilityLabel?: string | ((dataIndex: number) => string);
-  /**
-   * Custom styles for scrubber elements.
-   */
+  /** Custom styles for individual elements of the Scrubber component */
   styles?: {
+    /** Overlay element */
     overlay?: React.CSSProperties;
+    /** Beacon circle element */
     beacon?: React.CSSProperties;
+    /** Scrubber line element */
     line?: React.CSSProperties;
+    /** Beacon label element */
     beaconLabel?: React.CSSProperties;
   };
-  /**
-   * Custom class names for scrubber elements.
-   */
+  /** Custom class names for individual elements of the Scrubber component */
   classNames?: {
+    /** Overlay element */
     overlay?: string;
+    /** Beacon circle element */
     beacon?: string;
+    /** Scrubber line element */
     line?: string;
+    /** Beacon label element */
     beaconLabel?: string;
   };
 };
@@ -262,12 +292,14 @@ export const Scrubber = memo(
         overlayOffset = 2,
         beaconLabelMinGap,
         beaconLabelHorizontalOffset,
+        beaconLabelPreferredSide,
         labelFont,
         labelBoundsInset,
         beaconLabelFont,
         testID,
         idlePulse,
         beaconTransitions,
+        transitions = beaconTransitions,
         beaconStroke,
         styles,
         classNames,
@@ -342,6 +374,11 @@ export const Scrubber = memo(
         [series, filteredSeriesIds],
       );
 
+      const groupEnterTransition = useMemo(
+        () => getTransition(transitions?.enter, animate, defaultAccessoryEnterTransition),
+        [transitions?.enter, animate],
+      );
+
       // Check if we have at least the default X scale
       const defaultXScale = getXScale();
       if (!defaultXScale) return null;
@@ -361,12 +398,8 @@ export const Scrubber = memo(
             ? {
                 animate: {
                   opacity: 1,
-                  transition: {
-                    duration: accessoryFadeTransitionDuration,
-                    delay: accessoryFadeTransitionDelay,
-                  },
+                  transition: groupEnterTransition,
                 },
-                exit: { opacity: 0, transition: { duration: accessoryFadeTransitionDuration } },
                 initial: { opacity: 0 },
               }
             : {})}
@@ -406,7 +439,7 @@ export const Scrubber = memo(
             stroke={beaconStroke}
             style={styles?.beacon}
             testID={testID}
-            transitions={beaconTransitions}
+            transitions={transitions}
           />
           {!hideBeaconLabels && beaconLabels.length > 0 && (
             <ScrubberBeaconLabelGroup
@@ -414,7 +447,9 @@ export const Scrubber = memo(
               labelFont={beaconLabelFont}
               labelHorizontalOffset={beaconLabelHorizontalOffset}
               labelMinGap={beaconLabelMinGap}
+              labelPreferredSide={beaconLabelPreferredSide}
               labels={beaconLabels}
+              transitions={transitions}
             />
           )}
         </motion.g>

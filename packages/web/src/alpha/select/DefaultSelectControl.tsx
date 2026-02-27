@@ -35,6 +35,15 @@ const noFocusOutlineCss = css`
   }
 `;
 
+const selectedOptionChipContentCss = css`
+  min-width: 0;
+
+  & > :not(:last-child) {
+    min-width: 0;
+    max-width: 100%;
+  }
+`;
+
 const variantColor: Record<string, ThemeVars.Color> = {
   foreground: 'fg',
   positive: 'fgPositive',
@@ -72,6 +81,7 @@ const DefaultSelectControlComponent = memo(
         endNode: customEndNode,
         compact,
         blendStyles,
+        align = 'start',
         bordered = true,
         borderWidth = bordered ? 100 : 0,
         focusedBorderWidth = bordered ? undefined : 200,
@@ -279,12 +289,15 @@ const DefaultSelectControlComponent = memo(
                     data-selected-value
                     accessibilityLabel={`${removeSelectedOptionAccessibilityLabel} ${accessibilityLabel}`}
                     borderWidth={0}
+                    classNames={{ content: selectedOptionChipContentCss }}
                     disabled={option.disabled}
                     invertColorScheme={false}
                     maxWidth={200}
                     onClick={(event) => handleUnselectValue(event, index)}
                   >
-                    {option.label ?? option.description ?? option.value ?? ''}
+                    <Text color="fg" flexShrink={1} font="label1" overflow="truncate">
+                      {option.label ?? option.description ?? option.value ?? ''}
+                    </Text>
                   </InputChip>
                 );
               })}
@@ -304,6 +317,7 @@ const DefaultSelectControlComponent = memo(
             display="block"
             font="body"
             overflow="truncate"
+            textAlign={align}
             width="100%"
           >
             {singleValueContent}
@@ -315,6 +329,7 @@ const DefaultSelectControlComponent = memo(
         hasValue,
         isMultiSelect,
         singleValueContent,
+        align,
         value,
         maxSelectedOptionsToShow,
         hiddenSelectedOptionsLabel,
@@ -381,7 +396,7 @@ const DefaultSelectControlComponent = memo(
             >
               <VStack
                 ref={valueNodeContainerRef}
-                alignItems="flex-start"
+                alignItems={align}
                 className={classNames?.controlValueNode}
                 flexGrow={1}
                 flexShrink={1}
@@ -417,6 +432,7 @@ const DefaultSelectControlComponent = memo(
           startNode,
           shouldShowCompactLabel,
           labelNode,
+          align,
           isMultiSelect,
           valueNode,
           contentNode,

@@ -78,15 +78,36 @@ You can use tooltips within `TextInput` to provide more context.
   id="tooltip-input-example"
   label="Display name"
   labelNode={
-    <InputLabel htmlFor="tooltip-input-example">
-      <HStack alignItems="center" gap={1}>
-        Display name
-        <Tooltip content="This will be visible to other users.">
-          <Icon active color="fg" name="info" size="xs" tabIndex={0} />
-        </Tooltip>
-      </HStack>
-    </InputLabel>
+    <HStack alignItems="center">
+      <InputLabel htmlFor="tooltip-input-example">Display name</InputLabel>
+      {/* Add padding to ensure 24x24 tooltip tap target for a11y compliance */}
+      <Tooltip content="This will be visible to other users.">
+        <Icon active color="fg" name="info" padding={0.75} size="xs" tabIndex={0} />
+      </Tooltip>
+    </HStack>
   }
   placeholder="Satoshi Nakamoto"
 />
+```
+
+### Visibility delay (hover)
+
+Use `openDelay` and `closeDelay` to slow down hover activation and reduce accidental opens on dense UI. Keyboard focus still opens immediately.
+
+```jsx live
+function TooltipVisibilityDelay() {
+  return (
+    <HStack spacingHorizontal={2} gap={2} justifyContent="space-around">
+      <Tooltip content="Opens after 400ms" openDelay={400}>
+        <Button>Open delay 400ms</Button>
+      </Tooltip>
+      <Tooltip content="Closes after 150ms" closeDelay={150}>
+        <Button>Close delay 150ms</Button>
+      </Tooltip>
+      <Tooltip content="Open 400 / Close 150" openDelay={400} closeDelay={150}>
+        <Button>Open 400 / Close 150</Button>
+      </Tooltip>
+    </HStack>
+  );
+}
 ```

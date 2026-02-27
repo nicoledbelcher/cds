@@ -8,7 +8,103 @@ All notable changes to this project will be documented in this file.
 
 <!-- template-start -->
 
-## Unreleased
+## 8.49.0 ((2/26/2026, 04:03 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.48.3 ((2/25/2026, 08:36 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.48.2 ((2/25/2026, 04:21 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.48.1 ((2/25/2026, 01:30 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.48.0 ((2/24/2026, 10:33 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.47.4 ((2/23/2026, 03:04 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.47.3 ((2/20/2026, 09:16 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.47.2 ((2/19/2026, 03:18 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.47.1 ((2/19/2026, 01:18 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.47.0 ((2/19/2026, 08:05 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.46.1 ((2/12/2026, 01:01 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.46.0 ((2/12/2026, 11:34 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.45.0 ((2/12/2026, 07:33 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.44.2 ((2/10/2026, 08:38 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.44.1 ((2/10/2026, 12:05 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.44.0 (2/9/2026 PST)
+
+#### 🚀 Updates
+
+- Add new tray design. [[#349](https://github.com/coinbase/cds/pull/349)]
+
+## 8.43.2 (2/9/2026 PST)
+
+#### 🐞 Fixes
+
+- Allow contenteditable elements to be focusable in Modals. [[#371](https://github.com/coinbase/cds/pull/371)]
+
+## 8.43.1 ((2/6/2026, 02:15 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.43.0 (2/6/2026 PST)
+
+#### 🚀 Updates
+
+- Carousel autoplay. [[#361](https://github.com/coinbase/cds/pull/361)]
+
+## 8.42.0 ((2/4/2026, 01:51 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.41.0 ((2/4/2026, 09:22 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.40.2 ((2/2/2026, 11:25 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.40.1 ((1/30/2026, 04:58 PM PST))
+
+This is an artificial version bump with no new change.
 
 #### 📘 Misc
 

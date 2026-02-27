@@ -8,7 +8,135 @@ All notable changes to this project will be documented in this file.
 
 <!-- template-start -->
 
-## Unreleased
+## 8.49.0 (2/26/2026 PST)
+
+#### 🚀 Updates
+
+- Add styles and classnames props to Tab components. [[#438](https://github.com/coinbase/cds/pull/438)]
+
+## 8.48.3 (2/25/2026 PST)
+
+#### 🐞 Fixes
+
+- Fix: allow arrow up/down keys within focus trapped text area. [[#417](https://github.com/coinbase/cds/pull/417)]
+
+## 8.48.2 ((2/25/2026, 04:21 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.48.1 (2/25/2026 PST)
+
+#### 🐞 Fixes
+
+- Truncate text mid-word in multi-select chips. [[#412](https://github.com/coinbase/cds/pull/412)]
+
+## 8.48.0 (2/24/2026 PST)
+
+#### 🚀 Updates
+
+- Add start/end icon/node support to Tag. [[#421](https://github.com/coinbase/cds/pull/421)]
+
+## 8.47.4 ((2/23/2026, 03:04 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.47.3 (2/20/2026 PST)
+
+#### 🐞 Fixes
+
+- Remove behavior of scrolling inside TextInput updating numeric values. [[#413](https://github.com/coinbase/cds/pull/413)]
+
+## 8.47.2 ((2/19/2026, 03:18 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.47.1 ((2/19/2026, 01:18 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.47.0 (2/19/2026 PST)
+
+#### 🚀 Updates
+
+- Feat: enable Button text customization via font props. [[#408](https://github.com/coinbase/cds/pull/408)]
+
+## 8.46.1 (2/12/2026 PST)
+
+#### 🐞 Fixes
+
+- Fix: (DX-5052) use previous active step value for calculating remaining steps to animate to for a completed stepper. [[#397](https://github.com/coinbase/cds/pull/397)] [DX-5052]
+
+## 8.46.0 (2/12/2026 PST)
+
+#### 🚀 Updates
+
+- Add open/close visibility delays to Tooltip. [[#234](https://github.com/coinbase/cds/pull/234)]
+
+## 8.45.0 (2/12/2026 PST)
+
+#### 🚀 Updates
+
+- Add reduce motion support for Tray. [[#386](https://github.com/coinbase/cds/pull/386)]
+
+## 8.44.2 (2/10/2026 PST)
+
+#### 🐞 Fixes
+
+- Fix Tray drag elastic. [[#385](https://github.com/coinbase/cds/pull/385)]
+
+## 8.44.1 (2/10/2026 PST)
+
+#### 🐞 Fixes
+
+- Enabled customer to override the width prop in Banner so they can explicitly pass in a width for any bleed effect. [[#383](https://github.com/coinbase/cds/pull/383)]
+
+#### 📘 Misc
+
+- Update jsdocs for styles props. [[#384](https://github.com/coinbase/cds/pull/384)]
+
+## 8.44.0 (2/9/2026 PST)
+
+#### 🚀 Updates
+
+- Add new tray design. [[#349](https://github.com/coinbase/cds/pull/349)]
+
+## 8.43.2 ((2/9/2026, 09:05 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.43.1 (2/6/2026 PST)
+
+#### 🐞 Fixes
+
+- Update chpi prop export. [[#328](https://github.com/coinbase/cds/pull/328)]
+- Add NavigationBar classNames. [[#328](https://github.com/coinbase/cds/pull/328)]
+
+## 8.43.0 (2/6/2026 PST)
+
+#### 🚀 Updates
+
+- Carousel autoplay. [[#361](https://github.com/coinbase/cds/pull/361)]
+
+## 8.42.0 (2/4/2026 PST)
+
+#### 🚀 Updates
+
+- Added MediaCard, MessagingCard, and alpha DataCard. [[#329](https://github.com/coinbase/cds/pull/329)]
+- Updated ContentCard. [[#329](https://github.com/coinbase/cds/pull/329)]
+
+## 8.41.0 (2/4/2026 PST)
+
+#### 🚀 Updates
+
+- Add align prop to Select and Combobox. [[#348](https://github.com/coinbase/cds/pull/348)]
+
+## 8.40.2 ((2/2/2026, 11:25 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.40.1 ((1/30/2026, 04:58 PM PST))
+
+This is an artificial version bump with no new change.
 
 #### 📘 Misc
 

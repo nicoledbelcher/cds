@@ -9,8 +9,7 @@ const onProcessDoc = require('./src/utils/onProcessDocgen');
 module.exports = {
   docsDir: path.join(__dirname, './docs/components'),
   /**
-   * Determines if plugin should run. If plugin is too slow in development,
-   * you can either increase watchInterval or set this to false.
+   * Determines if plugin should run. Set to false to disable docgen entirely.
    * @default true
    */
   enabled: true,
@@ -34,17 +33,12 @@ module.exports = {
   },
   onProcessDoc,
   /**
-   * How frequently (in minutes) should plugin run after it was last run.
-   * This is typically triggered via on save of project file.
-   * @default 5
-   */
-  watchInterval: 20,
-  /**
    * Any source files relative to entryPoints above that you want docgen to parse.
    * Plese add sourceFiles in alphabetical order.
    */
   sourceFiles: [
     'alpha/combobox/Combobox',
+    'alpha/data-card/DataCard',
     'alpha/select/Select',
     'alpha/select-chip/SelectChip',
     'alpha/tabbed-chips/TabbedChips',
@@ -65,6 +59,8 @@ module.exports = {
     'cards/ContentCard/ContentCardBody',
     'cards/ContentCard/ContentCardFooter',
     'cards/FloatingAssetCard',
+    'cards/MediaCard/index',
+    'cards/MessagingCard/index',
     'cards/NudgeCard',
     'cards/UpsellCard',
     'carousel/Carousel',
