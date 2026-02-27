@@ -6,56 +6,13 @@
       "description": "Component API changes",
       "variables": {
         "Button": {
-          "description": "Button component prop changes",
+          "description": "Button and IconButton variant changes",
           "package": "@coinbase/cds-web",
           "transforms": [
             {
-              "name": "button-variant-to-appearance",
-              "description": "Rename 'variant' prop to 'appearance'",
-              "file": "transforms/example-transform"
-            }
-          ]
-        },
-        "Input": {
-          "description": "Input component prop changes",
-          "package": "@coinbase/cds-web",
-          "transforms": [
-            {
-              "name": "input-size-values",
-              "description": "Update size prop values (sm/md/lg to small/medium/large)",
-              "file": "transforms/example-transform"
-            }
-          ]
-        }
-      }
-    },
-    "hooks": {
-      "description": "Hook API changes",
-      "variables": {
-        "useTheme": {
-          "description": "useTheme hook signature changes",
-          "package": "@coinbase/cds-common",
-          "transforms": [
-            {
-              "name": "use-theme-return-type",
-              "description": "Update destructured return values from useTheme",
-              "file": "transforms/example-transform"
-            }
-          ]
-        }
-      }
-    },
-    "utilities": {
-      "description": "Utility function changes",
-      "variables": {
-        "formatCurrency": {
-          "description": "formatCurrency function signature changes",
-          "package": "@coinbase/cds-utils",
-          "transforms": [
-            {
-              "name": "format-currency-options",
-              "description": "Update formatCurrency options parameter",
-              "file": "transforms/example-transform"
+              "name": "button-variant-mapping",
+              "description": "Map Button/IconButton variant values (tertiary→inverse, foregroundMuted→secondary)",
+              "file": "transforms/button-variant-mapping"
             }
           ]
         }

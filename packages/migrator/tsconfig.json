@@ -7,6 +7,14 @@
   "include": [
     "src/**/*"
   ],
-  "exclude": [],
+  "exclude": [
+    // Keep migrator package typecheck focused on implementation source only.
+    // Transform fixtures intentionally contain example app code patterns that
+    // are validated by Jest transform tests, not by tsc project compilation.
+    "**/__tests__/**",
+    "**/__fixtures__/**",
+    "**/*.test.*",
+    "**/*.spec.*"
+  ],
   "references": []
 }
