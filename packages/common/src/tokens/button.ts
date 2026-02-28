@@ -2,8 +2,8 @@ import type { ThemeVars } from '../core/theme';
 import type { ButtonVariant } from '../types';
 
 type ButtonVariantStyles = {
-  background?: ThemeVars.Color;
-  borderColor?: ThemeVars.Color;
+  background: ThemeVars.Color;
+  borderColor: ThemeVars.Color;
   color: ThemeVars.Color;
 };
 
@@ -12,8 +12,8 @@ type ButtonVariantConfig = Record<ButtonVariant, ButtonVariantStyles>;
 export const variants = {
   gradient: {
     color: 'fgInverse',
-    background: undefined,
-    borderColor: undefined,
+    background: 'transparent',
+    borderColor: 'transparent',
   },
   primary: {
     color: 'fgInverse',
@@ -50,7 +50,7 @@ export const variants = {
 export const transparentVariants = {
   gradient: {
     color: 'fgInverse',
-    background: undefined,
+    background: 'transparent',
     borderColor: 'transparent',
   },
   primary: {

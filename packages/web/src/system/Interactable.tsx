@@ -194,7 +194,7 @@ export type InteractableBlendStyles = {
 
 export type InteractableBaseProps = Polymorphic.ExtendableProps<
   BoxBaseProps,
-  Pick<GradientBoxBaseProps, 'gradient' | 'dangerouslySetGradient'> & {
+  Pick<GradientBoxBaseProps, 'gradient' | 'gradientConfig'> & {
     /** Apply class names to the outer container. */
     className?: string;
     /** Background color of the overlay (element being interacted with). */
@@ -250,7 +250,7 @@ export const Interactable: InteractableComponent = forwardRef<
       className,
       disabled,
       gradient,
-      dangerouslySetGradient,
+      gradientConfig,
       loading,
       pressed,
       style,
@@ -277,7 +277,7 @@ export const Interactable: InteractableComponent = forwardRef<
       [theme, background, blendStyles, borderColor, style],
     );
 
-    const Wrapper = gradient || dangerouslySetGradient ? GradientBox : Box;
+    const Wrapper = gradient || gradientConfig ? GradientBox : Box;
 
     return (
       <Wrapper
@@ -299,10 +299,10 @@ export const Interactable: InteractableComponent = forwardRef<
           blendStyles?.disabledBackgroundGradient && disabledBackgroundGradientCss,
           className,
         )}
-        dangerouslySetGradient={dangerouslySetGradient}
         data-disabled={disabled}
         disabled={disabled}
         gradient={gradient}
+        gradientConfig={gradientConfig}
         style={interactableStyle}
         {...props}
       />

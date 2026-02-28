@@ -12,16 +12,16 @@ export { RadialGradientFill, type RadialGradientFillProps } from '../gradients/R
 
 export type GradientBoxBaseProps = {
   /**
-   * Theme gradient preset to apply as the background.
-   * @example "brand" | "primary" | "positive" | "negative" | "premium"
+   * Theme gradient preset name. Resolved from theme configuration.
+   * @example "brand", "primary", "positive"
    */
   gradient?: ThemeVars.Gradient;
   /**
-   * @danger Escape hatch for applying a custom linear gradient configuration.
-   * Use this for gradients not defined in the theme.
+   * Custom linear gradient configuration. Rendered as SVG LinearGradient.
+   * Use this for dynamic or non-theme gradients.
    * @example { colors: ['#0052FF', '#7B3FE4'], angle: 90 }
    */
-  dangerouslySetGradient?: LinearGradientFillProps;
+  gradientConfig?: LinearGradientFillProps;
   /**
    * @default false
    * Gradient will overlay the children content when true.
@@ -44,7 +44,7 @@ export const GradientBox = memo(
         elevated,
         children,
         gradient,
-        dangerouslySetGradient,
+        gradientConfig,
         overflow = 'hidden',
         GradientComponent,
         ...props
@@ -53,16 +53,17 @@ export const GradientBox = memo(
     ) => {
       const theme = useTheme();
 
-      const gradientConfig = useMemo(
-        () => dangerouslySetGradient ?? (gradient ? theme.gradient?.[gradient] : undefined),
-        [dangerouslySetGradient, gradient, theme.gradient],
-      );
+      const resolvedConfig = useMemo(() => {
+        if (gradientConfig) return gradientConfig;
+        if (gradient && theme.gradient?.[gradient]) return theme.gradient[gradient];
+        return undefined;
+      }, [gradient, gradientConfig, theme.gradient]);
 
       // TO DO: This is temporarily set to LinearGradientFillProps, and subject to change based on design decisions.
       const defaultGradient = useMemo(() => {
-        if (!gradientConfig?.colors) return null;
-        return <LinearGradientFill key="GradientFillContainer" {...gradientConfig} />;
-      }, [gradientConfig]);
+        if (!resolvedConfig?.colors) return null;
+        return <LinearGradientFill key="GradientFillContainer" {...resolvedConfig} />;
+      }, [resolvedConfig]);
 
       const renderedGradient = GradientComponent ?? defaultGradient;
 

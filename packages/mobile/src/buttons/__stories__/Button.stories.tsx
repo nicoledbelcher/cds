@@ -62,10 +62,10 @@ const GradientButtonExamples = () => {
         </Button>
       </Example>
 
-      <Example title="Custom Gradients (dangerouslySetGradient)">
+      <Example title="Custom Gradients (gradientConfig)">
         <Button
           color="fgInverse"
-          dangerouslySetGradient={{
+          gradientConfig={{
             colors: [theme.color.bgNegative, theme.color.bgWarning],
             angle: 90,
           }}
@@ -76,7 +76,7 @@ const GradientButtonExamples = () => {
 
         <Button
           color="fgInverse"
-          dangerouslySetGradient={{
+          gradientConfig={{
             colors: [
               theme.color.accentBoldPurple,
               theme.color.accentBoldBlue,

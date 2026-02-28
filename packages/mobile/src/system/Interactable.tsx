@@ -45,7 +45,7 @@ export type InteractableBlendStyles = {
 };
 
 export type InteractableBaseProps = Omit<BoxBaseProps, 'animated'> &
-  Pick<GradientBoxBaseProps, 'gradient' | 'dangerouslySetGradient'> & {
+  Pick<GradientBoxBaseProps, 'gradient' | 'gradientConfig'> & {
     /** Apply animated styles to the outer container. */
     style?: Animated.WithAnimatedValue<StyleProp<ViewStyle>>[];
     /** Background color of the overlay (element being interacted with). */
@@ -101,7 +101,7 @@ export const Interactable = memo(function Interactable({
   transparentWhileInactive,
   transparentWhilePressed,
   gradient,
-  dangerouslySetGradient,
+  gradientConfig,
   ...props
 }: InteractableProps) {
   const theme = useTheme();
@@ -133,12 +133,12 @@ export const Interactable = memo(function Interactable({
     });
   }, [theme, background, isTransparent, isPressedAndTransparent, blendStyles, borderColor]);
 
-  // Resolve active gradient based on interaction state
-  // Priority: disabled > pressed > blendStyles.backgroundGradient > dangerouslySetGradient > gradient
-  const activeGradientProps = useMemo(() => {
-    const baseGradientProps =
+  // Resolve active gradient config based on interaction state
+  // Priority: disabled > pressed > blendStyles.backgroundGradient > gradientConfig > gradient (theme preset)
+  const activeGradientConfig = useMemo(() => {
+    const baseGradientConfig =
       blendStyles?.backgroundGradient ??
-      dangerouslySetGradient ??
+      gradientConfig ??
       (gradient ? theme.gradient?.[gradient] : undefined);
 
     // Disabled state takes highest priority
@@ -151,14 +151,14 @@ export const Interactable = memo(function Interactable({
       return blendStyles.pressedBackgroundGradient;
     }
 
-    // Fall back to base gradient
-    return baseGradientProps;
+    // Fall back to base gradient config
+    return baseGradientConfig;
   }, [
     blendStyles?.backgroundGradient,
     blendStyles?.disabledBackgroundGradient,
     blendStyles?.pressedBackgroundGradient,
-    dangerouslySetGradient,
     gradient,
+    gradientConfig,
     theme.gradient,
     disabled,
     pressed,
@@ -186,14 +186,14 @@ export const Interactable = memo(function Interactable({
 
   const content = <View style={mergedContentStyles}>{children}</View>;
 
-  const Wrapper = activeGradientProps ? GradientBox : Box;
+  const Wrapper = activeGradientConfig ? GradientBox : Box;
 
   return (
     <Wrapper
       animated
       borderColor={borderColor}
       borderWidth={borderWidth}
-      dangerouslySetGradient={activeGradientProps}
+      gradientConfig={activeGradientConfig}
       style={mergedWrapperStyles}
       {...props}
     >

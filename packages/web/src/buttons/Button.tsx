@@ -125,9 +125,10 @@ export type ButtonBaseProps = Polymorphic.ExtendableProps<
        * Toggle design and visual variants.
        *
        * When using `variant="gradient"`, you must specify gradient styles via one of:
-       * - `gradient` prop (predefined gradient name)
-       * - `dangerouslySetGradient` prop (custom CSS gradient string)
-       * - `blendStyles.backgroundGradient` (and optionally hover/pressed/disabled gradient variants)
+       * - `gradient` prop with a theme preset name (e.g., "brand", "primary")
+       * - `gradientConfig` prop with a custom config object (e.g., `{ colors: ['#0052FF', '#7B3FE4'], angle: 90 }`)
+       * - `blendStyles.backgroundGradient` for state-based gradients (hover/pressed/disabled)
+       * - `style={{ backgroundImage: '...' }}` for radial, conic, or other advanced gradients
        *
        * @default primary
        */
@@ -189,8 +190,8 @@ export const Button: ButtonComponent = memo(
       {
         as,
         gradient,
-        dangerouslySetGradient,
-        variant = gradient || dangerouslySetGradient ? 'gradient' : 'primary',
+        gradientConfig,
+        variant = gradient || gradientConfig ? 'gradient' : 'primary',
         loading,
         transparent,
         block,
@@ -259,13 +260,13 @@ export const Button: ButtonComponent = memo(
             className,
           )}
           color={colorValue}
-          dangerouslySetGradient={dangerouslySetGradient}
           data-block={block}
           data-compact={compact}
           data-flush={flush}
           data-transparent={transparent}
           data-variant={variant}
           gradient={gradient}
+          gradientConfig={gradientConfig}
           height={height}
           loading={loading}
           margin={margin}

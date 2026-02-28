@@ -47,9 +47,9 @@ const GradientBoxScreen = () => {
     <ExampleScreen>
       <ThemeProvider activeColorScheme={theme.activeColorScheme} theme={defaultGradientTheme}>
         <BasicGradient />
-        <Example title="Custom Directions (dangerouslySetGradient)">
+        <Example title="Custom Directions (gradientConfig)">
           <GradientBox
-            dangerouslySetGradient={{
+            gradientConfig={{
               angle: 90,
               colors: [theme.color.bgPrimary, theme.color.bgPositive],
             }}
@@ -61,7 +61,7 @@ const GradientBoxScreen = () => {
           </GradientBox>
 
           <GradientBox
-            dangerouslySetGradient={{
+            gradientConfig={{
               angle: 180,
               colors: [theme.color.bgNegative, theme.color.bgWarning],
             }}
@@ -73,7 +73,7 @@ const GradientBoxScreen = () => {
           </GradientBox>
 
           <GradientBox
-            dangerouslySetGradient={{
+            gradientConfig={{
               angle: 135,
               colors: [theme.color.bgPrimary, theme.color.accentBoldPurple],
             }}
@@ -85,7 +85,7 @@ const GradientBoxScreen = () => {
           </GradientBox>
 
           <GradientBox
-            dangerouslySetGradient={{
+            gradientConfig={{
               angle: 45,
               colors: [theme.color.bgPositive, theme.color.bgPrimary],
             }}
@@ -97,9 +97,9 @@ const GradientBoxScreen = () => {
           </GradientBox>
         </Example>
 
-        <Example title="Multiple Color Stops">
+        <Example title="Multiple Color Stops (gradientConfig)">
           <GradientBox
-            dangerouslySetGradient={{
+            gradientConfig={{
               angle: 90,
               colors: [
                 theme.color.bgNegative,
@@ -117,12 +117,12 @@ const GradientBoxScreen = () => {
           </GradientBox>
         </Example>
 
-        <Example title="With Elevated">
+        <Example title="With Elevated (gradientConfig)">
           <GradientBox
             elevated
-            dangerouslySetGradient={{
+            gradientConfig={{
               colors: [theme.color.transparent, theme.color.bgPrimary],
-              stops: [0, 0.6, 1],
+              stops: [0, 0.6],
             }}
             padding={2}
           >
@@ -132,12 +132,12 @@ const GradientBoxScreen = () => {
           </GradientBox>
         </Example>
 
-        <Example title="With Box Props">
+        <Example title="With Box Props (gradientConfig)">
           <GradientBox
             bordered
             borderColor="bgNegative"
             borderWidth={200}
-            dangerouslySetGradient={{
+            gradientConfig={{
               colors: [theme.color.bgPrimary, theme.color.accentBoldPurple],
             }}
             padding={3}

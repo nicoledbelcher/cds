@@ -1,4 +1,5 @@
 import React from 'react';
+import { css } from '@linaria/core';
 
 import { useTheme } from '../../hooks/useTheme';
 import { Icon } from '../../icons/Icon';
@@ -8,6 +9,28 @@ import { defaultGradientTheme } from '../../themes/gradients/defaultGradientThem
 import { Text } from '../../typography/Text';
 import { Button, type ButtonBaseProps } from '../Button';
 import { ButtonGroup } from '../ButtonGroup';
+
+const radialGradientButtonCss = css`
+  background-image: radial-gradient(circle at center, #0052ff, #7b3fe4);
+`;
+
+const animatedGradientButtonCss = css`
+  background: linear-gradient(270deg, #0052ff, #7b3fe4, #00cc66, #0052ff);
+  background-size: 400% 400%;
+  animation: gradientShift 3s ease infinite;
+
+  @keyframes gradientShift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+`;
 
 export default {
   component: Button,
@@ -129,21 +152,27 @@ function GradientButtonsContent() {
         </VStack>
       </VStack>
 
-      {/* Custom Gradients using dangerouslySetGradient */}
+      {/* Custom Linear Gradients */}
       <VStack alignItems="flex-start" gap={2}>
         <Text as="h2" display="block" font="title3">
-          Custom Gradients (dangerouslySetGradient)
+          Custom Linear Gradients (gradientConfig)
         </Text>
         <Button
           color="fgInverse"
-          dangerouslySetGradient={`linear-gradient(90deg, ${theme.color.accentBoldBlue}, ${theme.color.accentBoldPurple})`}
+          gradientConfig={{
+            colors: [theme.color.accentBoldBlue, theme.color.accentBoldPurple],
+            angle: 90,
+          }}
           onClick={onClickConsole}
         >
           Custom: Blue to Purple
         </Button>
         <Button
           color="fgInverse"
-          dangerouslySetGradient={`linear-gradient(45deg, ${theme.color.bgPositive}, ${theme.color.accentBoldBlue})`}
+          gradientConfig={{
+            colors: [theme.color.bgPositive, theme.color.accentBoldBlue],
+            angle: 45,
+          }}
           onClick={onClickConsole}
         >
           Custom: 45° Angle
@@ -151,48 +180,22 @@ function GradientButtonsContent() {
         <Button
           block
           color="fgInverse"
-          dangerouslySetGradient={`linear-gradient(90deg, ${theme.color.accentBoldBlue}, ${theme.color.accentBoldPurple}, ${theme.color.accentBoldYellow})`}
+          gradientConfig={{
+            colors: [
+              theme.color.accentBoldBlue,
+              theme.color.accentBoldPurple,
+              theme.color.accentBoldYellow,
+            ],
+            angle: 90,
+          }}
           onClick={onClickConsole}
         >
           Multi-Color Block Gradient
         </Button>
       </VStack>
 
-      {/* Different Gradient Styles */}
-      <VStack alignItems="flex-start" gap={2}>
-        <Text as="h2" display="block" font="title3">
-          Different Gradient Styles
-        </Text>
-        <Button
-          color="fgInverse"
-          dangerouslySetGradient={`radial-gradient(circle, ${theme.color.accentBoldBlue}, ${theme.color.accentBoldPurple})`}
-          onClick={onClickConsole}
-        >
-          Radial Gradient
-        </Button>
-        <Button
-          color="fgInverse"
-          dangerouslySetGradient={`conic-gradient(from 0deg, ${theme.color.bgNegative}, ${theme.color.bgWarning}, ${theme.color.bgPositive}, ${theme.color.accentBoldBlue}, ${theme.color.bgNegative})`}
-          onClick={onClickConsole}
-        >
-          Conic Gradient
-        </Button>
-        <Button
-          color="fgInverse"
-          dangerouslySetGradient={`repeating-linear-gradient(45deg, ${theme.color.accentBoldBlue}, ${theme.color.accentBoldBlue} 10px, ${theme.color.accentBoldPurple} 10px, ${theme.color.accentBoldPurple} 20px)`}
-          onClick={onClickConsole}
-        >
-          Repeating Linear Gradient
-        </Button>
-        <Button
-          block
-          color="fgInverse"
-          dangerouslySetGradient={`linear-gradient(90deg, ${theme.color.bgNegative}, ${theme.color.bgWarning}, ${theme.color.bgPositive}, ${theme.color.accentBoldBlue})`}
-          onClick={onClickConsole}
-        >
-          Rainbow Gradient
-        </Button>
-      </VStack>
+      {/* Different Gradient Styles (radial/conic via style prop) */}
+      <DifferentGradientStyles />
 
       {/* Gradient with Interactive States */}
       <VStack alignItems="flex-start" gap={2}>
@@ -223,6 +226,91 @@ function GradientButtonsContent() {
           Disabled Gradient
         </Button>
       </VStack>
+    </VStack>
+  );
+}
+
+function DifferentGradientStyles() {
+  const theme = useTheme();
+
+  const radialGradient = `radial-gradient(circle, ${theme.color.accentBoldBlue}, ${theme.color.accentBoldPurple})`;
+  const conicGradient = [
+    'conic-gradient(from 0deg',
+    theme.color.bgNegative,
+    theme.color.bgWarning,
+    theme.color.bgPositive,
+    theme.color.accentBoldBlue,
+    `${theme.color.bgNegative})`,
+  ].join(', ');
+  const blue = theme.color.accentBoldBlue;
+  const purple = theme.color.accentBoldPurple;
+  const repeatingGradient = `repeating-linear-gradient(45deg, ${blue}, ${blue} 10px, ${purple} 10px, ${purple} 20px)`;
+
+  return (
+    <VStack alignItems="flex-start" gap={2}>
+      <Text as="h2" display="block" font="title3">
+        Different Gradient Styles
+      </Text>
+      <Button
+        color="fgInverse"
+        onClick={onClickConsole}
+        style={{ backgroundImage: radialGradient }}
+        variant="gradient"
+      >
+        Radial Gradient
+      </Button>
+      <Button
+        color="fgInverse"
+        onClick={onClickConsole}
+        style={{ backgroundImage: conicGradient }}
+        variant="gradient"
+      >
+        Conic Gradient
+      </Button>
+      <Button
+        color="fgInverse"
+        onClick={onClickConsole}
+        style={{ backgroundImage: repeatingGradient }}
+        variant="gradient"
+      >
+        Repeating Linear Gradient
+      </Button>
+      <Button
+        block
+        color="fgInverse"
+        gradientConfig={{
+          colors: [
+            theme.color.bgNegative,
+            theme.color.bgWarning,
+            theme.color.bgPositive,
+            theme.color.accentBoldBlue,
+          ],
+          angle: 90,
+        }}
+        onClick={onClickConsole}
+      >
+        Rainbow Gradient
+      </Button>
+
+      <Text as="h3" display="block" font="title4">
+        Via className
+      </Text>
+      <Button
+        className={radialGradientButtonCss}
+        color="fgInverse"
+        onClick={onClickConsole}
+        variant="gradient"
+      >
+        Radial (className)
+      </Button>
+      <Button
+        className={animatedGradientButtonCss}
+        color="fgInverse"
+        onClick={onClickConsole}
+        variant="gradient"
+      >
+        Animated Gradient (className)
+      </Button>
     </VStack>
   );
 }

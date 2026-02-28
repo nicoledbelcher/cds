@@ -1,4 +1,5 @@
 import React from 'react';
+import { css } from '@linaria/core';
 
 import { useTheme } from '../../hooks/useTheme';
 import { ThemeProvider } from '../../system/ThemeProvider';
@@ -6,6 +7,32 @@ import { defaultGradientTheme } from '../../themes/gradients';
 import { Text } from '../../typography/Text';
 import { GradientBox } from '../GradientBox';
 import { VStack } from '../VStack';
+
+const radialGradientCss = css`
+  background-image: radial-gradient(circle at center, #0052ff, #7b3fe4);
+`;
+
+const conicGradientCss = css`
+  background-image: conic-gradient(from 0deg, #ff4d4d, #ffaa00, #00cc66, #0052ff, #7b3fe4, #ff4d4d);
+`;
+
+const animatedGradientCss = css`
+  background-image: linear-gradient(270deg, #0052ff, #7b3fe4, #00cc66, #0052ff);
+  background-size: 400% 400%;
+  animation: gradientShift 5s ease infinite;
+
+  @keyframes gradientShift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+`;
 
 export default {
   title: 'Components/GradientBox (tsx)',
@@ -33,14 +60,17 @@ export const Default = () => {
         </VStack>
       </ThemeProvider>
 
-      {/* Custom Gradients using dangerouslySetGradient */}
+      {/* Custom Linear Gradients (using gradientConfig) */}
       <Text as="h2" display="block" font="title3">
-        Custom Linear Gradients (dangerouslySetGradient)
+        Custom Linear Gradients (gradientConfig)
       </Text>
       <VStack gap={1}>
         <GradientBox
           borderRadius={200}
-          dangerouslySetGradient={`linear-gradient(90deg, ${theme.color.accentBoldBlue}, ${theme.color.accentBoldPurple})`}
+          gradientConfig={{
+            colors: [theme.color.accentBoldBlue, theme.color.accentBoldPurple],
+            angle: 90,
+          }}
           padding={2}
         >
           <Text as="p" color="fgInverse" display="block" font="body">
@@ -49,7 +79,10 @@ export const Default = () => {
         </GradientBox>
         <GradientBox
           borderRadius={200}
-          dangerouslySetGradient={`linear-gradient(180deg, ${theme.color.bgNegative}, ${theme.color.bgWarning})`}
+          gradientConfig={{
+            colors: [theme.color.bgNegative, theme.color.bgWarning],
+            angle: 180,
+          }}
           padding={2}
         >
           <Text as="p" color="fgInverse" display="block" font="body">
@@ -58,7 +91,10 @@ export const Default = () => {
         </GradientBox>
         <GradientBox
           borderRadius={200}
-          dangerouslySetGradient={`linear-gradient(135deg, ${theme.color.accentBoldBlue}, ${theme.color.accentBoldPurple})`}
+          gradientConfig={{
+            colors: [theme.color.accentBoldBlue, theme.color.accentBoldPurple],
+            angle: 135,
+          }}
           padding={2}
         >
           <Text as="p" color="fgInverse" display="block" font="body">
@@ -67,7 +103,10 @@ export const Default = () => {
         </GradientBox>
         <GradientBox
           borderRadius={200}
-          dangerouslySetGradient={`linear-gradient(45deg, ${theme.color.bgPositive}, ${theme.color.accentBoldBlue})`}
+          gradientConfig={{
+            colors: [theme.color.bgPositive, theme.color.accentBoldBlue],
+            angle: 45,
+          }}
           padding={2}
         >
           <Text as="p" color="fgInverse" display="block" font="body">
@@ -78,12 +117,20 @@ export const Default = () => {
 
       {/* Multiple Color Stops */}
       <Text as="h2" display="block" font="title3">
-        Multiple Color Stops
+        Multiple Color Stops (gradientConfig)
       </Text>
       <VStack gap={1}>
         <GradientBox
           borderRadius={200}
-          dangerouslySetGradient={`linear-gradient(90deg, ${theme.color.bgNegative}, ${theme.color.bgWarning}, ${theme.color.bgPositive}, ${theme.color.accentBoldBlue})`}
+          gradientConfig={{
+            colors: [
+              theme.color.bgNegative,
+              theme.color.bgWarning,
+              theme.color.bgPositive,
+              theme.color.accentBoldBlue,
+            ],
+            angle: 90,
+          }}
           padding={2}
         >
           <Text as="p" color="fgInverse" display="block" font="body">
@@ -92,7 +139,11 @@ export const Default = () => {
         </GradientBox>
         <GradientBox
           borderRadius={200}
-          dangerouslySetGradient={`linear-gradient(90deg, ${theme.color.accentBoldBlue} 0%, ${theme.color.bgPositive} 70%, ${theme.color.bgWarning} 100%)`}
+          gradientConfig={{
+            colors: [theme.color.accentBoldBlue, theme.color.bgPositive, theme.color.bgWarning],
+            stops: [0, 0.7, 1],
+            angle: 90,
+          }}
           padding={2}
         >
           <Text as="p" color="fgInverse" display="block" font="body">
@@ -101,43 +152,108 @@ export const Default = () => {
         </GradientBox>
       </VStack>
 
-      {/* Other Gradient Types */}
+      {/* Other Gradient Types (using inline style) */}
       <Text as="h2" display="block" font="title3">
-        Other Gradient Types
+        Other Gradient Types (via style prop)
       </Text>
       <VStack gap={1}>
-        <GradientBox
-          borderRadius={200}
-          dangerouslySetGradient={`radial-gradient(circle, ${theme.color.accentBoldBlue}, ${theme.color.accentBoldPurple})`}
-          height={150}
-          padding={2}
-        >
+        <RadialGradientExample />
+        <ConicGradientExample />
+        <RepeatingGradientExample />
+      </VStack>
+
+      {/* Custom Gradients via className */}
+      <Text as="h2" display="block" font="title3">
+        Custom Gradients (via className)
+      </Text>
+      <VStack gap={1}>
+        <GradientBox borderRadius={200} className={radialGradientCss} height={150} padding={2}>
           <Text as="p" color="fgInverse" display="block" font="body">
-            Radial gradient
+            Radial gradient (className)
           </Text>
         </GradientBox>
         <GradientBox
           borderRadius={1000}
-          dangerouslySetGradient={`conic-gradient(from 0deg, ${theme.color.bgNegative}, ${theme.color.bgWarning}, ${theme.color.bgPositive}, ${theme.color.accentBoldBlue}, ${theme.color.accentBoldPurple}, ${theme.color.bgNegative})`}
+          className={conicGradientCss}
           height={150}
           padding={2}
           width={150}
         >
           <Text as="p" color="fgInverse" display="block" font="body">
-            Conic
+            Conic (className)
           </Text>
         </GradientBox>
-        <GradientBox
-          borderRadius={200}
-          dangerouslySetGradient={`repeating-linear-gradient(45deg, ${theme.color.accentBoldBlue}, ${theme.color.accentBoldBlue} 10px, ${theme.color.accentBoldPurple} 10px, ${theme.color.accentBoldPurple} 20px)`}
-          height={150}
-          padding={2}
-        >
+        <GradientBox borderRadius={200} className={animatedGradientCss} height={150} padding={2}>
           <Text as="p" color="fgInverse" display="block" font="body">
-            Repeating linear gradient
+            Animated gradient (className)
           </Text>
         </GradientBox>
       </VStack>
     </VStack>
   );
 };
+
+function RadialGradientExample() {
+  const theme = useTheme();
+  const radialGradient = `radial-gradient(circle, ${theme.color.accentBoldBlue}, ${theme.color.accentBoldPurple})`;
+
+  return (
+    <GradientBox
+      borderRadius={200}
+      height={150}
+      padding={2}
+      style={{ backgroundImage: radialGradient }}
+    >
+      <Text as="p" color="fgInverse" display="block" font="body">
+        Radial gradient
+      </Text>
+    </GradientBox>
+  );
+}
+
+function ConicGradientExample() {
+  const theme = useTheme();
+  const conicGradient = [
+    'conic-gradient(from 0deg',
+    theme.color.bgNegative,
+    theme.color.bgWarning,
+    theme.color.bgPositive,
+    theme.color.accentBoldBlue,
+    theme.color.accentBoldPurple,
+    `${theme.color.bgNegative})`,
+  ].join(', ');
+
+  return (
+    <GradientBox
+      borderRadius={1000}
+      height={150}
+      padding={2}
+      style={{ backgroundImage: conicGradient }}
+      width={150}
+    >
+      <Text as="p" color="fgInverse" display="block" font="body">
+        Conic
+      </Text>
+    </GradientBox>
+  );
+}
+
+function RepeatingGradientExample() {
+  const theme = useTheme();
+  const blue = theme.color.accentBoldBlue;
+  const purple = theme.color.accentBoldPurple;
+  const repeatingGradient = `repeating-linear-gradient(45deg, ${blue}, ${blue} 10px, ${purple} 10px, ${purple} 20px)`;
+
+  return (
+    <GradientBox
+      borderRadius={200}
+      height={150}
+      padding={2}
+      style={{ backgroundImage: repeatingGradient }}
+    >
+      <Text as="p" color="fgInverse" display="block" font="body">
+        Repeating linear gradient
+      </Text>
+    </GradientBox>
+  );
+}

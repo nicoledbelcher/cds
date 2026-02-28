@@ -8,9 +8,9 @@ const { lightColor, darkColor } = coinbaseTheme;
  * Uses color tokens from the Coinbase theme.
  */
 export const coinbaseLightGradient = {
-  primary: `linear-gradient(180deg, ${lightColor.bgPrimary}, ${lightColor.bgPrimary}cc)`,
-  positive: `linear-gradient(180deg, ${lightColor.bgPositive}, ${lightColor.bgPositive}cc)`,
-  negative: `linear-gradient(180deg, ${lightColor.bgNegative}, ${lightColor.bgNegative}cc)`,
+  primary: `linear-gradient(180deg, ${lightColor.bgPrimary}, ${lightColor.bgPrimary})`,
+  positive: `linear-gradient(180deg, ${lightColor.bgPositive}, ${lightColor.bgPositive})`,
+  negative: `linear-gradient(180deg, ${lightColor.bgNegative}, ${lightColor.bgNegative})`,
   brand: `linear-gradient(90deg, ${lightColor.accentBoldBlue}, ${lightColor.accentBoldPurple})`,
   premium: `linear-gradient(135deg, ${lightColor.accentBoldPurple} 0%, ${lightColor.accentBoldBlue} 50%, ${lightColor.accentBoldGreen} 100%)`,
 } as const satisfies ThemeConfig['lightGradient'];
@@ -20,9 +20,9 @@ export const coinbaseLightGradient = {
  * Uses color tokens from the Coinbase theme.
  */
 export const coinbaseDarkGradient = {
-  primary: `linear-gradient(180deg, ${darkColor.bgPrimary}, ${darkColor.bgPrimary}cc)`,
-  positive: `linear-gradient(180deg, ${darkColor.bgPositive}, ${darkColor.bgPositive}cc)`,
-  negative: `linear-gradient(180deg, ${darkColor.bgNegative}, ${darkColor.bgNegative}cc)`,
+  primary: `linear-gradient(180deg, ${darkColor.bgPrimary}, ${darkColor.bgPrimary})`,
+  positive: `linear-gradient(180deg, ${darkColor.bgPositive}, ${darkColor.bgPositive})`,
+  negative: `linear-gradient(180deg, ${darkColor.bgNegative}, ${darkColor.bgNegative})`,
   brand: `linear-gradient(90deg, ${darkColor.accentBoldBlue}, ${darkColor.accentBoldPurple})`,
   premium: `linear-gradient(135deg, ${darkColor.accentBoldPurple} 0%, ${darkColor.accentBoldBlue} 50%, ${darkColor.accentBoldGreen} 100%)`,
 } as const satisfies ThemeConfig['darkGradient'];
