@@ -1273,7 +1273,7 @@ export const CustomControlComponent = () => {
 export const StressTest = () => {
   const { value, onChange } = useMultiSelect({ initialValue: [] });
 
-  const hugeOptions: SelectOption[] = Array.from({ length: 1250 }, (_, i) => ({
+  const hugeOptions: SelectOption[] = Array.from({ length: 1000 }, (_, i) => ({
     value: `item${i}`,
     label: `Item ${i + 1}`,
     description: `Category ${Math.floor(i / 100) + 1}`,
