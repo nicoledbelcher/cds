@@ -97,7 +97,6 @@ const CheckboxWithRef = forwardRef(function CheckboxWithRef<CheckboxValue extend
       ref={ref}
       aria-label={props.accessibilityLabel}
       borderRadius={borderRadius}
-      borderWidth={borderWidth}
       checked={checked}
       elevation={elevation}
       label={children}

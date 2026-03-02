@@ -90,7 +90,6 @@ const RadioWithRef = forwardRef(function RadioWithRef<RadioValue extends string>
   return (
     <Control
       ref={ref}
-      borderWidth={borderWidth}
       checked={checked}
       elevation={elevation}
       label={children}
