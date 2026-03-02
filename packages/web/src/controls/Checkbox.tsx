@@ -39,17 +39,19 @@ const checkboxCss = css`
   }
 `;
 
-export type CheckboxProps<CheckboxValue extends string> = ControlBaseProps<CheckboxValue> & {
+export type CheckboxBaseProps<CheckboxValue extends string> = ControlBaseProps<CheckboxValue> & {
   /** Sets the checked/active color of the control.
    * @default fgInverse
    */
   controlColor?: ThemeVars.Color;
   /**
-   * Optional.Sets the border width of the control.
+   * Optional. Sets the border width of the control.
    * @default 100
    */
   borderWidth?: ThemeVars.BorderWidth;
 };
+
+export type CheckboxProps<CheckboxValue extends string> = CheckboxBaseProps<CheckboxValue>;
 
 const CheckboxWithRef = forwardRef(function CheckboxWithRef<CheckboxValue extends string>(
   {

@@ -36,7 +36,6 @@ const baseCss = css`
   height: var(--controlSize-radioSize);
 
   border-style: solid;
-  border-width: var(--borderWidth-100);
   border-radius: var(--borderRadius-1000);
   transition: border-color 0.2s linear;
 
@@ -52,12 +51,19 @@ const baseCss = css`
   }
 `;
 
-export type RadioProps<RadioValue extends string> = ControlBaseProps<RadioValue> & {
+export type RadioBaseProps<RadioValue extends string> = ControlBaseProps<RadioValue> & {
   /** Sets the checked/active color of the control.
    * @default bgPrimary
    */
   controlColor?: ThemeVars.Color;
+  /**
+   * Optional. Sets the border width of the control.
+   * @default 100
+   */
+  borderWidth?: ThemeVars.BorderWidth;
 };
+
+export type RadioProps<RadioValue extends string> = RadioBaseProps<RadioValue>;
 
 const RadioWithRef = forwardRef(function RadioWithRef<RadioValue extends string>(
   {
@@ -66,6 +72,7 @@ const RadioWithRef = forwardRef(function RadioWithRef<RadioValue extends string>
     checked = false,
     background = 'bg',
     borderColor = checked ? controlColor : 'bgLineHeavy',
+    borderWidth = 100,
     elevation,
     ...props
   }: RadioProps<RadioValue>,
@@ -83,6 +90,7 @@ const RadioWithRef = forwardRef(function RadioWithRef<RadioValue extends string>
   return (
     <Control
       ref={ref}
+      borderWidth={borderWidth}
       checked={checked}
       elevation={elevation}
       label={children}
@@ -93,6 +101,7 @@ const RadioWithRef = forwardRef(function RadioWithRef<RadioValue extends string>
         alignItems="center"
         background={background}
         borderColor={borderColor}
+        borderWidth={borderWidth}
         className={baseCss}
         data-filled={checked}
         flexShrink={0}
