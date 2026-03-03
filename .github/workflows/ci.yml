@@ -106,7 +106,10 @@ jobs:
           fetch-depth: 100 # TODO: This needs to include the merge-base
       - uses: ./.github/actions/setup
       - name: Install Playwright
-        run: yarn playwright install
+        run: |
+          cd apps/storybook
+          yarn playwright install
+          cd ../../
       - name: Test Storybook
         run: yarn nx run storybook:test
 
