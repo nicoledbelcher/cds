@@ -29,6 +29,12 @@
         "{projectRoot}/dist"
       ]
     },
+    "test": {
+      "command": "vitest --project=storybook",
+      "options": {
+        "cwd": "apps/storybook"
+      }
+    },
     "lint": {
       "executor": "@nx/eslint:lint"
     },
