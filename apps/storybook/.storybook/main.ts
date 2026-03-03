@@ -43,10 +43,11 @@ const config: StorybookConfig = {
     '@storybook/addon-storysource',
     '@storybook-community/storybook-dark-mode',
     '@storybook/addon-a11y',
+    '@storybook/addon-vitest',
   ],
   stories: [
-    path.resolve(MONOREPO_ROOT, 'packages/web/**/*.stories.@(tsx|mdx)'),
-    path.resolve(MONOREPO_ROOT, 'packages/web-visualization/**/*.stories.@(tsx|mdx)'),
+    '../../../packages/web/**/*.stories.@(tsx|mdx)',
+    '../../../packages/web-visualization/**/*.stories.@(tsx|mdx)',
   ],
   staticDirs: [
     {
