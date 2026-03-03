@@ -5,13 +5,7 @@ import type { Transition } from 'framer-motion';
 
 import { useCartesianChartContext } from '../ChartProvider';
 import type { ChartTextChildren, ChartTextProps } from '../text';
-import {
-  defaultTransition,
-  getPointOnScale,
-  getTransition,
-  instantTransition,
-  useScrubberContext,
-} from '../utils';
+import { defaultTransition, getPointOnScale, getTransition, useScrubberContext } from '../utils';
 import {
   calculateLabelYPositions,
   getLabelPosition,
@@ -38,7 +32,7 @@ const PositionedLabel = memo<{
   BeaconLabelComponent: ScrubberBeaconLabelComponent;
   labelHorizontalOffset: number;
   labelFont?: ChartTextProps['font'];
-  updateTransition: Transition;
+  updateTransition: Transition | null;
   className?: string;
   style?: CSSProperties;
 }>(
@@ -80,7 +74,7 @@ const PositionedLabel = memo<{
         onDimensionsChange={(d) => onDimensionsChange(seriesId, d)}
         seriesId={seriesId}
         style={style}
-        transition={updateTransition}
+        transition={updateTransition ?? undefined}
         x={x}
         y={y}
       />
@@ -165,8 +159,8 @@ export const ScrubberBeaconLabelGroup = memo<ScrubberBeaconLabelGroupProps>(
     const isIdleTransition = prevIsIdle !== undefined && isIdle !== prevIsIdle;
 
     const updateTransition = useMemo(() => {
-      if (isIdleTransition) return instantTransition;
-      if (!isIdle) return instantTransition;
+      if (isIdleTransition) return null;
+      if (!isIdle) return null;
       return getTransition(transitions?.update, animate, defaultTransition);
     }, [transitions?.update, isIdle, animate, isIdleTransition]);
 

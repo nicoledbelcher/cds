@@ -69,6 +69,14 @@ export const DottedArea = memo<DottedAreaProps>(
     const patternId = useId();
     const gradientId = useId();
     const maskId = useId();
+    const gradientUpdate = useMemo(() => {
+      const gradientTransition =
+        transitions?.update !== undefined ? transitions.update : transition;
+      return {
+        gradientTransition,
+        shouldAnimateGradient: animate && gradientTransition !== null,
+      };
+    }, [animate, transitions?.update, transition]);
 
     const dotCenterPosition = patternSize / 2;
     const yAxisConfig = getYAxis(yAxisId);
@@ -105,10 +113,10 @@ export const DottedArea = memo<DottedAreaProps>(
           </mask>
           {gradient && (
             <Gradient
-              animate={animate}
+              animate={gradientUpdate.shouldAnimateGradient}
               gradient={gradient}
               id={gradientId}
-              transition={transitions?.update ?? transition}
+              transition={gradientUpdate.gradientTransition ?? undefined}
               yAxisId={yAxisId}
             />
           )}

@@ -8,7 +8,7 @@ import {
 } from 'framer-motion';
 
 import { useCartesianChartContext } from '../ChartProvider';
-import { defaultTransition, getTransition, instantTransition, projectPoint } from '../utils';
+import { defaultTransition, getTransition, projectPoint } from '../utils';
 
 import type { ScrubberBeaconProps, ScrubberBeaconRef } from './Scrubber';
 
@@ -86,8 +86,8 @@ export const DefaultScrubberBeacon = memo(
       const isIdleTransition = prevIsIdle !== undefined && isIdle !== prevIsIdle;
 
       const updateTransition = useMemo(() => {
-        if (isIdleTransition) return instantTransition;
-        if (!isIdle) return instantTransition;
+        if (isIdleTransition) return null;
+        if (!isIdle) return null;
         return getTransition(transitions?.update, animate, defaultTransition);
       }, [transitions?.update, isIdle, animate, isIdleTransition]);
       const pulseTransition = useMemo(
@@ -178,15 +178,23 @@ export const DefaultScrubberBeacon = memo(
         <g data-testid={testID} opacity={isWithinDrawingArea ? opacity : 0}>
           {isIdle && (
             <motion.g
-              animate={{ x: pixelCoordinate.x, y: pixelCoordinate.y }}
+              animate={
+                updateTransition !== null
+                  ? { x: pixelCoordinate.x, y: pixelCoordinate.y }
+                  : undefined
+              }
               initial={false}
-              transition={updateTransition}
+              transition={updateTransition ?? undefined}
             >
               {pulseCircle}
             </motion.g>
           )}
           <motion.circle
-            animate={{ cx: pixelCoordinate.x, cy: pixelCoordinate.y }}
+            animate={
+              updateTransition !== null
+                ? { cx: pixelCoordinate.x, cy: pixelCoordinate.y }
+                : undefined
+            }
             className={className}
             cx={pixelCoordinate.x}
             cy={pixelCoordinate.y}
@@ -196,7 +204,7 @@ export const DefaultScrubberBeacon = memo(
             stroke={stroke}
             strokeWidth={strokeWidth}
             style={style}
-            transition={updateTransition}
+            transition={updateTransition ?? undefined}
           />
         </g>
       );

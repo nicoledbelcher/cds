@@ -1,4 +1,4 @@
-import { memo, useId } from 'react';
+import { memo, useId, useMemo } from 'react';
 
 import { Gradient } from '../gradient';
 import { Path, type PathProps } from '../Path';
@@ -38,16 +38,24 @@ export const SolidArea = memo<SolidAreaProps>(
     ...pathProps
   }) => {
     const patternId = useId();
+    const gradientUpdate = useMemo(() => {
+      const gradientTransition =
+        transitions?.update !== undefined ? transitions.update : transition;
+      return {
+        gradientTransition,
+        shouldAnimateGradient: animate && gradientTransition !== null,
+      };
+    }, [animate, transitions?.update, transition]);
 
     return (
       <>
         {gradient && (
           <defs>
             <Gradient
-              animate={animate}
+              animate={gradientUpdate.shouldAnimateGradient}
               gradient={gradient}
               id={patternId}
-              transition={transitions?.update ?? transition}
+              transition={gradientUpdate.gradientTransition ?? undefined}
               yAxisId={yAxisId}
             />
           </defs>

@@ -293,6 +293,9 @@ export const Point = memo<PointProps>(
       [animate, transitions?.update, transition],
     );
 
+    const shouldAnimateEnter = animate && enterTransition !== null;
+    const shouldAnimateUpdate = animate && updateTransition !== null;
+
     const xScale = getXScale();
     const yScale = getYScale(yAxisId);
 
@@ -376,10 +379,9 @@ export const Point = memo<PointProps>(
 
       return (
         <motion.circle
-          animate={{
-            cx: pixelCoordinate.x,
-            cy: pixelCoordinate.y,
-          }}
+          animate={
+            shouldAnimateUpdate ? { cx: pixelCoordinate.x, cy: pixelCoordinate.y } : undefined
+          }
           aria-label={accessibilityLabel}
           className={cx(innerPointCss, className, classNames?.point)}
           cx={pixelCoordinate.x}
@@ -398,10 +400,9 @@ export const Point = memo<PointProps>(
           strokeWidth={strokeWidth}
           style={mergedStyles}
           tabIndex={onClick ? 0 : -1}
-          transition={{
-            cx: updateTransition,
-            cy: updateTransition,
-          }}
+          transition={
+            shouldAnimateUpdate ? { cx: updateTransition, cy: updateTransition } : undefined
+          }
           variants={variants}
           whileHover={onClick ? 'hovered' : 'default'}
           whileTap={onClick ? 'pressed' : 'default'}
@@ -426,6 +427,7 @@ export const Point = memo<PointProps>(
       pixelCoordinate.y,
       accessibilityLabel,
       updateTransition,
+      shouldAnimateUpdate,
     ]);
 
     if (!xScale || !yScale) {
@@ -435,9 +437,9 @@ export const Point = memo<PointProps>(
     return (
       <g opacity={isWithinDrawingArea ? 1 : 0}>
         <motion.g
-          animate={{ opacity: 1 }}
-          initial={animate ? { opacity: 0 } : false}
-          transition={{ opacity: enterTransition }}
+          animate={shouldAnimateEnter ? { opacity: 1 } : undefined}
+          initial={shouldAnimateEnter ? { opacity: 0 } : false}
+          transition={shouldAnimateEnter ? { opacity: enterTransition } : undefined}
         >
           <g
             className={cx(containerCss, classNames?.root)}
