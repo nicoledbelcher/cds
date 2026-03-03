@@ -1,6 +1,6 @@
 import type { DimensionValue } from './DimensionStyles';
-import type { SharedProps } from './SharedProps';
 import type { LottieStatus } from './LottieStatus';
+import type { SharedProps } from './SharedProps';
 
 /**
  * @deprecated Use LottieStatus directly from @coinbase/cds-common/types/LottieStatus instead
