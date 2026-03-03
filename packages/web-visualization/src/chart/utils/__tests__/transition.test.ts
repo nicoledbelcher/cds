@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks';
 
-import { defaultTransition, usePathTransition } from '../transition';
+import { defaultTransition, getTransition, usePathTransition } from '../transition';
 
 // Mock framer-motion
 jest.mock('framer-motion', () => {
@@ -78,6 +78,16 @@ describe('accessory transition constants', () => {
     expect(accessoryFadeTransitionDelay).toBeDefined();
     expect(typeof accessoryFadeTransitionDelay).toBe('number');
     expect(accessoryFadeTransitionDelay).toBeGreaterThan(0);
+  });
+});
+
+describe('getTransition', () => {
+  it('should return null when animate is false', () => {
+    expect(getTransition(defaultTransition, false, defaultTransition)).toBeNull();
+  });
+
+  it('should return null when value is null', () => {
+    expect(getTransition(null, true, defaultTransition)).toBeNull();
   });
 });
 
@@ -182,6 +192,31 @@ describe('usePathTransition', () => {
 
     rerender({ path: 'M0,0L20,20' });
     expect(animate).toHaveBeenCalled();
+  });
+
+  it('should short-circuit interpolation when update transition is null', () => {
+    const { animate } = require('framer-motion');
+    const { interpolatePath } = require('d3-interpolate-path');
+    const nextPath = 'M0,0L30,30';
+
+    const { result, rerender } = renderHook(
+      ({ path }) =>
+        usePathTransition({
+          currentPath: path,
+          transitions: { update: null },
+        }),
+      {
+        initialProps: { path: 'M0,0L10,10' },
+      },
+    );
+
+    animate.mockClear();
+    interpolatePath.mockClear();
+    rerender({ path: nextPath });
+
+    expect(animate).not.toHaveBeenCalled();
+    expect(interpolatePath).not.toHaveBeenCalled();
+    expect(result.current.get()).toBe(nextPath);
   });
 
   it('should handle empty paths', () => {

@@ -1,5 +1,5 @@
 import { forwardRef, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { View } from 'react-native';
+import { ScrollView, type View } from 'react-native';
 import {
   useAnimatedReaction,
   useDerivedValue,
@@ -18,10 +18,13 @@ import { useTheme } from '@coinbase/cds-mobile';
 import { DataCard } from '@coinbase/cds-mobile/alpha/data-card/DataCard';
 import { Button, IconButton } from '@coinbase/cds-mobile/buttons';
 import { ListCell } from '@coinbase/cds-mobile/cells';
+import { Switch } from '@coinbase/cds-mobile/controls/Switch';
 import { ExampleScreen } from '@coinbase/cds-mobile/examples/ExampleScreen';
 import { Box, type BoxBaseProps, HStack, VStack } from '@coinbase/cds-mobile/layout';
 import { Avatar, RemoteImage } from '@coinbase/cds-mobile/media';
 import { NavigationTitleSelect } from '@coinbase/cds-mobile/navigation';
+import { RollingNumber } from '@coinbase/cds-mobile/numbers';
+import { Tray } from '@coinbase/cds-mobile/overlays/tray/Tray';
 import { SectionHeader } from '@coinbase/cds-mobile/section-header/SectionHeader';
 import { Pressable } from '@coinbase/cds-mobile/system';
 import { type TabComponent, type TabsActiveIndicatorProps } from '@coinbase/cds-mobile/tabs';
@@ -35,12 +38,17 @@ import {
   type SkTextStyle,
   TextAlign,
 } from '@shopify/react-native-skia';
+import type { DateTimeFormatOptions } from 'intl';
 
 import { Area, DottedArea, type DottedAreaProps } from '../../area';
 import { DefaultAxisTickLabel, XAxis, YAxis } from '../../axis';
 import { CartesianChart } from '../../CartesianChart';
 import { useCartesianChartContext } from '../../ChartProvider';
-import { PeriodSelector, PeriodSelectorActiveIndicator } from '../../PeriodSelector';
+import {
+  PeriodSelector,
+  PeriodSelectorActiveIndicator,
+  type PeriodSelectorProps,
+} from '../../PeriodSelector';
 import { Point } from '../../point';
 import {
   DefaultScrubberBeacon,
@@ -1117,6 +1125,255 @@ function AssetPriceWithDottedArea() {
   return <AssetPriceDotted />;
 }
 
+const PeriodSelectorWithOverflow = memo(
+  ({
+    activeTab,
+    onChange,
+    tabs,
+    onPressSettings,
+  }: Pick<PeriodSelectorProps, 'activeTab' | 'onChange' | 'tabs'> & {
+    onPressSettings: () => void;
+  }) => (
+    <HStack alignItems="center" justifyContent="space-between" maxWidth="100%" width="100%">
+      <ScrollView
+        horizontal
+        contentContainerStyle={{ paddingEnd: 8, flexGrow: 1 }}
+        showsHorizontalScrollIndicator={false}
+      >
+        <PeriodSelector
+          activeTab={activeTab}
+          gap={1}
+          justifyContent="flex-start"
+          onChange={onChange}
+          tabs={tabs}
+          width="fit-content"
+        />
+      </ScrollView>
+      <IconButton
+        compact
+        accessibilityLabel="Configure chart"
+        flexShrink={0}
+        name="filter"
+        onPress={onPressSettings}
+        variant="secondary"
+      />
+    </HStack>
+  ),
+);
+type ChartPeriod = keyof typeof sparklineInteractiveData;
+
+const tabs: TabValue<ChartPeriod>[] = [
+  { id: 'hour', label: '1H' },
+  { id: 'day', label: '1D' },
+  { id: 'week', label: '1W' },
+  { id: 'month', label: '1M' },
+  { id: 'year', label: '1Y' },
+  { id: 'all', label: 'All' },
+];
+
+const AssetPriceWithSettings = memo(() => {
+  const [scrubIndex, setScrubIndex] = useState<number | undefined>();
+  const [activeTab, setActiveTab] = useState<TabValue | null>(tabs[0]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showYAxis, setShowYAxis] = useState(true);
+  const [showXAxis, setShowXAxis] = useState(true);
+
+  const toggleShowYAxis = useCallback(() => setShowYAxis((show) => !show), []);
+  const toggleShowXAxis = useCallback(() => setShowXAxis((show) => !show), []);
+
+  const onClickSettings = useCallback(() => setShowSettings(!showSettings), [showSettings]);
+
+  const currentTimePrice = useMemo(() => {
+    if (scrubIndex !== undefined) {
+      return sparklineInteractiveData[activeTab?.id as keyof typeof sparklineInteractiveData][
+        scrubIndex
+      ].value;
+    }
+    return sparklineInteractiveData[activeTab?.id as keyof typeof sparklineInteractiveData][
+      sparklineInteractiveData[activeTab?.id as keyof typeof sparklineInteractiveData].length - 1
+    ].value;
+  }, [activeTab?.id, scrubIndex]);
+
+  const onChangeTab = useCallback((tab: TabValue | null) => {
+    setActiveTab(tab);
+  }, []);
+
+  const formatPrice = useCallback((price: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(price);
+  }, []);
+
+  return (
+    <VStack gap={2}>
+      <SectionHeader
+        balance={
+          <Text color="fgMuted" font="display3">
+            {formatPrice(currentTimePrice)}
+          </Text>
+        }
+        padding={0}
+        title={<Text font="label1">Asset Price</Text>}
+      />
+      <AssetPriceChartWithSettings
+        activeTab={activeTab}
+        onScrubberPositionChange={setScrubIndex}
+        showXAxis={showXAxis}
+        showYAxis={showYAxis}
+      />
+      <HStack alignItems="center">
+        <PeriodSelectorWithOverflow
+          activeTab={activeTab}
+          onChange={setActiveTab}
+          onPressSettings={onClickSettings}
+          tabs={tabs}
+        />
+      </HStack>
+      {showSettings && (
+        <Tray
+          handleBarVariant="inside"
+          onCloseComplete={() => setShowSettings(false)}
+          title="Chart Settings"
+        >
+          <VStack gap={2} paddingBottom={3} paddingX={3}>
+            <HStack alignItems="center" justifyContent="space-between">
+              <Text font="label1">Show Y-Axis</Text>
+              <Switch checked={showYAxis} onChange={toggleShowYAxis} />
+            </HStack>
+
+            <HStack alignItems="center" justifyContent="space-between">
+              <Text font="label1">Show X-Axis</Text>
+              <Switch checked={showXAxis} onChange={toggleShowXAxis} />
+            </HStack>
+          </VStack>
+        </Tray>
+      )}
+    </VStack>
+  );
+});
+
+const AssetPriceChartWithSettings = memo(
+  ({
+    activeTab,
+    onScrubberPositionChange,
+    showXAxis,
+    showYAxis,
+  }: {
+    activeTab: TabValue | null;
+    onScrubberPositionChange: (position: number | undefined) => void;
+    showXAxis: boolean;
+    showYAxis: boolean;
+  }) => {
+    const formatYAxisPrice = useCallback((price: number) => {
+      if (price >= 1000000) {
+        return `$${(price / 1000000).toFixed(1)}M`;
+      } else if (price >= 1000) {
+        return `$${(price / 1000).toFixed(0)}k`;
+      }
+      return `$${price.toFixed(0)}`;
+    }, []);
+
+    const data = useMemo(
+      () => sparklineInteractiveData[activeTab?.id as keyof typeof sparklineInteractiveData],
+      [activeTab?.id],
+    );
+    const formatDate = useCallback((date: Date) => {
+      const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'short' });
+      const monthDay = date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      });
+      const time = date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      });
+      return `${dayOfWeek}, ${monthDay}, ${time}`;
+    }, []);
+
+    const seriesData = useMemo(() => [{ id: 'price', data: data.map((d) => d.value) }], [data]);
+
+    const getFormattingConfigForPeriod = useCallback((period: ChartPeriod) => {
+      switch (period) {
+        case 'hour':
+        case 'day':
+          return {
+            hour: 'numeric',
+            minute: 'numeric',
+          };
+
+        case 'week':
+        case 'month':
+          return {
+            month: 'numeric',
+            day: 'numeric',
+          };
+
+        case 'year':
+        case 'all':
+          return {
+            month: 'numeric',
+            year: 'numeric',
+          };
+        default:
+          return {
+            month: 'numeric',
+            day: 'numeric',
+          };
+      }
+    }, []);
+
+    const formatXAxisDate = useCallback(
+      (index: number) => {
+        if (!data[index]) return '';
+        const date = data[index].date;
+        const activePeriod = activeTab?.id ?? 'hour';
+        const formatConfig = getFormattingConfigForPeriod(activePeriod as ChartPeriod);
+
+        if (activePeriod === 'hour' || activePeriod === 'day') {
+          return date.toLocaleTimeString('en-US', formatConfig as DateTimeFormatOptions);
+        } else {
+          return date.toLocaleDateString('en-US', formatConfig as DateTimeFormatOptions);
+        }
+      },
+      [data, activeTab?.id, getFormattingConfigForPeriod],
+    );
+
+    const scrubberLabel = useCallback(
+      (index: number) => {
+        if (!data[index]) return '';
+        return formatDate(data[index].date);
+      },
+      [data, formatDate],
+    );
+
+    return (
+      <LineChart
+        enableScrubbing
+        showArea
+        areaType="dotted"
+        height={200}
+        onScrubberPositionChange={onScrubberPositionChange}
+        series={seriesData}
+        showXAxis={showXAxis}
+        showYAxis={showYAxis}
+        xAxis={{
+          tickLabelFormatter: formatXAxisDate,
+        }}
+        yAxis={{
+          domainLimit: 'strict',
+          showGrid: true,
+          tickLabelFormatter: formatYAxisPrice,
+          width: 50,
+        }}
+      >
+        <Scrubber label={scrubberLabel} />
+      </LineChart>
+    );
+  },
+);
+
 const LegendDot = memo((props: BoxBaseProps) => {
   return <Box borderRadius={1000} height={10} width={10} {...props} />;
 });
@@ -2088,6 +2345,10 @@ function ExampleNavigator() {
       {
         title: 'In DataCard',
         component: <DataCardWithLineChart />,
+      },
+      {
+        title: 'With Settings',
+        component: <AssetPriceWithSettings />,
       },
     ],
     [theme.color.fg, theme.color.fgPositive, theme.spectrum.gray50],

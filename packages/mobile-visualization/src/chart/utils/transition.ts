@@ -88,8 +88,8 @@ export const getTransition = (
   value: Transition | null | undefined,
   animate: boolean,
   defaultValue: Transition,
-): Transition => {
-  if (!animate || value === null) return instantTransition;
+): Transition | null => {
+  if (!animate || value === null) return null;
   return value ?? defaultValue;
 };
 
@@ -148,8 +148,12 @@ export const useInterpolator = <T>(
  * // Timing animation
  * progress.value = buildTransition(1, { type: 'timing', duration: 500 });
  */
-export const buildTransition = (targetValue: number, transition: Transition): number => {
+export const buildTransition = (targetValue: number, transition: Transition | null): number => {
   'worklet';
+  if (transition === null) {
+    return targetValue;
+  }
+
   const { delay: delayMs, ...config } = transition;
 
   let animation: number;
@@ -228,12 +232,12 @@ export const usePathTransition = ({
      * Only used when `initialPath` is provided.
      * If not provided, falls back to `update`.
      */
-    enter?: Transition;
+    enter?: Transition | null;
     /**
      * Transition for subsequent data update animations.
      * @default defaultTransition
      */
-    update?: Transition;
+    update?: Transition | null;
   };
   /**
    * Transition for updates.
@@ -241,7 +245,7 @@ export const usePathTransition = ({
    */
   transition?: Transition;
 }): SharedValue<SkPath> => {
-  const updateTransition = transitions?.update ?? transition;
+  const updateTransition = transitions?.update !== undefined ? transitions.update : transition;
   const enterTransition = transitions?.enter;
 
   const targetPathRef = useRef(initialPath ?? currentPath);
@@ -253,7 +257,6 @@ export const usePathTransition = ({
     Skia.Path.MakeFromSVGString(initialPath ?? currentPath) ?? Skia.Path.Make();
   const normalizedStartShared = useSharedValue(initialSkiaPath);
   const normalizedEndShared = useSharedValue(initialSkiaPath);
-  const fallbackPathShared = useSharedValue(initialSkiaPath);
   const result = useSharedValue(initialSkiaPath);
 
   useEffect(() => {
@@ -266,15 +269,6 @@ export const usePathTransition = ({
 
       targetPathRef.current = currentPath;
 
-      const pathInterpolator = interpolatePath(fromPath, currentPath);
-      interpolatorRef.current = pathInterpolator;
-
-      normalizedStartShared.value =
-        Skia.Path.MakeFromSVGString(pathInterpolator(0)) ?? Skia.Path.Make();
-      normalizedEndShared.value =
-        Skia.Path.MakeFromSVGString(pathInterpolator(1)) ?? Skia.Path.Make();
-      fallbackPathShared.value = Skia.Path.MakeFromSVGString(currentPath) ?? Skia.Path.Make();
-
       const activeTransition =
         isFirstAnimation.current && enterTransition !== undefined
           ? enterTransition
@@ -282,8 +276,26 @@ export const usePathTransition = ({
 
       isFirstAnimation.current = false;
 
-      progress.value = 0;
-      progress.value = buildTransition(1, activeTransition);
+      if (activeTransition === null) {
+        const staticPath = Skia.Path.MakeFromSVGString(currentPath) ?? Skia.Path.Make();
+        interpolatorRef.current = null;
+        normalizedStartShared.value = staticPath;
+        normalizedEndShared.value = staticPath;
+        result.value = staticPath;
+        notifyChange(result);
+        progress.value = 1;
+      } else {
+        const pathInterpolator = interpolatePath(fromPath, currentPath);
+        interpolatorRef.current = pathInterpolator;
+
+        normalizedStartShared.value =
+          Skia.Path.MakeFromSVGString(pathInterpolator(0)) ?? Skia.Path.Make();
+        normalizedEndShared.value =
+          Skia.Path.MakeFromSVGString(pathInterpolator(1)) ?? Skia.Path.Make();
+
+        progress.value = 0;
+        progress.value = buildTransition(1, activeTransition);
+      }
     }
   }, [
     currentPath,
@@ -292,16 +304,16 @@ export const usePathTransition = ({
     progress,
     normalizedStartShared,
     normalizedEndShared,
-    fallbackPathShared,
+    result,
   ]);
 
   useAnimatedReaction(
-    () => ({ p: progress.value, to: fallbackPathShared.value }),
-    ({ p }) => {
+    () => progress.value,
+    (p) => {
       'worklet';
       result.value =
         normalizedEndShared.value.interpolate(normalizedStartShared.value, p) ??
-        fallbackPathShared.value;
+        normalizedEndShared.value;
       notifyChange(result);
     },
     [],

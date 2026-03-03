@@ -60,6 +60,14 @@ export const GradientArea = memo<GradientAreaProps>(
   }) => {
     const { getYAxis } = useCartesianChartContext();
     const patternId = useId();
+    const gradientUpdate = useMemo(() => {
+      const gradientTransition =
+        transitions?.update !== undefined ? transitions.update : transition;
+      return {
+        gradientTransition,
+        shouldAnimateGradient: animate && gradientTransition !== null,
+      };
+    }, [animate, transitions?.update, transition]);
 
     const yAxisConfig = getYAxis(yAxisId);
 
@@ -76,10 +84,10 @@ export const GradientArea = memo<GradientAreaProps>(
         {gradient && (
           <defs>
             <Gradient
-              animate={animate}
+              animate={gradientUpdate.shouldAnimateGradient}
               gradient={gradient}
               id={patternId}
-              transition={transitions?.update ?? transition}
+              transition={gradientUpdate.gradientTransition ?? undefined}
               yAxisId={yAxisId}
             />
           </defs>

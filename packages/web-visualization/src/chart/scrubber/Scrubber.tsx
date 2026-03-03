@@ -378,6 +378,7 @@ export const Scrubber = memo(
         () => getTransition(transitions?.enter, animate, defaultAccessoryEnterTransition),
         [transitions?.enter, animate],
       );
+      const shouldAnimateGroupEnter = animate && groupEnterTransition !== null;
 
       // Check if we have at least the default X scale
       const defaultXScale = getXScale();
@@ -394,7 +395,7 @@ export const Scrubber = memo(
           data-component="scrubber-group"
           data-testid={testID}
           role="status"
-          {...(animate
+          {...(shouldAnimateGroupEnter
             ? {
                 animate: {
                   opacity: 1,
