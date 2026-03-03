@@ -1,56 +1,14 @@
 import React, { forwardRef, memo, useMemo } from 'react';
+import {
+  useFallbackShape,
+  type UseFallbackShapeOptions,
+} from '@coinbase/cds-common/hooks/useFallbackShape';
 import type { Shape } from '@coinbase/cds-common/types';
 import { css } from '@linaria/core';
 
 import type { Polymorphic } from '../core/polymorphism';
 
 import { Box, type BoxBaseProps } from './Box';
-
-const WIDTH_MODIFIERS = [0.5, 0, 0.6, 0.8, 0.1, 0.9, 0.4, 0.2, 0.7, 0.3];
-
-export type UseFallbackShapeOptions = {
-  disableRandomRectWidth?: boolean;
-  rectWidthVariant?: number;
-};
-
-export function useFallbackShape(
-  shape: Shape,
-  baseWidth: number | string,
-  options?: UseFallbackShapeOptions,
-) {
-  const width = useMemo(() => {
-    // When rectangle, lets vary the width a bit so things are
-    // a little less... uniform. Variety is nice.
-    if (
-      shape === 'rectangle' &&
-      typeof baseWidth === 'number' &&
-      (!options?.disableRandomRectWidth || options?.rectWidthVariant !== undefined)
-    ) {
-      const modifier =
-        options?.rectWidthVariant !== undefined
-          ? WIDTH_MODIFIERS[options.rectWidthVariant % WIDTH_MODIFIERS.length]
-          : Math.random();
-      const quarter = Math.round(baseWidth / 4);
-      const min = Math.max(baseWidth - quarter, 1);
-      const max = baseWidth + quarter;
-
-      return Math.floor(modifier * (max - min + 1)) + min;
-    }
-
-    // All other shapes need a fixed aspect ratio
-    return baseWidth;
-  }, [baseWidth, options, shape]);
-
-  const borderRadius = useMemo(() => {
-    if (shape === 'circle' && Number.isInteger(width)) {
-      return Number(width) / 2;
-    }
-
-    return shape === 'squircle' ? 8 : 0;
-  }, [shape, width]);
-
-  return useMemo(() => ({ borderRadius, width }), [borderRadius, width]);
-}
 
 const fallbackCss = css`
   display: inline-block;
@@ -131,6 +89,7 @@ export const Fallback: FallbackComponent = memo(
         percentage,
         disableRandomRectWidth,
         rectWidthVariant,
+        accessibilityLabel = 'Loading',
         ...props
       }: FallbackProps<AsComponent>,
       ref?: Polymorphic.Ref<AsComponent>,
@@ -159,13 +118,16 @@ export const Fallback: FallbackComponent = memo(
       return (
         <Box
           ref={ref}
+          aria-label={accessibilityLabel}
+          aria-live="polite"
           as={Component}
           flexGrow={0}
           flexShrink={0}
+          role="status"
           width={percentage && typeof width === 'number' ? `${Math.min(width, 100)}%` : width}
           {...props}
         >
-          <Box className={fallbackCss} style={style}>
+          <Box aria-hidden="true" className={fallbackCss} style={style}>
             &nbsp;
           </Box>
         </Box>
@@ -175,3 +137,5 @@ export const Fallback: FallbackComponent = memo(
 );
 
 Fallback.displayName = 'Fallback';
+
+export { useFallbackShape, type UseFallbackShapeOptions };

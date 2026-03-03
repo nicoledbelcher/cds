@@ -19,15 +19,11 @@ The shape of the fallback can further be customized with the `shape` prop.
 </HStack>
 ```
 
-:::tip Rectangular fallback width
+### Rectangular fallback width
 
-If the fallback shape is a rectangle and the width is specified as a number, then by default, the width value will be recalculated and randomized within a predetermined threshold (e.g. to add some variety when mulitple fallbacks are presented together). If this behavior is undesirable (e.g. in server-side rendered web apps), randomization can be disabled with the `disableRandomRectWidth` prop.
+If the fallback shape is a rectangle and the width is specified as a number, then by default, the width value will be recalculated and randomized within a predetermined threshold (e.g. to add some variety when multiple fallbacks are presented together). If this behavior is undesirable, randomization can be disabled with the `disableRandomRectWidth` prop.
 
-<br />
-
-Alternatively, you may create a rectangle width variant by setting a number value on the `rectWidthVariant` prop. Variants map to a predetermined set of width values, which are cycled through repeatedly when the set is exhausted. Therefore, it's still possible to achieve some variety, but in a deterministic manner (i.e. safe for server-side rendering). Here's an example:
-
-<br />
+Alternatively, you may create a rectangle width variant by setting a number value on the `rectWidthVariant` prop. Variants map to a predetermined set of width values, which are cycled through repeatedly when the set is exhausted. Therefore, it's still possible to achieve some variety, but in a deterministic manner.
 
 ```jsx
 function RenderFallbacksInList() {
@@ -42,4 +38,44 @@ function RenderFallbacksInList() {
 }
 ```
 
+### Accessibility
+
+By default, Fallback announces "Loading" to screen readers using `accessibilityLiveRegion="polite"`. You can customize this with the `accessibilityLabel` prop.
+
+```jsx
+<Fallback width={150} height={45} accessibilityLabel="Loading user profile" />
+```
+
+:::tip Grouping multiple fallbacks
+
+When displaying multiple Fallbacks together (e.g., in a table or list), having each one announce "Loading" would be redundant and noisy. Instead, wrap the group in an accessible container with a descriptive label, then hide individual Fallbacks from the accessibility tree. When the content finishes loading, set `accessibilityState={{ busy: false }}` on the container and replace the Fallbacks with actual content.
+
 :::
+
+```jsx
+<Box accessible accessibilityLabel="Loading table data" accessibilityState={{ busy: true }}>
+  <VStack gap={1}>
+    <Fallback
+      width={150}
+      height={20}
+      accessible={false}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    />
+    <Fallback
+      width={150}
+      height={20}
+      accessible={false}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    />
+    <Fallback
+      width={150}
+      height={20}
+      accessible={false}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    />
+  </VStack>
+</Box>
+```

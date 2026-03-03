@@ -1,21 +1,19 @@
 import type { Animated, StyleProp, ViewStyle } from 'react-native';
 import type { LottieSource } from '@coinbase/cds-common/types';
 
-import type { BoxBaseProps } from '../layout';
+import type { BoxProps } from '../layout';
 
 export type LottieBaseProps<T extends LottieSource = LottieSource> = Omit<
-  BoxBaseProps,
+  BoxProps,
   'alignContent' | 'justifyContent' | 'flexWrap' | 'flexDirection'
 > & {
   /**
    * A boolean flag indicating whether or not the animation should start automatically when
    * mounted. This only affects the imperative API.
-   * @default false
    */
   autoplay?: boolean;
   /**
    * A boolean flag indicating whether or not the animation should loop.
-   * @default false
    */
   loop?: boolean;
   /**
