@@ -111,7 +111,7 @@ jobs:
           yarn playwright install
           cd ../../
       - name: Test Storybook
-        run: yarn nx run storybook:test
+        run: yarn nx run storybook:test-a11y
 
   typecheck:
     name: Typecheck

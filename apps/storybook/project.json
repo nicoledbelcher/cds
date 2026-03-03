@@ -29,7 +29,7 @@
         "{projectRoot}/dist"
       ]
     },
-    "test": {
+    "test-a11y": {
       "command": "vitest --project=storybook",
       "options": {
         "cwd": "apps/storybook"
