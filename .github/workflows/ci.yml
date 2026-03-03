@@ -94,7 +94,7 @@ jobs:
         run: yarn nx affected --target=test --base=$NX_BASE --head=$NX_HEAD
 
   test-storybook:
-    name: Test Storybook
+    name: Storybook A11y Tests
     runs-on: ubuntu-latest
     steps:
       - name: Harden the runner (Audit all outbound calls)
