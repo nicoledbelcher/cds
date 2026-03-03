@@ -8,7 +8,13 @@ All notable changes to this project will be documented in this file.
 
 <!-- template-start -->
 
-## Unreleased
+## 8.50.0 (3/3/2026 PST)
+
+#### 🚀 Updates
+
+- Deprecated all exports from LottieStatusAnimationProps file in commons. [[#388](https://github.com/coinbase/cds/pull/388)]
+- Added lottieStatusToAccessibilityLabel constant. [[#388](https://github.com/coinbase/cds/pull/388)]
+- Deprecated LottieStatusAnimationType and renamed it to LottieStatus. [[#388](https://github.com/coinbase/cds/pull/388)]
 
 #### 📘 Misc
 

@@ -8,6 +8,13 @@ All notable changes to this project will be documented in this file.
 
 <!-- template-start -->
 
+## 8.50.0 (3/3/2026 PST)
+
+#### 🚀 Updates
+
+- A11y improvements to Fallback, Spinner, and LottieStatusAnimation. [[#388](https://github.com/coinbase/cds/pull/388)]
+- Simplify the ProgressBar component implementation. [[#388](https://github.com/coinbase/cds/pull/388)]
+
 ## 8.49.0 (2/26/2026 PST)
 
 #### 🚀 Updates
