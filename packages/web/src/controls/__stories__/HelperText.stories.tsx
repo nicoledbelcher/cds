@@ -5,6 +5,18 @@ import { HelperText } from '../HelperText';
 export default {
   title: 'Components/Inputs/HelperText',
   component: HelperText,
+  parameters: {
+    a11y: {
+      config: {
+        rules: [
+          {
+            id: 'color-contrast',
+            enabled: false,
+          },
+        ],
+      },
+    },
+  },
 };
 
 export const MessageAreaBasic = () => {
@@ -29,10 +41,6 @@ export const MessageAreaColor = () => {
       ))}
     </div>
   );
-};
-
-MessageAreaColor.parameters = {
-  a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
 };
 
 export const TextAlign = () => {

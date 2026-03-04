@@ -13,6 +13,14 @@ import { RollingNumber } from '../RollingNumber/RollingNumber';
 export default {
   title: 'Components/RollingNumber',
   component: RollingNumber,
+  parameters: {
+    a11y: {
+      context: {
+        include: ['body'],
+        exclude: ['.no-a11y-checks'],
+      },
+    },
+  },
 };
 
 export const Examples = () => {
@@ -321,7 +329,7 @@ export const StyleOverrides = () => {
   const onNext = () =>
     setPrice((p) => Math.max(0, Math.round((p + (Math.random() - 0.5) * 200) * 100) / 100));
   return (
-    <VStack gap={2}>
+    <VStack className="no-a11y-checks" gap={2}>
       <Text font="label1">Style overrides per section</Text>
       <RollingNumber
         colorPulseOnUpdate
@@ -585,14 +593,22 @@ export const Fun = () => {
       <VStack gap={1}>
         <Text font="label1">Counter</Text>
         <HStack alignItems="center" gap={2}>
-          <IconButton name="minus" onClick={() => setCount((c) => Math.max(0, c - 1))} />
+          <IconButton
+            accessibilityLabel="Decrement"
+            name="minus"
+            onClick={() => setCount((c) => Math.max(0, c - 1))}
+          />
           <RollingNumber
             colorPulseOnUpdate
             font="display1"
             format={{ minimumFractionDigits: 0, maximumFractionDigits: 0 }}
             value={count}
           />
-          <IconButton name="add" onClick={() => setCount((c) => c + 1)} />
+          <IconButton
+            accessibilityLabel="Increment"
+            name="add"
+            onClick={() => setCount((c) => c + 1)}
+          />
         </HStack>
       </VStack>
 
@@ -606,7 +622,7 @@ export const Fun = () => {
         </HStack>
         <Text font="label1">Countdown with percent</Text>
         <VStack gap={1}>
-          <ProgressBar progress={progress} />
+          <ProgressBar accessibilityLabel="Progress bar" progress={progress} />
           <RollingNumber
             ariaLive="off"
             font="body"

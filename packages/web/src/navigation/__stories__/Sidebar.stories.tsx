@@ -89,6 +89,7 @@ export const ControlledCollapse = () => {
   const renderEnd = () => (
     <IconButton
       height="48px"
+      accessibilityLabel={collapsed ? 'Expand' : 'Collapse'}
       name={collapsed ? 'caretRight' : 'caretLeft'}
       onClick={() => setCollapsed(!collapsed)}
       width="48px"
@@ -183,6 +184,7 @@ export const CustomLogo = () => {
           logo={renderLogo}
           renderEnd={() => (
             <IconButton
+              accessibilityLabel={collapsed ? 'Expand' : 'Collapse'}
               name={collapsed ? 'caretRight' : 'caretLeft'}
               onClick={() => setCollapsed(!collapsed)}
             />

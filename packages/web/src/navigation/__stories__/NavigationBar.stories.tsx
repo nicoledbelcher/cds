@@ -107,12 +107,17 @@ export const NavigationBarMobileExample = () => {
       <NavigationBar
         end={
           <HStack alignItems="center" gap={1}>
-            <IconButton compact name="search" variant="secondary" />
-            <IconButton compact name="appSwitcher" variant="secondary" />
+            <IconButton compact accessibilityLabel="Search" name="search" variant="secondary" />
+            <IconButton
+              compact
+              accessibilityLabel="App Switcher"
+              name="appSwitcher"
+              variant="secondary"
+            />
             <AvatarButton compact alt="User" name="Sam Smith" />
           </HStack>
         }
-        start={<IconButton compact transparent name="hamburger" />}
+        start={<IconButton compact accessibilityLabel="Hamburger" transparent name="hamburger" />}
       >
         <LogoMark size={32} />
       </NavigationBar>
@@ -145,13 +150,27 @@ export const NavigationBarWithSearch = () => {
               </Button>
             </HStack>
             <HStack gap={1}>
-              <IconButton active compact name="search" variant="secondary" />
-              <IconButton active compact name="appSwitcher" variant="secondary" />
+              <IconButton
+                active
+                compact
+                accessibilityLabel="Search"
+                name="search"
+                variant="secondary"
+              />
+              <IconButton
+                active
+                compact
+                accessibilityLabel="App Switcher"
+                name="appSwitcher"
+                variant="secondary"
+              />
               <AvatarButton compact alt="User" name="Sam Smith" />
             </HStack>
           </HStack>
         }
-        start={<IconButton compact name="backArrow" variant="secondary" />}
+        start={
+          <IconButton compact accessibilityLabel="Back" name="backArrow" variant="secondary" />
+        }
       >
         <NavigationTitle>Page Title</NavigationTitle>
       </NavigationBar>

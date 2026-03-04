@@ -128,11 +128,7 @@ export const TextContent = (): JSX.Element => {
           </TextLabel2>
         }
         media={exampleMedia}
-        subtitle={
-          <TextHeadline as="p" color="fgPositive">
-            Custom Subtitle
-          </TextHeadline>
-        }
+        subtitle={<TextHeadline as="p">Custom Subtitle</TextHeadline>}
         thumbnail={exampleThumbnail}
         title={<TextTitle3 as="p">Custom Title</TextTitle3>}
         width={320}

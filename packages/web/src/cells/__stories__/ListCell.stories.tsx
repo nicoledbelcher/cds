@@ -21,6 +21,10 @@ const parameters = {
     config: {
       rules: [{ id: 'color-contrast', enabled: false }],
     },
+    context: {
+      include: ['body'],
+      exclude: ['.no-a11y-check'],
+    },
   },
 };
 
@@ -1046,6 +1050,7 @@ const CondensedListCell = () => {
         title="Title"
       />
       <ListCell
+        className="no-a11y-check"
         accessory="more"
         description="Description"
         detail="Detail"

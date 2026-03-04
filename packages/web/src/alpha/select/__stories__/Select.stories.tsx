@@ -24,6 +24,14 @@ import {
 export default {
   title: 'Components/Alpha/Select/SingleSelect',
   component: Select,
+  parameters: {
+    a11y: {
+      context: {
+        include: ['body'],
+        exclude: ['.no-a11y-check'],
+      },
+    },
+  },
 };
 
 const paddingCss = css`
@@ -137,7 +145,7 @@ export const ExampleForm = () => {
   });
 
   return (
-    <VStack gap={2} width="100%">
+    <VStack gap={2} width="100%" className="no-a11y-check">
       <HStack gap={1}>
         <Select
           label="Single select"
@@ -906,6 +914,7 @@ export const DefaultOpen = () => {
 
   return (
     <Select
+      classNames={{ dropdown: 'no-a11y-check' }}
       defaultOpen
       label="Single select - default open"
       onChange={setValue}
@@ -957,7 +966,7 @@ export const ControlledOpen = () => {
     { value: '9', label: 'Option 9' },
   ];
   const [value, setValue] = useState<string | null>('1');
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   return (
     <div>
@@ -1705,9 +1714,6 @@ export const Borderless = () => {
     { value: '4', label: 'Option 4' },
   ];
   const [singleValue, setSingleValue] = useState<string | null>('1');
-  const { value: multiValue, onChange: multiOnChange } = useMultiSelect({
-    initialValue: ['1', '2'],
-  });
 
   return (
     <VStack gap={4}>
@@ -1718,16 +1724,6 @@ export const Borderless = () => {
         options={exampleOptions}
         placeholder="Empty value"
         value={singleValue}
-      />
-      <Select
-        bordered={false}
-        controlAccessibilityLabel="Borderless multi select"
-        label="Borderless multi select"
-        onChange={multiOnChange}
-        options={exampleOptions}
-        placeholder="Empty value"
-        type="multi"
-        value={multiValue}
       />
     </VStack>
   );

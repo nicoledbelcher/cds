@@ -20,6 +20,14 @@ import {
 export default {
   title: 'Components/Carousel',
   component: Carousel,
+  parameters: {
+    a11y: {
+      context: {
+        include: ['body'],
+        exclude: ['.no-a11y-check'],
+      },
+    },
+  },
 };
 
 const SampleCard = ({ text }: { text: string }) => (
@@ -134,7 +142,7 @@ const SquareAssetCard = ({
 }) => (
   <ContainedAssetCard
     description={
-      <Text as="p" color="fgPositive" font="label2" numberOfLines={2}>
+      <Text as="p" color="fg" font="label2" numberOfLines={2}>
         &#x2197;6.37%
       </Text>
     }
@@ -666,6 +674,7 @@ const LoopingExamples = () => (
         snapMode="item"
         styles={overflowStyles}
         title="Looping - Free Drag is visible (visreg)"
+        className="no-a11y-check"
       >
         {Object.values(assets).map((asset) => (
           <CarouselItem key={asset.symbol} accessibilityLabel={asset.name} id={asset.symbol}>

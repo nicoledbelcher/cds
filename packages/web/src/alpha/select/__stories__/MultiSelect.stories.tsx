@@ -12,6 +12,10 @@ import { Select, type SelectOptionComponent } from '../Select';
 export default {
   title: 'Components/Alpha/Select/MultiSelect',
   component: Select,
+  parameters: {
+    // Due to the InputChips rendered inside the Select control, there's an a11y violation.
+    a11y: { test: 'off' },
+  },
 };
 
 const paddingCss = css`

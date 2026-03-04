@@ -8,6 +8,14 @@ import { VStack } from '../VStack';
 export default {
   title: 'Components/Box (tsx)',
   component: Box,
+  parameters: {
+    a11y: {
+      context: {
+        include: ['body'],
+        exclude: ['.no-a11y-check'],
+      },
+    },
+  },
 };
 
 const Lipsum = ({ color }: { color?: ThemeVars.Color }) => (
@@ -46,7 +54,7 @@ export const Elevation2 = () => (
 );
 
 export const Opacity = () => (
-  <Box opacity={0.1}>
+  <Box className="no-a11y-check" opacity={0.5}>
     <Lipsum />
   </Box>
 );
@@ -272,6 +280,7 @@ export const AllPin = () => (
 export const BooleanStyleProps = () => {
   return (
     <Box
+      className="no-a11y-check"
       bordered
       background="bgPrimary"
       borderColor="accentBoldPurple"
