@@ -1,5 +1,5 @@
 import { IconButton } from '../buttons';
-import { VStack } from '../layout';
+import { Box, VStack } from '../layout';
 import { Text } from '../typography';
 
 const AccessibilityViolations = () => {
@@ -17,15 +17,19 @@ const AccessibilityViolations = () => {
       </VStack>
       <VStack gap={1}>
         <Text color="fgNegative" font="headline">
-          Incorrect heading level
+          Incorrect color contrast
         </Text>
-        <Text as="h1">I am an h1</Text>
-        <Text as="h3">I am an h3 but should be an h2</Text>
+        <Box background="bgPrimary" width="fit-content">
+          <Text font="body" as="h1">
+            This text does not contrast with the background
+          </Text>
+        </Box>
         <Text color="fgPositive" font="headline">
-          Correct usage
+          Correct color contrast
         </Text>
-        <Text as="h1">I am an h1</Text>
-        <Text as="h2">I am an h2</Text>
+        <Text font="body" as="h1">
+          This text contrasts with the background
+        </Text>
       </VStack>
     </VStack>
   );
@@ -36,4 +40,7 @@ export const Default = () => <AccessibilityViolations />;
 export default {
   component: AccessibilityViolations,
   title: 'Accessibility/AccessibilityViolations',
+  parameters: {
+    a11y: { test: 'todo' },
+  },
 };
