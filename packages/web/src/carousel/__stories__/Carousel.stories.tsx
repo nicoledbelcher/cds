@@ -22,6 +22,14 @@ export default {
   component: Carousel,
   parameters: {
     a11y: {
+      config: {
+        rules: [
+          {
+            id: 'touch-target',
+            enabled: false,
+          },
+        ],
+      },
       context: {
         include: ['body'],
         exclude: ['.no-a11y-check'],

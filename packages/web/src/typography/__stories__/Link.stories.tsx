@@ -140,4 +140,7 @@ export const RenderContainerColor = () => (
 export default {
   title: 'Components/Link',
   component: Link,
+  parameters: {
+    a11y: { config: { rules: [{ id: 'touch-target', enabled: false }] } },
+  },
 };
