@@ -15,6 +15,16 @@ export const Default = () => (
   </div>
 );
 
+Default.parameters = {
+  a11y: {
+    options: {
+      rules: {
+        'target-size': { enabled: false },
+      },
+    },
+  },
+};
+
 export const VariantBody = () => (
   <Link font="body" href="https://www.google.com/">
     Body

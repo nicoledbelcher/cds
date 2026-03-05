@@ -18,13 +18,15 @@ export default {
 };
 
 const a11ySkipConfig = {
-  config: {
+  options: {
     /**
      * The TabNavigation docs explain the proper way to setup the tabpanel.
      * Disabled because CDS TabNavigation doesn't have associated panels.
      * @link https://cds.coinbase.com/components/tab-navigation#accessibility
      * */
-    rules: [{ id: 'aria-valid-attr-value', enabled: false }],
+    rules: {
+      'aria-valid-attr-value': { enabled: false },
+    },
   },
 };
 

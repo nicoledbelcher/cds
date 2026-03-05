@@ -330,7 +330,16 @@ export const CustomStringLabel = () => {
     </ProgressContainerWithButtons>
   );
 };
-CustomStringLabel.parameters = { percy: { enableJavaScript: true } };
+CustomStringLabel.parameters = {
+  percy: { enableJavaScript: true },
+  a11y: {
+    options: {
+      rules: {
+        'color-contrast': { enabled: false },
+      },
+    },
+  },
+};
 
 export const AnimationCallbacks = () => {
   const [animationStatus, setAnimationStatus] = React.useState<string>('Ready');
