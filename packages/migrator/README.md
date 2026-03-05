@@ -139,11 +139,10 @@ npx @coinbase/cds-migrator
 
 1. **[CLI Reference](./docs/CLI_REFERENCE.md)** - Complete CLI usage guide
 2. **[History Guide](./docs/HISTORY.md)** - Advanced history tracking
-3. **[Preset Guides](./docs/guides/)** - Version-specific migration guides
 
 ### 🔧 For Contributors
 
-1. **[Contributing Guide](./docs/CONTRIBUTING.md)** - Creating transforms, presets, and APIs
+1. **[Presets & Transforms](./docs/PRESETS_AND_TRANSFORMS.md)** - Creating presets, transforms, and APIs
 
 ## What Gets Created
 
@@ -209,30 +208,20 @@ npx @coinbase/cds-migrator ./src --clear-history --skip-confirmation
 
 ```
 packages/migrator/
-├── docs/                          # General documentation
-│   ├── QUICK_START.md             # Getting started guide
-│   ├── CLI_REFERENCE.md           # CLI usage reference
-│   ├── PRESET.md           # Config structure guide
-│   ├── WRITING_TRANSFORMS.md      # Transform development
-│   ├── UTILITIES.md               # Utils API reference
-│   └── HISTORY.md                 # History tracking guide
-├── docs/                          # Documentation
-│   ├── guides/                    # Preset-specific migration guides
-│   │   └── v8-to-v9.md            # v8-to-v9 migration guide
-│   ├── QUICK_START.md
-│   ├── CLI_REFERENCE.md
-│   └── ...
+├── docs/
+│   ├── CLI_REFERENCE.md           # CLI usage guide
+│   ├── PRESETS_AND_TRANSFORMS.md  # Creating presets and transforms
+│   └── HISTORY.md                 # History tracking
 ├── src/
-│   ├── cli.ts                     # Interactive CLI
+│   ├── cli.ts                     # Main CLI
 │   ├── runner.ts                  # Migration executor
 │   ├── types.ts                   # TypeScript types
-│   ├── utils/                     # Shared utilities
-│   ├── bin/                       # Convenience bin commands
-│   ├── presets/                   # Preset configurations
+│   ├── presets/                   # Preset configurations (auto-discovered!)
 │   │   └── v8-to-v9/
-│   │       └── manifest.json        # Simple list of transforms
-│   └── transforms/                # Transform implementations (reusable!)
-│       └── example-transform.ts
+│   │       └── manifest.json
+│   ├── transforms/                # Standalone transforms
+│   │   └── example-transform.ts
+│   └── utils/                     # Shared utilities
 └── package.json
 ```
 
@@ -257,7 +246,7 @@ node esm/cli.js
 
 ### Adding New Presets
 
-See [docs/CONTRIBUTING.md](./docs/CONTRIBUTING.md#creating-presets) for complete instructions.
+See [docs/PRESETS_AND_TRANSFORMS.md](./docs/PRESETS_AND_TRANSFORMS.md#creating-presets) for complete instructions.
 
 Quick steps:
 
@@ -277,14 +266,8 @@ Quick steps:
    }
    ```
 3. Create transform file in `src/transforms/my-transform.ts`
-4. Add guide in `src/guides/v9-to-v10.md`
-5. Update `AVAILABLE_PRESETS` in `src/cli.ts`
 
-**Note:** Transforms in `src/transforms/` can be reused across multiple presets!
-
-## Contributing
-
-See [docs/CONTRIBUTING.md](./docs/CONTRIBUTING.md) for the complete guide to creating transforms.
+**Note:** Presets are auto-discovered from the `src/presets/` directory!
 
 ## License
 

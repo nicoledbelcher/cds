@@ -2,7 +2,7 @@
 
 Detailed information about migration history tracking, team collaboration, and advanced usage.
 
-> **Quick reference:** See [README](../README.md#migration-history) for basic usage and [Contributing Guide](./CONTRIBUTING.md#advanced-apis) for the programmatic API.
+> **Quick reference:** See [README](../README.md#migration-history) for basic usage and [Presets & Transforms](./PRESETS_AND_TRANSFORMS.md#advanced-apis) for the programmatic API.
 
 ## History File Format
 
@@ -174,4 +174,4 @@ History file is always in the target directory. This ensures:
 ## See Also
 
 - [CLI Reference](./CLI_REFERENCE.md) - Complete CLI usage
-- [Contributing Guide](./CONTRIBUTING.md) - Creating transforms and presets
+- [Presets & Transforms](./PRESETS_AND_TRANSFORMS.md) - Creating presets and transforms

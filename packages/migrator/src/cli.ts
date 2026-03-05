@@ -7,6 +7,7 @@
  * Also supports non-interactive mode via CLI flags
  */
 
+import fs from 'fs';
 import inquirer from 'inquirer';
 import path from 'path';
 
@@ -28,13 +29,42 @@ import type { MigrationSelection, Transform } from './types';
 // In CommonJS, __dirname is automatically available
 declare const __dirname: string;
 
-const AVAILABLE_PRESETS = [
-  {
-    name: 'v8 to v9',
-    value: 'v8-to-v9',
-    description: 'Migrate from CDS v8 to v9',
-  },
-] as const;
+/**
+ * Discover available presets by scanning the presets directory
+ */
+function getAvailablePresets(): Array<{ name: string; value: string; description: string }> {
+  const presetsDir = path.join(__dirname, 'presets');
+
+  if (!fs.existsSync(presetsDir)) {
+    return [];
+  }
+
+  const presetDirs = fs.readdirSync(presetsDir).filter((item) => {
+    const itemPath = path.join(presetsDir, item);
+    return fs.statSync(itemPath).isDirectory();
+  });
+
+  const presets: Array<{ name: string; value: string; description: string }> = [];
+
+  for (const presetName of presetDirs) {
+    const presetDir = path.join(presetsDir, presetName);
+    try {
+      const manifest = loadMigrationManifest(presetDir);
+      presets.push({
+        name: manifest.preset,
+        value: manifest.preset,
+        description: manifest.description,
+      });
+    } catch (error) {
+      // Skip invalid presets
+      continue;
+    }
+  }
+
+  return presets;
+}
+
+const AVAILABLE_PRESETS = getAvailablePresets();
 
 /**
  * Handle duplicate transforms: prompt user or auto-filter based on flags
@@ -203,6 +233,11 @@ async function setupMigration(args: CliArgs) {
   if (args.preset) {
     preset = args.preset;
   } else {
+    if (AVAILABLE_PRESETS.length === 0) {
+      console.error('Error: No presets found in src/presets/');
+      process.exit(1);
+    }
+
     const answer = await inquirer.prompt([
       {
         type: 'list',
@@ -217,11 +252,13 @@ async function setupMigration(args: CliArgs) {
     preset = answer.preset;
   }
 
-  // Validate preset
-  const isValidPreset = AVAILABLE_PRESETS.some((p) => p.value === preset);
-  if (!isValidPreset) {
+  // Validate preset exists
+  const presetDir = path.join(__dirname, 'presets', preset);
+  if (!fs.existsSync(presetDir)) {
     console.error(`Error: Invalid preset '${preset}'`);
-    console.error(`Available presets: ${AVAILABLE_PRESETS.map((p) => p.value).join(', ')}`);
+    if (AVAILABLE_PRESETS.length > 0) {
+      console.error(`Available presets: ${AVAILABLE_PRESETS.map((p) => p.value).join(', ')}`);
+    }
     process.exit(1);
   }
 
@@ -232,8 +269,7 @@ async function setupMigration(args: CliArgs) {
     console.log(historySummary);
   }
 
-  // Step 4: Load config and select transforms
-  const presetDir = path.join(__dirname, 'presets', preset);
+  // Step 4: Load config and select transforms (presetDir already defined above)
   const config = loadMigrationManifest(presetDir);
 
   if (args.partial) {

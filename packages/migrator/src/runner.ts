@@ -4,7 +4,8 @@
  * Coordinates the execution of version-specific migrations
  */
 
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
+import fs from 'fs';
 import path from 'path';
 
 import { createLogger, recordTransformRun } from './utils/index';
@@ -39,6 +40,9 @@ export async function runMigration(options: RunMigrationOptions): Promise<void> 
 
   logger.info(`Running ${transformsToRun.length} transforms`);
 
+  // Track successes and failures
+  const results = { success: 0, failure: 0 };
+
   // Run each transform using jscodeshift
   // CLI has already filtered the list, so just run everything
   for (const transform of transformsToRun) {
@@ -57,47 +61,71 @@ export async function runMigration(options: RunMigrationOptions): Promise<void> 
     const fullTransformPath = path.join(transformsDir, transformFile);
     const extensions = transform.extensions || 'tsx,ts,jsx,js';
 
+    // Check if transform file exists before running
+    if (!fs.existsSync(fullTransformPath)) {
+      console.error(`\n  ✗ Transform failed: ${transform.name}`);
+      console.error(`     Transform file not found: ${fullTransformPath}\n`);
+      logger.error(
+        `Transform file not found: ${transform.name}`,
+        fullTransformPath,
+        undefined,
+        `File does not exist at: ${fullTransformPath}`,
+      );
+      results.failure++;
+      continue; // Skip this transform and continue with others
+    }
+
     try {
-      const jscodeshiftCmd = [
-        'npx',
+      // Build jscodeshift arguments for npx
+      const jscodeshiftArgs = [
         'jscodeshift',
-        dryRun ? '--dry' : '',
+        ...(dryRun ? ['--dry'] : []),
         '--parser=tsx',
         `--extensions=${extensions}`,
-        '--ignore-pattern="**/node_modules/**"',
-        '--ignore-pattern="**/.next/**"',
-        '--ignore-pattern="**/dist/**"',
-        '--ignore-pattern="**/build/**"',
+        '--ignore-pattern=**/node_modules/**',
+        '--ignore-pattern=**/.next/**',
+        '--ignore-pattern=**/dist/**',
+        '--ignore-pattern=**/build/**',
         `--transform=${fullTransformPath}`,
         targetPath,
-      ]
-        .filter(Boolean)
-        .join(' ');
+      ];
 
-      console.log(`    Command: ${jscodeshiftCmd}\n`);
+      console.log(`    Command: npx ${jscodeshiftArgs.join(' ')}\n`);
 
-      execSync(jscodeshiftCmd, {
+      // execFileSync: first arg is command, second arg is array of arguments
+      execFileSync('npx', jscodeshiftArgs, {
         stdio: 'inherit',
         cwd: process.cwd(),
       });
 
       console.log(`\n  ✓ Transform completed: ${transform.name}`);
       logger.success(`Transform completed: ${transform.name}`);
+      results.success++;
 
       // Record this transform run in history (file path is the ID)
       recordTransformRun(targetPath, transformFilePath, dryRun);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`\n  ✗ Transform failed: ${transform.name}`);
+      console.error(`     Error: ${error.message || String(error)}\n`);
       logger.error(
         `Transform failed: ${transform.name}`,
         undefined,
         undefined,
-        error instanceof Error ? error.message : String(error),
+        error.message || String(error),
       );
-      throw error;
+      results.failure++;
+      // Continue with other transforms
     }
   }
 
   // Write summary and close logger
   logger.writeSummary();
+
+  // Report final status if any failures
+  if (results.failure > 0) {
+    console.log(`\n⚠️  Migration completed with errors:`);
+    console.log(`   ✓ ${results.success} succeeded`);
+    console.log(`   ✗ ${results.failure} failed\n`);
+    process.exit(1);
+  }
 }

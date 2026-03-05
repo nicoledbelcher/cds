@@ -4,8 +4,6 @@
 
 import { Command } from 'commander';
 
-import type { MigrationSelection } from './types';
-
 export type CliArgs = {
   preset?: string;
   path?: string;

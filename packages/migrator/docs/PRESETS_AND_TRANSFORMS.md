@@ -1,6 +1,6 @@
-# Contributing Guide
+# Presets & Transforms Guide
 
-Guide to creating transforms, presets, and using the migrator APIs.
+Guide to creating presets, transforms, and using the migrator APIs.
 
 ## Creating Transforms
 
@@ -299,15 +299,6 @@ return root.toSource();
 if (!hasMigrationTodo(path.parent)) {
   addTodoComment(j, path, 'Message');
 }
-```
-
-## Testing Transforms
-
-### Create Test Files
-
-```bash
-mkdir -p /tmp/migration-test/src
-echo 'import { Button } from "@coinbase/cds-web";' > /tmp/migration-test/src/test.tsx
 ```
 
 ### Run in Dry-Run
