@@ -2242,9 +2242,7 @@ __metadata:
     inquirer: "npm:^9.2.12"
     jscodeshift: "npm:^0.15.1"
   bin:
-    cds-migrate: ./esm/cli.js
-    "cds-migrate:all": ./esm/bin/migrate-all.js
-    "cds-migrate:clear-history": ./esm/bin/clear-history.js
+    cds-migrate: ./cjs/cli.js
   languageName: unknown
   linkType: soft
 

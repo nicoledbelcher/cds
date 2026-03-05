@@ -5,7 +5,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import { LOG_FILE_NAME } from './constants.js';
+import { LOG_FILE_NAME } from './constants';
 
 export const LogLevel = {
   INFO: 'INFO',

@@ -2,18 +2,19 @@
  * Example Transform
  *
  * This is a template/example transform showing how to write codemods for CDS migrations.
- * You can use this as a starting point for creating actual migration transforms.
+ *
+ * NOTE: Transforms must be standalone - they cannot import from ../utils
+ * due to jscodeshift loading transforms in CommonJS worker processes.
  */
 
 import type { API, FileInfo, Options } from 'jscodeshift';
 
-import { addTodoToAttribute, getLogger, hasMigrationTodo } from '../../utils/index.js';
+import { addTodoComment, hasMigrationTodo, transformLogger } from '../utils/transform-utils';
 
 // eslint-disable-next-line no-restricted-exports -- jscodeshift requires default export
 export default function transformer(file: FileInfo, api: API, options: Options) {
   const j = api.jscodeshift;
   const root = j(file.source);
-  const logger = getLogger();
 
   let hasChanges = false;
 
@@ -33,7 +34,11 @@ export default function transformer(file: FileInfo, api: API, options: Options) 
         openingElement.name.name = 'Button';
         hasChanges = true;
 
-        logger?.success('Renamed OldButton to Button', file.path, path.value.loc?.start.line);
+        transformLogger.success(
+          'Renamed OldButton to Button',
+          file.path,
+          path.value.loc?.start.line,
+        );
       }
 
       if (closingElement && j.JSXIdentifier.check(closingElement.name)) {
@@ -44,17 +49,17 @@ export default function transformer(file: FileInfo, api: API, options: Options) 
   // Example 2: Add TODO for complex migrations
   root.find(j.JSXAttribute, { name: { name: 'deprecatedProp' } }).forEach((path) => {
     if (!hasMigrationTodo(path.parent)) {
-      addTodoToAttribute(j, path, {
-        message: "The 'deprecatedProp' has been removed in v9",
-        context:
-          'Please migrate to the new API. See: https://docs.coinbase.com/cds/migration-guide',
-      });
+      addTodoComment(
+        j,
+        path.parent,
+        "The 'deprecatedProp' has been removed in v9",
+        'Please migrate to the new API. See: https://docs.coinbase.com/cds/...',
+      );
 
-      logger?.todo(
+      transformLogger.warn(
         'Manual migration required for deprecatedProp',
         file.path,
         path.value.loc?.start.line,
-        'This prop has breaking changes that need manual review',
       );
 
       hasChanges = true;
@@ -74,7 +79,7 @@ export default function transformer(file: FileInfo, api: API, options: Options) 
           }
           hasChanges = true;
 
-          logger?.success(
+          transformLogger.success(
             'Updated import: OldButton → Button',
             file.path,
             path.value.loc?.start.line,

@@ -5,19 +5,7 @@
   "projectType": "library",
   "targets": {
     "build": {
-      "executor": "nx:run-commands",
-      "defaultConfiguration": "dev",
-      "configurations": {
-        "dev": {
-          "command": "rm -rf esm && babel ./src --out-dir esm --extensions .ts,.tsx,.js,.jsx --copy-files --no-copy-ignored"
-        },
-        "prod": {
-          "commands": [
-            "rm -rf esm && babel ./src --out-dir esm --extensions .ts,.tsx,.js,.jsx --copy-files --no-copy-ignored"
-          ],
-          "parallel": false
-        }
-      }
+      "command": "rm -rf cjs && babel ./src --out-dir cjs --extensions .ts,.tsx,.js,.jsx --copy-files --no-copy-ignored"
     },
     "lint": {
       "executor": "@nx/eslint:lint"

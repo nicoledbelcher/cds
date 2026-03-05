@@ -4,6 +4,6 @@
  * Code migration tools for the Coinbase Design System
  */
 
-export { runMigration } from './runner.js';
-export * from './types.js';
-export * from './utils/index.js';
+export { runMigration } from './runner';
+export * from './types';
+export * from './utils/index';

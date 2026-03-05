@@ -7,34 +7,22 @@
 import fs from 'fs';
 import path from 'path';
 
-import type { Transform } from '../types.js';
+import type { Transform } from '../types';
 
 const HISTORY_FILE_NAME = '.cds-migration-history.json';
 
 export type MigrationHistoryEntry = {
   /**
-   * Transform identifier (e.g., "components.Button.button-variant-to-appearance")
+   * Transform file path (e.g., "button-variant" or "components/button-variant")
    */
-  transformId: string;
+  transform: string;
   /**
    * When the transform was run
    */
   timestamp: string;
-  /**
-   * Preset name (e.g., "v8-to-v9")
-   */
-  preset: string;
-  /**
-   * Whether it was a dry run
-   */
-  dryRun: boolean;
 };
 
 export type MigrationHistory = {
-  /**
-   * Target path that was migrated
-   */
-  targetPath: string;
   /**
    * List of all transform runs
    */
@@ -93,15 +81,18 @@ export function saveMigrationHistory(targetPath: string, history: MigrationHisto
  */
 export function recordTransformRun(
   targetPath: string,
-  transformId: string,
-  preset: string,
+  transformPath: string,
   dryRun: boolean,
 ): void {
+  // Don't record history for dry runs (they don't modify files)
+  if (dryRun) {
+    return;
+  }
+
   let history = loadMigrationHistory(targetPath);
 
   if (!history) {
     history = {
-      targetPath,
       entries: [],
       lastUpdated: new Date().toISOString(),
     };
@@ -109,49 +100,40 @@ export function recordTransformRun(
 
   // Add new entry
   history.entries.push({
-    transformId,
+    transform: transformPath,
     timestamp: new Date().toISOString(),
-    preset,
-    dryRun,
   });
 
   history.lastUpdated = new Date().toISOString();
-
-  // Don't save history for dry runs (they don't modify files)
-  if (!dryRun) {
-    saveMigrationHistory(targetPath, history);
-  }
+  saveMigrationHistory(targetPath, history);
 }
 
 /**
- * Check if a transform has already been run (non-dry-run)
+ * Check if a transform has already been run
  */
-export function hasTransformBeenRun(targetPath: string, transformId: string): boolean {
+export function hasTransformBeenRun(targetPath: string, transformPath: string): boolean {
   const history = loadMigrationHistory(targetPath);
 
   if (!history) {
     return false;
   }
 
-  // Check if this transform was run in a non-dry-run mode
-  return history.entries.some((entry) => entry.transformId === transformId && !entry.dryRun);
+  return history.entries.some((entry) => entry.transform === transformPath);
 }
 
 /**
  * Get list of transforms that have already been run
  */
-export function getAlreadyRunTransforms(targetPath: string, transformIds: string[]): string[] {
+export function getAlreadyRunTransforms(targetPath: string, transformPaths: string[]): string[] {
   const history = loadMigrationHistory(targetPath);
 
   if (!history) {
     return [];
   }
 
-  const runTransformIds = new Set(
-    history.entries.filter((entry) => !entry.dryRun).map((entry) => entry.transformId),
-  );
+  const runTransforms = new Set(history.entries.map((entry) => entry.transform));
 
-  return transformIds.filter((id) => runTransformIds.has(id));
+  return transformPaths.filter((path) => runTransforms.has(path));
 }
 
 /**
@@ -164,31 +146,15 @@ export function buildHistorySummary(targetPath: string): string {
     return 'No migration history found for this path.';
   }
 
-  // Group entries by preset
-  const byPreset: Record<string, MigrationHistoryEntry[]> = {};
-  for (const entry of history.entries) {
-    if (!entry.dryRun) {
-      // Only show non-dry-run entries
-      if (!byPreset[entry.preset]) {
-        byPreset[entry.preset] = [];
-      }
-      byPreset[entry.preset].push(entry);
-    }
-  }
-
   let summary = '\n📜 Migration History\n';
   summary += '==================\n\n';
 
-  for (const [preset, entries] of Object.entries(byPreset)) {
-    summary += `${preset}:\n`;
-    for (const entry of entries) {
-      const date = new Date(entry.timestamp).toLocaleDateString();
-      summary += `  • ${entry.transformId} (${date})\n`;
-    }
-    summary += '\n';
+  for (const entry of history.entries) {
+    const date = new Date(entry.timestamp).toLocaleDateString();
+    summary += `  • ${entry.transform} (${date})\n`;
   }
 
-  summary += `Last updated: ${new Date(history.lastUpdated).toLocaleString()}\n`;
+  summary += `\nLast updated: ${new Date(history.lastUpdated).toLocaleString()}\n`;
 
   return summary;
 }

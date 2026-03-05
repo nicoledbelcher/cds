@@ -7,23 +7,21 @@
     "url": "git@github.com:coinbase/cds.git",
     "directory": "packages/migrator"
   },
-  "type": "module",
-  "main": "./esm/index.js",
+  "type": "commonjs",
+  "main": "./cjs/index.js",
   "types": "./dts/index.d.ts",
   "bin": {
-    "cds-migrate": "./esm/cli.js",
-    "cds-migrate:all": "./esm/bin/migrate-all.js",
-    "cds-migrate:clear-history": "./esm/bin/clear-history.js"
+    "cds-migrate": "./cjs/cli.js"
   },
   "exports": {
     "./package.json": "./package.json",
     ".": {
       "types": "./dts/index.d.ts",
-      "default": "./esm/index.js"
+      "default": "./cjs/index.js"
     },
     "./*": {
       "types": "./dts/*.d.ts",
-      "default": "./esm/*.js"
+      "default": "./cjs/*.js"
     }
   },
   "sideEffects": false,

@@ -5,152 +5,70 @@
 import fs from 'fs';
 import path from 'path';
 
-import type { MigrationConfig, MigrationSelection, Transform } from '../types.js';
+import type { MigrationSelection, PresetManifest, Transform } from '../types';
 
 /**
- * Load migration configuration from config.json
+ * Load preset manifest from manifest.json
  */
-export function loadMigrationConfig(migrationDir: string): MigrationConfig {
-  const configPath = path.join(migrationDir, 'config.json');
+export function loadMigrationManifest(presetDir: string): PresetManifest {
+  const manifestPath = path.join(presetDir, 'manifest.json');
 
-  if (!fs.existsSync(configPath)) {
-    throw new Error(`Migration config not found: ${configPath}`);
+  if (!fs.existsSync(manifestPath)) {
+    throw new Error(`Preset manifest not found: ${manifestPath}`);
   }
 
-  const configContent = fs.readFileSync(configPath, 'utf-8');
-  return JSON.parse(configContent) as MigrationConfig;
+  const manifestContent = fs.readFileSync(manifestPath, 'utf-8');
+  return JSON.parse(manifestContent) as PresetManifest;
 }
 
 /**
- * Get all transforms from config based on selection
+ * Get all transforms from manifest based on selection
  */
 export function getSelectedTransforms(
-  config: MigrationConfig,
+  manifest: PresetManifest,
   selection: MigrationSelection,
-): Array<Transform & { category: string; variable: string }> {
-  const transforms: Array<Transform & { category: string; variable: string }> = [];
-
-  // If migrate all, collect everything
+): Transform[] {
+  // If migrate all, return all transforms
   if (selection.all) {
-    for (const [categoryName, category] of Object.entries(config.categories)) {
-      for (const [variableName, variable] of Object.entries(category.variables)) {
-        for (const transform of variable.transforms) {
-          transforms.push({
-            ...transform,
-            category: categoryName,
-            variable: variableName,
-          });
-        }
-      }
-    }
-    return transforms;
+    return manifest.transforms;
   }
 
-  // Collect by specific transforms
+  // Collect specific transforms by name
   if (selection.transforms && selection.transforms.length > 0) {
-    for (const transformPath of selection.transforms) {
-      const [categoryName, variableName, transformName] = transformPath.split('.');
-      const transform = config.categories[categoryName]?.variables[variableName]?.transforms.find(
-        (t) => t.name === transformName,
-      );
+    const selectedTransforms: Transform[] = [];
+    for (const transformName of selection.transforms) {
+      const transform = manifest.transforms.find((t) => t.name === transformName);
       if (transform) {
-        transforms.push({
-          ...transform,
-          category: categoryName,
-          variable: variableName,
-        });
+        selectedTransforms.push(transform);
       }
     }
-    return transforms;
+    return selectedTransforms;
   }
 
-  // Collect by specific items
-  if (selection.items && selection.items.length > 0) {
-    for (const itemPath of selection.items) {
-      const [categoryName, itemName] = itemPath.split('.');
-      const item = config.categories[categoryName]?.variables[itemName];
-      if (item) {
-        for (const transform of item.transforms) {
-          transforms.push({
-            ...transform,
-            category: categoryName,
-            variable: itemName,
-          });
-        }
-      }
-    }
-    return transforms;
-  }
-
-  // Collect by specific categories
-  if (selection.categories && selection.categories.length > 0) {
-    for (const categoryName of selection.categories) {
-      const category = config.categories[categoryName];
-      if (category) {
-        for (const [variableName, variable] of Object.entries(category.variables)) {
-          for (const transform of variable.transforms) {
-            transforms.push({
-              ...transform,
-              category: categoryName,
-              variable: variableName,
-            });
-          }
-        }
-      }
-    }
-    return transforms;
-  }
-
-  return transforms;
+  return [];
 }
 
 /**
  * Build a summary of what will be migrated
  */
 export function buildMigrationSummary(
-  config: MigrationConfig,
+  manifest: PresetManifest,
   selection: MigrationSelection,
 ): string {
-  const transforms = getSelectedTransforms(config, selection);
-  const byCategory: Record<string, Array<{ variable: string; transform: string }>> = {};
-
-  for (const transform of transforms) {
-    if (!byCategory[transform.category]) {
-      byCategory[transform.category] = [];
-    }
-    byCategory[transform.category].push({
-      variable: transform.variable,
-      transform: transform.name,
-    });
-  }
+  const transforms = getSelectedTransforms(manifest, selection);
 
   let summary = '\nMigration Plan:\n';
   summary += '================\n\n';
 
-  for (const [category, items] of Object.entries(byCategory)) {
-    const categoryInfo = config.categories[category];
-    summary += `📦 ${category}: ${categoryInfo.description}\n`;
-
-    const byVariable: Record<string, string[]> = {};
-    for (const item of items) {
-      if (!byVariable[item.variable]) {
-        byVariable[item.variable] = [];
-      }
-      byVariable[item.variable].push(item.transform);
+  if (transforms.length === 0) {
+    summary += 'No transforms selected.\n';
+  } else {
+    for (const transform of transforms) {
+      summary += `  • ${transform.name} - ${transform.description}\n`;
     }
-
-    for (const [variable, transformNames] of Object.entries(byVariable)) {
-      const variableInfo = categoryInfo.variables[variable];
-      summary += `  └─ ${variable} (${variableInfo.package})\n`;
-      for (const transformName of transformNames) {
-        const transform = variableInfo.transforms.find((t) => t.name === transformName);
-        summary += `     • ${transform?.description || transformName}\n`;
-      }
-    }
-    summary += '\n';
   }
 
-  summary += `Total transforms: ${transforms.length}\n`;
+  summary += `\nTotal transforms: ${transforms.length}\n`;
 
   return summary;
 }

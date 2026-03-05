@@ -9,25 +9,24 @@
 
 import inquirer from 'inquirer';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
 import {
   buildMigrationSummary,
   getSelectedTransforms,
-  loadMigrationConfig,
-} from './utils/config-loader.js';
+  loadMigrationManifest,
+} from './utils/config-loader';
 import {
   buildHistorySummary,
   clearMigrationHistory,
   getAlreadyRunTransforms,
   loadMigrationHistory,
-} from './utils/migration-history.js';
-import { buildSelectionFromArgs, type CliArgs, hasRequiredArgs, parseCliArgs } from './cli-args.js';
-import { runMigration } from './runner.js';
-import type { MigrationSelection } from './types.js';
+} from './utils/migration-history';
+import { type CliArgs, parseCliArgs } from './cli-args';
+import { runMigration } from './runner';
+import type { MigrationSelection, Transform } from './types';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// In CommonJS, __dirname is automatically available
+declare const __dirname: string;
 
 const AVAILABLE_PRESETS = [
   {
@@ -37,232 +36,185 @@ const AVAILABLE_PRESETS = [
   },
 ] as const;
 
-async function selectMigrationScope(presetDir: string): Promise<MigrationSelection> {
-  const config = loadMigrationConfig(presetDir);
+/**
+ * Handle duplicate transforms: prompt user or auto-filter based on flags
+ * Returns filtered transforms or undefined if cancelled
+ */
+async function handleDuplicateTransforms(
+  transformsToRun: Transform[],
+  targetPath: string,
+  args: CliArgs,
+): Promise<Transform[] | undefined> {
+  const transformPaths = transformsToRun.map((t) => t.file);
+  const alreadyRun = getAlreadyRunTransforms(targetPath, transformPaths);
 
-  // Step 1: Select category
-  const categoryChoices = [
-    {
-      name: '🔘 All categories',
-      value: '__ALL__',
-    },
-    ...Object.entries(config.categories).map(([name, cat]) => ({
-      name: `${name} - ${cat.description}`,
-      value: name,
-    })),
-  ];
+  // No duplicates - return as-is
+  if (alreadyRun.length === 0 || args.dryRun) {
+    return transformsToRun;
+  }
 
-  const { selectedCategory } = await inquirer.prompt([
+  // Auto-filter with --skip-confirmation
+  if (args.skipConfirmation) {
+    const filtered = transformsToRun.filter((t) => !alreadyRun.includes(t.file));
+
+    if (filtered.length === 0) {
+      console.log('\n⚠️  No transforms to run (all have already been applied).\n');
+      process.exit(0);
+    }
+
+    return filtered;
+  }
+
+  // Interactive: prompt user
+  console.log('\n⚠️  Warning: Some transforms have already been run on this path:\n');
+  for (const transformPath of alreadyRun) {
+    console.log(`  • ${transformPath}`);
+  }
+  console.log('');
+
+  const { action } = await inquirer.prompt([
     {
       type: 'list',
-      name: 'selectedCategory',
-      message: 'Which category of transforms do you want to run?',
-      choices: categoryChoices,
+      name: 'action',
+      message: 'How would you like to proceed?',
+      choices: [
+        {
+          name: 'Skip already-run transforms (recommended)',
+          value: 'skip',
+        },
+        {
+          name: 'Re-run all transforms (may cause issues)',
+          value: 'rerun',
+        },
+        {
+          name: 'Cancel migration',
+          value: 'cancel',
+        },
+      ],
+      default: 'skip',
     },
   ]);
 
-  // If "All categories" is selected, migrate everything
-  if (selectedCategory === '__ALL__') {
-    return { all: true };
+  if (action === 'cancel') {
+    console.log('\n❌ Migration cancelled.\n');
+    return undefined;
   }
 
-  // Step 2: Select transform in the selected category
-  const category = config.categories[selectedCategory];
-  if (!category) {
-    return { all: true };
+  if (action === 'skip') {
+    return transformsToRun.filter((t) => !alreadyRun.includes(t.file));
   }
 
-  // Build list of all transforms in this category
-  const transformChoices = [
+  // action === 'rerun': return all
+  return transformsToRun;
+}
+
+async function selectMigrationScope(presetDir: string): Promise<MigrationSelection> {
+  const config = loadMigrationManifest(presetDir);
+
+  // Build list of transform choices (no "All" option for checkbox)
+  const transformChoices = config.transforms.map((transform) => ({
+    name: `${transform.name} - ${transform.description}`,
+    value: transform.name,
+  }));
+
+  const { selectedTransforms } = await inquirer.prompt([
     {
-      name: `🔘 All transforms in ${selectedCategory}`,
-      value: '__ALL__',
-    },
-  ];
-
-  for (const [itemName, item] of Object.entries(category.variables)) {
-    for (const transform of item.transforms) {
-      transformChoices.push({
-        name: `${itemName}.${transform.name} - ${transform.description}`,
-        value: `${selectedCategory}.${itemName}.${transform.name}`,
-      });
-    }
-  }
-
-  const { selectedTransform } = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'selectedTransform',
-      message: `Which transform in "${selectedCategory}" category?`,
+      type: 'checkbox',
+      name: 'selectedTransforms',
+      message: 'Which transforms do you want to run? (use spacebar to select, enter to confirm)',
       choices: transformChoices,
     },
   ]);
 
-  // If "All transforms" selected, run all in this category
-  if (selectedTransform === '__ALL__') {
-    return { categories: [selectedCategory] };
-  }
-
-  // Return the specific transform
-  return { transforms: [selectedTransform] };
+  // Return the selected transforms
+  return { transforms: selectedTransforms };
 }
 
-async function runInteractiveMode() {
-  // Step 1: Select migration preset
-  const answers = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'preset',
-      message: 'Which migration preset do you need?',
-      choices: AVAILABLE_PRESETS.map((m) => ({
-        name: `${m.name} - ${m.description}`,
-        value: m.value,
-      })),
-    },
-  ]);
+async function setupMigration(args: CliArgs) {
+  // Step 1: Ask for target path (skip if already provided)
+  let targetPath: string;
 
-  // Step 2: Ask for target path
-  const pathAnswer = await inquirer.prompt([
-    {
-      type: 'input',
-      name: 'path',
-      message: 'Enter the path to your codebase (relative or absolute):',
-      default: './src',
-      validate: (input: string) => {
-        if (!input || input.trim() === '') {
-          return 'Please provide a valid path';
-        }
-        return true;
+  if (args.path) {
+    targetPath = args.path;
+  } else {
+    const answer = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'path',
+        message: 'Enter the path to your codebase (relative or absolute):',
+        default: './src',
+        validate: (input: string) => {
+          if (!input || input.trim() === '') {
+            return 'Please provide a valid path';
+          }
+          return true;
+        },
       },
-    },
-  ]);
-
-  const targetPath = pathAnswer.path;
-
-  // Step 3: Check and display migration history
-  const history = loadMigrationHistory(targetPath);
-  if (history && history.entries.length > 0) {
-    const historySummary = buildHistorySummary(targetPath);
-    console.log(historySummary);
+    ]);
+    targetPath = answer.path;
   }
 
-  // Step 4: Load config and let user select scope
-  const presetDir = path.join(__dirname, answers.preset);
-  const selection = await selectMigrationScope(presetDir);
+  // Step 2: Handle --transform flag (direct transform execution, no preset needed)
+  let transformsToRun: Transform[];
 
-  // Step 5: Show what will be migrated
-  const config = loadMigrationConfig(presetDir);
-  const summary = buildMigrationSummary(config, selection);
-  console.log(summary);
+  if (args.transform && args.transform.length > 0) {
+    // Build Transform objects from transform names
+    transformsToRun = args.transform.map((name) => {
+      // Support both simple names and paths (e.g., "button-variant" or "components/button-variant")
+      const transformFile = name.replace(/\.(js|ts)$/, ''); // Remove extension if provided
 
-  // Step 6: Ask for dry-run mode
-  const modeAnswer = await inquirer.prompt([
-    {
-      type: 'confirm',
-      name: 'dryRun',
-      message: 'Run in dry-run mode? (preview changes without modifying files)',
-      default: true,
-    },
-  ]);
+      return {
+        name: transformFile.split('/').pop() || transformFile, // Use basename as name
+        description: `Transform: ${name}`,
+        file: transformFile,
+      };
+    });
 
-  // Check for migration history and warn about duplicate runs (skip if dry-run)
-  const selectedTransforms = getSelectedTransforms(config, selection);
-  const transformIds = selectedTransforms.map((t) => `${t.category}.${t.variable}.${t.name}`);
-  const alreadyRun = getAlreadyRunTransforms(targetPath, transformIds);
-
-  // Only warn about duplicates if NOT in dry-run mode
-  if (alreadyRun.length > 0 && !modeAnswer.dryRun) {
-    console.log('\n⚠️  Warning: Some transforms have already been run on this path:\n');
-    for (const transformId of alreadyRun) {
-      console.log(`  • ${transformId}`);
+    // Show what will be run
+    console.log('\nMigration Plan:');
+    console.log('================\n');
+    for (const transform of transformsToRun) {
+      console.log(`  • ${transform.name}`);
     }
-    console.log('');
+    console.log(`\nTotal transforms: ${transformsToRun.length}\n`);
 
-    const { action } = await inquirer.prompt([
+    // Check history and handle duplicates
+    const filtered = await handleDuplicateTransforms(transformsToRun, targetPath, args);
+    if (!filtered) return; // User cancelled
+
+    // Return for transform mode (no preset needed)
+    console.log('\n📋 Migration Summary:');
+    console.log(`  Path: ${targetPath}`);
+    console.log(`  Mode: ${args.dryRun ? 'Dry Run' : 'Apply Changes'}`);
+    console.log(`  Transforms: ${filtered.length}\n`);
+
+    return {
+      preset: 'direct-transform',
+      path: targetPath,
+      dryRun: args.dryRun || false,
+      transformsToRun: filtered,
+    };
+  }
+
+  // Preset-based workflow
+  let preset: string;
+  let selection: MigrationSelection;
+
+  if (args.preset) {
+    preset = args.preset;
+  } else {
+    const answer = await inquirer.prompt([
       {
         type: 'list',
-        name: 'action',
-        message: 'How would you like to proceed?',
-        choices: [
-          {
-            name: 'Skip already-run transforms (recommended)',
-            value: 'skip',
-          },
-          {
-            name: 'Re-run all transforms (may cause issues)',
-            value: 'rerun',
-          },
-          {
-            name: 'Cancel migration',
-            value: 'cancel',
-          },
-        ],
-        default: 'skip',
+        name: 'preset',
+        message: 'Which migration preset do you need?',
+        choices: AVAILABLE_PRESETS.map((m) => ({
+          name: `${m.name} - ${m.description}`,
+          value: m.value,
+        })),
       },
     ]);
-
-    if (action === 'cancel') {
-      console.log('\n❌ Migration cancelled.\n');
-      return;
-    }
-
-    if (action === 'skip') {
-      // Filter out already-run transforms
-      if (selection.transforms) {
-        selection.transforms = selection.transforms.filter((t) => !alreadyRun.includes(t));
-      } else if (selection.items) {
-        // For item selection, we need to filter at the item level
-        // This is complex, so we'll just warn the user
-        console.log('\n⚠️  Note: Skipping at the item level may leave some transforms incomplete.');
-        console.log('Consider using transform-level selection for more control.\n');
-      }
-      // For category or all selection, we can't easily filter, so just warn
-      if (selection.all || selection.categories) {
-        console.log(
-          '\n⚠️  Note: Cannot skip at category level. Some transforms may be skipped during execution.\n',
-        );
-      }
-    }
-  }
-
-  console.log('\n📋 Migration Summary:');
-  console.log(`  Preset: ${answers.preset}`);
-  console.log(`  Path: ${targetPath}`);
-  console.log(`  Mode: ${modeAnswer.dryRun ? 'Dry Run' : 'Apply Changes'}\n`);
-
-  if (!modeAnswer.dryRun) {
-    const { confirm } = await inquirer.prompt([
-      {
-        type: 'confirm',
-        name: 'confirm',
-        message: '⚠️  This will modify your files. Continue?',
-        default: false,
-      },
-    ]);
-
-    if (!confirm) {
-      console.log('\n❌ Migration cancelled.\n');
-      return;
-    }
-  }
-
-  return {
-    preset: answers.preset,
-    path: targetPath,
-    dryRun: modeAnswer.dryRun,
-    selection,
-  };
-}
-
-async function runNonInteractiveMode(args: CliArgs) {
-  const preset = args.preset!;
-  const targetPath = args.path!;
-  const dryRun = args.dryRun || false;
-  const selection = buildSelectionFromArgs(args);
-
-  if (!selection) {
-    console.error('Error: Must specify --all, --category, --item, or --transform');
-    process.exit(1);
+    preset = answer.preset;
   }
 
   // Validate preset
@@ -273,39 +225,46 @@ async function runNonInteractiveMode(args: CliArgs) {
     process.exit(1);
   }
 
-  // Load config
-  const presetDir = path.join(__dirname, preset);
-  const config = loadMigrationConfig(presetDir);
-
-  // Show migration plan
-  const summary = buildMigrationSummary(config, selection);
-  console.log(summary);
-
-  // Check for duplicates
-  const selectedTransforms = getSelectedTransforms(config, selection);
-  const transformIds = selectedTransforms.map((t) => `${t.category}.${t.variable}.${t.name}`);
-  const alreadyRun = getAlreadyRunTransforms(targetPath, transformIds);
-
-  if (alreadyRun.length > 0 && !dryRun && !args.skipConfirmation) {
-    console.log('\n⚠️  Warning: Some transforms have already been run on this path:\n');
-    for (const transformId of alreadyRun) {
-      console.log(`  • ${transformId}`);
-    }
-    console.log('\nUse --skip-confirmation to bypass this check or run with --dry-run first.\n');
-    process.exit(1);
+  // Step 3: Check and display migration history
+  const history = loadMigrationHistory(targetPath);
+  if (history && history.entries.length > 0) {
+    const historySummary = buildHistorySummary(targetPath);
+    console.log(historySummary);
   }
 
+  // Step 4: Load config and select transforms
+  const presetDir = path.join(__dirname, 'presets', preset);
+  const config = loadMigrationManifest(presetDir);
+
+  if (args.partial) {
+    // User wants to select specific transforms
+    selection = await selectMigrationScope(presetDir);
+  } else {
+    // Default: run all transforms
+    selection = { all: true };
+  }
+
+  // Step 5: Show what will be migrated
+  const summary = buildMigrationSummary(config, selection);
+  transformsToRun = getSelectedTransforms(config, selection);
+  console.log(summary);
+
+  // Check history and handle duplicates
+  const filtered = await handleDuplicateTransforms(transformsToRun, targetPath, args);
+  if (!filtered) return; // User cancelled
+
+  // Return for preset mode
   console.log('\n📋 Migration Summary:');
   console.log(`  Preset: ${preset}`);
   console.log(`  Path: ${targetPath}`);
-  console.log(`  Mode: ${dryRun ? 'Dry Run' : 'Apply Changes'}`);
-  console.log(`  Transforms: ${selectedTransforms.length}\n`);
+  console.log(`  Mode: ${args.dryRun ? 'Dry Run' : 'Apply Changes'}`);
+  console.log(`  Transforms: ${filtered.length}\n`);
 
   return {
-    preset: preset,
+    preset,
     path: targetPath,
-    dryRun,
-    selection,
+    dryRun: args.dryRun || false,
+    transformsToRun: filtered,
   };
 }
 
@@ -318,7 +277,7 @@ async function main() {
   // Handle clear-history command
   if (args.clearHistory) {
     if (!args.path) {
-      console.error('Error: --path is required when using --clear-history');
+      console.error('Error: path is required when using --clear-history');
       process.exit(1);
     }
 
@@ -328,37 +287,34 @@ async function main() {
       return;
     }
 
-    const { confirm } = await inquirer.prompt([
-      {
-        type: 'confirm',
-        name: 'confirm',
-        message: `⚠️  Clear migration history for ${args.path}?`,
-        default: false,
-      },
-    ]);
-
-    if (confirm) {
+    if (args.skipConfirmation) {
       clearMigrationHistory(args.path);
       console.log(`✅ Migration history cleared for: ${args.path}\n`);
     } else {
-      console.log('❌ Cancelled.\n');
+      const historySummary = buildHistorySummary(args.path);
+      console.log(historySummary);
+
+      const { confirm } = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'confirm',
+          message: `⚠️  Clear migration history for ${args.path}?`,
+          default: false,
+        },
+      ]);
+
+      if (confirm) {
+        clearMigrationHistory(args.path);
+        console.log(`✅ Migration history cleared for: ${args.path}\n`);
+      } else {
+        console.log('❌ Cancelled.\n');
+      }
     }
     return;
   }
 
-  // Determine if running in interactive or non-interactive mode
-  const isNonInteractive = hasRequiredArgs(args);
-
-  let migrationOptions;
-
-  if (isNonInteractive) {
-    // Non-interactive mode with CLI flags
-    migrationOptions = await runNonInteractiveMode(args);
-  } else {
-    // Interactive mode with prompts
-    console.log('This tool will help you migrate your codebase between CDS major versions.\n');
-    migrationOptions = await runInteractiveMode();
-  }
+  // Setup migration: prompts only for missing information
+  const migrationOptions = await setupMigration(args);
 
   if (!migrationOptions) {
     console.error('\n❌ Migration setup failed.\n');
