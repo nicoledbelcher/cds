@@ -160,4 +160,38 @@ describe('Link', () => {
 
     expect(screen.getByText('Child').className).toContain('inherit');
   });
+
+  it('uses solid underline variant by default for backwards compatibility', () => {
+    render(
+      <DefaultThemeProvider>
+        <Link underline font="body" href="/" testID={testID}>
+          Child
+        </Link>
+      </DefaultThemeProvider>,
+    );
+
+    expect(screen.getByText('Child').style.textDecorationStyle).toBe('');
+  });
+
+  it('supports dotted underline variant', () => {
+    const { rerender } = render(
+      <DefaultThemeProvider>
+        <Link underline font="body" href="/" testID={testID}>
+          Child
+        </Link>
+      </DefaultThemeProvider>,
+    );
+
+    const solidClassName = screen.getByText('Child').className;
+
+    rerender(
+      <DefaultThemeProvider>
+        <Link underline underlineVariant="dotted" font="body" href="/" testID={testID}>
+          Child
+        </Link>
+      </DefaultThemeProvider>,
+    );
+
+    expect(screen.getByText('Child').className).not.toBe(solidClassName);
+  });
 });

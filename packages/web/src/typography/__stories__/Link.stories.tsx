@@ -1,9 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Link as RRLink } from 'react-router-dom';
 import { noop } from '@coinbase/cds-utils';
 
+import { ListCell } from '../../cells';
+import { useBreakpoints } from '../../hooks/useBreakpoints';
+import { HStack, VStack } from '../../layout';
+import { Tray } from '../../overlays';
+import { SectionHeader } from '../../section-header';
 import { Link } from '../Link';
 import { Text } from '../Text';
+
+const Example: React.FC<
+  React.PropsWithChildren<{ title: string; description?: string | React.ReactNode }>
+> = ({ children, title, description }) => {
+  return (
+    <VStack gap={2}>
+      <Text as="h2" display="block" font="title3">
+        {title}
+      </Text>
+      {description}
+      {children}
+    </VStack>
+  );
+};
 
 export const Default = () => (
   <div>
@@ -48,6 +67,197 @@ export const Underline = () => (
     </Link>
   </div>
 );
+
+export const DottedUnderline = () => {
+  const { isPhone } = useBreakpoints();
+  const [isTrayOpen, setIsTrayOpen] = useState(false);
+
+  return (
+    <VStack gap={4}>
+      <Example title="Within ListCells">
+        <VStack gap={1}>
+          <SectionHeader paddingX={3} title="Key stats" />
+          <HStack gap={2}>
+            <ListCell
+              subtitleNode={<Text font="headline">$243.23</Text>}
+              titleNode={
+                <Link
+                  underline
+                  color="fgMuted"
+                  font="label2"
+                  onClick={() => setIsTrayOpen(true)}
+                  underlineVariant="dotted"
+                >
+                  Open
+                </Link>
+              }
+            />
+            <ListCell
+              subtitleNode={<Text font="headline">$253.40 / $243.23</Text>}
+              titleNode={
+                <Link
+                  underline
+                  color="fgMuted"
+                  font="label2"
+                  onClick={() => setIsTrayOpen(true)}
+                  underlineVariant="dotted"
+                >
+                  High/Low (today)
+                </Link>
+              }
+            />
+          </HStack>
+          <HStack gap={2}>
+            <ListCell
+              subtitleNode={<Text font="headline">$1.4M</Text>}
+              titleNode={
+                <Link
+                  underline
+                  color="fgMuted"
+                  font="label2"
+                  onClick={() => setIsTrayOpen(true)}
+                  underlineVariant="dotted"
+                >
+                  Volume (today)
+                </Link>
+              }
+            />
+            <ListCell
+              subtitleNode={<Text font="headline">$234.09 - $254.87</Text>}
+              titleNode={
+                <Link
+                  underline
+                  color="fgMuted"
+                  font="label2"
+                  onClick={() => setIsTrayOpen(true)}
+                  underlineVariant="dotted"
+                >
+                  52-week range
+                </Link>
+              }
+            />
+          </HStack>
+          <HStack gap={2}>
+            <ListCell
+              subtitleNode={<Text font="headline">$24.93B</Text>}
+              titleNode={
+                <Link
+                  underline
+                  color="fgMuted"
+                  font="label2"
+                  onClick={() => setIsTrayOpen(true)}
+                  underlineVariant="dotted"
+                >
+                  Market cap
+                </Link>
+              }
+            />
+          </HStack>
+        </VStack>
+        {isTrayOpen && (
+          <Tray
+            hideCloseButton={isPhone}
+            onCloseComplete={() => setIsTrayOpen(false)}
+            pin={isPhone ? 'bottom' : 'right'}
+            showHandleBar={isPhone}
+            title="Market cap"
+          >
+            <VStack gap={2} paddingBottom={3}>
+              <Text color="fgMuted" font="body">
+                The amount of money an entire company is worth to the market.
+              </Text>
+              <Text color="fgMuted" font="body">
+                Company value, or market capitalization, refers to how much a company is worth as
+                determined by the stock market, and is defined as the total market value of all
+                outstanding shares.
+              </Text>
+              <Text color="fgMuted" font="body">
+                Companies are typically divided according to market capitalization: large-cap ($10B
+                or more), mid cap ($2B to $10B) and small cap ($300M to $2B)
+              </Text>
+            </VStack>
+          </Tray>
+        )}
+      </Example>
+      <Link
+        underline
+        color="fgMuted"
+        font="legal"
+        href="https://www.coinbase.com/"
+        underlineVariant="dotted"
+      >
+        Legal
+      </Link>
+      <Link
+        underline
+        color="fgMuted"
+        font="body"
+        href="https://www.coinbase.com/"
+        underlineVariant="dotted"
+      >
+        Body
+      </Link>
+      <Link
+        underline
+        color="fgMuted"
+        font="label2"
+        href="https://www.coinbase.com/"
+        underlineVariant="dotted"
+      >
+        Label2
+      </Link>
+      <Link
+        underline
+        color="fgMuted"
+        font="label1"
+        href="https://www.coinbase.com/"
+        underlineVariant="dotted"
+      >
+        Label1
+      </Link>
+      <Link
+        underline
+        color="fgMuted"
+        font="headline"
+        href="https://www.coinbase.com/"
+        underlineVariant="dotted"
+      >
+        Headline
+      </Link>
+      <Link
+        underline
+        color="fgMuted"
+        font="title3"
+        href="https://www.coinbase.com/"
+        underlineVariant="dotted"
+      >
+        Title3
+      </Link>
+      <VStack gap={2} paddingBottom={3}>
+        <Text color="fgMuted" font="body">
+          The amount of money an entire company is worth to the market.
+        </Text>
+        <Text color="fgMuted" font="body">
+          Company value, or market capitalization, refers to how much a company is worth as
+          determined by the stock market, and is defined as the total market value of all{' '}
+          <Link
+            underline
+            color="fgMuted"
+            href="https://www.coinbase.com/"
+            underlineVariant="dotted"
+          >
+            outstanding shares
+          </Link>
+          .
+        </Text>
+        <Text color="fgMuted" font="body">
+          Companies are typically divided according to market capitalization: large-cap ($10B or
+          more), mid cap ($2B to $10B) and small cap ($300M to $2B)
+        </Text>
+      </VStack>
+    </VStack>
+  );
+};
 
 export const InAParagraph = () => (
   <div>

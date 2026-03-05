@@ -31,6 +31,11 @@ export type LinkBaseProps = Polymorphic.ExtendableProps<
      * @link [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration)
      */
     underline?: boolean;
+    /**
+     * Visual style for underline when `underline` is enabled.
+     * @default solid
+     */
+    underlineVariant?: 'solid' | 'dotted';
   }
 >;
 
@@ -64,6 +69,14 @@ const baseCss = css`
   }
 `;
 
+const dottedUnderlineCss = css`
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+  text-underline-position: from-font;
+`;
+
 export const Link: LinkComponent = memo(
   forwardRef<React.ReactElement<LinkBaseProps>, LinkBaseProps>(
     <AsComponent extends React.ElementType>(
@@ -74,6 +87,7 @@ export const Link: LinkComponent = memo(
         font = 'inherit',
         mono,
         underline,
+        underlineVariant = 'solid',
         // Pressable props
         as,
         className,
@@ -107,7 +121,14 @@ export const Link: LinkComponent = memo(
           target={isAnchor && openInNewWindow ? '_blank' : undefined}
           {...props}
         >
-          <Text as="span" color="currentColor" font={font} mono={mono} underline={underline}>
+          <Text
+            as="span"
+            className={underline && underlineVariant === 'dotted' ? dottedUnderlineCss : undefined}
+            color="currentColor"
+            font={font}
+            mono={mono}
+            underline={underline}
+          >
             {children}
           </Text>
         </Pressable>

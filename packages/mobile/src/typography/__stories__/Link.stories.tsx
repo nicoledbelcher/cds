@@ -1,8 +1,12 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
 
+import { ListCell } from '../../cells/ListCell';
 import { Example, ExampleScreen } from '../../examples/ExampleScreen';
 import { useWebBrowserOpener } from '../../hooks/useWebBrowserOpener';
+import { VStack } from '../../layout/VStack';
+import { Tray } from '../../overlays';
+import { SectionHeader } from '../../section-header/SectionHeader';
 import { Link } from '../Link';
 import { Text } from '../Text';
 import { TextLegal } from '../TextLegal';
@@ -33,6 +37,13 @@ const links = typographies.map((typography) => (
     <Link underline font={typography} to="https://www.coinbase.com/">
       {capitalize(typography)}
     </Link>
+    <Text font={typography}>
+      Test{' '}
+      <Link underline font={typography} to="https://www.coinbase.com/" underlineVariant="dotted">
+        {capitalize(typography)}
+      </Link>{' '}
+      Test
+    </Text>
   </Example>
 ));
 
@@ -69,16 +80,99 @@ const OPEN_WEB_BROWSER_OPTIONS = {
   },
 } as const;
 
+const keyStats = [
+  { label: 'Open', value: '$243.23' },
+  { label: 'High/Low (today)', value: '$253.40 / $243.23' },
+  { label: 'Volume (today)', value: '$1.4M' },
+  { label: '52-week range', value: '$234.09 - $254.87' },
+  { label: 'Market cap', value: '$24.93B' },
+] as const;
+
 const LinkScreen = function LinkScreen() {
   const openURL = useWebBrowserOpener();
+  const [activeStat, setActiveStat] = useState<(typeof keyStats)[number] | null>(null);
   const openURLOnPress = useCallback(
     async () => openURL('https://www.coinbase.com/', OPEN_WEB_BROWSER_OPTIONS),
     [openURL],
   );
+  const closeTray = useCallback(() => setActiveStat(null), []);
 
   return (
     <ExampleScreen>
       {links}
+      <Example title="Dotted links in ListCells with Tray">
+        <SectionHeader paddingX={3} title="Key stats" />
+        <VStack gap={0}>
+          {keyStats.map((stat) => (
+            <ListCell
+              key={stat.label}
+              spacingVariant="condensed"
+              subtitleNode={<Text font="headline">{stat.value}</Text>}
+              titleNode={
+                <Link
+                  underline
+                  color="fgMuted"
+                  font="label2"
+                  onPress={() => setActiveStat(stat)}
+                  underlineVariant="dotted"
+                >
+                  {stat.label}
+                </Link>
+              }
+            />
+          ))}
+        </VStack>
+      </Example>
+      <Example title="Inline dotted link sample text">
+        <VStack gap={2} paddingBottom={3}>
+          <Text color="fgMuted" font="body">
+            The amount of money an entire company is worth to the market.
+          </Text>
+          <Text color="fgMuted" font="body">
+            Company value, or market capitalization, refers to how much a company is worth as
+            determined by the stock market, and is defined as the total{' '}
+            <Link
+              underline
+              color="fgMuted"
+              to="https://www.coinbase.com/"
+              underlineVariant="dotted"
+            >
+              outstanding shares
+            </Link>
+            .
+          </Text>
+          <Text color="fgMuted" font="body">
+            Company value, or market capitalization, refers to how much a company is worth as
+            determined by the stock market, and is defined as the total of all the{' '}
+            <Link underline color="fgMuted" to="https://www.coinbase.com/">
+              outstanding shares
+            </Link>
+            .
+          </Text>
+          <Text color="fgMuted" font="body">
+            Companies are typically divided according to market capitalization: large-cap ($10B or
+            more), mid cap ($2B to $10B), and small cap ($300M to $2B).
+          </Text>
+        </VStack>
+      </Example>
+      {activeStat && (
+        <Tray handleBarVariant="inside" onCloseComplete={closeTray} title={activeStat.label}>
+          <VStack gap={2} paddingBottom={3} paddingX={3}>
+            <Text color="fgMuted" font="body">
+              The amount of money an entire company is worth to the market.
+            </Text>
+            <Text color="fgMuted" font="body">
+              Company value, or market capitalization, refers to how much a company is worth as
+              determined by the stock market, and is defined as the total market value of all
+              outstanding shares.
+            </Text>
+            <Text color="fgMuted" font="body">
+              Companies are typically divided according to market capitalization: large-cap ($10B or
+              more), mid cap ($2B to $10B), and small cap ($300M to $2B).
+            </Text>
+          </VStack>
+        </Tray>
+      )}
       <Example inline>
         <Link font="body" onPress={openURLOnPress}>
           Test useWebBrowserOpener hook

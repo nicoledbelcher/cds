@@ -48,6 +48,22 @@ The underline works across all font styles.
 </VStack>
 ```
 
+### Dotted underline variant
+
+Use `underlineVariant="dotted"` with `underline` to render a dotted underline treatment.
+
+```jsx
+<Text font="body">
+  Review our{' '}
+  <Link underline underlineVariant="dotted" to="https://www.coinbase.com/">
+    account terms
+  </Link>{' '}
+  before proceeding.
+</Text>
+```
+
+Note: on mobile, the dotted variant is SVG-based and may not render as expected in all nested inline Text compositions.
+
 ## Styling
 
 ### Font

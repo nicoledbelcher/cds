@@ -1,10 +1,17 @@
-import React, { memo, useCallback } from 'react';
-import type { GestureResponderEvent } from 'react-native';
+import React, { memo, useCallback, useMemo, useState } from 'react';
+import type {
+  GestureResponderEvent,
+  LayoutChangeEvent,
+  NativeSyntheticEvent,
+  TextLayoutEventData,
+  TextLayoutLine,
+} from 'react-native';
 import type { SharedProps } from '@coinbase/cds-common';
 
 import { useWebBrowserOpener } from '../hooks/useWebBrowserOpener';
 
 import { Text, type TextBaseProps, type TextProps } from './Text';
+import { TextUnderlineDotted } from './TextUnderlineDotted';
 
 export type LinkBaseProps = SharedProps &
   TextBaseProps & {
@@ -18,6 +25,11 @@ export type LinkBaseProps = SharedProps &
      * @default false (unless nested inside a paragraph tag)
      */
     underline?: boolean;
+    /**
+     * Visual style for underline when `underline` is enabled.
+     * @default solid
+     */
+    underlineVariant?: 'solid' | 'dotted';
     /** Callback to fire when pressed */
     onPress?: (event: GestureResponderEvent) => void;
     /**
@@ -41,6 +53,11 @@ export type LinkBaseProps = SharedProps &
 
 export type LinkProps = LinkBaseProps & TextProps;
 
+type LineMetrics = {
+  width: number;
+  height: number;
+};
+
 export const Link = memo(
   ({
     children,
@@ -52,11 +69,25 @@ export const Link = memo(
     preventRedirectionIntoApp = false,
     readerMode = false,
     underline,
+    underlineVariant = 'solid',
     accessibilityLabel,
     testID,
+    onLayout,
     ...props
   }: LinkProps) => {
     const openUrl = useWebBrowserOpener();
+
+    const [lines, setLines] = useState<LineMetrics[]>([]);
+
+    const hasUnderline = useMemo(
+      () => underline && underlineVariant === 'dotted',
+      [underline, underlineVariant],
+    );
+
+    const showDottedUnderline = useMemo(
+      () => hasUnderline && lines.length > 0,
+      [hasUnderline, lines.length],
+    );
 
     const openUrlOnPress = useCallback(
       (event: GestureResponderEvent) => {
@@ -71,6 +102,37 @@ export const Link = memo(
       [openUrl, to, onPress, forceOpenOutsideApp, preventRedirectionIntoApp, readerMode],
     );
 
+    const handleLayout = useCallback(
+      (event: LayoutChangeEvent) => {
+        onLayout?.(event);
+
+        const result = {
+          width: event.nativeEvent.layout.width,
+          height: event.nativeEvent.layout.height,
+        };
+        if (hasUnderline) alert('got lines' + JSON.stringify(result));
+        setLines([result]);
+      },
+      [hasUnderline, onLayout],
+    );
+
+    /* if (underline && underlineVariant === 'dotted') {
+      return (
+        <LinkDottedUnderline
+          accessibilityHint={accessibilityLabel}
+          accessibilityLabel={accessibilityLabel}
+          accessibilityRole="link"
+          color={color}
+          font={font}
+          onPress={openUrlOnPress}
+          testID={testID}
+          {...props}
+        >
+          {children}
+        </LinkDottedUnderline>
+      );
+    }*/
+
     return (
       <Text
         accessibilityHint={accessibilityLabel}
@@ -78,12 +140,16 @@ export const Link = memo(
         accessibilityRole="link"
         color={color}
         font={font}
+        onLayout={handleLayout}
         onPress={openUrlOnPress}
         testID={testID}
-        underline={underline}
+        underline={underline && underlineVariant === 'solid'}
         {...props}
       >
         {children}
+        {showDottedUnderline && (
+          <TextUnderlineDotted height={lines[0].height} width={lines[0].width} />
+        )}
       </Text>
     );
   },

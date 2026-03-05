@@ -48,6 +48,20 @@ The underline works across all font styles.
 </VStack>
 ```
 
+### Dotted underline variant
+
+Use `underlineVariant="dotted"` with `underline` when the design calls for a dotted treatment.
+
+```jsx live
+<Text as="p" display="block" font="body">
+  Review our{' '}
+  <Link underline underlineVariant="dotted" href="https://www.coinbase.com/">
+    account terms
+  </Link>{' '}
+  before continuing.
+</Text>
+```
+
 ### Underline within a paragraph
 
 When a link appears inline within body text, always use `underline` so users can distinguish the link from surrounding text without relying on color alone.
