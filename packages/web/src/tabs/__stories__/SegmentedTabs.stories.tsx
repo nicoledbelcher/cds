@@ -248,12 +248,10 @@ export const All = () => {
 
 const disableA11yCheck = {
   a11y: {
-    config: {
-      /**
-       * Disabled Color contrast ratio rule since the activated tab has an animated indicator which didn't catch by the a11y runner
-       * @link https://dequeuniversity.com/rules/axe/4.6/color-contrast?application=axeAPI
-       */
-      rules: [{ id: 'color-contrast', enabled: false }],
+    options: {
+      rules: {
+        'color-contrast': { enabled: false },
+      },
     },
   },
 };
