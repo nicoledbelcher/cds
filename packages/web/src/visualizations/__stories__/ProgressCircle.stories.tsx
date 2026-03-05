@@ -68,14 +68,14 @@ export const NoText = () => {
       {({ calculateProgress }) => (
         <HStack gap={2}>
           <ProgressCircle
-            accessibilityLabel="Progress circle"
             hideContent
+            accessibilityLabel="Progress circle"
             progress={calculateProgress(0)}
             size={100}
           />
           <ProgressCircle
-            accessibilityLabel="Progress circle"
             hideContent
+            accessibilityLabel="Progress circle"
             progress={calculateProgress(0.2)}
             size={100}
           />
@@ -88,10 +88,10 @@ export const NoText = () => {
 export const Disabled = () => {
   return (
     <HStack gap={2}>
-      <ProgressCircle accessibilityLabel="Progress circle" disabled progress={0} size={100} />
-      <ProgressCircle accessibilityLabel="Progress circle" disabled progress={0.2} size={100} />
-      <ProgressCircle accessibilityLabel="Progress circle" disabled progress={0.6} size={100} />
-      <ProgressCircle accessibilityLabel="Progress circle" disabled progress={1} size={100} />
+      <ProgressCircle disabled accessibilityLabel="Progress circle" progress={0} size={100} />
+      <ProgressCircle disabled accessibilityLabel="Progress circle" progress={0.2} size={100} />
+      <ProgressCircle disabled accessibilityLabel="Progress circle" progress={0.6} size={100} />
+      <ProgressCircle disabled accessibilityLabel="Progress circle" progress={1} size={100} />
     </HStack>
   );
 };
@@ -119,8 +119,8 @@ export const Colors = () => {
       />
       <ProgressCircle accessibilityLabel="Progress circle" color="fg" progress={0.5} size={100} />
       <ProgressCircle
-        accessibilityLabel="Progress circle"
         disabled
+        accessibilityLabel="Progress circle"
         color="fg"
         progress={0.5}
         size={100}
@@ -345,8 +345,8 @@ export const WithAsset = () => {
           .filter((size) => size !== 's')
           .map((avatarSize) => (
             <ProgressCircle
-              accessibilityLabel="Progress circle"
               key={`${avatarSize}-progress-circle`}
+              accessibilityLabel="Progress circle"
               classNames={{
                 progress: progressCss,
               }}
@@ -450,8 +450,8 @@ export const DisableAnimateOnMount = () => {
     <ProgressContainerWithButtons>
       {({ calculateProgress }) => (
         <ProgressCircle
-          accessibilityLabel="Progress circle"
           disableAnimateOnMount
+          accessibilityLabel="Progress circle"
           progress={calculateProgress(0.8)}
           size={100}
         />

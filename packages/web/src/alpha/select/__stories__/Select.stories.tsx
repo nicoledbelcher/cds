@@ -145,7 +145,7 @@ export const ExampleForm = () => {
   });
 
   return (
-    <VStack gap={2} width="100%" className="no-a11y-check">
+    <VStack className="no-a11y-check" gap={2} width="100%">
       <HStack gap={1}>
         <Select
           label="Single select"
@@ -929,8 +929,8 @@ export const DefaultOpen = () => {
 
   return (
     <Select
-      classNames={{ dropdown: 'no-a11y-check' }}
       defaultOpen
+      classNames={{ dropdown: 'no-a11y-check' }}
       label="Single select - default open"
       onChange={setValue}
       options={exampleOptions}

@@ -676,11 +676,11 @@ const LoopingExamples = () => (
     <NegativeMargin>
       <Carousel
         loop
+        className="no-a11y-check"
         drag="free"
         snapMode="item"
         styles={overflowStyles}
         title="Looping - Free Drag is visible (visreg)"
-        className="no-a11y-check"
       >
         {Object.values(assets).map((asset) => (
           <CarouselItem key={asset.symbol} accessibilityLabel={asset.name} id={asset.symbol}>

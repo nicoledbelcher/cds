@@ -222,19 +222,19 @@ export const Disabled = () => {
   return (
     <VStack gap={2}>
       <ProgressBarWithFixedLabels disabled labelPlacement="beside" startLabel={50}>
-        <ProgressBar accessibilityLabel="Progress bar" disabled progress={0.5} />
+        <ProgressBar disabled accessibilityLabel="Progress bar" progress={0.5} />
       </ProgressBarWithFixedLabels>
       <ProgressBarWithFixedLabels disabled endLabel={10} labelPlacement="beside">
-        <ProgressBar accessibilityLabel="Progress bar" disabled progress={0.1} />
+        <ProgressBar disabled accessibilityLabel="Progress bar" progress={0.1} />
       </ProgressBarWithFixedLabels>
       <ProgressBarWithFixedLabels disabled endLabel={20} labelPlacement="beside" startLabel={0}>
-        <ProgressBar accessibilityLabel="Progress bar" disabled progress={0.2} />
+        <ProgressBar disabled accessibilityLabel="Progress bar" progress={0.2} />
       </ProgressBarWithFixedLabels>
       <ProgressBarWithFixedLabels disabled endLabel={50} labelPlacement="beside" startLabel={0}>
-        <ProgressBar accessibilityLabel="Progress bar" disabled progress={0.5} />
+        <ProgressBar disabled accessibilityLabel="Progress bar" progress={0.5} />
       </ProgressBarWithFixedLabels>
       <ProgressBarWithFloatLabel disabled label={70} progress={0.7}>
-        <ProgressBar accessibilityLabel="Progress bar" disabled progress={0.7} />
+        <ProgressBar disabled accessibilityLabel="Progress bar" progress={0.7} />
       </ProgressBarWithFloatLabel>
     </VStack>
   );
@@ -255,10 +255,10 @@ export const Colors = () => {
     <VStack gap={2}>
       <ProgressBar accessibilityLabel="Progress bar" color="bgPositive" progress={0.5} />
       <ProgressBar accessibilityLabel="Progress bar" color="bgNegative" progress={0.5} />
-      <ProgressBar accessibilityLabel="Progress bar" disabled color="bgPrimary" progress={0.5} />
+      <ProgressBar disabled accessibilityLabel="Progress bar" color="bgPrimary" progress={0.5} />
       <ProgressBar accessibilityLabel="Progress bar" color="bgWarning" progress={0.5} />
       <ProgressBar accessibilityLabel="Progress bar" color="fg" progress={0.5} />
-      <ProgressBar accessibilityLabel="Progress bar" disabled color="fg" progress={0.5} />
+      <ProgressBar disabled accessibilityLabel="Progress bar" color="fg" progress={0.5} />
     </VStack>
   );
 };
@@ -323,7 +323,7 @@ export const CustomStringLabel = () => {
             labelPlacement="above"
             progress={0.6}
           >
-            <ProgressBar accessibilityLabel="Progress bar" disabled progress={0.6} />
+            <ProgressBar disabled accessibilityLabel="Progress bar" progress={0.6} />
           </ProgressBarWithFloatLabel>
         </VStack>
       )}
@@ -388,8 +388,8 @@ export const DisableAnimateOnMount = () => {
           <VStack gap={1}>
             <Text font="label1">ProgressBar</Text>
             <ProgressBar
-              accessibilityLabel="Progress bar"
               disableAnimateOnMount
+              accessibilityLabel="Progress bar"
               progress={calculateProgress(0.8)}
             />
           </VStack>
@@ -402,8 +402,8 @@ export const DisableAnimateOnMount = () => {
               startLabel={0}
             >
               <ProgressBar
-                accessibilityLabel="Progress bar"
                 disableAnimateOnMount
+                accessibilityLabel="Progress bar"
                 progress={calculateProgress(0.8)}
               />
             </ProgressBarWithFixedLabels>
@@ -417,8 +417,8 @@ export const DisableAnimateOnMount = () => {
               progress={calculateProgress(0.8)}
             >
               <ProgressBar
-                accessibilityLabel="Progress bar"
                 disableAnimateOnMount
+                accessibilityLabel="Progress bar"
                 progress={calculateProgress(0.8)}
               />
             </ProgressBarWithFloatLabel>

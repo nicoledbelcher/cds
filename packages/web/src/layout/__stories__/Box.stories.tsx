@@ -280,11 +280,11 @@ export const AllPin = () => (
 export const BooleanStyleProps = () => {
   return (
     <Box
-      className="no-a11y-check"
       bordered
       background="bgPrimary"
       borderColor="accentBoldPurple"
       borderWidth={300}
+      className="no-a11y-check"
       height={200}
       width={200}
     >

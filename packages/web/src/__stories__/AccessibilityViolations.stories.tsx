@@ -20,14 +20,14 @@ const AccessibilityViolations = () => {
           Incorrect color contrast
         </Text>
         <Box background="bgPrimary" width="fit-content">
-          <Text font="body" as="h1">
+          <Text as="h1" font="body">
             This text does not contrast with the background
           </Text>
         </Box>
         <Text color="fgPositive" font="headline">
           Correct color contrast
         </Text>
-        <Text font="body" as="h1">
+        <Text as="h1" font="body">
           This text contrasts with the background
         </Text>
       </VStack>

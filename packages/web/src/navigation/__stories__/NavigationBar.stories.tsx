@@ -75,7 +75,7 @@ export const NavigationBarFullExampleDefault = () => {
               onClick={() => handlePress('Notifications')}
             />
             <IconButton accessibilityLabel="App Switcher" name="appSwitcher" />
-            <IconButton accessibilityLabel="Profile" active name="profile" />
+            <IconButton active accessibilityLabel="Profile" name="profile" />
           </HStack>
         }
         start={
@@ -119,7 +119,7 @@ export const NavigationBarMobileExample = () => {
             <AvatarButton compact alt="User" name="Sam Smith" />
           </HStack>
         }
-        start={<IconButton compact accessibilityLabel="Hamburger" transparent name="hamburger" />}
+        start={<IconButton compact transparent accessibilityLabel="Hamburger" name="hamburger" />}
       >
         <LogoMark size={32} />
       </NavigationBar>

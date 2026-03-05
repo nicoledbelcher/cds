@@ -1050,8 +1050,8 @@ const CondensedListCell = () => {
         title="Title"
       />
       <ListCell
-        className="no-a11y-check"
         accessory="more"
+        className="no-a11y-check"
         description="Description"
         detail="Detail"
         end={<Button compact>Action</Button>}

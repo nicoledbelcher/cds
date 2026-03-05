@@ -88,8 +88,8 @@ export const ControlledCollapse = () => {
 
   const renderEnd = () => (
     <IconButton
-      height="48px"
       accessibilityLabel={collapsed ? 'Expand' : 'Collapse'}
+      height="48px"
       name={collapsed ? 'caretRight' : 'caretLeft'}
       onClick={() => setCollapsed(!collapsed)}
       width="48px"
