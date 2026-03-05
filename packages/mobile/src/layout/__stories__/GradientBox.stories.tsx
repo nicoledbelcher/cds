@@ -5,7 +5,8 @@ import { useTheme } from '../../hooks/useTheme';
 import { ThemeProvider } from '../../system/ThemeProvider';
 import { defaultGradientTheme } from '../../themes/gradients/defaultGradientTheme';
 import { Text } from '../../typography/Text';
-import { GradientBox, RadialGradientFill } from '../GradientBox';
+import { GradientBox } from '../GradientBox';
+import { RadialGradientFill } from '../../gradients/RadialGradientFill';
 
 const BasicGradient = () => (
   <Example title="Theme Gradient Presets">

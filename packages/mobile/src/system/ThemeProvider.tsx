@@ -50,7 +50,7 @@ export const ThemeProvider = ({ theme, activeColorScheme, children }: ThemeProvi
       activeColorScheme: activeColorScheme,
       spectrum: theme[activeSpectrumKey],
       color: theme[activeColorKey],
-      ...(theme[activeGradientKey] && { gradient: theme[activeGradientKey] }),
+      gradient: theme[activeGradientKey],
     };
   }, [theme, activeColorScheme]);
 

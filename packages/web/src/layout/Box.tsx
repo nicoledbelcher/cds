@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useContext, useMemo } from 'react';
+import React, { forwardRef, memo, useMemo } from 'react';
 import type { PinningDirection } from '@coinbase/cds-common/types/BoxBaseProps';
 import type { SharedAccessibilityProps } from '@coinbase/cds-common/types/SharedAccessibilityProps';
 import type { SharedProps } from '@coinbase/cds-common/types/SharedProps';

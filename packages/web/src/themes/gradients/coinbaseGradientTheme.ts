@@ -1,3 +1,4 @@
+// TO DO: This is temporary, and subject to change based on design decisions.
 import type { ThemeConfig } from '../../core/theme';
 import { coinbaseTheme } from '../coinbaseTheme';
 

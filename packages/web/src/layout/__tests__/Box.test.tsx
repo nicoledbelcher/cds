@@ -1,8 +1,6 @@
 import { renderA11y } from '@coinbase/cds-web-utils/jest';
 import { render, screen } from '@testing-library/react';
 
-import { ThemeProvider } from '../../system/ThemeProvider';
-import { defaultTheme } from '../../themes/defaultTheme';
 import { Box, type BoxDefaultElement, type BoxProps } from '../Box';
 
 const DEFAULT_CLASS = 'flex';

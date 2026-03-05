@@ -2,38 +2,12 @@ import { memo, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Defs, LinearGradient as Lg, Rect, Stop, Svg } from 'react-native-svg';
 
+import type { LinearGradientConfig } from '../core/theme';
 import { getAlpha } from '../utils/getAlpha';
 
 const DEFAULT_ANGLE = 180;
 
-type Coordinate = { x: number; y: number };
-
-export type LinearGradientFillProps = {
-  /**
-   * [Optional] Start position of the gradient. By default start is calculated
-   * based on the angle prop.
-   */
-  start?: Coordinate;
-  /**
-   * [Optional] End position of the gradient. By default end is calculated
-   * based on the angle prop.
-   * */
-  end?: Coordinate;
-  /**
-   * The relative positions of colors (0 to 1). If not supplied or length doesn't match colors,
-   * stops are auto-generated with even distribution.
-   */
-  stops?: number[];
-  /**
-   * Colors to be distributed between start and end.
-   */
-  colors: string[];
-  /**
-   * Sets gradient angle.
-   * @default 180
-   */
-  angle?: number;
-};
+export type LinearGradientFillProps = LinearGradientConfig;
 
 /**
  * Generates evenly distributed stop positions for the given number of colors.

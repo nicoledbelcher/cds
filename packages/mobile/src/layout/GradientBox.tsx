@@ -2,26 +2,26 @@ import React, { forwardRef, memo, useMemo } from 'react';
 import type { View } from 'react-native';
 import type { ThemeVars } from '@coinbase/cds-common/core/theme';
 
-import { LinearGradientFill, type LinearGradientFillProps } from '../gradients/LinearGradientFill';
+import type { GradientConfig } from '../core/theme';
+import { LinearGradientFill } from '../gradients/LinearGradientFill';
 import { useTheme } from '../hooks/useTheme';
 
 import { Box, type BoxProps } from './Box';
 
-export { LinearGradientFill, type LinearGradientFillProps } from '../gradients/LinearGradientFill';
-export { RadialGradientFill, type RadialGradientFillProps } from '../gradients/RadialGradientFill';
-
 export type GradientBoxBaseProps = {
   /**
    * Theme gradient preset name. Resolved from theme configuration.
+   * Ignored when `gradientConfig` is provided.
    * @example "brand", "primary", "positive"
    */
   gradient?: ThemeVars.Gradient;
   /**
    * Custom linear gradient configuration. Rendered as SVG LinearGradient.
    * Use this for dynamic or non-theme gradients.
+   * Takes precedence over `gradient` when both are provided.
    * @example { colors: ['#0052FF', '#7B3FE4'], angle: 90 }
    */
-  gradientConfig?: LinearGradientFillProps;
+  gradientConfig?: GradientConfig;
   /**
    * @default false
    * Gradient will overlay the children content when true.
@@ -59,7 +59,6 @@ export const GradientBox = memo(
         return undefined;
       }, [gradient, gradientConfig, theme.gradient]);
 
-      // TO DO: This is temporarily set to LinearGradientFillProps, and subject to change based on design decisions.
       const defaultGradient = useMemo(() => {
         if (!resolvedConfig?.colors) return null;
         return <LinearGradientFill key="GradientFillContainer" {...resolvedConfig} />;

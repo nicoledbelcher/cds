@@ -147,6 +147,7 @@ export const Pressable = memo(
       opacity,
       gradient,
       gradientConfig,
+      GradientComponent,
       // Pressable
       disableDebounce,
       feedback = 'none',
@@ -326,6 +327,7 @@ export const Pressable = memo(
           width={width}
           wrapperStyles={wrapperStyles}
           zIndex={zIndex}
+          GradientComponent={GradientComponent}
         >
           {children}
         </Interactable>

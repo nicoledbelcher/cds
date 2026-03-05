@@ -182,7 +182,7 @@ export type InteractableBlendStyles = {
    * @default 0.75
    */
   disabledOpacity?: number;
-  /** CSS gradient string for the background. */
+  /** CSS gradient string for the background. Overridden by `gradientConfig` inline style when both are set. */
   backgroundGradient?: string;
   /** CSS gradient string for the background when pressed. */
   pressedBackgroundGradient?: string;
@@ -274,7 +274,7 @@ export const Interactable: InteractableComponent = forwardRef<
         }),
         ...style,
       }),
-      [theme, background, blendStyles, borderColor, style],
+      [style, background, theme, blendStyles, borderColor],
     );
 
     const Wrapper = gradient || gradientConfig ? GradientBox : Box;
@@ -301,8 +301,8 @@ export const Interactable: InteractableComponent = forwardRef<
         )}
         data-disabled={disabled}
         disabled={disabled}
-        gradient={gradient}
-        gradientConfig={gradientConfig}
+        {...(gradient && { gradient })}
+        {...(gradientConfig && { gradientConfig })}
         style={interactableStyle}
         {...props}
       />
@@ -374,6 +374,7 @@ export const getInteractableStyles = ({
       colorScheme: theme.activeColorScheme,
       skipContrastOptimization: true,
     }),
+    // Only add the gradient CSS properties if the respective gradient is set
     ...(backgroundGradient && { [interactableBackgroundGradient]: backgroundGradient }),
     ...(hoveredGradient && { [interactableHoveredBackgroundGradient]: hoveredGradient }),
     ...(pressedGradient && { [interactablePressedBackgroundGradient]: pressedGradient }),

@@ -1,3 +1,3 @@
 export { LinearGradient } from './LinearGradient';
-export { LinearGradientFill, type LinearGradientFillProps } from './LinearGradientFill';
+export { LinearGradientFill } from './LinearGradientFill';
 export { RadialGradientFill, type RadialGradientFillProps } from './RadialGradientFill';

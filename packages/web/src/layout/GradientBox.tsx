@@ -1,9 +1,8 @@
-import React, { forwardRef, memo, useEffect, useMemo } from 'react';
+import React, { forwardRef, memo, useMemo } from 'react';
 import type { ThemeVars } from '@coinbase/cds-common/core/theme';
 
 import type { Polymorphic } from '../core/polymorphism';
 import { cx } from '../cx';
-import { useTheme } from '../hooks/useTheme';
 import { getStyles } from '../styles/styleProps';
 
 import { Box, type BoxBaseProps } from './Box';
@@ -21,35 +20,36 @@ export type GradientBoxDefaultElement = typeof gradientBoxDefaultElement;
 export type LinearGradientConfig = {
   /**
    * Colors to be distributed along the gradient line.
-   * @example ['#0052FF', '#7B3FE4']
    */
   colors: string[];
   /**
    * The relative positions of colors (0 to 1). If supplied, must be the same length as colors.
    * @default Evenly distributed
-   * @example [0, 0.5, 1]
    */
   stops?: number[];
   /**
    * Gradient angle in degrees. 0 is to top, 90 is to right, 180 is to bottom.
    * @default 180
-   * @example 90
    */
   angle?: number;
 };
 
+export type GradientConfig = LinearGradientConfig;
+
 export type GradientBoxBaseProps = BoxBaseProps & {
   /**
    * Theme gradient preset name. Applied via CSS class.
+   * Ignored when `gradientConfig` is provided.
    * @example "brand", "primary", "positive"
    */
   gradient?: ThemeVars.Gradient;
   /**
    * Custom linear gradient configuration. Applied via inline style.
    * Use this for dynamic or non-theme gradients.
+   * Takes precedence over `gradient` when both are provided.
    * @example { colors: ['#0052FF', '#7B3FE4'], angle: 90 }
    */
-  gradientConfig?: LinearGradientConfig;
+  gradientConfig?: GradientConfig;
 };
 
 export type GradientBoxProps<AsComponent extends React.ElementType> = Polymorphic.Props<

@@ -1,3 +1,4 @@
+// TO DO: This is temporarily added, and subject to change based on design decisions.
 import { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Defs, RadialGradient as Rg, Rect, Stop, Svg } from 'react-native-svg';

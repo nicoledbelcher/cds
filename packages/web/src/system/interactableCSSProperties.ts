@@ -1,6 +1,7 @@
 export const interactableBorderRadius = '--interactable-border-radius';
 export const interactableBackground = '--interactable-background';
 export const interactableBorderColor = '--interactable-border-color';
+// TO DO: This is temporary, and subject to change based on new css var naming conventions.
 export const interactableBackgroundGradient = '--interactable-bg-gradient';
 // Pressed:
 export const interactablePressedBackground = '--interactable-pressed-background';

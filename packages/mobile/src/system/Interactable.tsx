@@ -4,11 +4,7 @@ import type { ElevationLevels, ThemeVars } from '@coinbase/cds-common';
 
 import { useTheme } from '../hooks/useTheme';
 import { Box, type BoxBaseProps } from '../layout/Box';
-import {
-  GradientBox,
-  type GradientBoxBaseProps,
-  type LinearGradientFillProps,
-} from '../layout/GradientBox';
+import { GradientBox, type GradientBoxBaseProps } from '../layout/GradientBox';
 import { getInteractableStyles } from '../styles/getInteractableStyles';
 
 /**
@@ -24,7 +20,7 @@ import { getInteractableStyles } from '../styles/getInteractableStyles';
  *     background: '#ffffff',
  *     pressedBackground: '#e0e0e0',
  *     borderColor: '#cccccc',
- *     pressedGradient: { direction: 'to-r', colors: ['#003cb8', '#5b1fb4'] },
+ *     pressedBackgroundGradient: { colors: ['#003cb8', '#5b1fb4'], angle: 90 },
  *   }}
  * />
  * ```
@@ -36,16 +32,16 @@ export type InteractableBlendStyles = {
   borderColor?: string;
   pressedBorderColor?: string;
   disabledBorderColor?: string;
-  /** Gradient background. */
-  backgroundGradient?: LinearGradientFillProps;
-  /** Gradient to use when the element is pressed. */
-  pressedBackgroundGradient?: LinearGradientFillProps;
-  /** Gradient to use when the element is disabled. */
-  disabledBackgroundGradient?: LinearGradientFillProps;
+  /** Gradient to apply as the default background. Overrides `gradientConfig` when set. */
+  backgroundGradient?: GradientBoxBaseProps['gradientConfig'];
+  /** Gradient to apply when the element is pressed. Overrides the base gradient for the pressed state. */
+  pressedBackgroundGradient?: GradientBoxBaseProps['gradientConfig'];
+  /** Gradient to apply when the element is disabled. Overrides the base gradient for the disabled state. */
+  disabledBackgroundGradient?: GradientBoxBaseProps['gradientConfig'];
 };
 
 export type InteractableBaseProps = Omit<BoxBaseProps, 'animated'> &
-  Pick<GradientBoxBaseProps, 'gradient' | 'gradientConfig'> & {
+  Pick<GradientBoxBaseProps, 'gradient' | 'gradientConfig' | 'GradientComponent'> & {
     /** Apply animated styles to the outer container. */
     style?: Animated.WithAnimatedValue<StyleProp<ViewStyle>>[];
     /** Background color of the overlay (element being interacted with). */
@@ -102,6 +98,7 @@ export const Interactable = memo(function Interactable({
   transparentWhilePressed,
   gradient,
   gradientConfig,
+  GradientComponent,
   ...props
 }: InteractableProps) {
   const theme = useTheme();
@@ -186,14 +183,15 @@ export const Interactable = memo(function Interactable({
 
   const content = <View style={mergedContentStyles}>{children}</View>;
 
-  const Wrapper = activeGradientConfig ? GradientBox : Box;
+  const Wrapper = activeGradientConfig || GradientComponent ? GradientBox : Box;
 
   return (
     <Wrapper
       animated
       borderColor={borderColor}
       borderWidth={borderWidth}
-      gradientConfig={activeGradientConfig}
+      {...(activeGradientConfig && { gradientConfig: activeGradientConfig })}
+      {...(GradientComponent && { GradientComponent })}
       style={mergedWrapperStyles}
       {...props}
     >

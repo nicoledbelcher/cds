@@ -1,12 +1,5 @@
 import React, { forwardRef, memo, useMemo } from 'react';
-import {
-  Animated,
-  type StyleProp,
-  StyleSheet,
-  View,
-  type ViewProps,
-  type ViewStyle,
-} from 'react-native';
+import { Animated, type StyleProp, View, type ViewProps, type ViewStyle } from 'react-native';
 import type { PinningDirection } from '@coinbase/cds-common';
 import type { ThemeVars } from '@coinbase/cds-common/core/theme';
 import type { ElevationLevels } from '@coinbase/cds-common/types/ElevationLevels';

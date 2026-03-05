@@ -1,8 +1,39 @@
 import type { TextStyle, ViewStyle } from 'react-native';
 import type { ColorScheme, ThemeVars } from '@coinbase/cds-common/core/theme';
 
-// TO DO: this is anti-pattern, we need to find a better way to handle this
-import type { LinearGradientFillProps } from '../gradients/LinearGradientFill';
+type Coordinate = { x: number; y: number };
+
+/**
+ * Configuration for a linear gradient.
+ */
+export type LinearGradientConfig = {
+  /**
+   * Colors to be distributed along the gradient line.
+   */
+  colors: string[];
+  /**
+   * The relative positions of colors (0 to 1). If not supplied or length
+   * doesn't match colors, stops are auto-generated with even distribution.
+   */
+  stops?: number[];
+  /**
+   * Gradient angle in degrees. 0 is to top, 90 is to right, 180 is to bottom.
+   * @default 180
+   */
+  angle?: number;
+  /**
+   * Start position of the gradient as an {x, y} coordinate (0 to 1).
+   * Overrides the angle-based calculation when provided.
+   */
+  start?: Coordinate;
+  /**
+   * End position of the gradient as an {x, y} coordinate (0 to 1).
+   * Overrides the angle-based calculation when provided.
+   */
+  end?: Coordinate;
+};
+
+export type GradientConfig = LinearGradientConfig;
 
 type Shadow = {
   shadowColor?: ViewStyle['shadowColor'];
@@ -49,9 +80,9 @@ export type ThemeConfig = {
   /** The control size values. */
   controlSize: { [key in ThemeVars.ControlSize]: number };
   /** Custom gradient presets for light mode. Merged with default presets. */
-  lightGradient?: Partial<Record<ThemeVars.Gradient, LinearGradientFillProps>>;
+  lightGradient?: Partial<Record<ThemeVars.Gradient, GradientConfig>>;
   /** Custom gradient presets for dark mode. Merged with default presets. */
-  darkGradient?: Partial<Record<ThemeVars.Gradient, LinearGradientFillProps>>;
+  darkGradient?: Partial<Record<ThemeVars.Gradient, GradientConfig>>;
 };
 
 export type Theme = ThemeConfig & {
@@ -61,7 +92,6 @@ export type Theme = ThemeConfig & {
   spectrum: { [key in ThemeVars.SpectrumColor]: string };
   /** The light or dark color palette, as appropriate based on the activeColorScheme. */
   color: { [key in ThemeVars.Color]: string };
-  // TO DO: This is temporarily set to LinearGradientFillProps, and subject to change based on design decisions.
   /** The light or dark gradient presets, as appropriate based on the activeColorScheme. */
-  gradient?: Partial<Record<ThemeVars.Gradient, LinearGradientFillProps>>;
+  gradient?: Partial<Record<ThemeVars.Gradient, GradientConfig>>;
 };
