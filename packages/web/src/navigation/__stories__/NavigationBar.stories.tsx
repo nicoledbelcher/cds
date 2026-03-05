@@ -65,15 +65,15 @@ export const NavigationBarFullExampleDefault = () => {
         bottom={<TabNavigation onChange={handleTabChange} tabs={tabs} value={value} />}
         end={
           <HStack alignItems="center" gap={1}>
-            <IconButton name="helpCenterQuestionMark" />
+            <IconButton accessibilityLabel="Help Center" name="helpCenterQuestionMark" />
             <IconButton
               active
               accessibilityLabel="Notifications"
               name="bell"
               onClick={() => handlePress('Notifications')}
             />
-            <IconButton name="appSwitcher" />
-            <IconButton active name="profile" />
+            <IconButton accessibilityLabel="App Switcher" name="appSwitcher" />
+            <IconButton accessibilityLabel="Profile" active name="profile" />
           </HStack>
         }
         start={

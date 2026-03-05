@@ -22,13 +22,11 @@ export default {
   component: Carousel,
   parameters: {
     a11y: {
-      config: {
-        rules: [
-          {
-            id: 'touch-target',
-            enabled: false,
-          },
-        ],
+      options: {
+        rules: {
+          // It's accepted to have a small target size for the carousel pagination buttons
+          'target-size': { enabled: false },
+        },
       },
       context: {
         include: ['body'],

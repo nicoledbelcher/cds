@@ -444,6 +444,21 @@ export const Disabled = () => {
   );
 };
 
+Disabled.parameters = {
+  a11y: {
+    options: {
+      /**
+       * Color contrast ratio doesn't need to meet 4.5:1, as the element is disabled.
+       * Use axe run options (instead of config.rules) to reliably disable this rule.
+       * @link https://dequeuniversity.com/rules/axe/4.3/color-contrast
+       */
+      rules: {
+        'color-contrast': { enabled: false },
+      },
+    },
+  },
+};
+
 export const DisabledOptions = () => {
   const exampleOptionsWithSomeDisabled = [
     { value: null, label: 'Remove selection' },
@@ -1275,6 +1290,16 @@ export const DisabledWithVariants = () => {
       />
     </div>
   );
+};
+
+DisabledWithVariants.parameters = {
+  a11y: {
+    options: {
+      rules: {
+        'color-contrast': { enabled: false },
+      },
+    },
+  },
 };
 
 export const StartNodeWithVariants = () => {

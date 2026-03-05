@@ -6,7 +6,7 @@ export default {
   title: 'Components/Inputs/HelperText',
   component: HelperText,
   parameters: {
-    a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } },
+    a11y: { options: { rules: { 'color-contrast': { enabled: false } } } },
   },
 };
 

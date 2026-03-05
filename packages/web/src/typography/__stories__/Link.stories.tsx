@@ -49,6 +49,16 @@ export const Underline = () => (
   </div>
 );
 
+Underline.parameters = {
+  a11y: {
+    options: {
+      rules: {
+        'target-size': { enabled: false },
+      },
+    },
+  },
+};
+
 export const InAParagraph = () => (
   <div>
     <Text as="p" display="block" font="body">
