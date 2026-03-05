@@ -8,14 +8,6 @@ import { VStack } from '../VStack';
 export default {
   title: 'Components/Box (tsx)',
   component: Box,
-  parameters: {
-    a11y: {
-      context: {
-        include: ['body'],
-        exclude: ['.no-a11y-check'],
-      },
-    },
-  },
 };
 
 const Lipsum = ({ color }: { color?: ThemeVars.Color }) => (
@@ -54,12 +46,12 @@ export const Elevation2 = () => (
 );
 
 export const Opacity = () => (
-  <Box className="no-a11y-check" opacity={0.5}>
+  <Box opacity={0.5}>
     <Lipsum />
   </Box>
 );
 //  This is just testing opacity so color contrast failure is expected
-Opacity.parameters = { a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } } };
+Opacity.parameters = { a11y: { options: { rules: { 'color-contrast': { enabled: false } } } } };
 
 export const FlexControls = () => (
   <Box alignContent="center" alignItems="center" flexDirection="row" justifyContent="space-between">
@@ -284,11 +276,20 @@ export const BooleanStyleProps = () => {
       background="bgPrimary"
       borderColor="accentBoldPurple"
       borderWidth={300}
-      className="no-a11y-check"
       height={200}
       width={200}
     >
       <Text font="body">HELLO WORLD</Text>
     </Box>
   );
+};
+
+BooleanStyleProps.parameters = {
+  a11y: {
+    options: {
+      rules: {
+        'color-contrast': { enabled: false },
+      },
+    },
+  },
 };

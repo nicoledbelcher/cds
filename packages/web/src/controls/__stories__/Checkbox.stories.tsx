@@ -93,21 +93,14 @@ export const DarkNormal = () => {
 
 export const NoLabel = () => {
   const [checked, setChecked] = useState(false);
-  return (
-    <div className="no-a11y-check">
-      <Checkbox checked={checked} onChange={() => setChecked((s) => !s)} />
-    </div>
-  );
+  return <Checkbox checked={checked} onChange={() => setChecked((s) => !s)} />;
 };
 
 // This story does not render a label on purpose
 NoLabel.parameters = {
   a11y: {
     config: { rules: [{ id: 'label', enabled: false }] },
-    context: {
-      include: ['body'],
-      exclude: ['.no-a11y-check'],
-    },
+    test: 'off',
   },
 };
 

@@ -175,6 +175,8 @@ export const All = () => {
         tabs={basicSegmentsWithDisabled}
         title="Disabled Segment"
       />
+      {/* Custom styles result in various color contrast violations but this isn't in the default component
+          so it's a violation that's safe to avoid */}
       <VStack className="no-a11y-checks">
         <SegmentedTabsExample
           defaultActiveTab={customSegments[0]}

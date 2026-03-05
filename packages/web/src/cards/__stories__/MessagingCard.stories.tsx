@@ -613,7 +613,7 @@ export const MultipleCards = (): JSX.Element => {
   const ref1 = useRef<HTMLAnchorElement>(null);
   const ref2 = useRef<HTMLButtonElement>(null);
   return (
-    <Carousel className="no-a11y-check" styles={{ carousel: { gap: 16 } }}>
+    <Carousel styles={{ carousel: { gap: 16 } }}>
       <CarouselItem id="card1">
         <MessagingCard
           as="article"
@@ -679,12 +679,4 @@ export const MultipleCards = (): JSX.Element => {
 export default {
   title: 'Components/Cards/MessagingCard',
   component: MessagingCard,
-  parameters: {
-    a11y: {
-      context: {
-        include: ['body'],
-        exclude: ['.no-a11y-check'],
-      },
-    },
-  },
 };

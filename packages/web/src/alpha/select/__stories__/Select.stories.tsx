@@ -26,9 +26,10 @@ export default {
   component: Select,
   parameters: {
     a11y: {
-      context: {
-        include: ['body'],
-        exclude: ['.no-a11y-check'],
+      options: {
+        rules: {
+          'nested-interactive': { enabled: false },
+        },
       },
     },
   },
@@ -145,7 +146,7 @@ export const ExampleForm = () => {
   });
 
   return (
-    <VStack className="no-a11y-check" gap={2} width="100%">
+    <VStack gap={2} width="100%">
       <HStack gap={1}>
         <Select
           label="Single select"
@@ -930,7 +931,6 @@ export const DefaultOpen = () => {
   return (
     <Select
       defaultOpen
-      classNames={{ dropdown: 'no-a11y-check' }}
       label="Single select - default open"
       onChange={setValue}
       options={exampleOptions}
@@ -940,6 +940,15 @@ export const DefaultOpen = () => {
   );
 };
 
+DefaultOpen.parameters = {
+  a11y: {
+    options: {
+      rules: {
+        'color-contrast': { enabled: false },
+      },
+    },
+  },
+};
 export const DisabledClickOutsideClose = () => {
   const exampleOptions = [
     { value: null, label: 'Remove selection' },

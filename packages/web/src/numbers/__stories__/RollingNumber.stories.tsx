@@ -13,14 +13,6 @@ import { RollingNumber } from '../RollingNumber/RollingNumber';
 export default {
   title: 'Components/RollingNumber',
   component: RollingNumber,
-  parameters: {
-    a11y: {
-      context: {
-        include: ['body'],
-        exclude: ['.no-a11y-checks'],
-      },
-    },
-  },
 };
 
 export const Examples = () => {
@@ -329,7 +321,7 @@ export const StyleOverrides = () => {
   const onNext = () =>
     setPrice((p) => Math.max(0, Math.round((p + (Math.random() - 0.5) * 200) * 100) / 100));
   return (
-    <VStack className="no-a11y-checks" gap={2}>
+    <VStack gap={2}>
       <Text font="label1">Style overrides per section</Text>
       <RollingNumber
         colorPulseOnUpdate
@@ -361,6 +353,15 @@ export const StyleOverrides = () => {
       <Button onClick={onNext}>Next</Button>
     </VStack>
   );
+};
+StyleOverrides.parameters = {
+  a11y: {
+    options: {
+      rules: {
+        'color-contrast': { enabled: false },
+      },
+    },
+  },
 };
 
 const fonts = [

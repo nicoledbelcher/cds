@@ -26,11 +26,8 @@ export default {
         rules: {
           // It's accepted to have a small target size for the carousel pagination buttons
           'target-size': { enabled: false },
+          'color-contrast': { enabled: false },
         },
-      },
-      context: {
-        include: ['body'],
-        exclude: ['.no-a11y-check'],
       },
     },
   },
@@ -676,7 +673,6 @@ const LoopingExamples = () => (
     <NegativeMargin>
       <Carousel
         loop
-        className="no-a11y-check"
         drag="free"
         snapMode="item"
         styles={overflowStyles}

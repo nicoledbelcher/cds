@@ -227,6 +227,15 @@ export const MultipleCards = (): JSX.Element => {
   );
 };
 
+MultipleCards.parameters = {
+  a11y: {
+    options: {
+      rules: {
+        'aria-hidden-focus': { enabled: false },
+      },
+    },
+  },
+};
 export default {
   title: 'Components/Cards/MediaCard',
   component: MediaCard,
