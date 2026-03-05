@@ -6,6 +6,7 @@ import { Icon } from '../../icons';
 import { HStack } from '../../layout/HStack';
 import { VStack } from '../../layout/VStack';
 import { RemoteImage } from '../../media/RemoteImage';
+import { RadialGradientFill } from '../../gradients/RadialGradientFill';
 import { ThemeProvider } from '../../system/ThemeProvider';
 import { defaultGradientTheme } from '../../themes/gradients/defaultGradientTheme';
 import { Text } from '../../typography/Text';
@@ -91,6 +92,36 @@ const GradientButtonExamples = () => {
           variant="gradient"
         >
           Multi-color Custom Gradient
+        </Button>
+      </Example>
+
+      <Example title="Custom Gradients (gradientNode with RadialGradientFill)">
+        <Button
+          color="fgInverse"
+          gradientNode={
+            <RadialGradientFill
+              colors={[theme.color.accentBoldPurple, theme.color.accentBoldBlue]}
+            />
+          }
+          onPress={() => {}}
+          variant="gradient"
+        >
+          Radial Gradient
+        </Button>
+
+        <Button
+          color="fgInverse"
+          gradientNode={
+            <RadialGradientFill
+              colors={[theme.color.bgPrimary, theme.color.accentBoldPurple]}
+              cx={0.2}
+              cy={0.2}
+            />
+          }
+          onPress={() => {}}
+          variant="gradient"
+        >
+          Radial Gradient (off-center)
         </Button>
       </Example>
 

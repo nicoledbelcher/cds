@@ -28,11 +28,11 @@ export type GradientBoxBaseProps = {
    */
   elevated?: boolean;
   /**
-   * Override the default linear gradient with a custom gradient component.
+   * Override the default linear gradient with a custom gradient node.
    * Use for radial, conic, or other gradient types.
    * @example <RadialGradientFill colors={['#0052FF', '#7B3FE4']} />
    */
-  GradientComponent?: React.ReactNode;
+  gradientNode?: React.ReactNode;
 };
 
 export type GradientBoxProps = GradientBoxBaseProps & BoxProps;
@@ -40,15 +40,7 @@ export type GradientBoxProps = GradientBoxBaseProps & BoxProps;
 export const GradientBox = memo(
   forwardRef<View, GradientBoxProps>(
     (
-      {
-        elevated,
-        children,
-        gradient,
-        gradientConfig,
-        overflow = 'hidden',
-        GradientComponent,
-        ...props
-      },
+      { elevated, children, gradient, gradientConfig, overflow = 'hidden', gradientNode, ...props },
       ref,
     ) => {
       const theme = useTheme();
@@ -64,7 +56,7 @@ export const GradientBox = memo(
         return <LinearGradientFill key="GradientFillContainer" {...resolvedConfig} />;
       }, [resolvedConfig]);
 
-      const renderedGradient = GradientComponent ?? defaultGradient;
+      const renderedGradient = gradientNode ?? defaultGradient;
 
       const items = elevated ? [children, renderedGradient] : [renderedGradient, children];
 

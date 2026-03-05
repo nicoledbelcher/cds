@@ -40,7 +40,7 @@ export const styles = StyleSheet.create({
 
 export type ButtonBaseProps = SharedProps &
   Pick<SharedAccessibilityProps, 'accessibilityLabel'> &
-  Omit<PressableBaseProps, 'gradient' | 'gradientConfig' | 'GradientComponent'> & {
+  Omit<PressableBaseProps, 'gradient' | 'gradientConfig' | 'gradientNode'> & {
     /**
      * Toggle design and visual variants.
      *
@@ -48,7 +48,7 @@ export type ButtonBaseProps = SharedProps &
      * - `gradient` prop with a theme preset name (e.g., "brand", "primary")
      * - `gradientConfig` prop with a custom config object (e.g., `{ colors: ['#0052FF', '#7B3FE4'], angle: 90 }`)
      * - `blendStyles.backgroundGradient` for state-based gradients (hover/pressed/disabled)
-     * - `GradientComponent` prop with a custom component to render (e.g., `RadialGradientFill`)
+     * - `gradientNode` prop with a custom node to render (e.g., `<RadialGradientFill />`)
      *
      * Note: gradient/gradientConfig props are ignored unless variant="gradient" is set.
      *
@@ -104,10 +104,10 @@ export type ButtonBaseProps = SharedProps &
      */
     gradientConfig?: PressableBaseProps['gradientConfig'];
     /**
-     * Custom gradient component to render. Only applied when `variant="gradient"`.
-     * @example GradientComponent={LinearGradientFill}
+     * Custom gradient node to render. Only applied when `variant="gradient"`.
+     * @example gradientNode={<RadialGradientFill colors={['#0052FF', '#7B3FE4']} />}
      */
-    GradientComponent?: PressableBaseProps['GradientComponent'];
+    gradientNode?: PressableBaseProps['gradientNode'];
   };
 
 export type ButtonProps = ButtonBaseProps;
@@ -117,7 +117,7 @@ export const Button = memo(
     {
       gradient,
       gradientConfig,
-      GradientComponent,
+      gradientNode,
       variant = 'primary',
       loading,
       transparent,
@@ -222,7 +222,7 @@ export const Button = memo(
         feedback={feedback}
         gradient={isGradientVariant ? gradient : undefined}
         gradientConfig={isGradientVariant ? gradientConfig : undefined}
-        GradientComponent={isGradientVariant ? GradientComponent : undefined}
+        gradientNode={isGradientVariant ? gradientNode : undefined}
         loading={loading}
         marginEnd={marginEnd}
         marginStart={marginStart}

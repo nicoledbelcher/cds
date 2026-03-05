@@ -41,7 +41,7 @@ export type InteractableBlendStyles = {
 };
 
 export type InteractableBaseProps = Omit<BoxBaseProps, 'animated'> &
-  Pick<GradientBoxBaseProps, 'gradient' | 'gradientConfig' | 'GradientComponent'> & {
+  Pick<GradientBoxBaseProps, 'gradient' | 'gradientConfig' | 'gradientNode'> & {
     /** Apply animated styles to the outer container. */
     style?: Animated.WithAnimatedValue<StyleProp<ViewStyle>>[];
     /** Background color of the overlay (element being interacted with). */
@@ -98,7 +98,7 @@ export const Interactable = memo(function Interactable({
   transparentWhilePressed,
   gradient,
   gradientConfig,
-  GradientComponent,
+  gradientNode,
   ...props
 }: InteractableProps) {
   const theme = useTheme();
@@ -183,7 +183,7 @@ export const Interactable = memo(function Interactable({
 
   const content = <View style={mergedContentStyles}>{children}</View>;
 
-  const Wrapper = activeGradientConfig || GradientComponent ? GradientBox : Box;
+  const Wrapper = activeGradientConfig || gradientNode ? GradientBox : Box;
 
   return (
     <Wrapper
@@ -191,7 +191,7 @@ export const Interactable = memo(function Interactable({
       borderColor={borderColor}
       borderWidth={borderWidth}
       {...(activeGradientConfig && { gradientConfig: activeGradientConfig })}
-      {...(GradientComponent && { GradientComponent })}
+      {...(gradientNode && { gradientNode })}
       style={mergedWrapperStyles}
       {...props}
     >

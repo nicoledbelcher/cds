@@ -1,32 +1,24 @@
 import { memo, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Defs, LinearGradient as Lg, Rect, Stop, Svg } from 'react-native-svg';
+import type { SharedProps } from '@coinbase/cds-common';
 
 import type { LinearGradientConfig } from '../core/theme';
+import { generateEvenStops } from '../utils/generateEvenStops';
 import { getAlpha } from '../utils/getAlpha';
 
 const DEFAULT_ANGLE = 180;
 
-export type LinearGradientFillProps = LinearGradientConfig;
-
-/**
- * Generates evenly distributed stop positions for the given number of colors.
- * @example generateEvenStops(3) => [0, 0.5, 1]
- */
-const generateEvenStops = (colorCount: number): number[] => {
-  if (colorCount <= 1) return [0];
-  return Array.from({ length: colorCount }, (_, i) => i / (colorCount - 1));
-};
+export type LinearGradientFillProps = LinearGradientConfig & SharedProps;
 
 export const LinearGradientFill = memo(
-  ({ colors, stops, start, end, angle = DEFAULT_ANGLE }: LinearGradientFillProps) => {
+  ({ colors, stops, start, end, angle = DEFAULT_ANGLE, testID }: LinearGradientFillProps) => {
     // Resolve stops: use provided stops if valid length, otherwise auto-generate
     const resolvedStops = useMemo(() => {
       if (stops && stops.length === colors.length) return stops;
       return generateEvenStops(colors.length);
     }, [colors.length, stops]);
 
-    // Memoize angle calculations
     const coordinates = useMemo(() => {
       const anglePI = (-angle * Math.PI) / 180;
       return {
@@ -40,7 +32,7 @@ export const LinearGradientFill = memo(
     if (colors.length === 0) return null;
 
     return (
-      <View style={StyleSheet.absoluteFillObject}>
+      <View style={StyleSheet.absoluteFillObject} testID={testID}>
         <Svg height="100%" width="100%">
           <Defs>
             <Lg id="LinearGradient" {...coordinates}>

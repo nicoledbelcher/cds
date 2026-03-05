@@ -1,11 +1,12 @@
 // TO DO: This is temporarily added, and subject to change based on design decisions.
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Defs, RadialGradient as Rg, Rect, Stop, Svg } from 'react-native-svg';
+import type { SharedProps } from '@coinbase/cds-common';
 
+import { generateEvenStops } from '../utils/generateEvenStops';
 import { getAlpha } from '../utils/getAlpha';
 
-const DEFAULT_STOPS = [0, 1];
 const DEFAULT_RADIAL_CENTER = 0.5;
 const DEFAULT_RADIAL_RADIUS = 0.5;
 
@@ -46,20 +47,20 @@ export type RadialGradientFillProps = {
    */
   fy?: number;
   /**
-   * The relative positions of colors. If supplied, it must be of the same length as colors.
-   * @default [0, 1]
+   * The relative positions of colors. Must be the same length as colors if provided.
+   * Falls back to evenly distributed stops when omitted or length mismatches.
    */
   stops?: number[];
   /**
    * Colors to be distributed from center to edge.
    */
-  colors: NonNullable<string>[];
-};
+  colors: string[];
+} & SharedProps;
 
 export const RadialGradientFill = memo(
   ({
     colors,
-    stops = DEFAULT_STOPS,
+    stops,
     cx = DEFAULT_RADIAL_CENTER,
     cy = DEFAULT_RADIAL_CENTER,
     r = DEFAULT_RADIAL_RADIUS,
@@ -67,25 +68,35 @@ export const RadialGradientFill = memo(
     ry,
     fx,
     fy,
-  }: RadialGradientFillProps) => (
-    <View style={StyleSheet.absoluteFillObject}>
-      <Svg height="100%" width="100%">
-        <Defs>
-          <Rg cx={cx} cy={cy} fx={fx} fy={fy} id="RadialGradient" r={r} rx={rx} ry={ry}>
-            {colors?.map((color, index) => (
-              <Stop
-                key={color + String(index)}
-                offset={stops[index]}
-                stopColor={color}
-                stopOpacity={getAlpha(color)}
-              />
-            ))}
-          </Rg>
-        </Defs>
-        <Rect fill="url(#RadialGradient)" height="100%" width="100%" />
-      </Svg>
-    </View>
-  ),
+    testID,
+  }: RadialGradientFillProps) => {
+    const resolvedStops = useMemo(() => {
+      if (stops && stops.length === colors.length) return stops;
+      return generateEvenStops(colors.length);
+    }, [colors.length, stops]);
+
+    if (colors.length === 0) return null;
+
+    return (
+      <View style={StyleSheet.absoluteFillObject} testID={testID}>
+        <Svg height="100%" width="100%">
+          <Defs>
+            <Rg cx={cx} cy={cy} fx={fx} fy={fy} id="RadialGradient" r={r} rx={rx} ry={ry}>
+              {colors.map((color, index) => (
+                <Stop
+                  key={color + String(index)}
+                  offset={resolvedStops[index]}
+                  stopColor={color}
+                  stopOpacity={getAlpha(color)}
+                />
+              ))}
+            </Rg>
+          </Defs>
+          <Rect fill="url(#RadialGradient)" height="100%" width="100%" />
+        </Svg>
+      </View>
+    );
+  },
 );
 
 RadialGradientFill.displayName = 'RadialGradientFill';

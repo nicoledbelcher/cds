@@ -149,9 +149,9 @@ const GradientBoxScreen = () => {
           </GradientBox>
         </Example>
 
-        <Example title="Radial Gradient (GradientComponent)">
+        <Example title="Radial Gradient (gradientNode)">
           <GradientBox
-            GradientComponent={
+            gradientNode={
               <RadialGradientFill
                 colors={[theme.color.bgPrimary, theme.color.accentBoldPurple]}
                 cx={0.5}
@@ -168,7 +168,7 @@ const GradientBoxScreen = () => {
           </GradientBox>
 
           <GradientBox
-            GradientComponent={
+            gradientNode={
               <RadialGradientFill colors={[theme.color.bgPositive, theme.color.bgNegative]} />
             }
             height={120}
@@ -180,7 +180,7 @@ const GradientBoxScreen = () => {
           </GradientBox>
 
           <GradientBox
-            GradientComponent={
+            gradientNode={
               <RadialGradientFill
                 colors={[
                   theme.color.bgWarning,
