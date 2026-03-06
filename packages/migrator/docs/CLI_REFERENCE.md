@@ -185,29 +185,6 @@ Available presets are listed in the [README](../README.md#how-it-works).
 
 Currently available: `v8-to-v9`
 
----
-
-## Exit Codes
-
-| Code | Meaning                                                        |
-| ---- | -------------------------------------------------------------- |
-| `0`  | Success                                                        |
-| `1`  | Error (migration failed, validation failed, or user cancelled) |
-
-**Example:**
-
-```bash
-npx @coinbase/cds-migrator ./src -p v8-to-v9 --skip-confirmation
-if [ $? -eq 0 ]; then
-  echo "✅ Migration succeeded"
-else
-  echo "❌ Migration failed"
-  exit 1
-fi
-```
-
----
-
 ## See Also
 
 - [Presets & Transforms](./PRESETS_AND_TRANSFORMS.md) - Creating presets and transforms
