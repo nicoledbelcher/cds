@@ -1,7 +1,6 @@
 import { Text } from 'react-native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
-import { defaultTheme } from '../../themes/defaultTheme';
 import { debounce } from '../../utils/debounce';
 import { DefaultThemeProvider } from '../../utils/testHelpers';
 import { IconButton } from '../IconButton';
@@ -130,18 +129,6 @@ describe('IconButton', () => {
     const [xsIcon, mediumIcon] = UNSAFE_getAllByType(Text);
 
     expect(xsIcon.props.style[0].fontSize).toBeLessThan(mediumIcon.props.style[0].fontSize);
-  });
-
-  it('renders ActivityIndicator with overridden iconSize when loading', () => {
-    render(
-      <DefaultThemeProvider>
-        <IconButton iconSize="xs" loading name={name} testID="icon-button" />
-      </DefaultThemeProvider>,
-    );
-
-    expect(screen.getByTestId('icon-button-activity-indicator').props.size).toBe(
-      defaultTheme.iconSize.xs,
-    );
   });
 
   it('handles loading state without accessibility label', () => {

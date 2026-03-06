@@ -1,6 +1,6 @@
+import { glyphMap } from '@coinbase/cds-icons/glyphMap';
 import { renderA11y } from '@coinbase/cds-web-utils/jest';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { glyphMap } from '@coinbase/cds-icons/glyphMap';
 
 import { defaultTheme } from '../../themes/defaultTheme';
 import { DefaultThemeProvider } from '../../utils/test';
@@ -189,7 +189,7 @@ describe('IconButton', () => {
   it('renders Spinner with overridden iconSize when loading', () => {
     render(
       <DefaultThemeProvider>
-        <IconButton iconSize="xs" loading name={name} testID="icon-button" />
+        <IconButton loading iconSize="xs" name={name} testID="icon-button" />
       </DefaultThemeProvider>,
     );
 
