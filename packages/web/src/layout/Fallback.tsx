@@ -118,7 +118,7 @@ export const Fallback: FallbackComponent = memo(
       return (
         <Box
           ref={ref}
-          aria-label={accessibilityLabel}
+          accessibilityLabel={accessibilityLabel}
           aria-live="polite"
           as={Component}
           flexGrow={0}

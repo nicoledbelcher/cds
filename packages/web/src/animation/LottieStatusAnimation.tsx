@@ -9,6 +9,7 @@ import { tradeStatus } from '@coinbase/cds-lottie-files/tradeStatus';
 import type { LottieStatus } from 'packages/common/dts/types/LottieStatus';
 
 import { Lottie } from './Lottie';
+import { lottieStatusToAccessibilityLabel } from '@coinbase/cds-common/lottie/statusToAccessibilityLabel';
 
 type LottiePlayerRef = LottiePlayer<TradeStatusLottie>;
 
@@ -31,15 +32,6 @@ export type LottieStatusAnimationProps = (
 ) &
   SharedProps &
   SharedAccessibilityProps;
-
-const statusToLabel: Record<LottieStatus, string> = {
-  loading: 'Loading',
-  success: 'Success',
-  cardSuccess: 'Success',
-  failure: 'Failed',
-  pending: 'Pending',
-};
-
 export const LottieStatusAnimation = memo(
   ({
     status = 'loading',
@@ -65,7 +57,7 @@ export const LottieStatusAnimation = memo(
     }, []);
 
     const label = useMemo(
-      () => accessibilityLabel ?? statusToLabel[status],
+      () => accessibilityLabel ?? lottieStatusToAccessibilityLabel[status as LottieStatus],
       [accessibilityLabel, status],
     );
 

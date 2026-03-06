@@ -1,10 +1,10 @@
 import type { Animated, StyleProp, ViewStyle } from 'react-native';
 import type { LottieSource } from '@coinbase/cds-common/types';
 
-import type { BoxProps } from '../layout';
+import type { BoxBaseProps, BoxProps } from '../layout';
 
 export type LottieBaseProps<T extends LottieSource = LottieSource> = Omit<
-  BoxProps,
+  BoxBaseProps,
   'alignContent' | 'justifyContent' | 'flexWrap' | 'flexDirection'
 > & {
   /**
@@ -48,4 +48,4 @@ export type LottieBaseProps<T extends LottieSource = LottieSource> = Omit<
   style?: Animated.WithAnimatedValue<StyleProp<ViewStyle>>;
 };
 
-export type LottieProps<T extends LottieSource = LottieSource> = LottieBaseProps<T>;
+export type LottieProps<T extends LottieSource = LottieSource> = LottieBaseProps<T> & BoxProps;

@@ -1,7 +1,7 @@
 import type { LottieSource } from '@coinbase/cds-common/types/LottieSource';
 import type { AnimationEventName, AnimationItem, SVGRendererConfig } from 'lottie-web';
 
-import type { BoxDefaultElement, BoxProps } from '../layout';
+import type { BoxBaseProps, BoxDefaultElement, BoxProps } from '../layout';
 
 export type LottieEventHandlersMap = {
   [key in LottieListener['name']]?: LottieListener['handler'];
@@ -13,7 +13,7 @@ export type LottieListener = {
 };
 
 export type LottieBaseProps<T extends string, Source extends LottieSource<T>> = Omit<
-  BoxProps<BoxDefaultElement>,
+  BoxBaseProps,
   'alignContent' | 'justifyContent' | 'flexWrap' | 'flexDirection'
 > & {
   /**
@@ -53,6 +53,7 @@ export type LottieBaseProps<T extends string, Source extends LottieSource<T>> = 
 export type LottieProps<T extends string, Source extends LottieSource<T>> = LottieBaseProps<
   T,
   Source
->;
+> &
+  BoxProps<BoxDefaultElement>;
 
 export type LottieAnimationRef = React.MutableRefObject<AnimationItem | undefined>;
