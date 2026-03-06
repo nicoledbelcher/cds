@@ -119,11 +119,9 @@ export const Fallback: FallbackComponent = memo(
         <Box
           ref={ref}
           accessibilityLabel={accessibilityLabel}
-          aria-live="polite"
           as={Component}
           flexGrow={0}
           flexShrink={0}
-          role="status"
           width={percentage && typeof width === 'number' ? `${Math.min(width, 100)}%` : width}
           {...props}
         >

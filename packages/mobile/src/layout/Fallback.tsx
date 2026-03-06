@@ -38,7 +38,6 @@ export const Fallback = memo(function Fallback({
   disableRandomRectWidth,
   rectWidthVariant,
   accessibilityLabel = 'Loading',
-  accessibilityLiveRegion = 'polite',
   ...props
 }: FallbackProps) {
   const fallbackShapeOptions = useMemo(
@@ -96,13 +95,7 @@ export const Fallback = memo(function Fallback({
   );
 
   return (
-    <Box
-      accessible
-      accessibilityLabel={accessibilityLabel}
-      accessibilityLiveRegion={accessibilityLiveRegion}
-      width={width}
-      {...props}
-    >
+    <Box accessible accessibilityLabel={accessibilityLabel} width={width} {...props}>
       <View style={containerStyle}>
         <Animated.View
           style={[

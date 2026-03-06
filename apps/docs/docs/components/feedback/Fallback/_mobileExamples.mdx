@@ -40,42 +40,22 @@ function RenderFallbacksInList() {
 
 ### Accessibility
 
-By default, Fallback announces "Loading" to screen readers using `accessibilityLiveRegion="polite"`. You can customize this with the `accessibilityLabel` prop.
+Fallback is a visual loading indicator and does not announce to screen readers by default. To make loading states accessible, wrap Fallback in a container with `accessibilityState={{ busy: true }}` and a descriptive label. When content finishes loading, set `busy: false` and replace the Fallback with actual content.
 
 ```jsx
-<Fallback width={150} height={45} accessibilityLabel="Loading user profile" />
+<Box accessible accessibilityLabel="Loading user profile" accessibilityState={{ busy: true }}>
+  <Fallback width={150} height={45} accessible={false} />
+</Box>
 ```
 
-:::tip Grouping multiple fallbacks
-
-When displaying multiple Fallbacks together (e.g., in a table or list), having each one announce "Loading" would be redundant and noisy. Instead, wrap the group in an accessible container with a descriptive label, then hide individual Fallbacks from the accessibility tree. When the content finishes loading, set `accessibilityState={{ busy: false }}` on the container and replace the Fallbacks with actual content.
-
-:::
+For multiple Fallbacks, use a single accessible container to avoid redundant announcements:
 
 ```jsx
 <Box accessible accessibilityLabel="Loading table data" accessibilityState={{ busy: true }}>
   <VStack gap={1}>
-    <Fallback
-      width={150}
-      height={20}
-      accessible={false}
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
-    />
-    <Fallback
-      width={150}
-      height={20}
-      accessible={false}
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
-    />
-    <Fallback
-      width={150}
-      height={20}
-      accessible={false}
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
-    />
+    <Fallback width={150} height={20} accessible={false} />
+    <Fallback width={150} height={20} accessible={false} />
+    <Fallback width={150} height={20} accessible={false} />
   </VStack>
 </Box>
 ```
