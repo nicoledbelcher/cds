@@ -32,7 +32,6 @@
   ],
   "dependencies": {
     "commander": "^11.1.0",
-    "inquirer": "^9.2.12",
     "jscodeshift": "^0.15.1"
   },
   "devDependencies": {
@@ -41,7 +40,6 @@
     "@babel/preset-react": "^7.28.5",
     "@babel/preset-typescript": "^7.27.1",
     "@types/inquirer": "^9.0.7",
-    "@types/jscodeshift": "^0.11.10",
-    "@types/node": "^20.0.0"
+    "@types/jscodeshift": "^0.11.10"
   }
 }
