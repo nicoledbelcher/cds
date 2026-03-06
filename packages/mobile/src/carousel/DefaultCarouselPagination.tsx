@@ -37,6 +37,29 @@ type PaginationIndicatorProps = {
   style?: StyleProp<ViewStyle>;
 };
 
+const PaginationPill = memo(function PaginationPill({
+  index,
+  isActive,
+  onPress,
+  accessibilityLabel,
+  style,
+}: PaginationIndicatorProps) {
+  return (
+    <Pressable
+      accessibilityLabel={accessibilityLabel}
+      background={isActive ? 'bgPrimary' : 'bgLine'}
+      borderColor="transparent"
+      borderRadius={100}
+      borderWidth={0}
+      height={INDICATOR_HEIGHT}
+      onPress={onPress}
+      style={style}
+      testID={`carousel-page-${index}`}
+      width={INDICATOR_ACTIVE_WIDTH}
+    />
+  );
+});
+
 const animationConfig = {
   stiffness: 900,
   damping: 120,
@@ -151,8 +174,10 @@ export const DefaultCarouselPagination = memo(function DefaultCarouselPagination
   style,
   styles,
   paginationAccessibilityLabel = defaultPaginationAccessibilityLabel,
+  variant = 'dot',
 }: DefaultCarouselPaginationProps) {
   const theme = useTheme();
+  const isDot = variant === 'dot';
 
   // Using paddingVertical here instead of HStack prop so it can be overridden by custom styles
   const rootStyles = useMemo(
@@ -166,18 +191,34 @@ export const DefaultCarouselPagination = memo(function DefaultCarouselPagination
       : paginationAccessibilityLabel;
 
   return (
-    <HStack gap={0.5} justifyContent="center" style={rootStyles}>
+    <HStack
+      gap={0.5}
+      justifyContent="center"
+      style={rootStyles}
+      testID={`carousel-pagination-${variant}`}
+    >
       {totalPages > 0 ? (
-        Array.from({ length: totalPages }, (_, index) => (
-          <PaginationDot
-            key={index}
-            accessibilityLabel={getAccessibilityLabel(index)}
-            index={index}
-            isActive={index === activePageIndex}
-            onPress={() => onPressPage(index)}
-            style={styles?.dot}
-          />
-        ))
+        Array.from({ length: totalPages }, (_, index) =>
+          isDot ? (
+            <PaginationDot
+              key={index}
+              accessibilityLabel={getAccessibilityLabel(index)}
+              index={index}
+              isActive={index === activePageIndex}
+              onPress={() => onPressPage(index)}
+              style={styles?.dot}
+            />
+          ) : (
+            <PaginationPill
+              key={index}
+              accessibilityLabel={getAccessibilityLabel(index)}
+              index={index}
+              isActive={index === activePageIndex}
+              onPress={() => onPressPage(index)}
+              style={styles?.dot}
+            />
+          ),
+        )
       ) : (
         <Pressable
           disabled
@@ -186,7 +227,7 @@ export const DefaultCarouselPagination = memo(function DefaultCarouselPagination
           borderRadius={100}
           height={INDICATOR_HEIGHT}
           style={[{ opacity: 0 }, styles?.dot]}
-          width={INDICATOR_INACTIVE_WIDTH}
+          width={isDot ? INDICATOR_INACTIVE_WIDTH : INDICATOR_ACTIVE_WIDTH}
         />
       )}
     </HStack>
