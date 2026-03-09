@@ -32,6 +32,7 @@ export const DefaultComboboxControl = <
   searchInputRef,
   hideSearchInput,
   accessibilityLabel,
+  styles,
   ...props
 }: ComboboxControlProps<Type, SelectOptionValue>) => {
   const theme = useTheme();
@@ -55,12 +56,6 @@ export const DefaultComboboxControl = <
     <SelectControlComponent
       accessibilityLabel={computedAccessibilityLabel}
       align={align}
-      disabled={disabled}
-      open={open}
-      options={options}
-      setOpen={setOpen}
-      value={value}
-      {...props}
       contentNode={
         shouldRenderSearchInput ? (
           // set gap between input and values with top padding
@@ -98,16 +93,22 @@ export const DefaultComboboxControl = <
           </>
         )
       }
+      disabled={disabled}
+      open={open}
+      options={options}
+      setOpen={setOpen}
       styles={{
-        ...props.styles,
+        ...styles,
         controlEndNode: {
-          ...StyleSheet.flatten(props.styles?.controlEndNode),
+          ...StyleSheet.flatten(styles?.controlEndNode),
           alignItems: hasValue && shouldRenderSearchInput ? 'flex-end' : 'center',
         },
         controlValueNode: {
-          ...StyleSheet.flatten(props.styles?.controlValueNode),
+          ...StyleSheet.flatten(styles?.controlValueNode),
         },
       }}
+      value={value}
+      {...props}
     />
   );
 };

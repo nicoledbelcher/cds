@@ -60,6 +60,7 @@ const disabledNewReactHooksRules = {
 // These rules apply to all files
 const sharedRules = {
   'internal/no-object-rest-spread-in-worklet': 'error',
+  'internal/spread-props-last': 'warn',
   'import/default': 'off',
   'import/extensions': 'off',
   'import/named': 'off',
@@ -280,6 +281,7 @@ const typescriptRules = {
 
 // These rules only apply to test files
 const testRules = {
+  'internal/spread-props-last': 'off',
   'jest/no-mocks-import': 'off',
   'testing-library/await-async-events': 'off',
   'testing-library/await-async-queries': 'off',
@@ -426,6 +428,12 @@ export default tseslint.config(
       ...react19CompatibilityRules,
     },
   },
+  {
+    files: ['**/*.stories.{js,jsx,ts,tsx}', '**/__stories__/**'],
+    rules: {
+      'internal/spread-props-last': 'off',
+    },
+  },
   // Rules specific to mobile story files
   {
     files: ['packages/mobile/**/*.stories.tsx'],
@@ -435,6 +443,9 @@ export default tseslint.config(
   {
     files: ['**/*.figma.tsx'],
     extends: [internalPlugin.configs.figmaConnectRules],
+    rules: {
+      'internal/spread-props-last': 'off',
+    },
   },
   {
     files: ['**/*.mdx'],
