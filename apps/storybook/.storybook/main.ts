@@ -23,6 +23,7 @@ const bundleStatsFilename = path.resolve(
   process.env.ANALYZE_REPORT_PATH || 'bundle-stats.json',
 );
 const addons = [
+  // '@chromatic-com/storybook',
   '@storybook-community/storybook-dark-mode',
   '@storybook/addon-docs',
   ...(!isPercyBuild ? ['@storybook/addon-a11y', '@storybook/addon-vitest'] : []),
