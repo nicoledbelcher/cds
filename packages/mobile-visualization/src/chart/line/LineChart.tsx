@@ -8,9 +8,17 @@ import {
   type CartesianChartBaseProps,
   type CartesianChartProps,
 } from '../CartesianChart';
-import { type AxisConfigProps, defaultChartInset, getChartInset, type Series } from '../utils';
+import { type CartesianAxisConfigProps, type Series } from '../utils';
 
 import { Line, type LineProps } from './Line';
+
+const getDefaultScrubberAccessibilityStep = (
+  dataLength: number,
+  sampleCount: number = 10,
+): number => {
+  if (dataLength <= 0) return 1;
+  return Math.max(1, Math.ceil(dataLength / sampleCount));
+};
 
 export type LineSeries = Series &
   Partial<
@@ -69,17 +77,23 @@ export type LineChartBaseProps = Omit<CartesianChartBaseProps, 'xAxis' | 'yAxis'
      * Accepts axis config and axis props.
      * To show the axis, set `showXAxis` to true.
      */
-    xAxis?: Partial<AxisConfigProps> & XAxisProps;
+    xAxis?: Partial<CartesianAxisConfigProps> & XAxisProps;
     /**
      * Configuration for y-axis.
      * Accepts axis config and axis props.
      * To show the axis, set `showYAxis` to true.
      */
-    yAxis?: Partial<AxisConfigProps> & YAxisProps;
+    yAxis?: Partial<CartesianAxisConfigProps> & YAxisProps;
   };
 
 export type LineChartProps = LineChartBaseProps &
-  Omit<CartesianChartProps, 'xAxis' | 'yAxis' | 'series'>;
+  Omit<CartesianChartProps, 'xAxis' | 'yAxis' | 'series' | 'scrubberAccessibilityLabelStep'> & {
+    /**
+     * Number of data points to move between screen-reader samples.
+     * @default Computed from data length (targeting 10 samples)
+     */
+    scrubberAccessibilityLabelStep?: number;
+  };
 
 export const LineChart = memo(
   forwardRef<View, LineChartProps>(
@@ -104,13 +118,13 @@ export const LineChart = memo(
         xAxis,
         yAxis,
         inset,
+        scrubberAccessibilityLabelStep,
+        layout = 'vertical',
         children,
         ...chartProps
       },
       ref,
     ) => {
-      const calculatedInset = useMemo(() => getChartInset(inset, defaultChartInset), [inset]);
-
       // Convert LineSeries to Series for Chart context
       const chartSeries = useMemo(() => {
         return series?.map(
@@ -119,6 +133,7 @@ export const LineChart = memo(
             data: s.data,
             label: s.label,
             color: s.color,
+            xAxisId: s.xAxisId,
             yAxisId: s.yAxisId,
             stackId: s.stackId,
             gradient: s.gradient,
@@ -135,6 +150,7 @@ export const LineChart = memo(
         domain: xDomain,
         domainLimit: xDomainLimit,
         range: xRange,
+        id: xAxisId,
         ...xAxisVisualProps
       } = xAxis || {};
       const {
@@ -148,7 +164,7 @@ export const LineChart = memo(
         ...yAxisVisualProps
       } = yAxis || {};
 
-      const xAxisConfig: Partial<AxisConfigProps> = {
+      const xAxisConfig: Partial<CartesianAxisConfigProps> = {
         scaleType: xScaleType,
         data: xData,
         categoryPadding: xCategoryPadding,
@@ -157,7 +173,7 @@ export const LineChart = memo(
         range: xRange,
       };
 
-      const yAxisConfig: Partial<AxisConfigProps> = {
+      const yAxisConfig: Partial<CartesianAxisConfigProps> = {
         scaleType: yScaleType,
         data: yData,
         categoryPadding: yCategoryPadding,
@@ -166,19 +182,35 @@ export const LineChart = memo(
         range: yRange,
       };
 
+      const categoryAxisData = layout === 'horizontal' ? yData : xData;
+      const lineChartDataLength = useMemo(() => {
+        if (categoryAxisData && categoryAxisData.length > 0) return categoryAxisData.length;
+        if (!series || series.length === 0) return 0;
+        return series.reduce((max, s) => Math.max(max, s.data?.length ?? 0), 0);
+      }, [categoryAxisData, series]);
+
+      const resolvedScrubberAccessibilityLabelStep = useMemo(
+        () =>
+          scrubberAccessibilityLabelStep ??
+          getDefaultScrubberAccessibilityStep(lineChartDataLength),
+        [scrubberAccessibilityLabelStep, lineChartDataLength],
+      );
+
       return (
         <CartesianChart
           {...chartProps}
           ref={ref}
-          inset={calculatedInset}
+          inset={inset}
+          layout={layout}
+          scrubberAccessibilityLabelStep={resolvedScrubberAccessibilityLabelStep}
           series={chartSeries}
           xAxis={xAxisConfig}
           yAxis={yAxisConfig}
         >
           {/* Render axes first for grid lines to appear behind everything else */}
-          {showXAxis && <XAxis {...xAxisVisualProps} />}
+          {showXAxis && <XAxis axisId={xAxisId} {...xAxisVisualProps} />}
           {showYAxis && <YAxis axisId={yAxisId} {...yAxisVisualProps} />}
-          {series?.map(({ id, data, label, color, yAxisId, ...linePropsFromSeries }) => (
+          {series?.map(({ id, data, label, color, xAxisId, yAxisId, ...linePropsFromSeries }) => (
             <Line
               key={id}
               AreaComponent={AreaComponent}

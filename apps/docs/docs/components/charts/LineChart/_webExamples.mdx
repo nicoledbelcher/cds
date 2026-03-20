@@ -17,6 +17,45 @@ The only prop required is `series`, which takes an array of series objects. Each
 />
 ```
 
+## Layout
+
+Lines can be rendered horizontally or vertically by setting the `layout` prop.
+
+```jsx live
+function HorizontalLine() {
+  const dataset = [
+    { month: 'Jan', seoul: 21 },
+    { month: 'Feb', seoul: 28 },
+    { month: 'Mar', seoul: 41 },
+    { month: 'Apr', seoul: 73 },
+    { month: 'May', seoul: 99 },
+    { month: 'June', seoul: 144 },
+    { month: 'July', seoul: 319 },
+    { month: 'Aug', seoul: 249 },
+    { month: 'Sept', seoul: 131 },
+    { month: 'Oct', seoul: 55 },
+    { month: 'Nov', seoul: 48 },
+    { month: 'Dec', seoul: 25 },
+  ];
+
+  return (
+    <LineChart
+      height={400}
+      layout="horizontal"
+      series={[
+        { id: 'seoul', data: dataset.map((d) => d.seoul), color: 'var(--color-accentBoldBlue)' },
+      ]}
+      showXAxis
+      showYAxis
+      xAxis={{ label: 'rainfall (mm)' }}
+      yAxis={{
+        data: dataset.map((d) => d.month),
+      }}
+    />
+  );
+}
+```
+
 LineChart also supports multiple lines, interaction, and axes.
 Other props, such as `areaType` can be applied to the chart as a whole or per series.
 
@@ -31,7 +70,7 @@ function MultipleLine() {
 
   const chartAccessibilityLabel = `Website visitors across ${pageViews.length} pages.`;
 
-  const scrubberAccessibilityLabel = useCallback(
+  const getScrubberAccessibilityLabel = useCallback(
     (index) => {
       return `${pages[index]} has ${pageViews[index]} views and ${uniqueVisitors[index]} unique visitors.`;
     },
@@ -77,7 +116,7 @@ function MultipleLine() {
         tickLabelFormatter: numberFormatter,
       }}
     >
-      <Scrubber accessibilityLabel={scrubberAccessibilityLabel} />
+      <Scrubber accessibilityLabel={getScrubberAccessibilityLabel} />
     </LineChart>
   );
 }
@@ -94,7 +133,7 @@ function DataFormat() {
 
   const chartAccessibilityLabel = `Chart with custom X and Y data. ${yData.length} data points`;
 
-  const scrubberAccessibilityLabel = useCallback(
+  const getScrubberAccessibilityLabel = useCallback(
     (index) => {
       return `Point ${index + 1}: X value ${xData[index]}, Y value ${yData[index]}`;
     },
@@ -127,7 +166,7 @@ function DataFormat() {
         showGrid: true,
       }}
     >
-      <Scrubber hideOverlay accessibilityLabel={scrubberAccessibilityLabel} />
+      <Scrubber hideOverlay accessibilityLabel={getScrubberAccessibilityLabel} />
     </LineChart>
   );
 }
@@ -544,7 +583,7 @@ function BasicAccessible() {
   }, [data]);
 
   // Scrubber-level accessibility label provides specific position info
-  const scrubberAccessibilityLabel = useCallback(
+  const getScrubberAccessibilityLabel = useCallback(
     (index) => {
       return `Price at position ${index + 1} of ${data.length}: ${data[index]}`;
     },
@@ -568,7 +607,7 @@ function BasicAccessible() {
         showGrid: true,
       }}
     >
-      <Scrubber accessibilityLabel={scrubberAccessibilityLabel} />
+      <Scrubber accessibilityLabel={getScrubberAccessibilityLabel} />
     </LineChart>
   );
 }
@@ -588,7 +627,7 @@ function AccessibleWithHeader() {
   );
 
   // Scrubber-specific accessibility label
-  const scrubberAccessibilityLabel = useCallback(
+  const getScrubberAccessibilityLabel = useCallback(
     (index) => {
       return `Viewing position ${index + 1} of ${data.length}, value: ${data[index]}`;
     },
@@ -616,7 +655,7 @@ function AccessibleWithHeader() {
           showGrid: true,
         }}
       >
-        <Scrubber accessibilityLabel={scrubberAccessibilityLabel} />
+        <Scrubber accessibilityLabel={getScrubberAccessibilityLabel} />
       </LineChart>
     </VStack>
   );
@@ -789,7 +828,7 @@ function GainLossChart() {
 
   const chartAccessibilityLabel = `Gain/Loss chart showing price changes. Current value: ${tickLabelFormatter(data[data.length - 1])}`;
 
-  const scrubberAccessibilityLabel = useCallback(
+  const getScrubberAccessibilityLabel = useCallback(
     (index) => {
       const value = data[index];
       const status = value >= 0 ? 'gain' : 'loss';
@@ -830,7 +869,7 @@ function GainLossChart() {
     >
       <YAxis showGrid requestedTickCount={2} tickLabelFormatter={tickLabelFormatter} />
       <Line showArea AreaComponent={GradientDottedArea} seriesId="prices" strokeWidth={3} />
-      <Scrubber hideOverlay accessibilityLabel={scrubberAccessibilityLabel} />
+      <Scrubber hideOverlay accessibilityLabel={getScrubberAccessibilityLabel} />
     </CartesianChart>
   );
 }
@@ -1387,7 +1426,7 @@ function AssetPriceWithDottedArea() {
 
     const chartAccessibilityLabel = `Bitcoin price chart for ${timePeriod.label} period. Current price: ${formatPrice(currentPrice)}`;
 
-    const scrubberAccessibilityLabel = useCallback(
+    const getScrubberAccessibilityLabel = useCallback(
       (index) => {
         const price = scrubberPriceFormatter.format(sparklineTimePeriodDataValues[index]);
         const date = formatDate(sparklineTimePeriodDataTimestamps[index]);
@@ -1431,7 +1470,7 @@ function AssetPriceWithDottedArea() {
         >
           <Scrubber
             idlePulse
-            accessibilityLabel={scrubberAccessibilityLabel}
+            accessibilityLabel={getScrubberAccessibilityLabel}
             label={scrubberLabel}
             labelElevated
           />
@@ -1603,7 +1642,7 @@ function AssetPriceWidget() {
 
   const chartAccessibilityLabel = `Bitcoin price chart. Current price: ${formatPrice(latestPrice)}. Change: ${formatPercentChange(percentChange)}`;
 
-  const scrubberAccessibilityLabel = useCallback(
+  const getScrubberAccessibilityLabel = useCallback(
     (index) => {
       return `Bitcoin price at position ${index + 1}: ${formatPrice(prices[index])}`;
     },
@@ -1664,7 +1703,7 @@ function AssetPriceWidget() {
         >
           <Scrubber
             idlePulse
-            accessibilityLabel={scrubberAccessibilityLabel}
+            accessibilityLabel={getScrubberAccessibilityLabel}
             styles={{ beacon: { stroke: 'white' } }}
           />
         </LineChart>
@@ -1694,7 +1733,7 @@ function ServiceAvailability() {
 
   const chartAccessibilityLabel = `Availability chart showing ${availabilityEvents.length} data points over time`;
 
-  const scrubberAccessibilityLabel = useCallback(
+  const getScrubberAccessibilityLabel = useCallback(
     (index) => {
       const event = availabilityEvents[index];
       const formattedDate = event.date.toLocaleDateString('en-US', {
@@ -1760,7 +1799,7 @@ function ServiceAvailability() {
         })}
         seriesId="availability"
       />
-      <Scrubber hideOverlay accessibilityLabel={scrubberAccessibilityLabel} />
+      <Scrubber hideOverlay accessibilityLabel={getScrubberAccessibilityLabel} />
     </CartesianChart>
   );
 }

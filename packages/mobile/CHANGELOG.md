@@ -8,6 +8,65 @@ All notable changes to this project will be documented in this file.
 
 <!-- template-start -->
 
+## 8.55.0 (3/19/2026 PST)
+
+#### 🚀 Updates
+
+- Add `disableSafeAreaPaddingBottom` prop to drawer. [[#522](https://github.com/coinbase/cds/pull/522)]
+
+#### 🐞 Fixes
+
+- Fix padding collapsing on tray with handle bar inside. [[#522](https://github.com/coinbase/cds/pull/522)]
+
+## 8.54.0 (3/18/2026 PST)
+
+#### 🚀 Updates
+
+- Added Calendar component and included new Calendar in DatePicker. [[#139](https://github.com/coinbase/cds/pull/139)]
+
+#### 🐞 Fixes
+
+- Removed react-native-date-picker dependency. [[#139](https://github.com/coinbase/cds/pull/139)]
+
+## 8.53.1 (3/17/2026 PST)
+
+#### 🐞 Fixes
+
+- Fix: update RemoteImageGroup excess bg color. [[#512](https://github.com/coinbase/cds/pull/512)]
+
+## 8.53.0 (3/16/2026 PST)
+
+#### 🚀 Updates
+
+- Feat: update Checkbox borderRadius to match design. [[#509](https://github.com/coinbase/cds/pull/509)]
+
+## 8.52.2 (3/11/2026 PST)
+
+#### 🐞 Fixes
+
+- Configure control borderWidth and controlColor. [[#457](https://github.com/coinbase/cds/pull/457)]
+
+## 8.52.1 ((3/11/2026, 09:52 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.52.0 (3/10/2026 PST)
+
+#### 🚀 Updates
+
+- A11y improvements to Fallback, Spinner, and LottieStatusAnimation. [[#388](https://github.com/coinbase/cds/pull/388)]
+- Simplify the ProgressBar component implementation. [[#388](https://github.com/coinbase/cds/pull/388)]
+
+## 8.51.0 ((3/9/2026, 06:39 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.50.0 (3/6/2026 PST)
+
+#### 🚀 Updates
+
+- Feat: iconSize customization for IconButton. [[#474](https://github.com/coinbase/cds/pull/474)]
+
 ## 8.49.2 (3/6/2026 PST)
 
 #### 🐞 Fixes

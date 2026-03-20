@@ -122,6 +122,10 @@ export const routes = [
       require('@coinbase/cds-mobile/buttons/__stories__/ButtonGroup.stories').default,
   },
   {
+    key: 'Calendar',
+    getComponent: () => require('@coinbase/cds-mobile/dates/__stories__/Calendar.stories').default,
+  },
+  {
     key: 'Card',
     getComponent: () => require('@coinbase/cds-mobile/cards/__stories__/Card.stories').default,
   },
@@ -139,6 +143,12 @@ export const routes = [
     key: 'CartesianChart',
     getComponent: () =>
       require('@coinbase/cds-mobile-visualization/chart/__stories__/CartesianChart.stories')
+        .default,
+  },
+  {
+    key: 'ChartAccessibility',
+    getComponent: () =>
+      require('@coinbase/cds-mobile-visualization/chart/__stories__/ChartAccessibility.stories')
         .default,
   },
   {
@@ -266,6 +276,10 @@ export const routes = [
     key: 'DrawerTop',
     getComponent: () =>
       require('@coinbase/cds-mobile/overlays/__stories__/DrawerTop.stories').default,
+  },
+  {
+    key: 'Fallback',
+    getComponent: () => require('@coinbase/cds-mobile/layout/__stories__/Fallback.stories').default,
   },
   {
     key: 'FloatingAssetCard',
