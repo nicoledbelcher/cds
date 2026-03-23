@@ -164,7 +164,8 @@ export type CarouselPaginationComponentBaseProps = {
    * Visual variant for the pagination indicators.
    * When omitted, the default pagination component renders the current dot-style design.
    * @default 'dot'
-   * @deprecated `pill` is deprecated and will be removed in a future major release. Prefer the default dot pagination or provide a custom `PaginationComponent`.
+   * @deprecated `pill` is deprecated. Prefer the default dot pagination or provide a custom `PaginationComponent`. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v10
    */
   variant?: 'pill' | 'dot';
 };
@@ -234,7 +235,8 @@ export type CarouselBaseProps = SharedProps &
      */
     hidePagination?: boolean;
     /**
-     * @deprecated `paginationVariant` will be removed in a future major release. Use the default dot pagination, or provide a custom `PaginationComponent` if you need custom visuals.
+     * @deprecated Use the default dot pagination, or provide a custom `PaginationComponent` if you need custom visuals. This will be removed in a future major release.
+     * @deprecationExpectedRemoval v10
      */
     paginationVariant?: CarouselPaginationComponentBaseProps['variant'];
     /**

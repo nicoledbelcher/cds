@@ -25,7 +25,10 @@ export type SelectOptionBaseProps = Omit<CellBaseProps, 'children' | 'selected'>
 
 export type SelectOptionProps = SelectOptionBaseProps;
 
-/** @deprecated This component is deprecated and will be removed in the future release. Please use the new Select alpha component instead. If you are using this component outside of Select, we recommend replacing it with ListCell. */
+/**
+ * @deprecated Please use the new Select alpha component instead. If you are using this component outside of Select, we recommend replacing it with ListCell. This will be removed in a future major release.
+ * @deprecationExpectedRemoval v10
+ */
 export const SelectOption = memo(function SelectOption({
   title,
   description,

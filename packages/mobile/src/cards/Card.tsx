@@ -25,7 +25,8 @@ export type CardBaseProps = Pick<
   };
 
 /**
- * @deprecated Use `ContentCard`, `MediaCard`, `MessagingCard`, or `DataCard` based on your use case. This component will be removed in a future release.
+ * @deprecated Use `ContentCard`, `MediaCard`, `MessagingCard`, or `DataCard` based on your use case. This will be removed in a future major release.
+ * @deprecationExpectedRemoval v10
  */
 export type CardProps = CardBaseProps & BoxProps;
 
@@ -62,7 +63,8 @@ const getBorderRadiusPinStyle = (borderRadius: number) => ({
 });
 
 /**
- * @deprecated Use `ContentCard`, `MediaCard`, `MessagingCard`, or `DataCard` based on your use case. This component will be removed in a future release.
+ * @deprecated Use `ContentCard`, `MediaCard`, `MessagingCard`, or `DataCard` based on your use case. This will be removed in a future major release.
+ * @deprecationExpectedRemoval v10
  */
 export const Card = memo(function OldCard({
   children,

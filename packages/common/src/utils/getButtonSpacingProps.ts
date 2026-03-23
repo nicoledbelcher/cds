@@ -26,7 +26,8 @@ type ButtonSpacingValue = {
 };
 
 /**
- * @deprecated Will be removed in a future major release.
+ * @deprecated This will be removed in a future major release.
+ * @deprecationExpectedRemoval v10
  */
 export const getButtonSpacingProps = ({
   compact,

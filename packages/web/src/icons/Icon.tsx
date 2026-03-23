@@ -39,7 +39,10 @@ export type IconBaseProps = SharedProps &
      * @default false
      */
     active?: boolean;
-    /** @deprecated Use `style`, `styles.root`, `className`, `classNames.root`, or the `color` prop to customize icon color. This prop will be removed in a future major version of CDS. */
+    /**
+     * @deprecated Use `style`, `styles.root`, `className`, `classNames.root`, or the `color` prop to customize icon color. This will be removed in a future major release.
+     * @deprecationExpectedRemoval v10
+     */
     dangerouslySetColor?: string;
   };
 
@@ -67,7 +70,7 @@ const iconCss = css`
   font-weight: 400;
   font-style: normal;
   font-variant: normal;
-  text-rendering: auto;
+  text-rendering: geometricPrecision;
   line-height: 1;
   flex-shrink: 0;
   display: block;

@@ -39,7 +39,8 @@ export type UpsellCardBaseProps = SharedProps &
      */
     background?: ThemeVars.Color;
     /**
-     * @deprecated Use `style` or `background` to customize card background. This prop will be removed in a future major version of CDS.
+     * @deprecated Use `style` or `background` to customize card background. This will be removed in a future major release.
+     * @deprecationExpectedRemoval v10
      */
     dangerouslySetBackground?: string;
   };
@@ -47,7 +48,8 @@ export type UpsellCardBaseProps = SharedProps &
 export type UpsellCardProps = UpsellCardBaseProps;
 
 /**
- * @deprecated Use `MessagingCard` with `type="upsell"` instead. UpsellCard will be removed in a future major release.
+ * @deprecated Use `MessagingCard` with `type="upsell"` instead. This will be removed in a future major release.
+ * @deprecationExpectedRemoval v9
  *
  * Migration guide:
  * ```tsx

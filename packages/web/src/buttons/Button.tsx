@@ -21,7 +21,10 @@ const COMPONENT_STATIC_CLASSNAME = 'cds-Button';
 
 const defaultLoadingSpinnerSize = 24;
 
-/** @deprecated This export will be removed in a future major release. */
+/**
+ * @deprecated This will be removed in a future major release.
+ * @deprecationExpectedRemoval v10
+ */
 export const spinnerHeight = 2.5;
 
 const baseCss = css`

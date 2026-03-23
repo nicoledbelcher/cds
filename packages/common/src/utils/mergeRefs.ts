@@ -55,7 +55,8 @@ export const mergeReactElementRef = <T = unknown>(
 };
 
 /**
- * @deprecated This is not a real hook (it doesn't call hooks). Prefer `mergeRefs` instead.
+ * @deprecated This is an unnecessary hook (it doesn't call hooks). Prefer `mergeRefs` function instead. This will be removed in a future major release.
+ * @deprecationExpectedRemoval v10
  */
 export const useMergeRefs = <T = unknown>(...refs: OptionalRef<T>[]): React.RefCallback<T> => {
   return mergeRefs(...refs);

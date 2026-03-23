@@ -14,7 +14,10 @@ import { Text } from '../typography/Text';
 export type IconCounterButtonBaseProps = {
   /** Name of the icon or a ReactNode */
   icon: Exclude<React.ReactNode, 'string'> | IconName;
-  /** @deprecated Use `size` instead. This prop will be removed in a future version. */
+  /**
+   * @deprecated Use `size` instead. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v8
+   */
   iconSize?: IconSize;
   /** Size for given icon. */
   size?: IconSize;
@@ -24,7 +27,10 @@ export type IconCounterButtonBaseProps = {
   count?: number;
   /** Color of the icon */
   color?: ThemeVars.Color;
-  /** @deprecated Use `styles.icon` or `color` to customize icon color. This prop will be removed in a future major version of CDS. */
+  /**
+   * @deprecated Use `styles.icon` or `color` to customize icon color. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v10
+   */
   dangerouslySetColor?: string;
 };
 

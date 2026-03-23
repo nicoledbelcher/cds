@@ -53,7 +53,8 @@ export type CellBaseProps = SharedProps &
      */
     end?: React.ReactNode;
     /**
-     * @deprecated Use `end` instead. This prop will be removed in a future version.
+     * @deprecated Use `end` instead. This will be removed in a future major release.
+     * @deprecationExpectedRemoval v9
      */
     detail?: React.ReactNode;
     /** Middle content between main content and detail. */
@@ -62,7 +63,8 @@ export type CellBaseProps = SharedProps &
     media?: React.ReactElement;
     borderRadius?: ThemeVars.BorderRadius;
     /**
-     * @deprecated Use `styles.end` instead. This prop will be removed in a future version.
+     * @deprecated Use `styles.end` instead. This will be removed in a future major release.
+     * @deprecationExpectedRemoval v9
      */
     detailWidth?: DimensionValue;
     /** Is the cell disabled? Will apply opacity and disable interaction. */

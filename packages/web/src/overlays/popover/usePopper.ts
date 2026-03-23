@@ -9,8 +9,8 @@ import { useTheme } from '../../hooks/useTheme';
 import type { PopoverContentPositionConfig } from './PopoverProps';
 
 /**
- * @deprecated Use Floating UI directly instead. This hook is temporarily supported for
- * compatibility and will be removed in a future major release.
+ * @deprecated Use Floating UI directly. This hook is temporarily supported for compatibility. This will be removed in a future major release.
+ * @deprecationExpectedRemoval v10
  */
 export const usePopper = ({
   placement,

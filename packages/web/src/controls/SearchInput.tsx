@@ -8,7 +8,10 @@ import { InputIcon } from './InputIcon';
 import { InputIconButton } from './InputIconButton';
 import { TextInput, type TextInputBaseProps } from './TextInput';
 
-/** @deprecated Use local constants or the `compact` prop instead. This export will be removed in a future major release. */
+/**
+ * @deprecated Use local constants or the `compact` prop instead. This will be removed in a future major release.
+ * @deprecationExpectedRemoval v10
+ */
 export const scales = {
   regular: 56,
   compact: 40,

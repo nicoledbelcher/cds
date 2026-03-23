@@ -33,7 +33,10 @@ export type BoxBaseProps = SharedProps &
     borderedHorizontal?: boolean;
     /** Add a border to the top and bottom sides of the box. */
     borderedVertical?: boolean;
-    /** @deprecated Use `style` or the `background` style prop to set custom background colors. This prop will be removed in a future major version of CDS. */
+    /**
+     * @deprecated Use `style` or the `background` style prop to set custom background colors. This will be removed in a future major release.
+     * @deprecationExpectedRemoval v10
+     */
     dangerouslySetBackground?: string;
   };
 

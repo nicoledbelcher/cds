@@ -46,7 +46,10 @@ export type IconBaseProps = SharedProps &
      * @default primary
      */
     color?: ThemeVars.Color;
-    /** @deprecated Use `style`, `styles.icon`, or the `color` prop to customize icon color. This prop will be removed in a future major version of CDS. */
+    /**
+     * @deprecated Use `style`, `styles.icon`, or the `color` prop to customize icon color. This will be removed in a future major release.
+     * @deprecationExpectedRemoval v10
+     */
     dangerouslySetColor?: string | Animated.AnimatedInterpolation<string>;
     animated?: boolean;
     style?: Animated.WithAnimatedValue<StyleProp<TextStyle>>;

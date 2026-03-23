@@ -8,6 +8,18 @@ All notable changes to this project will be documented in this file.
 
 <!-- template-start -->
 
+## Unreleased
+
+#### 📘 Misc
+
+- Chore: Updated numerous deprecation annotation messages.
+
+## 8.55.1 (3/22/2026 PST)
+
+#### 🐞 Fixes
+
+- Fix icon inconsistent rendering. [[#527](https://github.com/coinbase/cds/pull/527)]
+
 ## 8.55.0 ((3/19/2026, 01:41 PM PST))
 
 This is an artificial version bump with no new change.

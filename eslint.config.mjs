@@ -59,6 +59,7 @@ const disabledNewReactHooksRules = {
 // These rules apply to all files
 const sharedRules = {
   'internal/no-object-rest-spread-in-worklet': 'error',
+  'internal/deprecated-jsdoc-has-removal-version': 'error',
   'internal/spread-props-last': 'warn',
   'import/default': 'off',
   'import/extensions': 'off',

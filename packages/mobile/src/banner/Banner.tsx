@@ -107,7 +107,8 @@ export type BannerProps = BannerBaseProps &
     };
   };
 /**
- * @deprecated Use `BannerProps` instead.
+ * @deprecated Use `BannerProps` instead. This will be removed in a future major release.
+ * @deprecationExpectedRemoval v10
  */
 export type MobileBannerProps = BannerProps;
 

@@ -1,9 +1,8 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /**
- * @deprecated - this will be removed in the next major release
- * This logic is seriously outdated. The last iPhone version to have a 20px status bar was iPhone 8.
- * Most modern iOS devices no longer have a "notch"
+ * @deprecated This logic is seriously outdated. The last iPhone version to have a 20px status bar was iPhone 8. Most modern iOS devices no longer have a "notch". This will be removed in a future major release.
+ * @deprecationExpectedRemoval v10
  */
 export const useHasNotch = () => {
   const { top } = useSafeAreaInsets();

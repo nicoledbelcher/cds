@@ -8,10 +8,16 @@ export const textTitle3DefaultElement = 'span';
 
 export type TextTitle3DefaultElement = typeof textTitle3DefaultElement;
 
-/** @deprecated Use `Text` with `font="title3"` instead. This component will be removed in a future major release. */
+/**
+ * @deprecated Use `Text` with `font="title3"` instead. This will be removed in a future major release.
+ * @deprecationExpectedRemoval v10
+ */
 export type TextTitle3BaseProps = TextBaseProps;
 
-/** @deprecated Use `Text` with `font="title3"` instead. This component will be removed in a future major release. */
+/**
+ * @deprecated Use `Text` with `font="title3"` instead. This will be removed in a future major release.
+ * @deprecationExpectedRemoval v10
+ */
 export type TextTitle3Props<AsComponent extends React.ElementType> = Polymorphic.Props<
   AsComponent,
   TextTitle3BaseProps
@@ -22,7 +28,10 @@ type TextTitle3Component = (<AsComponent extends React.ElementType = TextTitle3D
 ) => Polymorphic.ReactReturn) &
   Polymorphic.ReactNamed;
 
-/** @deprecated Use `Text` with `font="title3"` instead. This component will be removed in a future major release. */
+/**
+ * @deprecated Use `Text` with `font="title3"` instead. This will be removed in a future major release.
+ * @deprecationExpectedRemoval v10
+ */
 export const TextTitle3: TextTitle3Component = forwardRef<
   React.ReactElement<TextTitle3BaseProps>,
   TextTitle3BaseProps

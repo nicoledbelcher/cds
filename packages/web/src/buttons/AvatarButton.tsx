@@ -11,39 +11,90 @@ import type { ButtonBaseProps } from './Button';
 export const avatarButtonDefaultElement = 'button';
 
 type DeprecatedAvatarButtonBorderProps = {
-  /** @deprecated Border props on `AvatarButton` have no effect and will be removed in a future major release. */
+  /**
+   * @deprecated Border props on `AvatarButton` have no effect. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v10
+   */
   borderBottomLeftRadius?: PressableBaseProps['borderBottomLeftRadius'];
-  /** @deprecated Border props on `AvatarButton` have no effect and will be removed in a future major release. */
+  /**
+   * @deprecated Border props on `AvatarButton` have no effect. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v10
+   */
   borderBottomRightRadius?: PressableBaseProps['borderBottomRightRadius'];
-  /** @deprecated Border props on `AvatarButton` have no effect and will be removed in a future major release. */
+  /**
+   * @deprecated Border props on `AvatarButton` have no effect. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v10
+   */
   borderTopLeftRadius?: PressableBaseProps['borderTopLeftRadius'];
-  /** @deprecated Border props on `AvatarButton` have no effect and will be removed in a future major release. */
+  /**
+   * @deprecated Border props on `AvatarButton` have no effect. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v10
+   */
   borderTopRightRadius?: PressableBaseProps['borderTopRightRadius'];
-  /** @deprecated Border props on `AvatarButton` have no effect and will be removed in a future major release. */
+  /**
+   * @deprecated Border props on `AvatarButton` have no effect. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v10
+   */
   borderRadius?: PressableBaseProps['borderRadius'];
-  /** @deprecated Border props on `AvatarButton` have no effect and will be removed in a future major release. */
+  /**
+   * @deprecated Border props on `AvatarButton` have no effect. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v10
+   */
   borderWidth?: PressableBaseProps['borderWidth'];
-  /** @deprecated Border props on `AvatarButton` have no effect and will be removed in a future major release. */
+  /**
+   * @deprecated Border props on `AvatarButton` have no effect. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v10
+   */
   borderTopWidth?: PressableBaseProps['borderTopWidth'];
-  /** @deprecated Border props on `AvatarButton` have no effect and will be removed in a future major release. */
+  /**
+   * @deprecated Border props on `AvatarButton` have no effect. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v10
+   */
   borderEndWidth?: PressableBaseProps['borderEndWidth'];
-  /** @deprecated Border props on `AvatarButton` have no effect and will be removed in a future major release. */
+  /**
+   * @deprecated Border props on `AvatarButton` have no effect. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v10
+   */
   borderBottomWidth?: PressableBaseProps['borderBottomWidth'];
-  /** @deprecated Border props on `AvatarButton` have no effect and will be removed in a future major release. */
+  /**
+   * @deprecated Border props on `AvatarButton` have no effect. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v10
+   */
   borderStartWidth?: PressableBaseProps['borderStartWidth'];
-  /** @deprecated Border props on `AvatarButton` have no effect and will be removed in a future major release. */
+  /**
+   * @deprecated Border props on `AvatarButton` have no effect. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v10
+   */
   bordered?: PressableBaseProps['bordered'];
-  /** @deprecated Border props on `AvatarButton` have no effect and will be removed in a future major release. */
+  /**
+   * @deprecated Border props on `AvatarButton` have no effect. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v10
+   */
   borderedBottom?: PressableBaseProps['borderedBottom'];
-  /** @deprecated Border props on `AvatarButton` have no effect and will be removed in a future major release. */
+  /**
+   * @deprecated Border props on `AvatarButton` have no effect. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v10
+   */
   borderedEnd?: PressableBaseProps['borderedEnd'];
-  /** @deprecated Border props on `AvatarButton` have no effect and will be removed in a future major release. */
+  /**
+   * @deprecated Border props on `AvatarButton` have no effect. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v10
+   */
   borderedHorizontal?: PressableBaseProps['borderedHorizontal'];
-  /** @deprecated Border props on `AvatarButton` have no effect and will be removed in a future major release. */
+  /**
+   * @deprecated Border props on `AvatarButton` have no effect. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v10
+   */
   borderedStart?: PressableBaseProps['borderedStart'];
-  /** @deprecated Border props on `AvatarButton` have no effect and will be removed in a future major release. */
+  /**
+   * @deprecated Border props on `AvatarButton` have no effect. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v10
+   */
   borderedTop?: PressableBaseProps['borderedTop'];
-  /** @deprecated Border props on `AvatarButton` have no effect and will be removed in a future major release. */
+  /**
+   * @deprecated Border props on `AvatarButton` have no effect. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v10
+   */
   borderedVertical?: PressableBaseProps['borderedVertical'];
 };
 
