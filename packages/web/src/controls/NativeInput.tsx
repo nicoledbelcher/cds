@@ -6,12 +6,9 @@ import { css } from '@linaria/core';
 
 import { cx } from '../cx';
 import { useTheme } from '../hooks/useTheme';
+import { Box, type BoxBaseProps, type BoxProps } from '../layout';
 
 const baseCss = css`
-  font-size: var(--fontSize-body);
-  line-height: var(--lineHeight-body);
-  font-weight: var(--fontWeight-body);
-  font-family: var(--fontFamily-body);
   min-width: 0;
   flex-grow: 2;
   background-color: transparent;
@@ -82,7 +79,7 @@ const compactContainerPaddingCss = css`
   padding: var(--space-1);
 `;
 
-export type NativeInputProps = {
+export type NativeInputBaseProps = BoxBaseProps & {
   /**
    * Decreases the padding within the input element
    * @default false
@@ -95,16 +92,20 @@ export type NativeInputProps = {
    * @default start
    * */
   align?: TextAlignProps['align'];
-  /**
-   * Callback fired when pressed/clicked
-   */
-  onClick?: React.MouseEventHandler;
-} & SharedProps &
+};
+
+export type NativeInputProps = NativeInputBaseProps &
+  BoxProps<'input'> &
+  SharedProps &
   Pick<
     SharedAccessibilityProps,
     'accessibilityLabel' | 'accessibilityLabelledBy' | 'accessibilityHint'
-  > &
-  React.InputHTMLAttributes<HTMLInputElement>;
+  > & {
+    /**
+     * Callback fired when pressed/clicked
+     */
+    onClick?: React.MouseEventHandler;
+  };
 
 export const NativeInput = memo(
   forwardRef(function NativeInput(
@@ -112,6 +113,7 @@ export const NativeInput = memo(
       containerSpacing,
       testID,
       align = 'start',
+      font = 'body',
       onFocus,
       onClick,
       onBlur,
@@ -142,13 +144,15 @@ export const NativeInput = memo(
     );
 
     return (
-      <input
+      <Box
         ref={ref}
         aria-describedby={accessibilityHint}
         aria-label={accessibilityLabel}
         aria-labelledby={accessibilityLabelledBy}
+        as="input"
         className={cx(baseCss, containerSpacing ?? defaultContainerPadding, className)}
         data-testid={testID}
+        font={font}
         onBlur={onBlur}
         onChange={onChange}
         onClick={onClick}

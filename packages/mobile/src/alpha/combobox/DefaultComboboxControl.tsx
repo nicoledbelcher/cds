@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
+import type { ThemeVars } from '@coinbase/cds-common/core/theme';
 
 import { NativeInput } from '../../controls/NativeInput';
 import { useTheme } from '../../hooks/useTheme';
@@ -29,6 +30,7 @@ export const DefaultComboboxControl = <
   options,
   searchText,
   onSearch,
+  font = 'body',
   searchInputRef,
   hideSearchInput,
   accessibilityLabel,
@@ -63,6 +65,7 @@ export const DefaultComboboxControl = <
             <NativeInput
               ref={searchInputRef}
               disabled={disabled || !open}
+              font={font}
               onChangeText={onSearch}
               onPress={() => !disabled && setOpen(true)}
               placeholder={typeof placeholder === 'string' ? placeholder : undefined}
@@ -86,7 +89,7 @@ export const DefaultComboboxControl = <
         ) : (
           <>
             {hasValue ? null : (
-              <Text color="fgMuted" font="body" paddingY={0} textAlign={valueAlignment}>
+              <Text color="fgMuted" font={font} paddingY={0} textAlign={valueAlignment}>
                 {typeof placeholder === 'string' ? placeholder : ''}
               </Text>
             )}
@@ -94,6 +97,7 @@ export const DefaultComboboxControl = <
         )
       }
       disabled={disabled}
+      font={font}
       open={open}
       options={options}
       setOpen={setOpen}
