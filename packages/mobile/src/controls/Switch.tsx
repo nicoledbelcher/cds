@@ -7,7 +7,10 @@ import { Interactable } from '../system/Interactable';
 
 import { Control, type ControlBaseProps, type ControlIconProps } from './Control';
 
-export type SwitchBaseProps<SwitchValue extends string> = ControlBaseProps<SwitchValue>;
+export type SwitchBaseProps<SwitchValue extends string> = Omit<
+  ControlBaseProps<SwitchValue>,
+  'controlSize' | 'dotSize'
+>;
 
 export type SwitchProps<SwitchValue extends string> = SwitchBaseProps<SwitchValue> & {
   /**

@@ -25,7 +25,9 @@ const { values } = parseArgs({
 const { platform, profile } = values;
 
 if (!platform || !['ios', 'android'].includes(platform)) {
-  console.error('Usage: node patch-bundle.mjs --platform <ios|android> [--profile <release|debug>]');
+  console.error(
+    'Usage: node patch-bundle.mjs --platform <ios|android> [--profile <release|debug>]',
+  );
   process.exit(1);
 }
 

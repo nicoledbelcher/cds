@@ -4,20 +4,20 @@ Expo-based demo app for testing CDS mobile components. Used as the visual regres
 
 ## Nx targets
 
-| Command                                                 | Description                                                                          |
-| ------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `yarn nx run test-expo:ios`                                     | Build (if needed), install, launch, and start Metro — full dev loop for iOS (debug)     |
-| `yarn nx run test-expo:ios --configuration=release`             | Install and launch the release build artifact (no Metro)                                |
-| `yarn nx run test-expo:android`                                 | Build (if needed), install, launch, and start Metro — full dev loop for Android (debug) |
-| `yarn nx run test-expo:android --configuration=release`         | Install and launch the release build artifact (no Metro)                                |
-| `yarn nx run test-expo:start`                           | Start Metro bundler only (assumes app is already installed)                          |
-| `yarn nx run test-expo:build --configuration=<config>`  | Compile the native app and archive to a tarball in `prebuilds/`                      |
-| `yarn nx run test-expo:launch --configuration=<config>` | Install + launch an existing build artifact on a simulator/emulator                  |
-| `yarn nx run test-expo:patch-bundle-ios`                | Swap the JS bundle inside the committed iOS Release prebuild — used by visreg CI     |
-| `yarn nx run test-expo:patch-bundle-android`            | Swap the JS bundle inside the committed Android Release prebuild — used by visreg CI |
-| `yarn nx run test-expo:validate`                        | Check Expo dependency versions for compatibility                                     |
-| `yarn nx run test-expo:lint`                            | Lint the app source                                                                  |
-| `yarn nx run test-expo:typecheck`                       | Type-check the app source                                                            |
+| Command                                                 | Description                                                                             |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `yarn nx run test-expo:ios`                             | Build (if needed), install, launch, and start Metro — full dev loop for iOS (debug)     |
+| `yarn nx run test-expo:ios --configuration=release`     | Install and launch the release build artifact (no Metro)                                |
+| `yarn nx run test-expo:android`                         | Build (if needed), install, launch, and start Metro — full dev loop for Android (debug) |
+| `yarn nx run test-expo:android --configuration=release` | Install and launch the release build artifact (no Metro)                                |
+| `yarn nx run test-expo:start`                           | Start Metro bundler only (assumes app is already installed)                             |
+| `yarn nx run test-expo:build --configuration=<config>`  | Compile the native app and archive to a tarball in `prebuilds/`                         |
+| `yarn nx run test-expo:launch --configuration=<config>` | Install + launch an existing build artifact on a simulator/emulator                     |
+| `yarn nx run test-expo:patch-bundle-ios`                | Swap the JS bundle inside the committed iOS Release prebuild — used by visreg CI        |
+| `yarn nx run test-expo:patch-bundle-android`            | Swap the JS bundle inside the committed Android Release prebuild — used by visreg CI    |
+| `yarn nx run test-expo:validate`                        | Check Expo dependency versions for compatibility                                        |
+| `yarn nx run test-expo:lint`                            | Lint the app source                                                                     |
+| `yarn nx run test-expo:typecheck`                       | Type-check the app source                                                               |
 
 ## Build configurations
 
