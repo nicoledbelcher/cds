@@ -3,10 +3,6 @@
     position: relative;
   }
 
-  .startOverLabel {
-    display: none;
-  }
-
   .carouselCenter {
     position: absolute;
     left: 50%;

@@ -10,8 +10,6 @@ import { LineChart, Scrubber, SolidLine } from '@coinbase/cds-web-visualization'
 
 import CheckerboardSvg from './checkerboard.svg';
 import { aaTextColor } from './colorUtils';
-import styles from './ResultCard.module.css';
-
 const CHART_DATA_PRIMARY = [10, 22, 29, 45, 98, 45, 22, 52, 21, 4, 68, 20, 21, 58];
 const CHART_DATA_SECONDARY = [5, 18, 35, 28, 55, 70, 48, 62, 38, 15, 42, 55, 30, 45];
 
@@ -70,13 +68,13 @@ export const PlaygroundContent = memo(function PlaygroundContent({
         </HStack>
 
         <HStack
-          className={styles.cardsRow}
-          gap={2}
           alignItems="stretch"
-          height={200}
+          flexDirection={{ base: 'column', tablet: 'row' }}
+          gap={2}
+          height={{ base: 'auto', tablet: 200 }}
           width="100%"
         >
-          <Box className={styles.cardBox} display="flex" style={{ flex: '1 1 0', minWidth: 0 }}>
+          <Box display="flex" flexGrow={1} flexBasis={0} minWidth={0}>
             <MessagingCard
               action={
                 <Button
@@ -85,8 +83,12 @@ export const PlaygroundContent = memo(function PlaygroundContent({
                   style={{ background: pButtonBg, color: pButtonText, borderColor: pButtonBg }}
                   variant="secondary"
                 >
-                  <span className={styles.ctaLabelFull}>Learn more</span>
-                  <span className={styles.ctaLabelShort}>CTA</span>
+                  <Box as="span" display={{ base: 'none', tablet: 'inline' }}>
+                    Learn more
+                  </Box>
+                  <Box as="span" display={{ base: 'inline', tablet: 'none' }}>
+                    CTA
+                  </Box>
                 </Button>
               }
               description="Add up to 3 lines of body copy. Be concise."
@@ -98,10 +100,7 @@ export const PlaygroundContent = memo(function PlaygroundContent({
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 ) : (
-                  <CheckerboardSvg
-                    aria-hidden="true"
-                    style={{ width: '100%', height: '100%' }}
-                  />
+                  <CheckerboardSvg aria-hidden="true" style={{ width: '100%', height: '100%' }} />
                 )
               }
               mediaPlacement="end"
@@ -125,12 +124,8 @@ export const PlaygroundContent = memo(function PlaygroundContent({
             />
           </Box>
 
-          <Box className={styles.cardBox} display="flex" style={{ flex: '1 1 0', minWidth: 0 }}>
-            <Card
-              background="bg"
-              borderRadius={500}
-              style={{ height: '100%', width: '100%' }}
-            >
+          <Box display="flex" flexGrow={1} flexBasis={0} minWidth={0}>
+            <Card background="bg" borderRadius={500} style={{ height: '100%', width: '100%' }}>
               <VStack gap={1}>
                 <Box padding={2}>
                   <HStack alignItems="center" gap={1}>
@@ -153,9 +148,7 @@ export const PlaygroundContent = memo(function PlaygroundContent({
                         Subtitle
                       </Text>
                       <HStack alignItems="center" gap={0.5}>
-                        <Text font="headline">
-                          Title
-                        </Text>
+                        <Text font="headline">Title</Text>
                         <Text color="fgPositive" font="label2">
                           ↗ 25.25%
                         </Text>
