@@ -1,0 +1,16 @@
+@media (max-width: 767px) {
+  .toolbarRow {
+    position: relative;
+  }
+
+  .startOverLabel {
+    display: none;
+  }
+
+  .carouselCenter {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: auto;
+  }
+}

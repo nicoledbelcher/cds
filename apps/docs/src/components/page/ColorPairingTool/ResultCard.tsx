@@ -1,0 +1,170 @@
+import React, { memo, useMemo } from 'react';
+import { Card } from '@coinbase/cds-web/cards';
+import { Box, Divider, HStack, VStack } from '@coinbase/cds-web/layout';
+import { Text } from '@coinbase/cds-web/typography';
+
+import type { ExtractedColor, TokenMatch } from './colorUtils';
+import {
+  aaTextColor,
+  contrastRatio,
+  darkSpectrum,
+  enforceAA,
+  findBestDarkToken,
+  findClosestPrimitiveHueAware,
+  findHighContrastPair,
+  lightSpectrum,
+  parseRGB,
+  toHex,
+  tokenHex,
+} from './colorUtils';
+import { ComponentPlayground } from './ComponentPlayground';
+import { ContrastPanel } from './ContrastPanel';
+import { HotspotImagePreview } from './HotspotImagePreview';
+import styles from './ResultCard.module.css';
+import type { ResultEntry } from './types';
+
+const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
+
+type ResultCardProps = {
+  result: ResultEntry;
+  onResampleBg: (color: ExtractedColor, secondary: TokenMatch) => void;
+};
+
+export const ResultCard = memo(function ResultCard({ result, onResampleBg }: ResultCardProps) {
+  // Fallback bg token used when neither colors[] nor manualRaw is available
+  const { bg } = useMemo(() => {
+    const enforced = enforceAA(result.primary, result.secondary, lightSpectrum);
+    return { bg: enforced.secondary };
+  }, [result.primary, result.secondary]);
+
+  const { lh2, lightToken, dh2, darkToken, selectedImgX, selectedImgY } = useMemo(() => {
+    const c0 = result.colors?.[0];
+    if (c0) {
+      const lightMatch = findClosestPrimitiveHueAware(c0.r, c0.g, c0.b, lightSpectrum);
+      const darkMatch = findBestDarkToken(c0, lightMatch);
+      return {
+        lh2: lightMatch.hex,
+        lightToken: lightMatch.token,
+        dh2: darkMatch.hex,
+        darkToken: darkMatch.token,
+        selectedImgX: c0.imgX,
+        selectedImgY: c0.imgY,
+      };
+    }
+
+    if (result.manualRaw) {
+      const lightMatch = findClosestPrimitiveHueAware(
+        result.manualRaw.r,
+        result.manualRaw.g,
+        result.manualRaw.b,
+        lightSpectrum,
+      );
+      const darkMatch = findBestDarkToken(result.manualRaw, lightMatch);
+      return {
+        lh2: lightMatch.hex,
+        lightToken: lightMatch.token,
+        dh2: darkMatch.hex,
+        darkToken: darkMatch.token,
+        selectedImgX: 0.5,
+        selectedImgY: 0.5,
+      };
+    }
+
+    return {
+      lh2: tokenHex(bg.token, lightSpectrum),
+      lightToken: bg.token,
+      dh2: tokenHex(bg.token, darkSpectrum),
+      darkToken: bg.token,
+      selectedImgX: 0.5,
+      selectedImgY: 0.5,
+    };
+  }, [result.colors, result.manualRaw, bg.token]);
+
+  const isImage = Boolean(result.imgSrc && result.colors);
+
+  // Clamp initial hotspot position away from edges so the label is always visible
+  const hotspotX = clamp(selectedImgX, 0.25, 0.75) * 100;
+  const hotspotY = clamp(selectedImgY, 0.25, 0.75) * 100;
+
+  return (
+    <Card style={{ borderRadius: 16, overflow: 'hidden' }}>
+      <VStack gap={0}>
+        <HStack
+          alignItems="stretch"
+          className={styles.topRow}
+          style={{ borderBottom: '1px solid var(--cds-line)', minHeight: 240 }}
+        >
+          {/* Left: image preview or manual color swatch */}
+          <Box
+            alignItems="center"
+            className={styles.topRowLeft}
+            display="flex"
+            justifyContent="center"
+            style={{
+              width: '50%',
+              flexShrink: 0,
+              padding: isImage ? 24 : 32,
+              position: 'relative',
+              overflow: 'hidden',
+              background: isImage ? result.primary.hex : undefined,
+            }}
+          >
+            {isImage ? (
+              <HotspotImagePreview
+                hotspotColor={lh2}
+                hotspotX={hotspotX}
+                hotspotY={hotspotY}
+                imgDataURL={result.imgDataURL!}
+                imgHeight={result.imgHeight}
+                imgWidth={result.imgWidth}
+                imgSrc={result.imgSrc!}
+                onResample={onResampleBg}
+              />
+            ) : result.manualRaw ? (
+              <Box
+                borderRadius={200}
+                padding={2}
+                style={{
+                  background: result.manualRaw.hex,
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column' as const,
+                  justifyContent: 'flex-start',
+                }}
+              >
+                <Text font="label1" style={{ color: aaTextColor(result.manualRaw.hex) }}>
+                  Input color
+                </Text>
+                <Text font="label2" style={{ color: aaTextColor(result.manualRaw.hex) }}>
+                  {result.manualRaw.hex.toUpperCase()}
+                </Text>
+              </Box>
+            ) : null}
+          </Box>
+
+          <Divider className={styles.topRowDivider} direction="vertical" />
+
+          {/* Right: light/dark contrast panels */}
+          <ContrastPanel
+            darkHex={dh2}
+            darkToken={darkToken}
+            lightHex={lh2}
+            lightToken={lightToken}
+          />
+        </HStack>
+
+        <Divider />
+
+        {/* Component playground */}
+        <ComponentPlayground
+          darkHex={dh2}
+          darkToken={darkToken}
+          imgSrc={result.imgSrc}
+          lightHex={lh2}
+          lightToken={lightToken}
+        />
+      </VStack>
+    </Card>
+  );
+});
