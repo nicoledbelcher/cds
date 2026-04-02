@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import { Button, IconButton } from '@coinbase/cds-web/buttons';
-import { Box, HStack, VStack } from '@coinbase/cds-web/layout';
+import { HStack, VStack } from '@coinbase/cds-web/layout';
 import { Text } from '@coinbase/cds-web/typography';
 
 import styles from './ColorPairingTool.module.css';
@@ -317,9 +317,7 @@ export const ColorPairingTool = memo(function ColorPairingTool() {
               style={{ marginLeft: -12 }}
               variant="secondary"
             >
-              <Box as="span" display={{ base: 'none', tablet: 'inline' }}>
-                Start over
-              </Box>
+              Start over
             </Button>
             {showCarousel && (
               <HStack alignItems="center" className={styles.carouselCenter} gap={1}>

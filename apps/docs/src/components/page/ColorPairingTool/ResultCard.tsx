@@ -20,6 +20,7 @@ import {
 import { ComponentPlayground } from './ComponentPlayground';
 import { ContrastPanel } from './ContrastPanel';
 import { HotspotImagePreview } from './HotspotImagePreview';
+import styles from './ResultCard.module.css';
 import type { ResultEntry } from './types';
 
 const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
@@ -90,21 +91,20 @@ export const ResultCard = memo(function ResultCard({ result, onResampleBg }: Res
       <VStack gap={0}>
         <HStack
           alignItems="stretch"
-          flexDirection={{ base: 'column', tablet: 'row' }}
-          minHeight={{ base: 0, tablet: 240 }}
-          style={{ borderBottom: '1px solid var(--cds-line)' }}
+          className={styles.topRow}
+          style={{ borderBottom: '1px solid var(--cds-line)', minHeight: 240 }}
         >
           {/* Left: image preview or manual color swatch */}
           <Box
             alignItems="center"
+            className={styles.topRowLeft}
             display="flex"
-            height={{ base: 300, tablet: 'auto' }}
             justifyContent="center"
+            padding={isImage ? 3 : 4}
             position="relative"
-            width={{ base: '100%', tablet: '50%' }}
             style={{
+              width: '50%',
               flexShrink: 0,
-              padding: isImage ? 24 : 32,
               overflow: 'hidden',
               background: isImage ? result.primary.hex : undefined,
             }}
@@ -143,8 +143,7 @@ export const ResultCard = memo(function ResultCard({ result, onResampleBg }: Res
             ) : null}
           </Box>
 
-          <Divider display={{ base: 'flex', tablet: 'none' }} />
-          <Divider direction="vertical" display={{ base: 'none', tablet: 'flex' }} />
+          <Divider className={styles.topRowDivider} direction="vertical" />
 
           {/* Right: light/dark contrast panels */}
           <ContrastPanel

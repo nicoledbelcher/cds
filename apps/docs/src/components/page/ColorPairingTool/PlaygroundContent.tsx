@@ -10,6 +10,7 @@ import { LineChart, Scrubber, SolidLine } from '@coinbase/cds-web-visualization'
 
 import CheckerboardSvg from './checkerboard.svg';
 import { aaTextColor } from './colorUtils';
+import styles from './ResultCard.module.css';
 const CHART_DATA_PRIMARY = [10, 22, 29, 45, 98, 45, 22, 52, 21, 4, 68, 20, 21, 58];
 const CHART_DATA_SECONDARY = [5, 18, 35, 28, 55, 70, 48, 62, 38, 15, 42, 55, 30, 45];
 
@@ -43,6 +44,7 @@ export const PlaygroundContent = memo(function PlaygroundContent({
       <VStack gap={3} width="100%">
         <HStack alignItems="center" flexWrap="wrap" gap={2}>
           <Button
+            compact
             onClick={() => {}}
             style={{ backgroundColor: pColor, color: pText, borderColor: pColor }}
           >
@@ -67,14 +69,8 @@ export const PlaygroundContent = memo(function PlaygroundContent({
           </Tag>
         </HStack>
 
-        <HStack
-          alignItems="stretch"
-          flexDirection={{ base: 'column', tablet: 'row' }}
-          gap={2}
-          height={{ base: 'auto', tablet: 200 }}
-          width="100%"
-        >
-          <Box display="flex" flexGrow={1} flexBasis={0} minWidth={0}>
+        <HStack className={styles.cardsRow} alignItems="stretch" gap={2} height={200} width="100%">
+          <Box className={styles.cardBox} display="flex" flexGrow={1} flexBasis={0} minWidth={0}>
             <MessagingCard
               action={
                 <Button
@@ -83,12 +79,7 @@ export const PlaygroundContent = memo(function PlaygroundContent({
                   style={{ background: pButtonBg, color: pButtonText, borderColor: pButtonBg }}
                   variant="secondary"
                 >
-                  <Box as="span" display={{ base: 'none', tablet: 'inline' }}>
-                    Learn more
-                  </Box>
-                  <Box as="span" display={{ base: 'inline', tablet: 'none' }}>
-                    CTA
-                  </Box>
+                  Learn more
                 </Button>
               }
               description="Add up to 3 lines of body copy. Be concise."
@@ -100,7 +91,11 @@ export const PlaygroundContent = memo(function PlaygroundContent({
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 ) : (
-                  <CheckerboardSvg aria-hidden="true" style={{ width: '100%', height: '100%' }} />
+                  <CheckerboardSvg
+                    aria-hidden="true"
+                    preserveAspectRatio="xMidYMid slice"
+                    style={{ width: '100%', height: '100%', display: 'block' }}
+                  />
                 )
               }
               mediaPlacement="end"
@@ -124,7 +119,7 @@ export const PlaygroundContent = memo(function PlaygroundContent({
             />
           </Box>
 
-          <Box display="flex" flexGrow={1} flexBasis={0} minWidth={0}>
+          <Box className={styles.cardBox} display="flex" flexGrow={1} flexBasis={0} minWidth={0}>
             <Card background="bg" borderRadius={500} style={{ height: '100%', width: '100%' }}>
               <VStack gap={1}>
                 <Box padding={2}>

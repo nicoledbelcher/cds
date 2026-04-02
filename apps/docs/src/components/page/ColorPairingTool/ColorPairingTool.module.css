@@ -1,12 +1,12 @@
 @media (max-width: 767px) {
   .toolbarRow {
-    position: relative;
+    flex-wrap: wrap !important;
+    justify-content: space-between !important;
   }
 
   .carouselCenter {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    pointer-events: auto;
+    order: 3;
+    width: 100%;
+    justify-content: center !important;
   }
 }
