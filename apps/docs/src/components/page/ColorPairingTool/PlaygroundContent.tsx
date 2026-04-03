@@ -10,7 +10,6 @@ import { LineChart, Scrubber, SolidLine } from '@coinbase/cds-web-visualization'
 
 import CheckerboardSvg from './checkerboard.svg';
 import { aaTextColor } from './colorUtils';
-import styles from './ResultCard.module.css';
 const CHART_DATA_PRIMARY = [10, 22, 29, 45, 98, 45, 22, 52, 21, 4, 68, 20, 21, 58];
 const CHART_DATA_SECONDARY = [5, 18, 35, 28, 55, 70, 48, 62, 38, 15, 42, 55, 30, 45];
 
@@ -69,8 +68,20 @@ export const PlaygroundContent = memo(function PlaygroundContent({
           </Tag>
         </HStack>
 
-        <HStack className={styles.cardsRow} alignItems="stretch" gap={2} height={200} width="100%">
-          <Box className={styles.cardBox} display="flex" flexGrow={1} flexBasis={0} minWidth={0}>
+        <HStack
+          alignItems="stretch"
+          flexDirection={{ base: 'column', tablet: 'row', desktop: 'row' }}
+          gap={2}
+          height={{ base: 'auto', tablet: 200, desktop: 200 }}
+          width="100%"
+        >
+          <Box
+            display="flex"
+            height={{ base: 200, tablet: 'auto', desktop: 'auto' }}
+            minWidth={0}
+            style={{ flex: '1 1 0' }}
+            width={{ base: '100%', tablet: 'auto', desktop: 'auto' }}
+          >
             <MessagingCard
               action={
                 <Button
@@ -119,7 +130,13 @@ export const PlaygroundContent = memo(function PlaygroundContent({
             />
           </Box>
 
-          <Box className={styles.cardBox} display="flex" flexGrow={1} flexBasis={0} minWidth={0}>
+          <Box
+            display="flex"
+            height={{ base: 200, tablet: 'auto', desktop: 'auto' }}
+            minWidth={0}
+            style={{ flex: '1 1 0' }}
+            width={{ base: '100%', tablet: 'auto', desktop: 'auto' }}
+          >
             <Card background="bg" borderRadius={500} style={{ height: '100%', width: '100%' }}>
               <VStack gap={1}>
                 <Box padding={2}>

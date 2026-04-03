@@ -6,7 +6,6 @@ import { Text } from '@coinbase/cds-web/typography';
 
 import type { Spectrum } from './colorUtils';
 import { aaTextColor, contrastRatio, wcagLevels } from './colorUtils';
-import styles from './ResultCard.module.css';
 import { WcagBadge } from './WcagBadge';
 
 type ContrastRowProps = {
@@ -96,8 +95,8 @@ export const ContrastPanel = memo(function ContrastPanel({
   const darkBg = useMemo(() => `rgb(${darkSpectrum.gray5})`, [darkSpectrum]);
 
   return (
-    <VStack className={styles.contrastPanel} flexGrow={1} padding={2}>
-      <VStack className={styles.contrastInner} gap={1.5} padding={2}>
+    <VStack flexGrow={1} padding={2}>
+      <VStack gap={1.5} padding={2}>
         <ContrastRow label="Light mode" modeBg={lightBg} swatchHex={lightHex} token={lightToken} />
         <ContrastRow label="Dark mode" modeBg={darkBg} swatchHex={darkHex} token={darkToken} />
       </VStack>

@@ -10,7 +10,6 @@ import { useColorMode } from '@docusaurus/theme-common';
 import { useDocsTheme } from '../../../theme/Layout/Provider/UnifiedThemeContext';
 
 import { PlaygroundContent } from './PlaygroundContent';
-import styles from './ResultCard.module.css';
 const PLAYGROUND_TABS: TabValue[] = [
   { id: 'light', label: 'Light' },
   { id: 'dark', label: 'Dark' },
@@ -57,8 +56,9 @@ export const ComponentPlayground = memo(function ComponentPlayground({
     <Box padding={4} paddingTop={3} width="100%">
       <VStack gap={2} width="100%">
         <HStack
-          alignItems="center"
-          className={styles.playgroundHeader}
+          alignItems={{ base: 'flex-start', tablet: 'center', desktop: 'center' }}
+          flexDirection={{ base: 'column', tablet: 'row', desktop: 'row' }}
+          gap={{ base: 3, tablet: 0, desktop: 0 }}
           justifyContent="space-between"
           width="100%"
         >

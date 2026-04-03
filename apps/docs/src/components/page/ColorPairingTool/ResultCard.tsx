@@ -19,7 +19,6 @@ import {
 import { ComponentPlayground } from './ComponentPlayground';
 import { ContrastPanel } from './ContrastPanel';
 import { HotspotImagePreview } from './HotspotImagePreview';
-import styles from './ResultCard.module.css';
 import type { ResultEntry } from './types';
 
 const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
@@ -93,19 +92,21 @@ export const ResultCard = memo(function ResultCard({ result, onResampleBg }: Res
       <VStack gap={0}>
         <HStack
           alignItems="stretch"
-          className={styles.topRow}
-          style={{ borderBottom: '1px solid var(--cds-line)', minHeight: 240 }}
+          flexDirection={{ base: 'column', tablet: 'row', desktop: 'row' }}
+          minHeight={{ base: 0, tablet: 240, desktop: 240 }}
+          style={{ borderBottom: '1px solid var(--cds-line)' }}
         >
           {/* Left: image preview or manual color swatch */}
           <Box
             alignItems="center"
-            className={styles.topRowLeft}
             display="flex"
+            height={{ base: 200, tablet: 'auto', desktop: 'auto' }}
             justifyContent="center"
             padding={isImage ? 3 : 4}
+            paddingBottom={{ base: 0, tablet: isImage ? 3 : 4, desktop: isImage ? 3 : 4 }}
             position="relative"
+            width={{ base: '100%', tablet: '50%', desktop: '50%' }}
             style={{
-              width: '50%',
               flexShrink: 0,
               overflow: 'hidden',
               background: isImage ? result.primary.hex : undefined,
@@ -145,7 +146,10 @@ export const ResultCard = memo(function ResultCard({ result, onResampleBg }: Res
             ) : null}
           </Box>
 
-          <Divider className={styles.topRowDivider} direction="vertical" />
+          <Divider
+            direction="vertical"
+            display={{ base: 'none', tablet: 'flex', desktop: 'flex' }}
+          />
 
           {/* Right: light/dark contrast panels */}
           <ContrastPanel
