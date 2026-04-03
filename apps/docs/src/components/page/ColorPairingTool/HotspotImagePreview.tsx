@@ -1,9 +1,10 @@
-import React, { memo, useCallback,useEffect, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 import type { PointerEvent as ReactPointerEvent } from 'react';
+import { useTheme } from '@coinbase/cds-web';
 import { Text } from '@coinbase/cds-web/typography';
 
-import type { ExtractedColor, TokenMatch } from './colorUtils';
-import { findClosestPrimitive, lightSpectrum } from './colorUtils';
+import type { ExtractedColor, Spectrum, TokenMatch } from './colorUtils';
+import { findClosestPrimitive } from './colorUtils';
 import styles from './ResultCard.module.css';
 
 type HotspotImagePreviewProps = {
@@ -29,6 +30,8 @@ export const HotspotImagePreview = memo(function HotspotImagePreview({
   hotspotColor,
   onResample,
 }: HotspotImagePreviewProps) {
+  const theme = useTheme();
+  const lightSpectrum = theme.lightSpectrum as Spectrum;
   const imgCanvasRef = useRef<HTMLCanvasElement>(null);
   const imgSectionRef = useRef<HTMLDivElement>(null);
   const hotspotRef = useRef<HTMLDivElement>(null);
@@ -109,7 +112,7 @@ export const HotspotImagePreview = memo(function HotspotImagePreview({
       const secondary = findClosestPrimitive(sampled.r, sampled.g, sampled.b, lightSpectrum);
       onResample(sampled, secondary);
     },
-    [getFracs, samplePixel, onResample],
+    [getFracs, samplePixel, onResample, lightSpectrum],
   );
 
   return (

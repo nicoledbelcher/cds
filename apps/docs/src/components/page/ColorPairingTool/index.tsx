@@ -3,19 +3,18 @@ import { Button, IconButton } from '@coinbase/cds-web/buttons';
 import { HStack, VStack } from '@coinbase/cds-web/layout';
 import { Text } from '@coinbase/cds-web/typography';
 
-import styles from './ColorPairingTool.module.css';
+import { useTheme } from '@coinbase/cds-web';
+
 import { ColorPicker } from './ColorPicker';
-import type { ExtractedColor, TokenMatch } from './colorUtils';
+import type { ExtractedColor, Spectrum, TokenMatch } from './colorUtils';
 import {
   aaTextColor,
   contrastRatio,
-  darkSpectrum,
   enforceAA,
   findBestDarkToken,
   findClosestPrimitiveHueAware,
   findHighContrastPair,
   hexToRGB,
-  lightSpectrum,
   parseMultiColor,
   parseRGB,
   processImageFile,
@@ -25,9 +24,6 @@ import {
 import { ResultCard } from './ResultCard';
 import type { ResultEntry, Screen } from './types';
 import { UploadZone } from './UploadZone';
-
-const WHITE = toHex(parseRGB(lightSpectrum.gray0));
-const BLACK = toHex(parseRGB(darkSpectrum.gray0));
 
 type ExportEntry = {
   label: string;
@@ -51,16 +47,26 @@ function blendWithBlack(hex: string, amount: number): string {
 // gray0/gray100 are inverted between light and dark spectrums, so the token name depends on mode.
 function swatchTextToken(
   swatchHex: string,
-  spectrum: Record<string, string>,
+  spectrum: Spectrum,
+  white: string,
+  black: string,
 ): { token: string; hex: string } {
-  const needsWhite = contrastRatio(swatchHex, WHITE) >= contrastRatio(swatchHex, BLACK);
+  const needsWhite = contrastRatio(swatchHex, white) >= contrastRatio(swatchHex, black);
   const gray0Hex = toHex(parseRGB(spectrum['gray0']));
-  const gray0IsWhite = gray0Hex.toLowerCase() === WHITE.toLowerCase();
+  const gray0IsWhite = gray0Hex.toLowerCase() === white.toLowerCase();
   const token = needsWhite === gray0IsWhite ? 'gray0' : 'gray100';
   return { token, hex: toHex(parseRGB(spectrum[token])) };
 }
 
-function computeExportEntry(result: ResultEntry, contrastMode: 'default' | 'high'): ExportEntry {
+function computeExportEntry(
+  result: ResultEntry,
+  contrastMode: 'default' | 'high',
+  lightSpectrum: Spectrum,
+  darkSpectrum: Spectrum,
+): ExportEntry {
+  const white = toHex(parseRGB(lightSpectrum.gray0));
+  const black = toHex(parseRGB(darkSpectrum.gray0));
+
   let lightToken = '';
   let lightHex = '';
   let darkToken = '';
@@ -71,7 +77,7 @@ function computeExportEntry(result: ResultEntry, contrastMode: 'default' | 'high
     const lightMatch = findClosestPrimitiveHueAware(c0.r, c0.g, c0.b, lightSpectrum);
     lightToken = lightMatch.token;
     lightHex = lightMatch.hex;
-    const darkMatch = findBestDarkToken(c0, lightMatch);
+    const darkMatch = findBestDarkToken(c0, lightMatch, darkSpectrum);
     darkToken = darkMatch.token;
     darkHex = darkMatch.hex;
   } else {
@@ -85,7 +91,7 @@ function computeExportEntry(result: ResultEntry, contrastMode: 'default' | 'high
       fg = enforced.primary;
       bg = enforced.secondary;
     }
-    void fg; // used only for contrast enforcement; bg determines the pairing token
+    void fg;
     lightToken = bg.token;
     lightHex = bg.hex;
     darkToken = bg.token;
@@ -97,9 +103,13 @@ function computeExportEntry(result: ResultEntry, contrastMode: 'default' | 'high
     light: {
       token: lightToken,
       hex: lightHex,
-      textColor: swatchTextToken(lightHex, lightSpectrum),
+      textColor: swatchTextToken(lightHex, lightSpectrum, white, black),
     },
-    dark: { token: darkToken, hex: darkHex, textColor: swatchTextToken(darkHex, darkSpectrum) },
+    dark: {
+      token: darkToken,
+      hex: darkHex,
+      textColor: swatchTextToken(darkHex, darkSpectrum, white, black),
+    },
     buttonStates: {
       light: { hover: blendWithBlack(lightHex, 0.12), pressed: blendWithBlack(lightHex, 0.24) },
       dark: { hover: blendWithBlack(darkHex, 0.12), pressed: blendWithBlack(darkHex, 0.24) },
@@ -108,6 +118,10 @@ function computeExportEntry(result: ResultEntry, contrastMode: 'default' | 'high
 }
 
 export const ColorPairingTool = memo(function ColorPairingTool() {
+  const theme = useTheme();
+  const lightSpectrum = theme.lightSpectrum as Spectrum;
+  const darkSpectrum = theme.darkSpectrum as Spectrum;
+
   const [screen, setScreen] = useState<Screen>('idle');
   const [results, setResults] = useState<ResultEntry[]>([]);
   const [currentResultIdx, setCurrentResultIdx] = useState(0);
@@ -117,100 +131,106 @@ export const ColorPairingTool = memo(function ColorPairingTool() {
   const currentResult = results[currentResultIdx] ?? null;
 
   // ── Image Upload Flow ──────────────────────────────────────────────
-  const handleFiles = useCallback(async (files: File[]) => {
-    const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
-    const imageFiles = files.filter((f) => ALLOWED_TYPES.includes(f.type));
-    if (imageFiles.length === 0) {
-      setError('Please upload image files (PNG, JPG, or WebP).');
-      return;
-    }
-
-    const capped = imageFiles.slice(0, 10);
-    setScreen('loading');
-    setError(undefined);
-    setProgress({ current: 0, total: capped.length });
-
-    try {
-      const processed: ResultEntry[] = [];
-      const startTime = Date.now();
-
-      for (let i = 0; i < capped.length; i++) {
-        setProgress({ current: i + 1, total: capped.length });
-        await new Promise<void>((r) =>
-          requestAnimationFrame(() => requestAnimationFrame(() => r())),
-        );
-        try {
-          const img = await processImageFile(capped[i]);
-          processed.push({
-            filename: img.filename,
-            imgSrc: img.imgSrc,
-            imgDataURL: img.imgDataURL,
-            imgWidth: img.imgWidth,
-            imgHeight: img.imgHeight,
-            colors: img.colors,
-            manualRaw: undefined,
-            primary: img.primary,
-            secondary: img.secondary,
-          });
-        } catch (err) {
-          console.warn('Skipped ' + capped[i].name + ':', (err as Error).message);
-        }
-      }
-
-      const elapsed = Date.now() - startTime;
-      if (elapsed < 600) await new Promise((r) => setTimeout(r, 600 - elapsed));
-
-      if (processed.length === 0) {
-        setScreen('idle');
-        setError('Could not process any of the uploaded images. Please try different files.');
-        setProgress({ current: 0, total: 0 });
+  const handleFiles = useCallback(
+    async (files: File[]) => {
+      const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
+      const imageFiles = files.filter((f) => ALLOWED_TYPES.includes(f.type));
+      if (imageFiles.length === 0) {
+        setError('Please upload image files (PNG, JPG, or WebP).');
         return;
       }
 
-      setResults(processed);
-      setCurrentResultIdx(0);
-      setScreen('result');
-      setProgress({ current: 0, total: 0 });
-    } catch {
-      setScreen('idle');
-      setError('Something went wrong while processing. Please try again.');
-      setProgress({ current: 0, total: 0 });
-    }
-  }, []);
+      const capped = imageFiles.slice(0, 10);
+      setScreen('loading');
+      setError(undefined);
+      setProgress({ current: 0, total: capped.length });
+
+      try {
+        const processed: ResultEntry[] = [];
+        const startTime = Date.now();
+
+        for (let i = 0; i < capped.length; i++) {
+          setProgress({ current: i + 1, total: capped.length });
+          await new Promise<void>((r) =>
+            requestAnimationFrame(() => requestAnimationFrame(() => r())),
+          );
+          try {
+            const img = await processImageFile(capped[i], lightSpectrum);
+            processed.push({
+              filename: img.filename,
+              imgSrc: img.imgSrc,
+              imgDataURL: img.imgDataURL,
+              imgWidth: img.imgWidth,
+              imgHeight: img.imgHeight,
+              colors: img.colors,
+              manualRaw: undefined,
+              primary: img.primary,
+              secondary: img.secondary,
+            });
+          } catch (err) {
+            console.warn('Skipped ' + capped[i].name + ':', (err as Error).message);
+          }
+        }
+
+        const elapsed = Date.now() - startTime;
+        if (elapsed < 600) await new Promise((r) => setTimeout(r, 600 - elapsed));
+
+        if (processed.length === 0) {
+          setScreen('idle');
+          setError('Could not process any of the uploaded images. Please try different files.');
+          setProgress({ current: 0, total: 0 });
+          return;
+        }
+
+        setResults(processed);
+        setCurrentResultIdx(0);
+        setScreen('result');
+        setProgress({ current: 0, total: 0 });
+      } catch {
+        setScreen('idle');
+        setError('Something went wrong while processing. Please try again.');
+        setProgress({ current: 0, total: 0 });
+      }
+    },
+    [lightSpectrum],
+  );
 
   // ── Manual Color Flow ──────────────────────────────────────────────
-  const handleManualApply = useCallback((inputValue: string) => {
-    const sp = lightSpectrum;
-    const cols = parseMultiColor(inputValue);
-    if (!cols.length) return;
+  const handleManualApply = useCallback(
+    (inputValue: string) => {
+      const sp = lightSpectrum;
+      const cols = parseMultiColor(inputValue);
+      if (!cols.length) return;
 
-    const manualResults: ResultEntry[] = cols.map((col) => {
-      const bgMatch = findClosestPrimitiveHueAware(col.r, col.g, col.b, sp);
-      const fgHex = aaTextColor(bgMatch.hex);
-      const fgToken =
-        contrastRatio(bgMatch.hex, tokenHex('gray0', sp)) >=
-        contrastRatio(bgMatch.hex, tokenHex('gray100', sp))
-          ? 'gray0'
-          : 'gray100';
-      const rawHex = toHex(col);
-      return {
-        filename: 'Manual — ' + rawHex,
-        imgSrc: undefined,
-        imgDataURL: undefined,
-        imgWidth: 0,
-        imgHeight: 0,
-        colors: undefined,
-        manualRaw: { hex: rawHex, r: col.r, g: col.g, b: col.b },
-        primary: { token: fgToken, hex: fgHex },
-        secondary: bgMatch,
-      };
-    });
+      const manualResults: ResultEntry[] = cols.map((col) => {
+        const bgMatch = findClosestPrimitiveHueAware(col.r, col.g, col.b, sp);
+        const fgHex = aaTextColor(bgMatch.hex);
+        const fgToken =
+          contrastRatio(bgMatch.hex, tokenHex('gray0', sp)) >=
+          contrastRatio(bgMatch.hex, tokenHex('gray100', sp))
+            ? 'gray0'
+            : 'gray100';
+        const rawHex = toHex(col);
+        return {
+          filename: 'Manual — ' + rawHex,
+          imgSrc: undefined,
+          imgDataURL: undefined,
+          imgWidth: 0,
+          imgHeight: 0,
+          colors: undefined,
+          manualRaw: { hex: rawHex, r: col.r, g: col.g, b: col.b },
+          primary: { token: fgToken, hex: fgHex },
+          secondary: bgMatch,
+        };
+      });
 
-    setResults(manualResults);
-    setCurrentResultIdx(0);
-    setScreen('result');
-    setError(undefined);
-  }, []);
+      setResults(manualResults);
+      setCurrentResultIdx(0);
+      setScreen('result');
+      setError(undefined);
+    },
+    [lightSpectrum],
+  );
 
   // ── Hotspot Resample ───────────────────────────────────────────────
   const handleResampleBg = useCallback(
@@ -245,8 +265,8 @@ export const ColorPairingTool = memo(function ColorPairingTool() {
 
   // ── Export Data ────────────────────────────────────────────────────
   const exportEntries = useMemo(
-    () => results.map((r) => computeExportEntry(r, 'default')),
-    [results],
+    () => results.map((r) => computeExportEntry(r, 'default', lightSpectrum, darkSpectrum)),
+    [results, lightSpectrum, darkSpectrum],
   );
 
   const exportJson = useMemo(() => {
@@ -308,7 +328,7 @@ export const ColorPairingTool = memo(function ColorPairingTool() {
 
       {isResultVisible && currentResult && (
         <VStack gap={2}>
-          <HStack alignItems="center" className={styles.toolbarRow} justifyContent="space-between">
+          <HStack alignItems="center" flexWrap="wrap" justifyContent="space-between">
             <Button
               compact
               transparent
@@ -320,7 +340,12 @@ export const ColorPairingTool = memo(function ColorPairingTool() {
               Start over
             </Button>
             {showCarousel && (
-              <HStack alignItems="center" className={styles.carouselCenter} gap={1}>
+              <HStack
+                alignItems="center"
+                gap={1}
+                justifyContent="center"
+                style={{ order: 3, width: '100%' }}
+              >
                 <IconButton
                   compact
                   transparent

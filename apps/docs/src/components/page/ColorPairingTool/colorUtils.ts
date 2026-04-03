@@ -3,13 +3,6 @@
 // and hue-aware token matching. The hue-aware algorithm is purpose-built for
 // CDS spectrum tokens and is not replaceable by a standard color library.
 
-// ── Spectrum tokens (single source of truth) ─────────────────────────────────
-
-import { defaultTheme } from '@coinbase/cds-web/themes/defaultTheme';
-
-export const lightSpectrum: Record<string, string> = defaultTheme.lightSpectrum;
-export const darkSpectrum: Record<string, string> = defaultTheme.darkSpectrum;
-
 // ── Types ────────────────────────────────────────────────────────────────────
 
 export type RGB = { r: number; g: number; b: number };
@@ -287,7 +280,11 @@ export function findHighContrastPair(primary: TokenMatch, spectrum: Spectrum): H
 // Given an input RGB and its best light-mode token match, finds the closest
 // token in the dark spectrum within the same color family that also passes
 // the minimum contrast threshold against the dark background.
-export function findBestDarkToken(inputRgb: RGB, lightMatch: TokenMatch): TokenMatch {
+export function findBestDarkToken(
+  inputRgb: RGB,
+  lightMatch: TokenMatch,
+  darkSpectrum: Spectrum,
+): TokenMatch {
   const family = tokenFamily(lightMatch.token);
   const darkBgAlt = tokenHex('gray5', darkSpectrum);
 
@@ -549,7 +546,7 @@ export type ProcessedResult = {
   secondary: TokenMatch;
 };
 
-export function processImageFile(file: File): Promise<ProcessedResult> {
+export function processImageFile(file: File, lightSpectrum: Spectrum): Promise<ProcessedResult> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {

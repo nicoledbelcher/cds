@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
+import { useTheme } from '@coinbase/cds-web';
 import { Icon } from '@coinbase/cds-web/icons';
 import { Box, VStack } from '@coinbase/cds-web/layout';
 import { Text } from '@coinbase/cds-web/typography';
@@ -7,7 +8,7 @@ import { useColorMode } from '@docusaurus/theme-common';
 
 import { FileDropZone, useFileUpload } from '../FileDropZone';
 
-import { darkSpectrum, lightSpectrum } from './colorUtils';
+import type { Spectrum } from './colorUtils';
 import styles from './UploadZone.module.css';
 
 type UploadZoneProps = {
@@ -24,6 +25,9 @@ export const UploadZone = memo(function UploadZone({
   onFiles,
 }: UploadZoneProps) {
   const { colorMode } = useColorMode();
+  const theme = useTheme();
+  const lightSpectrum = theme.lightSpectrum as Spectrum;
+  const darkSpectrum = theme.darkSpectrum as Spectrum;
   const [dragItemCount, setDragItemCount] = useState(0);
 
   const handleDragEnter = useCallback((count: number) => setDragItemCount(count), []);
@@ -46,7 +50,7 @@ export const UploadZone = memo(function UploadZone({
   const checkerboard = useMemo(() => {
     const spectrum = colorMode === 'light' ? lightSpectrum : darkSpectrum;
     return `repeating-conic-gradient(rgb(${spectrum.gray15}) 0% 25%, rgb(${spectrum.gray10}) 0% 50%) 0 0 / 12px 12px`;
-  }, [colorMode]);
+  }, [colorMode, lightSpectrum, darkSpectrum]);
 
   const isDragOver = dragItemCount > 0;
   const progressPct = progress.total > 0 ? progress.current / progress.total : 0;

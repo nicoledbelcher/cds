@@ -1,18 +1,17 @@
 import React, { memo, useMemo } from 'react';
+import { useTheme } from '@coinbase/cds-web';
 import { Card } from '@coinbase/cds-web/cards';
 import { Box, Divider, HStack, VStack } from '@coinbase/cds-web/layout';
 import { Text } from '@coinbase/cds-web/typography';
 
-import type { ExtractedColor, TokenMatch } from './colorUtils';
+import type { ExtractedColor, Spectrum, TokenMatch } from './colorUtils';
 import {
   aaTextColor,
   contrastRatio,
-  darkSpectrum,
   enforceAA,
   findBestDarkToken,
   findClosestPrimitiveHueAware,
   findHighContrastPair,
-  lightSpectrum,
   parseRGB,
   toHex,
   tokenHex,
@@ -31,17 +30,20 @@ type ResultCardProps = {
 };
 
 export const ResultCard = memo(function ResultCard({ result, onResampleBg }: ResultCardProps) {
-  // Fallback bg token used when neither colors[] nor manualRaw is available
+  const theme = useTheme();
+  const lightSpectrum = theme.lightSpectrum as Spectrum;
+  const darkSpectrum = theme.darkSpectrum as Spectrum;
+
   const { bg } = useMemo(() => {
     const enforced = enforceAA(result.primary, result.secondary, lightSpectrum);
     return { bg: enforced.secondary };
-  }, [result.primary, result.secondary]);
+  }, [result.primary, result.secondary, lightSpectrum]);
 
   const { lh2, lightToken, dh2, darkToken, selectedImgX, selectedImgY } = useMemo(() => {
     const c0 = result.colors?.[0];
     if (c0) {
       const lightMatch = findClosestPrimitiveHueAware(c0.r, c0.g, c0.b, lightSpectrum);
-      const darkMatch = findBestDarkToken(c0, lightMatch);
+      const darkMatch = findBestDarkToken(c0, lightMatch, darkSpectrum);
       return {
         lh2: lightMatch.hex,
         lightToken: lightMatch.token,
@@ -59,7 +61,7 @@ export const ResultCard = memo(function ResultCard({ result, onResampleBg }: Res
         result.manualRaw.b,
         lightSpectrum,
       );
-      const darkMatch = findBestDarkToken(result.manualRaw, lightMatch);
+      const darkMatch = findBestDarkToken(result.manualRaw, lightMatch, darkSpectrum);
       return {
         lh2: lightMatch.hex,
         lightToken: lightMatch.token,
@@ -78,7 +80,7 @@ export const ResultCard = memo(function ResultCard({ result, onResampleBg }: Res
       selectedImgX: 0.5,
       selectedImgY: 0.5,
     };
-  }, [result.colors, result.manualRaw, bg.token]);
+  }, [result.colors, result.manualRaw, bg.token, lightSpectrum, darkSpectrum]);
 
   const isImage = Boolean(result.imgSrc && result.colors);
 

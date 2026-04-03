@@ -1,15 +1,13 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
+import { useTheme } from '@coinbase/cds-web';
 import { Icon } from '@coinbase/cds-web/icons';
 import { Box, HStack, VStack } from '@coinbase/cds-web/layout';
 import { Text } from '@coinbase/cds-web/typography';
 
+import type { Spectrum } from './colorUtils';
 import { aaTextColor, contrastRatio, wcagLevels } from './colorUtils';
 import styles from './ResultCard.module.css';
-import { darkSpectrum, lightSpectrum } from './colorUtils';
 import { WcagBadge } from './WcagBadge';
-
-const LIGHT_BG = `rgb(${lightSpectrum.gray0})`;
-const DARK_BG = `rgb(${darkSpectrum.gray5})`;
 
 type ContrastRowProps = {
   label: string;
@@ -91,11 +89,17 @@ export const ContrastPanel = memo(function ContrastPanel({
   darkToken,
   darkHex,
 }: ContrastPanelProps) {
+  const theme = useTheme();
+  const lightSpectrum = theme.lightSpectrum as Spectrum;
+  const darkSpectrum = theme.darkSpectrum as Spectrum;
+  const lightBg = useMemo(() => `rgb(${lightSpectrum.gray0})`, [lightSpectrum]);
+  const darkBg = useMemo(() => `rgb(${darkSpectrum.gray5})`, [darkSpectrum]);
+
   return (
     <VStack className={styles.contrastPanel} flexGrow={1} padding={2}>
       <VStack className={styles.contrastInner} gap={1.5} padding={2}>
-        <ContrastRow label="Light mode" modeBg={LIGHT_BG} swatchHex={lightHex} token={lightToken} />
-        <ContrastRow label="Dark mode" modeBg={DARK_BG} swatchHex={darkHex} token={darkToken} />
+        <ContrastRow label="Light mode" modeBg={lightBg} swatchHex={lightHex} token={lightToken} />
+        <ContrastRow label="Dark mode" modeBg={darkBg} swatchHex={darkHex} token={darkToken} />
       </VStack>
       <HStack alignItems="center" gap={0.5} paddingBottom={2} paddingTop={0} paddingX={2}>
         <Icon active color="fgMuted" name="info" size="s" />
