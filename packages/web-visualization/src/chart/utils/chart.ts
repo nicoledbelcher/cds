@@ -233,7 +233,7 @@ export const getLineData = (
   if (Array.isArray(firstNonNull)) {
     return data.map((d) => {
       if (d === null) return null;
-      if (Array.isArray(d)) return d.at(-1) ?? null;
+      if (Array.isArray(d)) return d[d.length - 1] ?? null;
       return d as number;
     });
   }
@@ -350,7 +350,8 @@ export const defaultHorizontalLayoutChartInset: ChartInset = {
 };
 
 /**
- * @deprecated Use `defaultVerticalLayoutChartInset` for vertical layout charts or
+ * @deprecated Use `defaultVerticalLayoutChartInset` for vertical layout charts or. This will be removed in a future major release.
+ * @deprecationExpectedRemoval v4
  * `defaultHorizontalLayoutChartInset` for horizontal layout charts.
  */
 export const defaultChartInset: ChartInset = defaultVerticalLayoutChartInset;

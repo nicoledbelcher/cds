@@ -638,17 +638,21 @@ const svgJsMap = {
     light: () => require('../svgJs/light/idError-2.js').content,
     dark: () => require('../svgJs/dark/idError-2.js').content,
   },
+  inrTrade: {
+    light: () => require('../svgJs/light/inrTrade-0.js').content,
+    dark: () => require('../svgJs/dark/inrTrade-0.js').content,
+  },
   instantUnstaking: {
     light: () => require('../svgJs/light/instantUnstaking-0.js').content,
     dark: () => require('../svgJs/dark/instantUnstaking-0.js').content,
   },
   instoAuthenticatorProgress: {
-    light: () => require('../svgJs/light/instoAuthenticatorProgress-0.js').content,
-    dark: () => require('../svgJs/dark/instoAuthenticatorProgress-0.js').content,
+    light: () => require('../svgJs/light/instoAuthenticatorProgress-1.js').content,
+    dark: () => require('../svgJs/dark/instoAuthenticatorProgress-1.js').content,
   },
   instoDappWallet: {
-    light: () => require('../svgJs/light/instoDappWallet-0.js').content,
-    dark: () => require('../svgJs/dark/instoDappWallet-0.js').content,
+    light: () => require('../svgJs/light/instoDappWallet-1.js').content,
+    dark: () => require('../svgJs/dark/instoDappWallet-1.js').content,
   },
   instoEthStaking: {
     light: () => require('../svgJs/light/instoEthStaking-0.js').content,
@@ -667,8 +671,8 @@ const svgJsMap = {
     dark: () => require('../svgJs/dark/instoPrimeStaking-0.js').content,
   },
   instoSecurityKey: {
-    light: () => require('../svgJs/light/instoSecurityKey-0.js').content,
-    dark: () => require('../svgJs/dark/instoSecurityKey-0.js').content,
+    light: () => require('../svgJs/light/instoSecurityKey-1.js').content,
+    dark: () => require('../svgJs/dark/instoSecurityKey-1.js').content,
   },
   instoSideChainSide: {
     light: () => require('../svgJs/light/instoSideChainSide-0.js').content,
@@ -683,8 +687,8 @@ const svgJsMap = {
     dark: () => require('../svgJs/dark/instoUbiKey-0.js').content,
   },
   instoWaiting: {
-    light: () => require('../svgJs/light/instoWaiting-0.js').content,
-    dark: () => require('../svgJs/dark/instoWaiting-0.js').content,
+    light: () => require('../svgJs/light/instoWaiting-1.js').content,
+    dark: () => require('../svgJs/dark/instoWaiting-1.js').content,
   },
   insuranceProtection: {
     light: () => require('../svgJs/light/insuranceProtection-4.js').content,

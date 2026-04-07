@@ -802,6 +802,10 @@ const svgJsMap = {
     light: () => require('../svgJs/light/fileYourCryptoTaxesCheck-6.js').content,
     dark: () => require('../svgJs/dark/fileYourCryptoTaxesCheck-6.js').content,
   },
+  flipStable: {
+    light: () => require('../svgJs/light/flipStable-0.js').content,
+    dark: () => require('../svgJs/dark/flipStable-0.js').content,
+  },
   focusLimitOrders: {
     light: () => require('../svgJs/light/focusLimitOrders-4.js').content,
     dark: () => require('../svgJs/dark/focusLimitOrders-4.js').content,
@@ -963,8 +967,8 @@ const svgJsMap = {
     dark: () => require('../svgJs/dark/instoKeyGenerationPending-0.js').content,
   },
   instoOnChain: {
-    light: () => require('../svgJs/light/instoOnChain-0.js').content,
-    dark: () => require('../svgJs/dark/instoOnChain-0.js').content,
+    light: () => require('../svgJs/light/instoOnChain-1.js').content,
+    dark: () => require('../svgJs/dark/instoOnChain-1.js').content,
   },
   instoOpenEmail: {
     light: () => require('../svgJs/light/instoOpenEmail-0.js').content,

@@ -1,5 +1,8 @@
+import { Animated, StyleSheet } from 'react-native';
+import { focusedInputBorderWidth } from '@coinbase/cds-common/tokens/input';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
+import { defaultTheme } from '../../themes/defaultTheme';
 import { DefaultThemeProvider } from '../../utils/testHelpers';
 import { InputIconButton } from '../InputIconButton';
 import { SearchInput } from '../SearchInput';
@@ -8,6 +11,14 @@ const TEST_ID = 'search';
 const ROLE = 'search';
 
 describe('Search', () => {
+  const getFocusedBorderOverlayStyle = () => {
+    const focusedBorderOverlay = screen
+      .UNSAFE_getAllByType(Animated.View)
+      .find((view) => StyleSheet.flatten(view.props.style)?.position === 'absolute');
+
+    return focusedBorderOverlay ? StyleSheet.flatten(focusedBorderOverlay.props.style) : undefined;
+  };
+
   let SearchComponent: React.ReactElement;
   const onClearSpy = jest.fn();
   const onChangeTextSpy = jest.fn();
@@ -50,6 +61,60 @@ describe('Search', () => {
     render(SearchComponent);
 
     expect(screen.getByRole('search').props.value).toBe('value');
+  });
+
+  it('passes font to the text input', () => {
+    render(
+      <DefaultThemeProvider>
+        <SearchInput font="label1" onChangeText={onChangeTextSpy} testID={TEST_ID} value="value" />
+      </DefaultThemeProvider>,
+    );
+
+    const flattenedStyle = StyleSheet.flatten(screen.getByRole('search').props.style);
+    expect(flattenedStyle).toEqual(
+      expect.objectContaining({
+        fontSize: defaultTheme.fontSize.label1,
+        minHeight: defaultTheme.lineHeight.label1,
+        fontWeight: defaultTheme.fontWeight.label1,
+      }),
+    );
+  });
+
+  it('keeps focused border width at 0 by default when bordered is false', () => {
+    render(
+      <DefaultThemeProvider>
+        <SearchInput
+          bordered={false}
+          onChangeText={onChangeTextSpy}
+          testID={TEST_ID}
+          value="value"
+        />
+      </DefaultThemeProvider>,
+    );
+
+    fireEvent(screen.getByTestId(TEST_ID), 'focus');
+    const focusedBorderOverlayStyle = getFocusedBorderOverlayStyle();
+    expect(focusedBorderOverlayStyle).toEqual(expect.objectContaining({ borderWidth: 0 }));
+  });
+
+  it('applies focusedBorderWidth when bordered is false', () => {
+    render(
+      <DefaultThemeProvider>
+        <SearchInput
+          bordered={false}
+          focusedBorderWidth={200}
+          onChangeText={onChangeTextSpy}
+          testID={TEST_ID}
+          value="value"
+        />
+      </DefaultThemeProvider>,
+    );
+
+    fireEvent(screen.getByTestId(TEST_ID), 'focus');
+    const focusedBorderOverlayStyle = getFocusedBorderOverlayStyle();
+    expect(focusedBorderOverlayStyle).toEqual(
+      expect.objectContaining({ borderWidth: focusedInputBorderWidth }),
+    );
   });
 
   it('renders a backArrow icon button at the start node', () => {

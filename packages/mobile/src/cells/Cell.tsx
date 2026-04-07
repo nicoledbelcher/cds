@@ -5,6 +5,7 @@ import type { CellPriority, SharedProps } from '@coinbase/cds-common/types';
 import { hasCellPriority } from '@coinbase/cds-common/utils/cell';
 
 import { useCellSpacing } from '../hooks/useCellSpacing';
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import { useTheme } from '../hooks/useTheme';
 import { Box, type BoxBaseProps, type BoxProps } from '../layout/Box';
 import { HStack } from '../layout/HStack';
@@ -46,7 +47,8 @@ export type CellBaseProps = SharedProps &
      */
     end?: React.ReactNode;
     /**
-     * @deprecated Use `end` instead. `detail` will be removed in a release.
+     * @deprecated Use `end` instead. This will be removed in a future major release.
+     * @deprecationExpectedRemoval v9
      */
     detail?: React.ReactNode;
     /** Middle content between main content and detail. */
@@ -55,7 +57,8 @@ export type CellBaseProps = SharedProps &
     media?: React.ReactElement;
     borderRadius?: ThemeVars.BorderRadius;
     /**
-     * @deprecated Use `styles.end` instead. `detailWidth` will be removed in a release.
+     * @deprecated Use `styles.end` instead. This will be removed in a future major release.
+     * @deprecationExpectedRemoval v9
      */
     detailWidth?: number | string;
     /** Is the cell disabled? Will apply opacity and disable interaction. */
@@ -99,41 +102,43 @@ export type CellBaseProps = SharedProps &
 
 export type CellProps = BoxProps & CellBaseProps;
 
-export const Cell = memo(function Cell({
-  accessory,
-  accessoryNode,
-  alignItems = 'center',
-  borderRadius = 200,
-  children,
-  styles,
-  end,
-  detail,
-  detailWidth,
-  disabled,
-  intermediary,
-  media,
-  minHeight,
-  maxHeight,
-  onLayout,
-  onPress,
-  priority,
-  selected,
-  testID,
-  accessibilityLabel,
-  accessibilityHint,
-  accessibilityRole = 'button',
-  accessibilityState,
-  gap = 2,
-  columnGap,
-  rowGap = 1,
-  innerSpacing: innerSpacingProp,
-  outerSpacing: outerSpacingProp,
-  bottomContent,
-  style,
-  background = 'bgAlternate',
-  blendStyles,
-  ...props
-}: CellProps) {
+export const Cell = memo(function Cell(_props: CellProps) {
+  const mergedProps = useComponentConfig('Cell', _props);
+  const {
+    accessory,
+    accessoryNode,
+    alignItems = 'center',
+    borderRadius = 200,
+    children,
+    styles,
+    end,
+    detail,
+    detailWidth,
+    disabled,
+    intermediary,
+    media,
+    minHeight,
+    maxHeight,
+    onLayout,
+    onPress,
+    priority,
+    selected,
+    testID,
+    accessibilityLabel,
+    accessibilityHint,
+    accessibilityRole = 'button',
+    accessibilityState,
+    gap = 2,
+    columnGap,
+    rowGap = 1,
+    innerSpacing: innerSpacingProp,
+    outerSpacing: outerSpacingProp,
+    bottomContent,
+    style,
+    background = 'bgAlternate',
+    blendStyles,
+    ...props
+  } = mergedProps;
   const theme = useTheme();
   const { inner: innerSpacing, outer: outerSpacing } = useCellSpacing({
     innerSpacing: innerSpacingProp,

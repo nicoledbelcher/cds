@@ -43,6 +43,16 @@ describe('Search', () => {
     expect(screen.getByRole('searchbox')).toHaveValue('value');
   });
 
+  it('passes font through to the text input', () => {
+    render(
+      <DefaultThemeProvider>
+        <SearchInput font="label1" onChangeText={onChangeTextSpy} testID={TEST_ID} value="value" />
+      </DefaultThemeProvider>,
+    );
+
+    expect(screen.getByRole('searchbox')).toHaveStyle('font-size: var(--fontSize-label1);');
+  });
+
   /** Testing for existence of components */
   it('renders a search', () => {
     render(
@@ -72,6 +82,36 @@ describe('Search', () => {
     );
     const searchIconBtn = screen.getByTestId(`${TEST_ID}-search-icon`);
     expect(searchIconBtn).toBeDefined();
+  });
+
+  it('keeps focus styles disabled by default when bordered is false', () => {
+    render(
+      <DefaultThemeProvider>
+        <SearchInput bordered={false} onChangeText={onChangeTextSpy} testID={TEST_ID} value="" />
+      </DefaultThemeProvider>,
+    );
+
+    const inputArea = screen.getByTestId('input-interactable-area');
+    expect(inputArea).toHaveStyle('--border-color-focused: transparent');
+    expect(inputArea).toHaveStyle('--border-width-focused: var(--borderWidth-0)');
+  });
+
+  it('applies focusedBorderWidth when bordered is false', () => {
+    render(
+      <DefaultThemeProvider>
+        <SearchInput
+          bordered={false}
+          focusedBorderWidth={200}
+          onChangeText={onChangeTextSpy}
+          testID={TEST_ID}
+          value=""
+        />
+      </DefaultThemeProvider>,
+    );
+
+    const inputArea = screen.getByTestId('input-interactable-area');
+    expect(inputArea).toHaveStyle('--border-color-focused: var(--color-bgPrimary)');
+    expect(inputArea).toHaveStyle('--border-width-focused: var(--borderWidth-200)');
   });
 
   it('does not render a Search IconButton when hideStartIcon=true', () => {

@@ -1,18 +1,40 @@
-import React, { useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { KeyboardAvoidingView, ScrollView } from 'react-native';
 import type { ScrollViewProps } from 'react-native';
 import { useModalContext } from '@coinbase/cds-common/overlays/ModalContext';
 
+import { useComponentConfig } from '../../hooks/useComponentConfig';
 import { useContentSize } from '../../hooks/useContentSize';
 import { useLayout } from '../../hooks/useLayout';
-import { Box } from '../../layout';
+import { Box, type BoxBaseProps } from '../../layout/Box';
 
-type ModalBodyProps = ScrollViewProps;
+export type ModalBodyBaseProps = ScrollViewProps &
+  Pick<
+    BoxBaseProps,
+    | 'padding'
+    | 'paddingX'
+    | 'paddingY'
+    | 'paddingTop'
+    | 'paddingBottom'
+    | 'paddingStart'
+    | 'paddingEnd'
+  >;
 
-export const ModalBody: React.FC<React.PropsWithChildren<ModalBodyProps>> = ({
-  children,
-  ...props
-}) => {
+export type ModalBodyProps = ModalBodyBaseProps;
+
+export const ModalBody: React.FC<React.PropsWithChildren<ModalBodyProps>> = memo((_props) => {
+  const mergedProps = useComponentConfig('ModalBody', _props);
+  const {
+    children,
+    padding,
+    paddingX = 3,
+    paddingY: paddingYProp,
+    paddingTop,
+    paddingBottom,
+    paddingStart,
+    paddingEnd,
+    ...props
+  } = mergedProps;
   const [{ height: contentHeight }, onContentSizeChange] = useContentSize();
   const [{ height: scrollHeight }, onLayout] = useLayout();
   const { hideDividers } = useModalContext();
@@ -22,6 +44,11 @@ export const ModalBody: React.FC<React.PropsWithChildren<ModalBodyProps>> = ({
     () => contentHeight > scrollHeight,
     [contentHeight, scrollHeight],
   );
+
+  const paddingY = useMemo(() => {
+    if (paddingYProp !== undefined) return paddingYProp;
+    return hideDividers ? 0 : 3;
+  }, [paddingYProp, hideDividers]);
 
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
@@ -33,13 +60,18 @@ export const ModalBody: React.FC<React.PropsWithChildren<ModalBodyProps>> = ({
       >
         <Box
           flexGrow={1}
-          paddingX={3}
+          padding={padding}
+          paddingBottom={paddingBottom}
+          paddingEnd={paddingEnd}
+          paddingStart={paddingStart}
+          paddingTop={paddingTop}
+          paddingX={paddingX}
           // remove vertical padding when dividers hidden
-          paddingY={hideDividers ? 0 : 3}
+          paddingY={paddingY}
         >
           {children}
         </Box>
       </ScrollView>
     </KeyboardAvoidingView>
   );
-};
+});

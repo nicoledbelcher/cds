@@ -4,6 +4,7 @@ import type { IconSize, ValidateProps } from '@coinbase/cds-common/types';
 import { formatCount } from '@coinbase/cds-common/utils/formatCount';
 import type { IconName } from '@coinbase/cds-icons';
 
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import { Icon } from '../icons/Icon';
 import { HStack } from '../layout/HStack';
 import { Pressable, type PressableDefaultElement, type PressableProps } from '../system/Pressable';
@@ -12,7 +13,10 @@ import { Text } from '../typography/Text';
 export type IconCounterButtonBaseProps = {
   /** Name of the icon or a ReactNode */
   icon: Exclude<React.ReactNode, 'string'> | IconName;
-  /** @deprecated Use `size` instead. */
+  /**
+   * @deprecated Use `size` instead. This will be removed in a future major release.
+   * @deprecationExpectedRemoval v8
+   */
   iconSize?: IconSize;
   /** Size for given icon. */
   size?: IconSize;
@@ -33,7 +37,11 @@ export type IconCounterButtonProps = IconCounterButtonBaseProps &
 
 export const IconCounterButton = memo(
   forwardRef(function IconCounterButton(
-    {
+    _props: IconCounterButtonProps,
+    ref: React.Ref<HTMLButtonElement>,
+  ) {
+    const mergedProps = useComponentConfig('IconCounterButton', _props);
+    const {
       icon,
       iconSize = 's',
       size = iconSize,
@@ -43,9 +51,7 @@ export const IconCounterButton = memo(
       dangerouslySetColor,
       background = 'transparent',
       ...props
-    }: IconCounterButtonProps,
-    ref: React.Ref<HTMLButtonElement>,
-  ) {
+    } = mergedProps;
     return (
       <Pressable
         ref={ref}

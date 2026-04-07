@@ -57,13 +57,16 @@ type DefaultSelectControlBase = <
   Type extends SelectType,
   SelectOptionValue extends string = string,
 >(
-  props: SelectControlProps<Type, SelectOptionValue> & { ref?: React.Ref<HTMLElement> },
+  props: SelectControlProps<Type, SelectOptionValue> & {
+    ref?: React.Ref<HTMLElement>;
+  },
 ) => React.ReactElement;
 
 const DefaultSelectControlComponent = memo(
   forwardRef(
     <Type extends SelectType, SelectOptionValue extends string = string>(
       {
+        role = 'button',
         type,
         options,
         value,
@@ -82,6 +85,7 @@ const DefaultSelectControlComponent = memo(
         compact,
         blendStyles,
         align = 'start',
+        font = 'body',
         bordered = true,
         borderWidth = bordered ? 100 : 0,
         focusedBorderWidth = bordered ? undefined : 200,
@@ -91,6 +95,7 @@ const DefaultSelectControlComponent = memo(
         accessibilityLabel,
         ariaHaspopup,
         tabIndex = 0,
+        onKeyDown,
         styles,
         classNames,
         ...props
@@ -103,7 +108,6 @@ const DefaultSelectControlComponent = memo(
       const isMultiSelect = type === 'multi';
       const shouldShowCompactLabel = compact && label && !isMultiSelect;
       const hasValue = value !== null && !(Array.isArray(value) && value.length === 0);
-
       // Map of options to their values
       // If multiple options share the same value, the first occurrence wins (matches native HTML select behavior)
       const optionsMap = useMemo(() => {
@@ -315,7 +319,7 @@ const DefaultSelectControlComponent = memo(
             as="p"
             color={hasValue ? 'fg' : 'fgMuted'}
             display="block"
-            font="body"
+            font={font}
             overflow="truncate"
             textAlign={align}
             width="100%"
@@ -329,6 +333,7 @@ const DefaultSelectControlComponent = memo(
         hasValue,
         isMultiSelect,
         singleValueContent,
+        font,
         align,
         value,
         maxSelectedOptionsToShow,
@@ -340,12 +345,13 @@ const DefaultSelectControlComponent = memo(
 
       const inputNode = useMemo(
         () => (
-          // We don't offer control over setting the role since this must always be a button
           <Pressable
             ref={controlPressableRef}
             noScaleOnPress
             accessibilityLabel={computedControlAccessibilityLabel}
+            aria-expanded={open}
             aria-haspopup={ariaHaspopup}
+            as={role === 'combobox' ? 'div' : 'button'}
             background="transparent"
             blendStyles={interactableBlendStyles}
             borderWidth={0}
@@ -363,7 +369,9 @@ const DefaultSelectControlComponent = memo(
             }
             minWidth={0}
             onClick={() => setOpen((s) => !s)}
+            onKeyDown={onKeyDown}
             paddingStart={1}
+            role={role}
             style={styles?.controlInputNode}
             tabIndex={tabIndex}
           >
@@ -418,6 +426,8 @@ const DefaultSelectControlComponent = memo(
         [
           computedControlAccessibilityLabel,
           ariaHaspopup,
+          open,
+          role,
           interactableBlendStyles,
           classNames?.controlInputNode,
           classNames?.controlStartNode,
@@ -429,6 +439,7 @@ const DefaultSelectControlComponent = memo(
           styles?.controlStartNode,
           styles?.controlValueNode,
           tabIndex,
+          onKeyDown,
           startNode,
           shouldShowCompactLabel,
           labelNode,

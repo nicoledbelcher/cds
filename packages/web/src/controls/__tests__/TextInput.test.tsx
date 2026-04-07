@@ -45,6 +45,16 @@ describe('TextInput', () => {
     expect(screen.getByRole('textbox')).toHaveValue(value);
   });
 
+  it('passes font to native input', () => {
+    render(
+      <DefaultThemeProvider>
+        <TextInput font="label1" />
+      </DefaultThemeProvider>,
+    );
+
+    expect(screen.getByRole('textbox')).toHaveStyle('font-size: var(--fontSize-label1);');
+  });
+
   it('renders a label', () => {
     const testID = 'label-testid';
     const labelText = 'Example label';
@@ -231,6 +241,30 @@ describe('TextInput', () => {
     fireEvent.blur(screen.getByRole('textbox'));
     expect(onFocus).toHaveBeenCalledTimes(1);
     expect(onBlur).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps focus styles disabled by default when bordered is false', () => {
+    render(
+      <DefaultThemeProvider>
+        <TextInput bordered={false} />
+      </DefaultThemeProvider>,
+    );
+
+    const inputArea = screen.getByTestId('input-interactable-area');
+    expect(inputArea).toHaveStyle('--border-color-focused: transparent');
+    expect(inputArea).toHaveStyle('--border-width-focused: var(--borderWidth-0)');
+  });
+
+  it('applies focusedBorderWidth when bordered is false', () => {
+    render(
+      <DefaultThemeProvider>
+        <TextInput bordered={false} focusedBorderWidth={200} />
+      </DefaultThemeProvider>,
+    );
+
+    const inputArea = screen.getByTestId('input-interactable-area');
+    expect(inputArea).toHaveStyle('--border-color-focused: var(--color-bgPrimary)');
+    expect(inputArea).toHaveStyle('--border-width-focused: var(--borderWidth-200)');
   });
 
   it('focuses input when start node is pressed', () => {

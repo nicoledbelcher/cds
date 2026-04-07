@@ -4,6 +4,7 @@ import { css } from '@linaria/core';
 
 import type { Polymorphic } from '../core/polymorphism';
 import { cx } from '../cx';
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import { Box } from '../layout/Box';
 import { VStack } from '../layout/VStack';
 import { Text } from '../typography/Text';
@@ -48,11 +49,13 @@ export type ListCellBaseProps = Polymorphic.ExtendableProps<
      */
     end?: React.ReactNode;
     /**
-     * @deprecated Use `end` instead. `action` will be removed in a future major release.
+     * @deprecated Use `end` instead. This will be removed in a future major release.
+     * @deprecationExpectedRemoval v9
      */
     action?: React.ReactNode;
     /**
-     * @deprecated Use `spacingVariant="condensed"` instead. `compact` will be removed in a future major release.
+     * @deprecated Use `spacingVariant="condensed"` instead. This will be removed in a future major release.
+     * @deprecationExpectedRemoval v9
      */
     compact?: boolean;
     /**
@@ -198,7 +201,11 @@ type ListCellComponent = (<AsComponent extends React.ElementType = ListCellDefau
 export const ListCell: ListCellComponent = memo(
   forwardRef<React.ReactElement<ListCellBaseProps>, ListCellBaseProps>(
     <AsComponent extends React.ElementType>(
-      {
+      _props: ListCellProps<AsComponent>,
+      ref?: Polymorphic.Ref<AsComponent>,
+    ) => {
+      const mergedProps = useComponentConfig('ListCell', _props);
+      const {
         as,
         accessory,
         accessoryNode,
@@ -233,9 +240,7 @@ export const ListCell: ListCellComponent = memo(
         subtitle,
         subtitleNode,
         ...props
-      }: ListCellProps<AsComponent>,
-      ref?: Polymorphic.Ref<AsComponent>,
-    ) => {
+      } = mergedProps;
       const Component = (as ?? listCellDefaultElement) satisfies React.ElementType;
 
       const minHeight =

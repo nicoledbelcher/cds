@@ -1,40 +1,32 @@
 import React, { forwardRef, memo, useCallback, useMemo, useRef } from 'react';
 import { useMergeRefs } from '@coinbase/cds-common/hooks/useMergeRefs';
 import type { IconName } from '@coinbase/cds-common/types';
-import { css } from '@linaria/core';
 
-import { cx } from '../cx';
+import { useComponentConfig } from '../hooks/useComponentConfig';
 import { Box } from '../layout/Box';
 
 import { InputIcon } from './InputIcon';
 import { InputIconButton } from './InputIconButton';
-import { TextInput, type TextInputBaseProps } from './TextInput';
+import { TextInput, type TextInputBaseProps, type TextInputProps } from './TextInput';
 
 export const scales = {
   regular: 56,
   compact: 40,
 };
 
-const baseCss = css`
-  height: ${scales.regular}px;
-`;
-
-const compactCss = css`
-  height: ${scales.compact}px;
-`;
-
-type HTMLElementProps = React.InputHTMLAttributes<HTMLInputElement> &
-  Required<Pick<HTMLInputElement, 'value'>>;
-
 export type SearchInputBaseProps = Pick<
   TextInputBaseProps,
   | 'accessibilityHint'
   | 'accessibilityLabel'
   | 'accessibilityLabelledBy'
+  | 'bordered'
+  | 'borderRadius'
   | 'compact'
   | 'disabled'
   | 'enableColorSurge'
+  | 'focusedBorderWidth'
   | 'helperTextErrorIconAccessibilityLabel'
+  | 'font'
   | 'placeholder'
   | 'testID'
   | 'testIDMap'
@@ -61,12 +53,10 @@ export type SearchInputBaseProps = Pick<
   startIcon?: Extract<IconName, 'search' | 'backArrow'>;
   /**
    * hide the end icon
-   * @default undefined
    */
   hideEndIcon?: boolean;
   /**
    * Set the end node
-   * @default undefined
    */
   end?: React.ReactNode;
   /**
@@ -80,23 +70,19 @@ export type SearchInputBaseProps = Pick<
 };
 
 export type SearchInputProps = SearchInputBaseProps &
-  HTMLElementProps & {
+  TextInputProps & {
     onClear?: React.MouseEventHandler;
     onChangeText: (text: string) => void;
     /**
      * Callback fired when pressed/clicked
      */
     onClick?: React.MouseEventHandler;
-    /**
-     * Adds border to input
-     * @default true
-     */
-    bordered?: boolean;
   };
 
 export const SearchInput = memo(
-  forwardRef(function SearchInput(
-    {
+  forwardRef((_props: SearchInputProps, ref: React.ForwardedRef<HTMLInputElement>) => {
+    const mergedProps = useComponentConfig('SearchInput', _props);
+    const {
       onChange,
       onClear,
       onChangeText,
@@ -105,16 +91,15 @@ export const SearchInput = memo(
       value,
       compact,
       hideStartIcon = false,
-      bordered = true,
       hideEndIcon,
       startIcon,
       end,
       startIconAccessibilityLabel = 'Back',
       clearIconAccessibilityLabel = 'Clear search query',
+      borderRadius = 1000,
+      height = compact ? scales.compact : scales.regular,
       ...props
-    }: SearchInputProps,
-    ref: React.ForwardedRef<HTMLInputElement>,
-  ) {
+    } = mergedProps;
     const internalRef = useRef<HTMLInputElement>(null);
     const refs = useMergeRefs(ref, internalRef);
 
@@ -153,9 +138,7 @@ export const SearchInput = memo(
     return (
       <TextInput
         ref={refs}
-        borderRadius={1000}
-        bordered={bordered}
-        className={cx(baseCss, compact && compactCss)}
+        borderRadius={borderRadius}
         end={
           end ??
           (!!value && !hideEndIcon && (
@@ -169,6 +152,7 @@ export const SearchInput = memo(
             </Box>
           ))
         }
+        height={height}
         onChange={handleOnChange}
         onKeyUp={handleOnKeyUp}
         role="searchbox"
