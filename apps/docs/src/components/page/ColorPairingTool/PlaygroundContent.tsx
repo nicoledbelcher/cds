@@ -178,7 +178,12 @@ export const PlaygroundContent = memo(function PlaygroundContent({
                   ]}
                   xAxis={{ range: ({ min, max }) => ({ min, max: max - 8 }) }}
                 >
-                  <Scrubber hideOverlay idlePulse LineComponent={SolidLine} accessibilityLabel="Scrub chart data" />
+                  <Scrubber
+                    hideOverlay
+                    idlePulse
+                    LineComponent={SolidLine}
+                    accessibilityLabel="Scrub chart data"
+                  />
                 </LineChart>
               </VStack>
             </Card>

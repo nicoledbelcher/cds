@@ -1,6 +1,6 @@
 import React, { memo, useMemo } from 'react';
-import { useTheme } from '@coinbase/cds-web';
 import type { ThemeVars } from '@coinbase/cds-common/core/theme';
+import { useTheme } from '@coinbase/cds-web';
 import { Card } from '@coinbase/cds-web/cards';
 import { Box, Divider, HStack, VStack } from '@coinbase/cds-web/layout';
 import { Text } from '@coinbase/cds-web/typography';
