@@ -69,7 +69,7 @@ export const ComponentPlayground = memo(function ComponentPlayground({
             accessibilityLabel="Switch light or dark mode preview"
             activeTab={activeTab}
             onChange={(tab) => {
-              if (tab) setSelectedMode(tab.id);
+              if (tab) setSelectedMode(tab.id as 'light' | 'dark');
             }}
             tabs={PLAYGROUND_TABS}
           />

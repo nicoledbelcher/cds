@@ -9,10 +9,10 @@ type WcagBadgeProps = {
 export const WcagBadge = memo(function WcagBadge({ label, passes }: WcagBadgeProps) {
   return (
     <Tag
+      endIconActive
       colorScheme={passes ? 'green' : 'red'}
       emphasis="low"
       endIcon={passes ? 'circleCheckmark' : 'circleCross'}
-      endIconActive
       intent="informational"
     >
       {label}

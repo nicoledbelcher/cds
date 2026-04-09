@@ -1,5 +1,6 @@
 import React, { memo, useMemo } from 'react';
 import { useTheme } from '@coinbase/cds-web';
+import type { ThemeVars } from '@coinbase/cds-common/core/theme';
 import { Card } from '@coinbase/cds-web/cards';
 import { Box, Divider, HStack, VStack } from '@coinbase/cds-web/layout';
 import { Text } from '@coinbase/cds-web/typography';
@@ -105,12 +106,12 @@ export const ResultCard = memo(function ResultCard({ result, onResampleBg }: Res
             padding={isImage ? 3 : 4}
             paddingBottom={{ base: 0, tablet: isImage ? 3 : 4, desktop: isImage ? 3 : 4 }}
             position="relative"
-            width={{ base: '100%', tablet: '50%', desktop: '50%' }}
             style={{
               flexShrink: 0,
               overflow: 'hidden',
               background: isImage ? result.primary.hex : undefined,
             }}
+            width={{ base: '100%', tablet: '50%', desktop: '50%' }}
           >
             {isImage ? (
               <HotspotImagePreview
@@ -119,8 +120,8 @@ export const ResultCard = memo(function ResultCard({ result, onResampleBg }: Res
                 hotspotY={hotspotY}
                 imgDataURL={result.imgDataURL!}
                 imgHeight={result.imgHeight}
-                imgWidth={result.imgWidth}
                 imgSrc={result.imgSrc!}
+                imgWidth={result.imgWidth}
                 onResample={onResampleBg}
               />
             ) : result.manualRaw ? (
@@ -165,10 +166,10 @@ export const ResultCard = memo(function ResultCard({ result, onResampleBg }: Res
         {/* Component playground */}
         <ComponentPlayground
           darkHex={dh2}
-          darkToken={darkToken}
-          imgSrc={result.imgSrc}
+          darkToken={darkToken as ThemeVars.SpectrumColor}
+          imgSrc={result.imgSrc ?? null}
           lightHex={lh2}
-          lightToken={lightToken}
+          lightToken={lightToken as ThemeVars.SpectrumColor}
         />
       </VStack>
     </Card>

@@ -1,9 +1,8 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
+import { useTheme } from '@coinbase/cds-web';
 import { Button, IconButton } from '@coinbase/cds-web/buttons';
 import { HStack, VStack } from '@coinbase/cds-web/layout';
 import { Text } from '@coinbase/cds-web/typography';
-
-import { useTheme } from '@coinbase/cds-web';
 
 import { ColorPicker } from './ColorPicker';
 import type { ExtractedColor, Spectrum, TokenMatch } from './colorUtils';

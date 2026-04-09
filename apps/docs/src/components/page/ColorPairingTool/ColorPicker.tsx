@@ -125,6 +125,7 @@ export const ColorPicker = memo(function ColorPicker({ onApply }: ColorPickerPro
               <Box flexGrow={1}>
                 <TextInput
                   compact
+                  helperTextErrorIconAccessibilityLabel="Error"
                   label=""
                   onChange={handleTextInputChange}
                   placeholder="#2342AD"

@@ -28,8 +28,8 @@ const ContrastRow = memo(function ContrastRow({
   return (
     <HStack alignItems="stretch" background="bgSecondary" borderRadius={200} gap={2} padding={2}>
       <Box
-        alignItems="center"
         bordered
+        alignItems="center"
         borderRadius={200}
         justifyContent="center"
         padding={1}

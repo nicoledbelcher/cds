@@ -57,11 +57,11 @@ export const UploadZone = memo(function UploadZone({
 
   return (
     <FileDropZone
+      multiple
       accept="image/png,image/jpeg,image/webp"
       disabled={isLoading}
       dropZoneProps={dropZoneProps}
       fileInputRef={fileInputRef}
-      multiple
       onFileInputChange={handleFileInputChange}
     >
       {!isDragOver && !isLoading && (
@@ -76,8 +76,8 @@ export const UploadZone = memo(function UploadZone({
               background="bgNegativeWash"
               borderRadius={200}
               paddingX={2}
-              marginTop={1}
               paddingY={1}
+              style={{ marginTop: 8 }}
             >
               <Text color="fgNegative" font="legal">
                 {error}
@@ -112,7 +112,7 @@ export const UploadZone = memo(function UploadZone({
       {isLoading && (
         <VStack alignItems="center" gap={2} padding={5}>
           <Box style={{ width: 200 }}>
-            <ProgressBar progress={progressPct} />
+            <ProgressBar accessibilityLabel="Processing images" progress={progressPct} />
           </Box>
           <Text color="fgMuted" font="label2">
             {progress.total > 1
