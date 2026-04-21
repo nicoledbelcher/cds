@@ -111,6 +111,21 @@ describe('Combobox', () => {
       expect(screen.getByRole('textbox')).toHaveStyle('font-size: var(--fontSize-label1);');
     });
 
+    it('zeros NativeInput padding on the combobox search field', () => {
+      render(
+        <DefaultThemeProvider>
+          <Combobox {...defaultProps} defaultOpen />
+        </DefaultThemeProvider>,
+      );
+
+      expect(screen.getByRole('textbox')).toHaveStyle({
+        paddingLeft: 0,
+        paddingRight: 0,
+        paddingTop: 0,
+        paddingBottom: 0,
+      });
+    });
+
     it('filters options based on search text', async () => {
       render(
         <DefaultThemeProvider>

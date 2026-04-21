@@ -57,6 +57,7 @@ export type PathProps = PathBaseProps &
      *
      * @default transitions = {{
      *   enter: { type: 'tween', duration: 0.5 },
+     *   enterOpacity: undefined,
      *   update: { type: 'spring', stiffness: 900, damping: 120, mass: 4 }
      * }}
      *
@@ -74,6 +75,12 @@ export type PathProps = PathBaseProps &
        * Set to `null` to disable.
        */
       enter?: Transition | null;
+      /**
+       * Transition for the initial enter opacity animation.
+       * When provided, path opacity animates from 0 to 1.
+       * Set to `null` to disable.
+       */
+      enterOpacity?: Transition | null;
       /**
        * Transition for subsequent data update animations.
        * Set to `null` to disable.
@@ -106,10 +113,15 @@ const AnimatedPath = memo<Omit<PathProps, 'animate' | 'clipRect' | 'clipOffset' 
       transitions,
     });
 
+    const animateEnterOpacity = Boolean(transitions?.enterOpacity);
+
     return (
       <motion.path
         // TODO: Remove type assertion after upgrading framer-motion to v11+ for React 19 compatibility
         {...({
+          animate: animateEnterOpacity ? { opacity: 1 } : undefined,
+          initial: animateEnterOpacity ? { opacity: 0 } : false,
+          transition: animateEnterOpacity ? { opacity: transitions?.enterOpacity } : undefined,
           d: interpolatedPath,
           ...pathProps,
         } as React.ComponentProps<typeof motion.path>)}
@@ -149,7 +161,12 @@ export const Path = memo<PathProps>(
       [animate, transitions?.update, transition],
     );
 
-    const shouldAnimateClip = animate && enterTransition !== null;
+    const enterOpacityTransition = useMemo(() => {
+      if (!animate) return null;
+      return transitions?.enterOpacity;
+    }, [animate, transitions?.enterOpacity]);
+
+    const animateClip = animate && enterTransition !== null;
 
     // The clip offset provides extra padding to prevent path from being cut off
     // Area charts typically use offset=0 for exact clipping, while lines use offset=2 for breathing room
@@ -182,7 +199,7 @@ export const Path = memo<PathProps>(
         {rect !== null && (
           <defs>
             <clipPath id={clipPathId}>
-              {shouldAnimateClip ? (
+              {animateClip ? (
                 <motion.rect
                   animate="visible"
                   height={rect.height + totalOffset}
@@ -206,7 +223,11 @@ export const Path = memo<PathProps>(
         <AnimatedPath
           clipPath={clipPath}
           d={d}
-          transitions={{ enter: enterTransition, update: updateTransition }}
+          transitions={{
+            enter: enterTransition,
+            enterOpacity: enterOpacityTransition,
+            update: updateTransition,
+          }}
           {...pathProps}
         />
       </>

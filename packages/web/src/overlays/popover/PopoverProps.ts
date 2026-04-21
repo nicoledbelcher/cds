@@ -5,13 +5,13 @@ import type { SharedProps } from '@coinbase/cds-common/types/SharedProps';
 import type { Placement as FloatingPlacement, Strategy } from '@floating-ui/react-dom';
 
 import type { AccessibleControlledReturnType } from '../../hooks/useA11yControlledVisibility';
-import { type FocusTrapBaseProps, type FocusTrapProps } from '../FocusTrap';
+import { type FocusTrapBaseProps } from '../FocusTrap';
 
 export type Placement = FloatingPlacement | 'auto' | 'auto-start' | 'auto-end';
 
 export type PopoverContentPositionConfig = {
   /**
-   * Custom placement config. See docs: https://floating-ui.com/docs/useFloating#placement
+   * Custom placement config from Floating UI. See docs: https://floating-ui.com/docs/useFloating#placement
    * @default bottom
    */
   placement?: Placement;
@@ -25,7 +25,7 @@ export type PopoverContentPositionConfig = {
    */
   offsetGap?: number;
   /**
-   * Custom strategy config. See docs: https://floating-ui.com/docs/useFloating#strategy
+   * Custom strategy config from Floating UI. See docs: https://floating-ui.com/docs/useFloating#strategy
    * @default absolute
    */
   strategy?: Strategy;
@@ -85,4 +85,12 @@ export type PopoverProps = PopoverBaseProps & {
   onBlur?: (event?: React.FocusEvent) => void;
   /** Callback fired when a mouse down event is fired on the subject */
   onMouseDown?: (event: React.MouseEvent) => void;
+  /**
+   * Style the Popover subject
+   */
+  style?: React.CSSProperties;
+  /**
+   * Class name for the Popover subject
+   */
+  className?: string;
 };

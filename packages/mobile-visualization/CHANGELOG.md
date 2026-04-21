@@ -8,6 +8,30 @@ All notable changes to this project will be documented in this file.
 
 <!-- template-start -->
 
+## 3.6.2 (4/20/2026 PST)
+
+#### 🐞 Fixes
+
+- Fix: bar chart enter animation clipping. [[#631](https://github.com/coinbase/cds/pull/631)]
+
+## 3.6.1 (4/16/2026 PST)
+
+#### 🐞 Fixes
+
+- Fix: stabilize chart path transitions. [[#618](https://github.com/coinbase/cds/pull/618)]
+
+## 3.6.0 (4/13/2026 PST)
+
+#### 🚀 Updates
+
+- Add PercentageBarChart component. [[#550](https://github.com/coinbase/cds/pull/550)]
+
+## 3.5.0 (4/13/2026 PST)
+
+#### 🚀 Updates
+
+- Feat: add enter opacity transition to bars. [[#612](https://github.com/coinbase/cds/pull/612)]
+
 ## 3.4.0 (4/1/2026 PST)
 
 #### 🐞 Fixes

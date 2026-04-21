@@ -412,6 +412,11 @@ export const routes = [
       require('@coinbase/cds-mobile/overlays/__stories__/ModalBasic.stories').default,
   },
   {
+    key: 'ModalCustomHeader',
+    getComponent: () =>
+      require('@coinbase/cds-mobile/overlays/__stories__/ModalCustomHeader.stories').default,
+  },
+  {
     key: 'ModalCustomPadding',
     getComponent: () =>
       require('@coinbase/cds-mobile/overlays/__stories__/ModalCustomPadding.stories').default,
@@ -520,6 +525,12 @@ export const routes = [
     key: 'PatternError',
     getComponent: () =>
       require('@coinbase/cds-mobile/system/__stories__/PatternError.stories').default,
+  },
+  {
+    key: 'PercentageBarChart',
+    getComponent: () =>
+      require('@coinbase/cds-mobile/visualizations/chart/bar/__stories__/PercentageBarChart.stories')
+        .default,
   },
   {
     key: 'PeriodSelector',

@@ -1,4 +1,5 @@
 ---
+# Publishes @coinbase/* packages to public npm registry (https://registry.npmjs.org).
 name: Publish Packages to NPM
 
 on:
@@ -195,6 +196,12 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: ./.github/actions/setup
 
+      - name: Update npm
+        run: |
+          # Pinned: Node 22.22.2's bundled npm breaks `npm i -g npm@latest` (promise-retry).
+          # See https://github.com/npm/cli/issues/9151 and https://github.com/nodejs/node/issues/62425
+          npm install -g npm@11.11.0
+
       - name: Check if version exists on npm
         id: version-check
         run: |
@@ -262,7 +269,9 @@ jobs:
 
       - name: Update npm
         run: |
-          npm install -g npm@latest
+          # Pinned: Node 22.22.2's bundled npm breaks `npm i -g npm@latest` (promise-retry).
+          # See https://github.com/npm/cli/issues/9151 and https://github.com/nodejs/node/issues/62425
+          npm install -g npm@11.11.0
 
       - name: Check if version exists on npm
         id: version-check
@@ -382,3 +391,28 @@ jobs:
           else
             echo "❌ Live publish: **FAILED**" >> $GITHUB_STEP_SUMMARY
           fi
+
+  notify-slack:
+    name: Notify Slack
+    runs-on: ubuntu-latest
+    needs: [detect-changes, dry-run-publish, publish]
+    if: >-
+      always() &&
+      vars.SLACK_PUBLISH_ALERTS_ENABLED == 'true' &&
+      (github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.dry-run != 'true')) &&
+      (needs.detect-changes.result == 'failure' ||
+      needs.publish.result == 'failure')
+    steps:
+      - name: Post failure to Slack
+        uses: slackapi/slack-github-action@007b2c3c751a190b6f0f040e47ed024deaa72844 # v1.23.0
+        with:
+          payload: |
+            {
+              "username": "CDS Publish",
+              "text": ":red_circle: Failed to publish NPM packages, <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|see details here>.\ncc @design-systems-eng-oncall"
+            }
+        env:
+          # Accessible from https://api.slack.com/apps
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
