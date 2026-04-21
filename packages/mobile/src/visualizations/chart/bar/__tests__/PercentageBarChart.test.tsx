@@ -1,6 +1,6 @@
-import { DefaultThemeProvider } from '../../../../utils/testHelpers';
 import { render, screen, within } from '@testing-library/react-native';
 
+import { DefaultThemeProvider } from '../../../../utils/testHelpers';
 import { PercentageBarChart } from '../PercentageBarChart';
 
 type MockSkPath = {

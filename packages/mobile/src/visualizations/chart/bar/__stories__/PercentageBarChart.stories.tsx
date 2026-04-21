@@ -2,7 +2,7 @@ import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { assets } from '@coinbase/cds-common/internal/data/assets';
 import { IconButton } from '@coinbase/cds-mobile/buttons';
 import { Switch } from '@coinbase/cds-mobile/controls';
-import { ExampleScreen } from '@coinbase/cds-mobile/examples/ExampleScreen';
+import { Example, ExampleScreen } from '@coinbase/cds-mobile/examples/ExampleScreen';
 import { useTheme } from '@coinbase/cds-mobile/hooks/useTheme';
 import { Box, HStack, VStack } from '@coinbase/cds-mobile/layout';
 import { RollingNumber } from '@coinbase/cds-mobile/numbers';
@@ -764,7 +764,7 @@ function ExampleNavigator() {
             variant="secondary"
           />
         </HStack>
-        <Box padding={1}>{currentExample.component}</Box>
+        <Example>{currentExample.component}</Example>
       </VStack>
     </ExampleScreen>
   );
