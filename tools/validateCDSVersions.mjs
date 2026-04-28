@@ -4,28 +4,23 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 /** These packages are forced to be the same version! If you update this list,
- * you must also update the list in /libs/codegen/src/release/updatePkgsForGenericBump.ts
+ * you must also update the list in /libs/codegen/src/release/updatePkgsForGenericBump.mjs
  */
 const PACKAGES_TO_SYNC_VERSION = ['web', 'mobile', 'common', 'mcp-server'];
 
-const MONOREPO_ROOT = process.env.PROJECT_CWD ?? process.env.NX_MONOREPO_ROOT;
+const MONOREPO_ROOT = process.cwd();
 
-if (!MONOREPO_ROOT) throw Error('MONOREPO_ROOT is undefined');
-
-async function getPkgVersion(pkgJsonPath: string) {
+async function getPkgVersion(pkgJsonPath) {
   const pkgPath = path.dirname(pkgJsonPath);
   const pkgName = path.basename(pkgPath);
-  const pkg = JSON.parse(await fs.promises.readFile(pkgJsonPath, 'utf8')) as {
-    version: string;
-    name: string;
-  };
+  const pkg = JSON.parse(await fs.promises.readFile(pkgJsonPath, 'utf8'));
 
   console.info(chalk.gray(`${pkgName} version is ${pkg.version}.`));
 
   return pkg.version;
 }
 
-async function getChangelogVersion(changelogPath: string) {
+async function getChangelogVersion(changelogPath) {
   const changelogContent = fs.readFileSync(changelogPath, 'utf8');
   const versionHeaderRegex = /##\s(\d.*?)\s/;
   const versionHeaderMatch = changelogContent.match(versionHeaderRegex);
@@ -95,4 +90,7 @@ async function validateCDSVersions() {
   }
 }
 
-void validateCDSVersions();
+validateCDSVersions().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
