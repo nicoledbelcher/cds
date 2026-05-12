@@ -18,6 +18,34 @@ This is an artificial version bump with no new change.
 
 - Feat: CDS 9 release candidate 1.
 
+## 8.72.0 ((5/12/2026, 02:00 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.71.0 ((5/12/2026, 11:37 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.70.0 ((5/8/2026, 02:16 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.69.1 ((5/6/2026, 10:08 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.69.0 ((5/5/2026, 02:27 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.68.0 ((5/1/2026, 02:11 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.67.0 ((5/1/2026, 09:17 AM PST))
+
+This is an artificial version bump with no new change.
+
 ## 8.66.2 (4/28/2026 PST)
 
 #### 🐞 Fixes

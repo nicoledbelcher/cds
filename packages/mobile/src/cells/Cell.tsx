@@ -39,7 +39,8 @@ export type CellSpacing = Pick<
   | 'marginStart'
 >;
 
-export type CellBaseProps = SharedProps &
+export type CellBaseProps = BoxBaseProps &
+  SharedProps &
   LinkableProps &
   Pick<PressableProps, 'blendStyles'> & {
     /** Accessory element rendered at the end of the cell (e.g., chevron). */

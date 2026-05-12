@@ -18,6 +18,47 @@ This is an artificial version bump with no new change.
 
 - Feat: CDS 9 release candidate 1.
 
+## 8.72.0 (5/12/2026 PST)
+
+#### 🚀 Updates
+
+- Feat: support key Tag props in component configs. [[#671](https://github.com/coinbase/cds/pull/671)]
+
+## 8.71.0 (5/12/2026 PST)
+
+#### 🚀 Updates
+
+- Add icon glyph and progress circle styles to IconButton. [[#606](https://github.com/coinbase/cds/pull/606)]
+
+## 8.70.0 (5/8/2026 PST)
+
+#### 🚀 Updates
+
+- Feat: support active color on Tabs. [[#669](https://github.com/coinbase/cds/pull/669)]
+
+## 8.69.1 ((5/6/2026, 10:08 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.69.0 (5/5/2026 PST)
+
+#### 🚀 Updates
+
+- Fix: NavigationBar no longer reserves space for absent start content. [[#664](https://github.com/coinbase/cds/pull/664)]
+- Add collapsedStyle prop to Collapsible.[[#664](https://github.com/coinbase/cds/pull/664)]
+
+## 8.68.0 (5/1/2026 PST)
+
+#### 🚀 Updates
+
+- Feat: update bgWarning to orange60. [[#659](https://github.com/coinbase/cds/pull/659)]
+
+## 8.67.0 (5/1/2026 PST)
+
+#### 🚀 Updates
+
+- Feat: Add legalText prop to PageFooter component. [[#661](https://github.com/coinbase/cds/pull/661)]
+
 ## 8.66.2 (4/28/2026 PST)
 
 #### 🐞 Fixes

@@ -14,6 +14,12 @@ All notable changes to this project will be documented in this file.
 
 - Temporary unreleased changes - undo prior to CDS 9 release.
 
+## 3.8.0 (5/8/2026 PST)
+
+#### 🚀 Updates
+
+- Feat: support active color on Tabs. [[#669](https://github.com/coinbase/cds/pull/669)]
+
 ## 3.7.0 (4/20/2026 PST)
 
 #### 🚀 Updates
