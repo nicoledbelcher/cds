@@ -8,11 +8,35 @@ All notable changes to this project will be documented in this file.
 
 <!-- template-start -->
 
+## 9.0.0-rc.3 ((5/15/2026, 01:54 PM PST))
+
+This is an artificial version bump with no new change.
+
 ## 9.0.0-rc.2 ((4/30/2026, 08:17 AM PST))
 
 This is an artificial version bump with no new change.
 
 ## 9.0.0-rc.1 ((4/28/2026, 09:02 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.74.3 ((5/14/2026, 05:35 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.74.2 ((5/14/2026, 10:50 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.74.1 ((5/14/2026, 07:28 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.74.0 ((5/13/2026, 01:19 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.73.0 ((5/13/2026, 08:57 AM PST))
 
 This is an artificial version bump with no new change.
 

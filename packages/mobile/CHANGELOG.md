@@ -8,6 +8,12 @@ All notable changes to this project will be documented in this file.
 
 <!-- template-start -->
 
+## 9.0.0-rc.3 ((5/15/2026, 01:54 PM PST))
+
+#### 🚀 Updates
+
+- Feat: support illustration theming. [[#689](https://github.com/coinbase/cds/pull/689)]
+
 ## 9.0.0-rc.2 (4/30/2026 PST)
 
 #### 🐞 Fixes
@@ -19,6 +25,36 @@ All notable changes to this project will be documented in this file.
 #### 💥 Breaking
 
 - Feat: CDS 9 release candidate 1.
+
+## 8.74.3 ((5/14/2026, 05:35 PM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.74.2 ((5/14/2026, 10:50 AM PST))
+
+This is an artificial version bump with no new change.
+
+## 8.74.1 (5/14/2026 PST)
+
+#### 🐞 Fixes
+
+- Fix: adjust tabs default tab label padding. [[#682](https://github.com/coinbase/cds/pull/682)]
+
+## 8.74.0 (5/13/2026 PST)
+
+#### 🚀 Updates
+
+- Feat: add illustration theming via applyTheme prop. [[#672](https://github.com/coinbase/cds/pull/672)]
+
+## 8.73.0 (5/13/2026 PST)
+
+#### 🚀 Updates
+
+- Feat: support more props on TextInputBaseProps. [[#679](https://github.com/coinbase/cds/pull/679)]
+
+#### 🐞 Fixes
+
+- Fix: tabs props spreaidng order. [[#679](https://github.com/coinbase/cds/pull/679)]
 
 ## 8.72.0 (5/12/2026 PST)
 
