@@ -8,6 +8,12 @@ All notable changes to this project will be documented in this file.
 
 <!-- template-start -->
 
+## 8.74.4 (5/17/2026 PST)
+
+#### 🐞 Fixes
+
+- Use 8px gap between Alert action buttons to align with ButtonGroup spec. [[#690](https://github.com/coinbase/cds/pull/690)]
+
 ## 8.74.3 (5/14/2026 PST)
 
 #### 🐞 Fixes
