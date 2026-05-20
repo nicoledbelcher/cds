@@ -14,6 +14,18 @@ export type CliArgs = {
   transform?: string[];
   /** When set, only rewrite imports from this npm scope (e.g. coinbase or @coinbase). */
   packageScope?: string;
+  /**
+   * Map import source prefixes before transforms run their regex matching.
+   * Use this when a wrapper or re-exporting package stands between call sites and
+   * the CDS package, so transforms process those call sites as if they imported
+   * from CDS directly.
+   *
+   * Format: `'<from>=<to>'`  e.g. `'@acme/shared/cds=@coinbase/cds-web'`
+   *
+   * May be repeated for multiple mappings. Entries in `cds-migrator.config.json`
+   * are merged with these flags; CLI wins when the same `from` path appears in both.
+   */
+  importMapping?: string[];
 };
 
 export function parseCliArgs(): CliArgs {
@@ -36,6 +48,11 @@ export function parseCliArgs(): CliArgs {
     .option(
       '-ps, --package-scope <scope>',
       'Only rewrite imports from this npm scope (e.g. coinbase or @coinbase). Omit to include every scope',
+    )
+    .option(
+      '--import-mapping <mapping...>',
+      "Map an import source prefix to another before transforms run (format: '<from>=<to>', repeatable). " +
+        "Example: '@acme/shared/cds=@coinbase/cds-web'. Merged with cds-migrator.config.json; CLI wins on conflicts.",
     );
 
   program.parse();
@@ -52,5 +69,6 @@ export function parseCliArgs(): CliArgs {
     partial: options.partial,
     transform: options.transform,
     packageScope: options.packageScope,
+    importMapping: options.importMapping,
   };
 }
