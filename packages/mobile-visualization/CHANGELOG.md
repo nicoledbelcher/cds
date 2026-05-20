@@ -8,11 +8,13 @@ All notable changes to this project will be documented in this file.
 
 <!-- template-start -->
 
-## Unreleased
+## 5.0.0 (5/20/2026 PST)
 
-#### 📘 Misc
+- **DEPRECATED** This package has been deprecated. Please import all visualization/chat components from the cds-mobile package.
 
-- Temporary unreleased changes - undo prior to CDS 9 release.
+#### 💥 Breaking
+
+- Visualization/chart components have been migrated to cds-mobile and re-exported for backwards compatibility. As a result, deep import paths will not resolve correctly on this version. Please import from the barrel file modules instead or migrate to the same components in cds-mobile.
 
 ## 3.8.0 (5/8/2026 PST)
 
