@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 
 <!-- template-start -->
 
-## 5.0.0 (5/20/2026 PST)
+## 4.0.0 (5/20/2026 PST)
 
 - **DEPRECATED** This package has been deprecated. Please import all visualization/chat components from the cds-web package.
 
