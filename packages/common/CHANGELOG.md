@@ -18,6 +18,7 @@ For more details and to help upgrading from CDS 8 using our automated migration 
 
 - Dropped various deprecated variables and utilities.
 - Read our upgrade guilde for more details!
+-
 
 ## 8.75.2 ((5/19/2026, 01:13 PM PST))
 
